@@ -1,209 +1,195 @@
-import Head from 'next/head'
+import {
+  BsFillCalendarFill,
+  BsFillInfoCircleFill,
+  BsFillPeopleFill,
+  BsMoonStarsFill,
+  BsPencilSquare,
+} from 'react-icons/bs';
+import { GrYoga } from 'react-icons/gr';
+import {
+  MapsComponent, LayersDirective, LayerDirective, Zoom, MarkersDirective, MarkerDirective, Marker, Inject
+} from '@syncfusion/ej2-react-maps';
+import Head from 'next/head';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Button, Col, Container, Image, Nav, Navbar, Row } from 'react-bootstrap';
+import { MAP_COORDINATES } from './config';
 
 export default function Home() {
+
+  const CourseCard = ({ alt, title, description, image, infoAge, infoLevel, infoGroup }) => {
+    const imageData = (
+      <Image src={image} fluid className="rounded-3 shadow" />
+    );
+    const contentData = (
+      <>
+        <h2 className={'display-5' + ' ' + (alt ? 'text-end' : '')}>{title}</h2>
+        <div className="text-justify">
+          {description}
+          <Row className="mt-4 text-center">
+            <Col>
+              <BsFillCalendarFill className="icon me-2" />
+              <strong className="h5">Âge</strong>
+              <br />
+              <span>{infoAge}</span>
+            </Col>
+            <Col>
+              <BsMoonStarsFill className="icon me-2" />
+              <strong className="h5">Niveau</strong>
+              <br />
+              <span>{infoLevel}</span>
+            </Col>
+            <Col>
+              <BsFillPeopleFill className="icon me-2" />
+              <strong className="h5">Groupe</strong>
+              <br />
+              <span>{infoGroup}</span>
+            </Col>
+            <Col xs={12}>
+              <Button variant="success" className="mt-4">
+                <BsFillInfoCircleFill className="icon me-2" />
+                Informations pratiques et inscription
+              </Button>
+            </Col>
+          </Row>
+        </div>
+      </>
+    );
+    return (
+      <div className="py-2 course-card" style={{ backgroundColor: alt ? 'white' : '#f7f7f7' }}>
+        <Container>
+          <Row className="align-items-center">
+            <Col className="p-5">
+              {alt ? contentData : imageData}
+            </Col>
+            <Col className="px-5">
+              {alt ? imageData : contentData}
+            </Col>
+          </Row>
+        </Container>
+      </div>
+    );
+  }
+
   return (
-    <div className="container">
+    <div style={{ height: '100%' }}>
       <Head>
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+      <Navbar bg="light" fixed="top" className="shadow" style={{ '--bs-bg-opacity': 0.95 }}>
+        <Container>
+          <Navbar.Brand href="#home">
+            <GrYoga className="icon me-2" />
+            Yoga Sof
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+          <Navbar.Collapse id="responsive-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link href="#features" style={{ borderBottom: '5px solid purple' }}>Le yoga</Nav.Link>
+              <Nav.Link href="#pricing">Les séances</Nav.Link>
+              <Nav.Link href="#pricing">À propos</Nav.Link>
+            </Nav>
+            <Nav>
+              <Nav.Link href="#deets">
+                <Button>
+                  <BsPencilSquare className="icon me-2" />
+                  Inscription à un cours
+                </Button>
+              </Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
 
-        <p className="description">
-          Get started by editing <code>pages/index.js</code>
-        </p>
+      <div className="shadow" style={{ background: 'url(./stock/woman_stretch_cropped.jpg) center center / cover no-repeat', width: '100%', height: '50vh', position: 'relative' }} />
 
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+      <CourseCard
+        title="Séances de yoga adulte"
+        description={(
+          <>
+            J'enseigne un hatha yoga doux et respectueux de votre corps, dans la bonne humeur et en petit groupe ou en individuel, à mon domicile à Hésingue. J'adapte les postures selon votre morphologie, votre force et votre souplesse, en toute bienveillance et loin de tout inconfort. Les séances sont progressives et incluent des postures, pranayamas relaxations ainsi qu'un travail mental pour vous amener à ressentir les bienfaits de votre pratique et progresser sur le chemin de la connaissance de vous. Tous niveaux.
+          </>
+        )}
+        image="/stock/woman_baby.jpg"
+        infoAge="Adultes"
+        infoLevel="Tous"
+        infoGroup="4 à 6 adultes"
+      />
 
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+      <div className="skewed-1" />
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="card"
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+      <CourseCard
+        title="Séances de yoga enfant"
+        description={(
+          <>
+            J'anime des pratiques de yoga ludiques et adaptées pour les enfants de 6-11 ans en petit groupe, à Hésingue. Elles sont une voie d'exploration, d'expression et de sagesse, un moyen bienveillant pour les enfants d'explorer leurs capacités et étendre leurs frontières, d'améliorer la conscience d'eux-mêmes et des autres, développer leurs capacités à reconnaître et accueillir leurs pensées et leurs émotions. Les postures sont nommées sur la thématique de la nature pour renforcer les liens de l'enfant et la nature.
+          </>
+        )}
+        image="/stock/woman_baby.jpg"
+        infoAge="6 à 11 ans"
+        infoLevel="Initiation"
+        infoGroup="2 à 3 enfants"
+        alt
+      />
 
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="card"
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+      <div className="skewed-2" />
+
+      <CourseCard
+        title="Séances de yoga parent-enfant"
+        description={(
+          <>
+            J'anime des ateliers de yoga en tandem parent(enfant de 4-6 ans, en petits groupes à Hésingue. Je les propose comme un moment de partage et de complicité où l'adulte (le parent ou grand-parent) se laisse guider dans sa pratique avec l'enfant, une pause privilégiée  à vivre loin de la dispersion et l'agitation du monde actuel. Il s'agit d'une approche ludique du yoga intégrant des petites histoires, contes ou chansons amusantes qui sollicite l'imaginaire et va renforcer le lien de l'adulte avec l'enfant.
+          </>
+        )}
+        image="/stock/woman_baby.jpg"
+        infoAge="4 à 6 ans"
+        infoLevel="Tous"
+        infoGroup="2 à 3 enfants"
+      />
+
+      <div className="shadow" style={{ background: 'url(./stock/nature.jpg) center center / cover no-repeat', width: '100%' }}>
+        <div className="text-white p-4 text-center" style={{ width: '100%' }}>
+          <blockquote className="blockquote">
+            C'est à travers l'alignement de mon corps que j'ai découvert l'alignement de mon esprit, de mon Être et de mon intelligence
+          </blockquote>
+          <em>
+            Sri B.K.S Iyengar
+          </em>
         </div>
-      </main>
+      </div>
 
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel" className="logo" />
-        </a>
-      </footer>
+      <div className="py-4 shadow-lg" style={{ backgroundColor: '#dfdfdf', zIndex: 10 }}>
+        <Container>
+          <Row xs={1} md={3}>
+            <Col>
 
-      <style jsx>{`
-        .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
+            </Col>
+            <Col>
 
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
+            </Col>
+            <Col>
+              {/*<MapsComponent id="maps" zoomSettings={{ zoomFactor: 14 }} centerPosition={MAP_COORDINATES}>
+                <Inject services={[Marker, Zoom]}/>
+                <LayersDirective>
+                  <LayerDirective layerType='OSM'>
+                    <MarkersDirective>
+                      <MarkerDirective visible={true} height={50} width={50} dataSource={[
+                        {
+                          ...MAP_COORDINATES,
+                          name: "California"
+                        }
+                      ]}>
+                      </MarkerDirective>
+                    </MarkersDirective>
+                  </LayerDirective>
+                </LayersDirective>
+              </MapsComponent>*/}
+            </Col>
+          </Row>
+        </Container>
+      </div>
 
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer img {
-          margin-left: 0.5rem;
-        }
-
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .title a {
-          color: #0070f3;
-          text-decoration: none;
-        }
-
-        .title a:hover,
-        .title a:focus,
-        .title a:active {
-          text-decoration: underline;
-        }
-
-        .title {
-          margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
-        }
-
-        .title,
-        .description {
-          text-align: center;
-        }
-
-        .description {
-          line-height: 1.5;
-          font-size: 1.5rem;
-        }
-
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-
-        .grid {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-
-          max-width: 800px;
-          margin-top: 3rem;
-        }
-
-        .card {
-          margin: 1rem;
-          flex-basis: 45%;
-          padding: 1.5rem;
-          text-align: left;
-          color: inherit;
-          text-decoration: none;
-          border: 1px solid #eaeaea;
-          border-radius: 10px;
-          transition: color 0.15s ease, border-color 0.15s ease;
-        }
-
-        .card:hover,
-        .card:focus,
-        .card:active {
-          color: #0070f3;
-          border-color: #0070f3;
-        }
-
-        .card h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.5rem;
-        }
-
-        .card p {
-          margin: 0;
-          font-size: 1.25rem;
-          line-height: 1.5;
-        }
-
-        .logo {
-          height: 1em;
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            width: 100%;
-            flex-direction: column;
-          }
-        }
-      `}</style>
-
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-        }
-
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
     </div>
   )
 }

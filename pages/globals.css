@@ -1,0 +1,18 @@
+.icon {
+    vertical-align: -0.125em;
+}
+
+.text-justify {
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+.skewed-1 {
+    border-top: 100px solid #f7f7f7;
+    border-right: 98.5vw solid transparent;
+}
+
+.skewed-2 {
+    border-top: 100px solid transparent;
+    border-right: 98.5vw solid #f7f7f7;
+}
