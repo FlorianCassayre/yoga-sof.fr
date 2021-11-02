@@ -1,28 +1,23 @@
 import {
-  BsFillCalendarFill,
+  BsFillCalendarFill, BsFillCalendarWeekFill,
   BsFillInfoCircleFill,
   BsFillPeopleFill,
   BsMoonStarsFill,
-  BsPencilSquare,
+  BsStars,
 } from 'react-icons/bs';
-import { GrYoga } from 'react-icons/gr';
-import {
-  MapsComponent, LayersDirective, LayerDirective, Zoom, MarkersDirective, MarkerDirective, Marker, Inject
-} from '@syncfusion/ej2-react-maps';
-import Head from 'next/head';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Button, Col, Container, Image, Nav, Navbar, Row } from 'react-bootstrap';
-import { MAP_COORDINATES } from './config';
+import { Button, Col, Container, Image, Row } from 'react-bootstrap';
+import { PublicLayout } from '../components/PublicLayout';
+import Link from 'next/link';
 
-export default function Home() {
+export default function Home({ pathname }) {
 
-  const CourseCard = ({ alt, title, description, image, infoAge, infoLevel, infoGroup }) => {
+  const CourseCard = ({ alt, title, description, image, infoAge, infoLevel, infoGroup, urlSection }) => {
     const imageData = (
       <Image src={image} fluid className="rounded-3 shadow" />
     );
     const contentData = (
       <>
-        <h2 className={'display-5' + ' ' + (alt ? 'text-end' : '')}>{title}</h2>
+        <h2 className={'display-6' + ' ' + (alt ? 'text-end' : '')}>{title}</h2>
         <div className="text-justify">
           {description}
           <Row className="mt-4 text-center">
@@ -45,17 +40,20 @@ export default function Home() {
               <span>{infoGroup}</span>
             </Col>
             <Col xs={12}>
-              <Button variant="success" className="mt-4">
-                <BsFillInfoCircleFill className="icon me-2" />
-                Informations pratiques et inscription
-              </Button>
+              <Link href={`/seances#${urlSection}`}>
+                <Button variant="success" className="mt-4">
+                  <BsFillInfoCircleFill className="icon me-2" />
+                  Informations pratiques et inscription
+                </Button>
+              </Link>
             </Col>
           </Row>
         </div>
       </>
     );
+
     return (
-      <div className="py-2 course-card" style={{ backgroundColor: alt ? 'white' : '#f7f7f7' }}>
+      <div className="py-2 course-card" style={{ backgroundColor: alt ? '#fcfcfc' : '#f7f7f7' }}>
         <Container>
           <Row className="align-items-center">
             <Col className="p-5">
@@ -71,38 +69,14 @@ export default function Home() {
   }
 
   return (
-    <div style={{ height: '100%' }}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <Navbar bg="light" fixed="top" className="shadow" style={{ '--bs-bg-opacity': 0.95 }}>
-        <Container>
-          <Navbar.Brand href="#home">
-            <GrYoga className="icon me-2" />
-            Yoga Sof
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-          <Navbar.Collapse id="responsive-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link href="#features" style={{ borderBottom: '5px solid purple' }}>Le yoga</Nav.Link>
-              <Nav.Link href="#pricing">Les séances</Nav.Link>
-              <Nav.Link href="#pricing">À propos</Nav.Link>
-            </Nav>
-            <Nav>
-              <Nav.Link href="#deets">
-                <Button>
-                  <BsPencilSquare className="icon me-2" />
-                  Inscription à un cours
-                </Button>
-              </Nav.Link>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-
-      <div className="shadow" style={{ background: 'url(./stock/woman_stretch_cropped.jpg) center center / cover no-repeat', width: '100%', height: '50vh', position: 'relative' }} />
+    <PublicLayout pathname={pathname}>
+      <div className="shadow header-image" style={{ width: '100%', height: '50vh', position: 'relative' }}>
+        <div className="text-white text-center p-4" style={{ position: 'absolute', bottom: 0, width: '100%', textShadow: '2px 2px 4px #000000', zIndex: 100 }}>
+          <h1 className="display-1">Yoga Sof</h1>
+          <br />
+          <span className="fs-2">Coach de yoga à Hésingue</span>
+        </div>
+      </div>
 
       <CourseCard
         title="Séances de yoga adulte"
@@ -115,6 +89,7 @@ export default function Home() {
         infoAge="Adultes"
         infoLevel="Tous"
         infoGroup="4 à 6 adultes"
+        urlSection="adulte"
       />
 
       <div className="skewed-1" />
@@ -130,6 +105,7 @@ export default function Home() {
         infoAge="6 à 11 ans"
         infoLevel="Initiation"
         infoGroup="2 à 3 enfants"
+        urlSection="enfant"
         alt
       />
 
@@ -146,9 +122,10 @@ export default function Home() {
         infoAge="4 à 6 ans"
         infoLevel="Tous"
         infoGroup="2 à 3 enfants"
+        urlSection="parent-enfant"
       />
 
-      <div className="shadow" style={{ background: 'url(./stock/nature.jpg) center center / cover no-repeat', width: '100%' }}>
+      <div className="shadow quote-image" style={{ width: '100%' }}>
         <div className="text-white p-4 text-center" style={{ width: '100%' }}>
           <blockquote className="blockquote">
             C'est à travers l'alignement de mon corps que j'ai découvert l'alignement de mon esprit, de mon Être et de mon intelligence
@@ -159,37 +136,37 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="py-4 shadow-lg" style={{ backgroundColor: '#dfdfdf', zIndex: 10 }}>
+      <div className="py-5 course-card" style={{ backgroundColor: '#f7f7f7' }}>
         <Container>
-          <Row xs={1} md={3}>
-            <Col>
-
+          <Row className="text-center my-4">
+            <Col className="px-4">
+              <h3>
+                <BsFillPeopleFill className="icon me-2" />
+                Effectifs réduits
+              </h3>
+              Les séances se déroulent toujours en petit nombre est sera attentive à vos postures.
             </Col>
-            <Col>
-
+            <Col className="px-4">
+              <h3>
+                <BsStars className="icon me-2"/>
+                Personnalisation
+              </h3>
+              Chaque séance est unique, la coach est à l'écoute de votre corps et va adapter les positions en fonction de votre physionomie, de votre âge et de votre expérience.
             </Col>
-            <Col>
-              {/*<MapsComponent id="maps" zoomSettings={{ zoomFactor: 14 }} centerPosition={MAP_COORDINATES}>
-                <Inject services={[Marker, Zoom]}/>
-                <LayersDirective>
-                  <LayerDirective layerType='OSM'>
-                    <MarkersDirective>
-                      <MarkerDirective visible={true} height={50} width={50} dataSource={[
-                        {
-                          ...MAP_COORDINATES,
-                          name: "California"
-                        }
-                      ]}>
-                      </MarkerDirective>
-                    </MarkersDirective>
-                  </LayerDirective>
-                </LayersDirective>
-              </MapsComponent>*/}
+            <Col className="px-4">
+              <h3>
+                <BsFillCalendarWeekFill className="icon me-2" />
+                Flexibilité
+              </h3>
+              Chaque séance peut être choisie "à la carte" et ne vous engage pas sur la durée.
             </Col>
           </Row>
         </Container>
       </div>
-
-    </div>
+    </PublicLayout>
   )
+}
+
+Home.getInitialProps = ({ pathname })  => {
+  return { pathname };
 }
