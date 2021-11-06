@@ -1,5 +1,5 @@
 import { Container } from 'react-bootstrap';
-import { PublicLayout } from '../components/PublicLayout';
+import { PublicLayout } from '../components/layout/public';
 
 export default function CGU({ pathname }) {
   return (

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Badge, Button, Card, Col, Container, ProgressBar, Row } from 'react-bootstrap';
 import { BsCheck, BsCheck2 } from 'react-icons/bs';
-import { PublicLayout } from '../components/PublicLayout';
+import { PublicLayout } from '../components/layout/public';
 import DatePicker, { registerLocale } from 'react-datepicker';
 
 import { fr } from 'date-fns/locale';

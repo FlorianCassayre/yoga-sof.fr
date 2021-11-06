@@ -1,7 +1,10 @@
+import { getProviders, signIn } from 'next-auth/client';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { Button, Card, Col, Container, FloatingLabel, Form, Row } from 'react-bootstrap';
+import { BsGoogle } from 'react-icons/bs';
 
-export default function Connexion() {
+export default function Connexion({ providers }) {
 
   return (
     <div>
@@ -17,19 +20,15 @@ export default function Connexion() {
               <Card.Body>
                 <Card.Title className="mb-3">Connexion à l'intranet</Card.Title>
                 <Card.Text>
-                  <FloatingLabel
-                    controlId="floatingEmail"
-                    label="Adresse e-mail"
-                    className="mb-3"
-                  >
-                    <Form.Control type="email" placeholder="adresse@exemple.fr" />
-                  </FloatingLabel>
-                  <FloatingLabel controlId="floatingPassword" label="Mot de passe">
-                    <Form.Control type="password" placeholder="Mot de passe" />
-                  </FloatingLabel>
-                  <Form.Check type="checkbox" label="Rester connecté" className="mt-3" />
+                  {Object.values(providers).map((provider) => (
+                    <div key={provider.name}>
+                      <Button variant="secondary" size="lg" onClick={() => signIn(provider.id, { callbackUrl: `${window.location.origin}/administration` })} className="w-100">
+                        {provider.id === 'google' && <BsGoogle className="icon me-2" />}
+                        Se connecter avec <strong>{provider.name}</strong>
+                      </Button>
+                    </div>
+                  ))}
                 </Card.Text>
-                <Button variant="primary" type="submit" className="w-100">Me connecter</Button>
               </Card.Body>
             </Card>
           </Col>
@@ -39,4 +38,11 @@ export default function Connexion() {
 
     </div>
   );
+}
+
+export async function getServerSideProps(context) {
+  const providers = await getProviders();
+  return {
+    props: { providers },
+  }
 }

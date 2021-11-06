@@ -1,12 +1,15 @@
+import { RiDoubleQuotesL, RiDoubleQuotesR } from 'react-icons/ri';
 import {
+  BsChevronCompactDown,
+  BsDot,
   BsFillCalendarFill, BsFillCalendarWeekFill,
   BsFillInfoCircleFill,
   BsFillPeopleFill,
-  BsMoonStarsFill,
+  BsMoonStarsFill, BsSlashLg,
   BsStars,
 } from 'react-icons/bs';
 import { Button, Col, Container, Image, Row } from 'react-bootstrap';
-import { PublicLayout } from '../components/PublicLayout';
+import { PublicLayout } from '../components/layout/public';
 import Link from 'next/link';
 
 export default function Home({ pathname }) {
@@ -128,7 +131,9 @@ export default function Home({ pathname }) {
       <div className="shadow quote-image" style={{ width: '100%' }}>
         <div className="text-white p-4 text-center" style={{ width: '100%' }}>
           <blockquote className="blockquote">
+            <RiDoubleQuotesL className="icon me-2" />
             C'est à travers l'alignement de mon corps que j'ai découvert l'alignement de mon esprit, de mon Être et de mon intelligence
+            <RiDoubleQuotesR className="icon ms-2" />
           </blockquote>
           <em>
             Sri B.K.S Iyengar
@@ -144,13 +149,15 @@ export default function Home({ pathname }) {
                 <BsFillPeopleFill className="icon me-2" />
                 Effectifs réduits
               </h3>
-              Les séances se déroulent toujours en petit nombre est sera attentive à vos postures.
+              <div><BsDot className="icon" /></div>
+              Les séances se déroulent en petit nombre, ceci pour permettre à la coach d'être attentive à vos postures.
             </Col>
             <Col className="px-4">
               <h3>
                 <BsStars className="icon me-2"/>
                 Personnalisation
               </h3>
+              <div><BsDot className="icon" /></div>
               Chaque séance est unique, la coach est à l'écoute de votre corps et va adapter les positions en fonction de votre physionomie, de votre âge et de votre expérience.
             </Col>
             <Col className="px-4">
@@ -158,6 +165,7 @@ export default function Home({ pathname }) {
                 <BsFillCalendarWeekFill className="icon me-2" />
                 Flexibilité
               </h3>
+              <div><BsDot className="icon" /></div>
               Chaque séance peut être choisie "à la carte" et ne vous engage pas sur la durée.
             </Col>
           </Row>
