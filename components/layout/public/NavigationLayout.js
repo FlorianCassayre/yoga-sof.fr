@@ -14,7 +14,7 @@ export function NavigationLayout({ pathname }) {
   );
 
   return (
-    <Navbar bg="light" fixed="top" className="shadow" style={{ '--bs-bg-opacity': 0.95 }}>
+    <Navbar bg="light" fixed="top" expand="md" className="shadow" style={{ '--bs-bg-opacity': 0.95 }}>
       <Container>
         <Link href="/" passHref>
           <Navbar.Brand>
@@ -24,7 +24,7 @@ export function NavigationLayout({ pathname }) {
         </Link>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
-          <Nav className="me-auto">
+          <Nav className="me-auto text-center">
             <NavLink pathname="/">
               Accueil
             </NavLink>

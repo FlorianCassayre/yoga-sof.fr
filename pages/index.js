@@ -8,7 +8,7 @@ import {
   BsMoonStarsFill, BsSlashLg,
   BsStars,
 } from 'react-icons/bs';
-import { Button, Col, Container, Image, Row } from 'react-bootstrap';
+import { Alert, Button, Col, Container, Image, Row } from 'react-bootstrap';
 import { PublicLayout } from '../components/layout/public';
 import Link from 'next/link';
 
@@ -167,6 +167,18 @@ export default function Home({ pathname }) {
               </h3>
               <div><BsDot className="icon" /></div>
               Chaque séance peut être choisie "à la carte" et ne vous engage pas sur la durée.
+            </Col>
+          </Row>
+          <Row className="justify-content-center">
+            <Col xs={6}>
+              <Alert variant="primary">
+                <BsFillInfoCircleFill className="icon me-2" />
+                La première séance est gratuite, à la date de votre choix.
+                {' '}
+                <Link href="/inscription">
+                  <Alert.Link href="#">Je m'inscris</Alert.Link>
+                </Link>
+              </Alert>
             </Col>
           </Row>
         </Container>

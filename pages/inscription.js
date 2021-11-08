@@ -109,6 +109,7 @@ export default function Inscription({ pathname }) {
       <Container className="py-5">
         <h2 className="display-6">Inscription à une ou plusieurs séance(s) de yoga</h2>
         <ul>
+          <li>La première séance est gratuite</li>
           <li>L'inscription à une séance est nécessaire pour y assister</li>
           <li>Les séances peuvent être choisies à l'unité</li>
           <li>Il est possible de reporter une séance déjà réservée, merci de nous écrire à l'avance par email</li>

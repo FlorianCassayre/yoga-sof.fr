@@ -12,10 +12,15 @@ export function NavigationLayout({ pathname, children }) {
               <span className="fs-5">B<span className="d-none d-sm-inline">rand</span></span>
             </a>
 
-            <Nav variant="pills" className="flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto mb-0 justify-content-center align-items-center align-items-sm-start">
-              <Nav.Item>
+            <Nav variant="pills" className="w-100 flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto justify-content-center align-items-center align-items-sm-start">
+              <Nav.Item className="mb-2 me-2 flex-grow-1 w-100">
                 <Nav.Link href="/home" active>
-                  <span className="ms-1 d-sm-inline w-100">Home</span>
+                  <span className="ms-1 d-sm-inline">Home</span>
+                </Nav.Link>
+              </Nav.Item>
+              <Nav.Item className="mb-2 me-2 flex-grow-1 w-100">
+                <Nav.Link href="/home" active>
+                  <span className="ms-1 d-sm-inline">Home</span>
                 </Nav.Link>
               </Nav.Item>
             </Nav>
