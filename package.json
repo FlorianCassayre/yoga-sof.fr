@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "prisma-migrate": "prisma migrate dev --name init"
   },
   "dependencies": {
     "@fontsource/nunito": "^4.5.0",
+    "@prisma/client": "^3.7.0",
     "@syncfusion/ej2-react-maps": "^19.3.46",
     "bootstrap": "^5.1.3",
     "date-fns": "^2.25.0",

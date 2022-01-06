@@ -7,8 +7,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model admins {
+  email String @unique(map: "email") @db.VarChar(255)
+}
+
 model users {
-  id       Int    @id
-  email    String @unique(map: "email") @db.VarChar(255)
-  password String @db.VarChar(255)
+  id       Int    @id @default(autoincrement())
+  email    String @db.VarChar(255)
+  provider String @db.VarChar(255)
+  name     String @db.VarChar(255)
+
+  @@unique([email, provider], map: "email_provider_unique_constraint")
 }

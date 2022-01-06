@@ -1,11 +1,10 @@
 import { RiDoubleQuotesL, RiDoubleQuotesR } from 'react-icons/ri';
 import {
-  BsChevronCompactDown,
   BsDot,
   BsFillCalendarFill, BsFillCalendarWeekFill,
   BsFillInfoCircleFill,
   BsFillPeopleFill,
-  BsMoonStarsFill, BsSlashLg,
+  BsMoonStarsFill,
   BsStars,
 } from 'react-icons/bs';
 import { Alert, Button, Col, Container, Image, Row } from 'react-bootstrap';
