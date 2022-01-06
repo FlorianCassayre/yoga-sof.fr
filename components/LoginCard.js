@@ -1,6 +1,6 @@
 import { signIn } from 'next-auth/react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
-import { BsGoogle } from 'react-icons/bs';
+import { BsFacebook, BsGoogle } from 'react-icons/bs';
 
 export function LoginCard({ providers }) {
   const providersFormat = {
@@ -8,6 +8,10 @@ export function LoginCard({ providers }) {
       icon: BsGoogle,
       variant: 'secondary',
     },
+    facebook: {
+      icon: BsFacebook,
+      variant: 'primary',
+    }
   };
 
   return (
@@ -21,7 +25,7 @@ export function LoginCard({ providers }) {
               const format = providersFormat[provider.id];
               const Icon = format.icon;
               return (
-                <div key={provider.name}>
+                <div key={provider.name} className="mt-2">
                   <Button variant={format.variant} size="lg" onClick={() => signIn(provider.id, { callbackUrl: `${window.location.origin}/redirection` })} className="w-100">
                     <Icon className="icon me-2" />
                     Se connecter avec <strong>{provider.name}</strong>
