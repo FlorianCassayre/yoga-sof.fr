@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Badge, Button, Card, Col, Container, ProgressBar, Row } from 'react-bootstrap';
 import { BsCheck, BsCheck2 } from 'react-icons/bs';
+import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../components';
+import { AuthGuard } from '../components/layout/AuthGuard';
 import { PublicLayout } from '../components/layout/public';
 import DatePicker, { registerLocale } from 'react-datepicker';
 
@@ -105,30 +107,31 @@ export default function Inscription({ pathname }) {
   const courses = [1, 2, 3];
 
   return (
-    <PublicLayout pathname={pathname} padNavbar>
-      <Container className="py-5">
-        <h2 className="display-6">Inscription à une ou plusieurs séance(s) de yoga</h2>
-        <ul>
-          <li>La première séance est gratuite</li>
-          <li>L'inscription à une séance est nécessaire pour y assister</li>
-          <li>Les séances peuvent être choisies à l'unité</li>
-          <li>Il est possible de reporter une séance déjà réservée, merci de nous écrire à l'avance par email</li>
-        </ul>
-        <Row className="text-center mt-4">
-          {courses.map(step => (
-            <Col key={step} style={{ position: 'relative' }}>
-              <h3 className="m-0">
-                <Badge pill bg={step <= currentStep ? 'primary' : 'secondary'} style={{ border: 'solid white 5px' }}>{step}</Badge>
-              </h3>
-              {step < 3 && (
-                <ProgressBar now={step < currentStep ? 100 : 0} style={{ position: 'absolute', width: '100%', left: 0, top: '50%', transform: 'translate(50%, -50%)', zIndex: -10 }} />
-              )}
-            </Col>
-          ))}
-        </Row>
-        <Row className="text-center mb-5">
-          {courses.map(step => (
-            <Col key={step}>
+    <AuthGuard allowedUserTypes={[USER_TYPE_REGULAR, USER_TYPE_ADMIN]}>
+      <PublicLayout pathname={pathname} padNavbar>
+        <Container className="py-5">
+          <h2 className="display-6">Inscription à une ou plusieurs séance(s) de yoga</h2>
+          <ul>
+            <li>La première séance est gratuite</li>
+            <li>L'inscription à une séance est nécessaire pour y assister</li>
+            <li>Les séances peuvent être choisies à l'unité</li>
+            <li>Il est possible de reporter une séance déjà réservée, merci de nous écrire à l'avance par email</li>
+          </ul>
+          <Row className="text-center mt-4">
+            {courses.map(step => (
+              <Col key={step} style={{ position: 'relative' }}>
+                <h3 className="m-0">
+                  <Badge pill bg={step <= currentStep ? 'primary' : 'secondary'} style={{ border: 'solid white 5px' }}>{step}</Badge>
+                </h3>
+                {step < 3 && (
+                  <ProgressBar now={step < currentStep ? 100 : 0} style={{ position: 'absolute', width: '100%', left: 0, top: '50%', transform: 'translate(50%, -50%)', zIndex: -10 }} />
+                )}
+              </Col>
+            ))}
+          </Row>
+          <Row className="text-center mb-5">
+            {courses.map(step => (
+              <Col key={step}>
               <span className="text-muted">
                 {step === 1 ? (
                   <>Choix de la séance</>
@@ -138,18 +141,19 @@ export default function Inscription({ pathname }) {
                   <>Informations personnelles et règlement</>
                 )}
               </span>
-            </Col>
-          ))}
-        </Row>
-        {currentStep === 1 ? (
-          <Step1 />
-        ) : currentStep === 2 ? (
-          <Step2 />
-        ) : (
-          <Step3 />
-        )}
-      </Container>
-    </PublicLayout>
+              </Col>
+            ))}
+          </Row>
+          {currentStep === 1 ? (
+            <Step1 />
+          ) : currentStep === 2 ? (
+            <Step2 />
+          ) : (
+            <Step3 />
+          )}
+        </Container>
+      </PublicLayout>
+    </AuthGuard>
   );
 }
 

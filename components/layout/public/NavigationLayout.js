@@ -1,9 +1,19 @@
+import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
-import { Button, Container, Nav, Navbar } from 'react-bootstrap';
-import { BsPencilSquare } from 'react-icons/bs';
+import { useRouter } from 'next/router';
+import { Button, Container, Nav, Navbar, NavDropdown, Spinner } from 'react-bootstrap';
+import { BsBoxArrowRight, BsCalendarWeek, BsPencilSquare, BsPerson } from 'react-icons/bs';
 import { GrYoga } from 'react-icons/gr';
 
 export function NavigationLayout({ pathname }) {
+
+  const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
+  const sessionLoading = sessionStatus === 'loading';
+
+  const handleLogout = () => {
+    signOut({ redirect: false, callbackUrl: '/' }).then(data => router.push(data.url));
+  };
 
   const propsForPathname = pathnameOther => pathnameOther === pathname ? { active: true, className: 'navbar-page-active' } : {};
 
@@ -38,13 +48,41 @@ export function NavigationLayout({ pathname }) {
               À propos
             </NavLink>
           </Nav>
-          <Nav>
-            <Link href="/inscription">
-              <Button disabled={pathname === '/inscription'}>
-                <BsPencilSquare className="icon me-2" />
-                Je m'inscris à une séance
-              </Button>
-            </Link>
+          <Nav className="text-center">
+            {sessionLoading ? (
+              <Spinner animation="border" />
+            ) : session ? (
+              <NavDropdown title={(
+                <>
+                  <BsPerson className="icon me-2" />
+                  {session.session.user.name}
+                </>
+              )} id="nav-dropdown">
+                <Link href="/inscription" passHref>
+                  <NavDropdown.Item>
+                    <BsPencilSquare className="icon me-2" />
+                    Inscription à un cours
+                  </NavDropdown.Item>
+                </Link>
+                <NavDropdown.Item>
+                  <BsCalendarWeek className="icon me-2" />
+                  Mes cours inscrits
+                </NavDropdown.Item>
+                <NavDropdown.Divider />
+                <NavDropdown.Item onClick={handleLogout}>
+                  <BsBoxArrowRight className="icon me-2" />
+                  Déconnexion
+                </NavDropdown.Item>
+              </NavDropdown>
+            ) : (
+              <Link href="/inscription">
+                <Button disabled={pathname === '/inscription'}>
+                  <BsPencilSquare className="icon me-2" />
+                  Je m'inscris à une séance
+                </Button>
+              </Link>
+            )}
+
           </Nav>
         </Navbar.Collapse>
       </Container>

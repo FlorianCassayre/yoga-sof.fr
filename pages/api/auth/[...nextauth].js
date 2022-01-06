@@ -1,6 +1,7 @@
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
+import { USER_TYPE_REGULAR } from '../../../components';
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -54,9 +55,12 @@ export default NextAuth({
         // Or you can return a URL to redirect to:
         // return '/unauthorized'
       }
-    }
+    },
     // async redirect(url, baseUrl) { return baseUrl },
-    // async session(session, user) { return session },
+    async session(session, user) {
+      session.userType = USER_TYPE_REGULAR;
+      return session;
+    },
     // async jwt(token, user, account, profile, isNewUser) { return token }
   },
   events: {},

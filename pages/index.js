@@ -118,7 +118,7 @@ export default function Home({ pathname }) {
         title="Séances de yoga parent-enfant"
         description={(
           <>
-            J'anime des ateliers de yoga en tandem parent(enfant de 4-6 ans, en petits groupes à Hésingue. Je les propose comme un moment de partage et de complicité où l'adulte (le parent ou grand-parent) se laisse guider dans sa pratique avec l'enfant, une pause privilégiée  à vivre loin de la dispersion et l'agitation du monde actuel. Il s'agit d'une approche ludique du yoga intégrant des petites histoires, contes ou chansons amusantes qui sollicite l'imaginaire et va renforcer le lien de l'adulte avec l'enfant.
+            J'anime des ateliers de yoga en tandem parent-enfant de 4-6 ans, en petits groupes à Hésingue. Je les propose comme un moment de partage et de complicité où l'adulte (le parent ou grand-parent) se laisse guider dans sa pratique avec l'enfant, une pause privilégiée  à vivre loin de la dispersion et l'agitation du monde actuel. Il s'agit d'une approche ludique du yoga intégrant des petites histoires, contes ou chansons amusantes qui sollicite l'imaginaire et va renforcer le lien de l'adulte avec l'enfant.
           </>
         )}
         image="/stock/woman_baby.jpg"
@@ -175,8 +175,8 @@ export default function Home({ pathname }) {
                 <BsFillInfoCircleFill className="icon me-2" />
                 La première séance est gratuite, à la date de votre choix.
                 {' '}
-                <Link href="/inscription">
-                  <Alert.Link href="#">Je m'inscris</Alert.Link>
+                <Link href="/inscription" passHref>
+                  <Alert.Link>Je m'inscris</Alert.Link>
                 </Link>
               </Alert>
             </Col>

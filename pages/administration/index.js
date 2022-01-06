@@ -1,4 +1,4 @@
-import { PrivateLayout } from '../../components/layout/private';
+import { PrivateLayout } from '../../components/layout/admin';
 
 export default function HomeAdmin({ pathname }) {
   return (
