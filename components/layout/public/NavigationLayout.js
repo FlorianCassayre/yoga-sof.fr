@@ -62,7 +62,7 @@ export function NavigationLayout({ pathname }) {
               <NavDropdown title={(
                 <>
                   <BsPerson className="icon me-2" />
-                  {session.session.user.name}
+                  {session.user.name}
                 </>
               )} id="nav-dropdown">
                 {session.userType === USER_TYPE_ADMIN && (

@@ -60,8 +60,8 @@ export default NextAuth({
       }
     },
     // async redirect(url, baseUrl) { return baseUrl },
-    async session(session, user) {
-      const email = session.session.user.email;
+    async session({ session, user, token }) {
+      const email = session.user.email;
       const isAdmin = !!(await prisma.admins.count(
         {
           where: {
@@ -70,9 +70,34 @@ export default NextAuth({
         }
       ));
       session.userType = isAdmin ? USER_TYPE_ADMIN : USER_TYPE_REGULAR;
+      session.user.provider = token.provider;
+      session.user.id_provider = token.id_provider;
+
+      const userDbData = {
+        id_provider: token.id_provider,
+        email: email,
+        provider: token.provider,
+        name: session.user.name,
+      };
+      await prisma.users.upsert({
+        where: {
+          id_provider_provider: {
+            id_provider: userDbData.id_provider,
+            provider: userDbData.provider,
+          },
+        },
+        update: userDbData,
+        create: userDbData,
+      });
+
       return session;
     },
-    // async jwt(token, user, account, profile, isNewUser) { return token }
+    async jwt({ token, user, account, profile, isNewUser }) {
+      if (user && account) {
+        token = { provider: account.provider, id_provider: user.id, ...token };
+      }
+      return token;
+    },
   },
   events: {},
   debug: false,

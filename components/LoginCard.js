@@ -1,19 +1,9 @@
 import { signIn } from 'next-auth/react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
 import { BsFacebook, BsGoogle } from 'react-icons/bs';
+import { providersData } from './providers';
 
 export function LoginCard({ providers }) {
-  const providersFormat = {
-    google: {
-      icon: BsGoogle,
-      variant: 'secondary',
-    },
-    facebook: {
-      icon: BsFacebook,
-      variant: 'primary',
-    }
-  };
-
   return (
     <Row className="justify-content-center">
       <Col xs={12} sm={8} md={6} lg={5} xl={4}>
@@ -22,7 +12,7 @@ export function LoginCard({ providers }) {
             <Card.Title className="mb-3 text-center">Connexion</Card.Title>
             <Card.Text>Utilisez l'un des services ci-dessous pour vous connecter.</Card.Text>
             {Object.values(providers).map((provider) => {
-              const format = providersFormat[provider.id];
+              const format = providersData[provider.id];
               const Icon = format.icon;
               return (
                 <div key={provider.name} className="mt-2">
