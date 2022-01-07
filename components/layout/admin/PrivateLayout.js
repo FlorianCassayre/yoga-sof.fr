@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../../session';
-import { AuthGuard } from '../AuthGuard';
+import { AuthGuard } from '../../AuthGuard';
 import { NavigationLayout } from './NavigationLayout';
 
 export function PrivateLayout({ children, pathname }) {

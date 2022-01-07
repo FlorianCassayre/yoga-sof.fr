@@ -1,6 +1,6 @@
 import { PrivateLayout } from '../../components/layout/admin';
 
-export default function HomeAdmin({ pathname }) {
+export default function AdminHome({ pathname }) {
   return (
     <PrivateLayout pathname={pathname}>
       <h3>Vertical Sidebar that switches to Horizontal Navbar</h3>
@@ -25,6 +25,6 @@ export default function HomeAdmin({ pathname }) {
   )
 }
 
-HomeAdmin.getInitialProps = ({ pathname })  => {
+AdminHome.getInitialProps = ({ pathname })  => {
   return { pathname };
 }

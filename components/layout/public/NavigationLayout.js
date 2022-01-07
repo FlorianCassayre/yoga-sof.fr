@@ -2,8 +2,15 @@ import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Button, Container, Nav, Navbar, NavDropdown, Spinner } from 'react-bootstrap';
-import { BsBoxArrowRight, BsCalendarWeek, BsPencilSquare, BsPerson } from 'react-icons/bs';
+import {
+  BsBoxArrowRight,
+  BsCalendarWeek,
+  BsPencilSquare,
+  BsPerson,
+  BsSpeedometer2,
+} from 'react-icons/bs';
 import { GrYoga } from 'react-icons/gr';
+import { USER_TYPE_ADMIN } from '../../session';
 
 export function NavigationLayout({ pathname }) {
 
@@ -11,7 +18,7 @@ export function NavigationLayout({ pathname }) {
   const { data: session, status: sessionStatus } = useSession();
   const sessionLoading = sessionStatus === 'loading';
 
-  const handleLogout = () => {
+  const handleSignOut = () => {
     signOut({ redirect: false, callbackUrl: '/' }).then(data => router.push(data.url));
   };
 
@@ -58,6 +65,17 @@ export function NavigationLayout({ pathname }) {
                   {session.session.user.name}
                 </>
               )} id="nav-dropdown">
+                {session.userType === USER_TYPE_ADMIN && (
+                  <>
+                    <Link href="/administration" passHref>
+                      <NavDropdown.Item>
+                        <BsSpeedometer2 className="icon me-2" />
+                        Administration
+                      </NavDropdown.Item>
+                    </Link>
+                    <NavDropdown.Divider />
+                  </>
+                )}
                 <Link href="/inscription" passHref>
                   <NavDropdown.Item>
                     <BsPencilSquare className="icon me-2" />
@@ -69,7 +87,7 @@ export function NavigationLayout({ pathname }) {
                   Mes cours inscrits
                 </NavDropdown.Item>
                 <NavDropdown.Divider />
-                <NavDropdown.Item onClick={handleLogout}>
+                <NavDropdown.Item onClick={handleSignOut}>
                   <BsBoxArrowRight className="icon me-2" />
                   Déconnexion
                 </NavDropdown.Item>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Badge, Button, Card, Col, Container, ProgressBar, Row } from 'react-bootstrap';
 import { BsCheck, BsCheck2 } from 'react-icons/bs';
 import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../components';
-import { AuthGuard } from '../components/layout/AuthGuard';
+import { AuthGuard } from '../components/AuthGuard';
 import { PublicLayout } from '../components/layout/public';
 import DatePicker, { registerLocale } from 'react-datepicker';
 
