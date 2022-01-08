@@ -1,8 +1,9 @@
+import { BREADCRUMB_OVERVIEW } from '../../components';
 import { PrivateLayout } from '../../components/layout/admin';
 
 export default function AdminHome({ pathname }) {
   return (
-    <PrivateLayout pathname={pathname}>
+    <PrivateLayout pathname={pathname} breadcrumb={BREADCRUMB_OVERVIEW}>
       <h3>Vertical Sidebar that switches to Horizontal Navbar</h3>
       <p className="lead">An example multi-level sidebar with collasible menu items. The menu functions like an
         "accordion" where only a single menu is be open at a time.</p>

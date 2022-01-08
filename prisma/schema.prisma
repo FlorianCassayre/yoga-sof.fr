@@ -22,3 +22,36 @@ model users {
 
   @@unique([id_provider, provider], map: "id_provider_unique_constraint")
 }
+
+enum Role {
+  YOGA_ADULT
+  YOGA_CHILD
+  YOGA_ADULT_CHILD
+}
+
+// For validation, follow:
+// https://github.com/prisma/prisma/issues/3102
+// https://github.com/prisma/prisma/issues/3388
+
+model session_model {
+  id          Int @id @default(autoincrement())
+  type        Role
+  spots       Int @db.UnsignedInt
+  weekday     Int @db.UnsignedTinyInt
+  time_start  DateTime @db.Time(0)
+  time_end    DateTime @db.Time(0)
+  is_main     Boolean @default(true)
+  is_archived Boolean @default(false)
+  sessions    session[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model session {
+  id               Int @id @default(autoincrement())
+  session_model    session_model @relation(fields: [session_model_id], references: [id])
+  session_model_id Int
+  date_start       DateTime @db.Timestamp(0)
+  date_end         DateTime @db.Timestamp(0)
+  is_canceled      Boolean @default(false)
+}

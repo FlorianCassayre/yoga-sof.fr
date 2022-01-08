@@ -1,13 +1,14 @@
 import { useSession } from 'next-auth/react';
+import { useState } from 'react';
 import { Badge, Button, Spinner, Table } from 'react-bootstrap';
-import { BsSearch } from 'react-icons/all';
-import { providersData, StarIndicator } from '../../components';
+import { BsSearch } from 'react-icons/bs';
+import { BREADCRUMB_USERS, PaginatedTable, providersData, StarIndicator } from '../../components';
 import { ErrorMessage } from '../../components';
 import { PrivateLayout } from '../../components/layout/admin';
 import { useDataApi } from '../../hooks';
 
 export default function AdminUsers({ pathname }) {
-  const [{ data, isLoading, isError, error }] = useDataApi('/api/users');
+  const [total, setTotal] = useState(null);
 
   const { data: sessionData } = useSession();
 
@@ -28,11 +29,11 @@ export default function AdminUsers({ pathname }) {
   }
 
   return (
-    <PrivateLayout pathname={pathname}>
+    <PrivateLayout pathname={pathname} breadcrumb={BREADCRUMB_USERS}>
       <h1 className="h4">
         Utilisateurs
-        {data && (
-          <Badge pill bg="secondary" className="ms-2">{data.length}</Badge>
+        {total !== null && (
+          <Badge pill bg="secondary" className="ms-2">{total}</Badge>
         )}
       </h1>
 
@@ -42,54 +43,67 @@ export default function AdminUsers({ pathname }) {
         Liste des utilisateurs s'étant connectés au moins une fois au site.
       </p>
 
-      {isLoading ? (
-        <div className="d-flex justify-content-center">
-          <Spinner animation="border" className="m-4" />
-        </div>
-      ) : isError ? (
-        <ErrorMessage error={error} />
-      ) : (
-        <Table striped bordered>
-          <thead>
-          <tr>
-            <th>#</th>
-            <th>Service</th>
-            <th>Adresse email</th>
-            <th>Nom</th>
-            <th>Dernière activité</th>
-            <th>Première connexion</th>
-            <th>Identifiant du service</th>
-            <th>Détails</th>
-          </tr>
-          </thead>
-          <tbody className="align-middle">
-          {data.map(({ id, id_provider: idProvider, email, provider, name, created_at: createdAt, updated_at: updatedAt }, i) => {
-            const { icon: Icon, name: providerName } = providersData[provider];
-            return (
-              <tr key={i}>
-                <td className="font-monospace">{id}</td>
-                <td className="text-center"><Icon className="icon" title={providerName} /></td>
-                <td className="font-monospace">
-                  {email}
-                  {email === sessionData.user.email && (
-                    <StarIndicator key={id} text="Votre compte" />
-                  )}
-                </td>
-                <td>{name}</td>
-                <td>{formatTimestamp(createdAt)}</td>
-                <td>{formatTimestamp(updatedAt)}</td>
-                <td className="font-monospace">{idProvider}</td>
-                <td className="text-center">
-                  <Button variant="secondary" disabled size="sm">
-                    <BsSearch className="icon" />
-                  </Button>
-                </td>
-              </tr>
-            );
-          })}
-          </tbody>
-        </Table>
-      )}
+      <PaginatedTable
+        urlFor={(page, resultsPerPage) => '/api/users'}
+        rowsFrom={rows => rows}
+        totalFrom={rows => rows.length}
+        columns={[
+          {
+            title: '#',
+            render: ({ id }) => id,
+          },
+          {
+            title: 'Service',
+            render: ({ provider }) => {
+              const { icon: Icon, name: providerName } = providersData[provider];
+              return <Icon className="icon" title={providerName} />;
+            },
+            props: {
+              className: 'text-center',
+            },
+          },
+          {
+            title: 'Adresse email',
+            render: ({ email }) => (
+              <>
+                <span className="font-monospace">{email}</span>
+                {sessionData.user.email === email && (
+                  <StarIndicator text="Il s'agit de votre compte" />
+                )}
+              </>
+            ),
+          },
+          {
+            title: 'Nom',
+            render: ({ name }) => name,
+          },
+          {
+            title: 'Dernière activité',
+            render: ({ updated_at: updatedAt }) => formatTimestamp(updatedAt),
+          },
+          {
+            title: 'Première activité',
+            render: ({ created_at: createdAt }) => formatTimestamp(createdAt),
+          },
+          {
+            title: 'Identifiant du service',
+            render: ({ id_provider: idProvider }) => <span className="font-monospace">{idProvider}</span>,
+          },
+          {
+            title: 'Détails',
+            render: () => (
+              <Button variant="secondary" disabled size="sm">
+                <BsSearch className="icon" />
+              </Button>
+            ),
+            props: {
+              className: 'text-center',
+            },
+          }
+        ]}
+        totalCallback={total => setTotal(total)}
+      />
+
     </PrivateLayout>
   );
 }

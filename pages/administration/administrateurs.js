@@ -1,20 +1,20 @@
 import { useSession } from 'next-auth/react';
-import { Badge, Spinner, Table } from 'react-bootstrap';
-import { ErrorMessage, StarIndicator } from '../../components';
+import { useState } from 'react';
+import { Badge } from 'react-bootstrap';
+import { BREADCRUMB_ADMINS, PaginatedTable, StarIndicator } from '../../components';
 import { PrivateLayout } from '../../components/layout/admin';
-import { useDataApi } from '../../hooks';
 
 export default function AdminAdmins({ pathname }) {
-  const [{ data, isLoading, isError, error }] = useDataApi('/api/admins');
   const { data: session } = useSession();
+  const [total, setTotal] = useState(null);
   const sessionEmail = session?.user.email;
 
   return (
-    <PrivateLayout pathname={pathname}>
+    <PrivateLayout pathname={pathname} breadcrumb={BREADCRUMB_ADMINS}>
       <h1 className="h4">
         Administrateurs
-        {data && (
-          <Badge pill bg="secondary" className="ms-2">{data.length}</Badge>
+        {total !== null && (
+          <Badge pill bg="secondary" className="ms-2">{total}</Badge>
         )}
       </h1>
 
@@ -25,33 +25,23 @@ export default function AdminAdmins({ pathname }) {
         Pour des raisons de sécurité, cette liste n'est pas directement modifiable depuis l'interface.
       </p>
 
-      {isLoading ? (
-        <div className="d-flex justify-content-center">
-          <Spinner animation="border" className="m-4" />
-        </div>
-      ) : isError ? (
-        <ErrorMessage error={error} />
-      ) : (
-        <Table striped bordered>
-          <thead>
-          <tr>
-            <th>Adresse email</th>
-          </tr>
-          </thead>
-          <tbody>
-          {data.map(({ email }, i) => (
-            <tr key={i}>
-              <td className="font-monospace">
-                {email}
-                {sessionEmail === email && (
-                  <StarIndicator key={i} text="Votre adresse" />
-                )}
-              </td>
-            </tr>
-          ))}
-          </tbody>
-        </Table>
-      )}
+      <PaginatedTable
+        urlFor={(page, resultsPerPage) => '/api/admins'}
+        rowsFrom={rows => rows}
+        totalFrom={rows => rows.length}
+        columns={[{
+          title: 'Adresse email',
+          render: ({ email }) => (
+            <>
+              <span className="font-monospace">{email}</span>
+              {sessionEmail === email && (
+                <StarIndicator text="Il s'agit de l'adresse de votre compte" />
+              )}
+            </>
+          ),
+        }]}
+        totalCallback={total => setTotal(total)}
+      />
     </PrivateLayout>
   );
 }

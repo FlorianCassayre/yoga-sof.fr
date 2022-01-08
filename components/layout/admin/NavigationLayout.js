@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Col, Container, Dropdown, Nav, Navbar, NavDropdown, Row } from 'react-bootstrap';
 import {
   BsBoxArrowRight,
-  BsBoxArrowUpRight, BsCalendarWeek, BsJournalText,
+  BsBoxArrowUpRight, BsCalendarWeek, BsCurrencyEuro, BsJournalText,
   BsKanban,
   BsLock, BsMailbox, BsPeople,
   BsPerson,
@@ -66,11 +66,11 @@ export function NavigationLayout({ pathname, children }) {
                   <BsBoxArrowUpRight className="icon ms-2" />
                 </a>
               </Link>
-              <NavItemTitle title="Général" />
               <NavItemLink pathname="/administration" icon={BsKanban} title="Aperçu" />
-              <NavItemTitle title="Cours" />
-              <NavItemLink pathname="/administration/cours" icon={BsJournalText} title="Cours et horaires" />
-              <NavItemLink pathname="/administration/reservations" icon={BsCalendarWeek} title="Réservations" />
+              <NavItemTitle title="Yoga" />
+              <NavItemLink pathname="/administration/seances" icon={BsJournalText} title="Séances et horaires" />
+              <NavItemLink pathname="/administration/inscriptions" icon={BsCalendarWeek} title="Inscriptions" />
+              <NavItemLink pathname="/administration/paiements" icon={BsCurrencyEuro} title="Factures et paiements" />
               <NavItemTitle title="Administration" />
               <NavItemLink pathname="/administration/administrateurs" icon={BsShieldLock} title="Administrateurs" />
               <NavItemLink pathname="/administration/utilisateurs" icon={BsPeople} title="Utilisateurs" />

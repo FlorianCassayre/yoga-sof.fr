@@ -1,9 +1,11 @@
 import Head from 'next/head';
-import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../../session';
+import { Breadcrumb } from 'react-bootstrap';
+import { USER_TYPE_ADMIN } from '../../session';
 import { AuthGuard } from '../../AuthGuard';
 import { NavigationLayout } from './NavigationLayout';
+import Link from 'next/link';
 
-export function PrivateLayout({ children, pathname }) {
+export function PrivateLayout({ children, pathname, breadcrumb }) {
   return (
     <AuthGuard allowedUserTypes={[USER_TYPE_ADMIN]}>
       <div>
@@ -13,6 +15,19 @@ export function PrivateLayout({ children, pathname }) {
         </Head>
 
         <NavigationLayout pathname={pathname}>
+          {breadcrumb && (
+            <Breadcrumb>
+              {breadcrumb.map(({ title, pathname: pathnameOther }, i) => pathnameOther && pathnameOther !== pathname ? (
+                <Link key={i} href={pathnameOther} passHref>
+
+                  <Breadcrumb.Item>{title}</Breadcrumb.Item>
+                </Link>
+              ) : (
+                <Breadcrumb.Item key={i} active>{title}</Breadcrumb.Item>
+              ))}
+            </Breadcrumb>
+          )}
+
           {children}
         </NavigationLayout>
 
