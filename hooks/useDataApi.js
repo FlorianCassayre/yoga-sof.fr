@@ -34,8 +34,8 @@ const dataFetchReducer = (state, action) => {
   }
 };
 
-export const useDataApi = (initialUrl, initialData = null) => {
-  const [url, setUrl] = useState(initialUrl);
+export const useDataApi = (url, initialParams, initialData = null) => {
+  const [params, setParams] = useState(initialParams);
 
   const [state, dispatch] = useReducer(dataFetchReducer, {
     isLoading: true,
@@ -50,7 +50,8 @@ export const useDataApi = (initialUrl, initialData = null) => {
     const fetchData = async () => {
       dispatch({ type: FETCH_INIT });
       try {
-        const json = await fetch(url).then(result => result.json());
+        const urlWithParams = params ? url + '?' + new URLSearchParams(params) : url;
+        const json = await fetch(urlWithParams).then(result => result.json());
 
         if (!didCancel) {
           dispatch({ type: FETCH_SUCCESS, payload: json });
@@ -67,7 +68,7 @@ export const useDataApi = (initialUrl, initialData = null) => {
     return () => {
       didCancel = true;
     };
-  }, [url]);
+  }, [params]);
 
-  return [state, setUrl];
+  return [state, setParams];
 };

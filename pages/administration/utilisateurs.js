@@ -44,9 +44,11 @@ export default function AdminUsers({ pathname }) {
       </p>
 
       <PaginatedTable
-        urlFor={(page, resultsPerPage) => '/api/users'}
-        rowsFrom={rows => rows}
-        totalFrom={rows => rows.length}
+        url="/api/users"
+        params={(page, limit) => ({
+          page,
+          limit,
+        })}
         columns={[
           {
             title: '#',

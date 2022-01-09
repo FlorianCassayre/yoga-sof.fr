@@ -26,9 +26,9 @@ export default function AdminAdmins({ pathname }) {
       </p>
 
       <PaginatedTable
-        urlFor={(page, resultsPerPage) => '/api/admins'}
-        rowsFrom={rows => rows}
+        url="/api/admins"
         totalFrom={rows => rows.length}
+        rowsFrom={rows => rows}
         columns={[{
           title: 'Adresse email',
           render: ({ email }) => (

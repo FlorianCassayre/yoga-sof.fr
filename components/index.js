@@ -7,3 +7,4 @@ export { StarIndicator } from './StarIndicator';
 export * from './breadcrumbs';
 export { PaginatedTable } from './PaginatedTable';
 export * from './sessions';
+export * from './permissions';
