@@ -2,19 +2,11 @@ import { useEffect, useReducer, useState } from 'react';
 
 // Inspired by: https://www.robinwieruch.de/react-hooks-fetch-data/
 
-const FETCH_INIT = 'FETCH_INIT';
 const FETCH_SUCCESS = 'FETCH_SUCCESS';
 const FETCH_FAILURE = 'FETCH_FAILURE';
 
 const dataFetchReducer = (state, action) => {
   switch (action.type) {
-    case FETCH_INIT:
-      return {
-        isLoading: true,
-        isError: false,
-        data: null,
-        error: null,
-      };
     case FETCH_SUCCESS:
       return {
         isLoading: false,
@@ -34,13 +26,13 @@ const dataFetchReducer = (state, action) => {
   }
 };
 
-export const useDataApi = (url, initialParams, initialData = null) => {
+export const useDataApi = (url, initialParams) => {
   const [params, setParams] = useState(initialParams);
 
   const [state, dispatch] = useReducer(dataFetchReducer, {
     isLoading: true,
     isError: false,
-    data: initialData,
+    data: null,
     error: null,
   });
 
@@ -48,7 +40,6 @@ export const useDataApi = (url, initialParams, initialData = null) => {
     let didCancel = false;
 
     const fetchData = async () => {
-      dispatch({ type: FETCH_INIT });
       try {
         const urlWithParams = params ? url + '?' + new URLSearchParams(params) : url;
         const json = await fetch(urlWithParams).then(result => result.json());

@@ -27,10 +27,10 @@ export function NavigationLayout({ pathname, children }) {
     </Nav.Item>
   );
 
-  const NavItemLink = ({ pathname: pathnameOther, icon: Icon, title }) => (
+  const NavItemLink = ({ pathname: pathnameOther, icon: Icon, title, exactPathname, disabled }) => (
     <NavItem>
       <Link href={pathnameOther} passHref>
-        <Nav.Link active={pathnameOther === pathname} className="px-2 py-1 px-sm-3 py-sm-2">
+        <Nav.Link active={exactPathname ? pathnameOther === pathname : pathname.startsWith(pathnameOther)} className="px-2 py-1 px-sm-3 py-sm-2" disabled={disabled}>
           <span className="d-sm-inline link-light">
             <Icon className="icon" />
             <span className="ms-2 d-none d-sm-inline">{title}</span>
@@ -54,8 +54,8 @@ export function NavigationLayout({ pathname, children }) {
         <Col xs={12} sm={5} md={4} lg={3} xl={2} className="px-sm-2 px-0 bg-dark d-flex sticky-top">
           <div className="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-3 pb-2 text-white">
             <Link href="/administration" passHref>
-              <a className="d-flex align-items-center mb-md-0 me-md-auto text-white text-decoration-none">
-                <span className="fs-5">Y<span className="d-none d-sm-inline">oga </span>S<span className="d-none d-sm-inline">of</span><span className="text-muted fs-6 d-none d-md-inline"> admin</span></span>
+              <a className="d-flex align-items-center mb-md-0 me-md-auto text-white text-decoration-none mb-2">
+                <span className="fs-5">Y<span className="d-none d-sm-inline">oga </span>S<span className="d-none d-sm-inline">of</span><span className="text-muted fs-6 d-none d-sm-inline"> admin</span></span>
               </a>
             </Link>
 
@@ -66,18 +66,18 @@ export function NavigationLayout({ pathname, children }) {
                   <BsBoxArrowUpRight className="icon ms-2" />
                 </a>
               </Link>
-              <NavItemLink pathname="/administration" icon={BsKanban} title="Aperçu" />
+              <NavItemLink pathname="/administration" exactPathname icon={BsKanban} title="Aperçu" />
               <NavItemTitle title="Yoga" />
               <NavItemLink pathname="/administration/seances" icon={BsJournalText} title="Séances et horaires" />
-              <NavItemLink pathname="/administration/inscriptions" icon={BsCalendarWeek} title="Inscriptions" />
-              <NavItemLink pathname="/administration/paiements" icon={BsCurrencyEuro} title="Factures et paiements" />
+              <NavItemLink pathname="/administration/inscriptions" icon={BsCalendarWeek} title="Inscriptions" disabled />
+              <NavItemLink pathname="/administration/paiements" icon={BsCurrencyEuro} title="Factures et paiements" disabled />
               <NavItemTitle title="Administration" />
               <NavItemLink pathname="/administration/administrateurs" icon={BsShieldLock} title="Administrateurs" />
               <NavItemLink pathname="/administration/utilisateurs" icon={BsPeople} title="Utilisateurs" />
-              <NavItemLink pathname="/administration/emails" icon={BsMailbox} title="Emails" />
+              <NavItemLink pathname="/administration/emails" icon={BsMailbox} title="Emails" disabled />
             </Nav>
 
-            <Dropdown as={Nav.Item} className="py-sm-4 mt-sm-auto ms-auto ms-sm-0 flex-shrink-1">
+            <Dropdown as={Nav.Item} className="py-sm-4 mt-sm-auto ms-auto ms-sm-0 flex-shrink-1 mb-2">
               <Dropdown.Toggle as={Nav.Link} className="link-light">
                 <BsPerson className="icon" />
                 <span className="ms-2 d-none d-sm-inline">{sessionData.user.name}</span>

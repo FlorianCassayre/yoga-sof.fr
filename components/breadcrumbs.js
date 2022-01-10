@@ -1,3 +1,5 @@
+import { SESSIONS_TYPES } from './sessions';
+
 export const BREADCRUMB_BASE = [{
   title: 'Yoga Sof',
   pathname: '/administration',
@@ -39,4 +41,14 @@ export const BREADCRUMB_SESSIONS = [...BREADCRUMB_CATEGORY_YOGA, {
 export const BREADCRUMB_SESSION_CREATE = [...BREADCRUMB_SESSIONS, {
   title: 'Création',
   pathname: '/administration/seances/creation',
+}];
+
+export const breadcrumbForSessionId = sessionId => [...BREADCRUMB_SESSIONS, {
+  title: `Séance "${SESSIONS_TYPES.filter(session => session.id === sessionId).map(({ title }) => title)[0]}"`,
+  //pathname: `/administration/seances/${sessionId}`,
+}];
+
+export const breadcrumbForSessionIdEdit = sessionId => [...breadcrumbForSessionId(sessionId), {
+  title: 'Edition',
+  //pathname: `/administration/seances/${sessionId}/edition`,
 }];

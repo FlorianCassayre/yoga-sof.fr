@@ -1,10 +1,8 @@
-import { PrismaClient } from '@prisma/client';
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../../../components';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../../server';
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options

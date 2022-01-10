@@ -29,15 +29,7 @@ export default function AdminUsers({ pathname }) {
   }
 
   return (
-    <PrivateLayout pathname={pathname} breadcrumb={BREADCRUMB_USERS}>
-      <h1 className="h4">
-        Utilisateurs
-        {total !== null && (
-          <Badge pill bg="secondary" className="ms-2">{total}</Badge>
-        )}
-      </h1>
-
-      <hr />
+    <PrivateLayout pathname={pathname} title="Utilisateurs" count={total} breadcrumb={BREADCRUMB_USERS}>
 
       <p>
         Liste des utilisateurs s'étant connectés au moins une fois au site.

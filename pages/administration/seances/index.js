@@ -1,40 +1,27 @@
-import { Card, Col, Row } from 'react-bootstrap';
-import { BREADCRUMB_SESSIONS, SESSIONS_TYPES } from '../../../components';
+import { useMemo } from 'react';
+import { Button, Card, Col, Row, Spinner } from 'react-bootstrap';
+import { BsCalendar, BsPlusLg } from 'react-icons/bs';
+import { BREADCRUMB_SESSIONS, SESSIONS_TYPES, SessionsCards, WEEKDAYS } from '../../../components';
 import { PrivateLayout } from '../../../components/layout/admin';
+import { useDataApi } from '../../../hooks';
+import Link from 'next/link';
 
 export default function AdminSeances({ pathname }) {
 
-  return (
-    <PrivateLayout pathname={pathname} breadcrumb={BREADCRUMB_SESSIONS}>
-      <h1 className="h4">
-        Séances
-      </h1>
+  const [{ isLoading, isError, data, error }] = useDataApi('/api/session_models');
 
-      <hr />
+  const dataKV = useMemo(() => data && Object.fromEntries(data.map(obj => [obj.type, obj])), [data]);
+
+  return (
+    <PrivateLayout pathname={pathname} title="Séances" breadcrumb={BREADCRUMB_SESSIONS}>
 
       <p>
-        Ci-dessous, les modèles de séances par défaut.
-        Il s'agit des horaires normales de déroulement des séances.
+        Ci-dessous, les modèles de séances.
+        Il s'agit des horaires normales de déroulement des séances et seront affichées sur le site.
+        Il reste possible de planifier des séances à d'autres dates et horaires.
       </p>
 
-      <Row>
-        {SESSIONS_TYPES.map(({ id, title }) => (
-          <Col key={id}>
-            <Card>
-              <Card.Body>
-                <Card.Title>{title}</Card.Title>
-                <Card.Subtitle className="mb-2 text-muted">Card Subtitle</Card.Subtitle>
-                <Card.Text>
-                  Some quick example text to build on the card title and make up the bulk of
-                  the card's content.
-                </Card.Text>
-                <Card.Link href="#">Card Link</Card.Link>
-                <Card.Link href="#">Another Link</Card.Link>
-              </Card.Body>
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      <SessionsCards />
 
     </PrivateLayout>
   );

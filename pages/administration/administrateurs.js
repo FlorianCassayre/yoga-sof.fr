@@ -10,15 +10,7 @@ export default function AdminAdmins({ pathname }) {
   const sessionEmail = session?.user.email;
 
   return (
-    <PrivateLayout pathname={pathname} breadcrumb={BREADCRUMB_ADMINS}>
-      <h1 className="h4">
-        Administrateurs
-        {total !== null && (
-          <Badge pill bg="secondary" className="ms-2">{total}</Badge>
-        )}
-      </h1>
-
-      <hr />
+    <PrivateLayout pathname={pathname} title="Administrateurs" count={total} breadcrumb={BREADCRUMB_ADMINS}>
 
       <p>
         Liste blanche des adresses emails autorisées à se connecter en tant qu'administrateur.

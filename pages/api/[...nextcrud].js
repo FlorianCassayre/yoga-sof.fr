@@ -1,15 +1,17 @@
 import NextCrud, { HttpError, PrismaAdapter, RouteType } from '@premieroctet/next-crud';
-import { PrismaClient } from '@prisma/client';
 import { getSession } from 'next-auth/react';
 import { isPermitted } from '../../components';
-
-const prisma = new PrismaClient();
+import { prisma, validateData } from '../../server';
 
 const handler = NextCrud({
   adapter: new PrismaAdapter({
     prismaClient: prisma,
   }),
   onRequest: async (req, _res, { resourceName, routeType, resourceId }) => {
+    if (req.method === 'PATCH') {
+      throw new HttpError(405, 'use PUT instead'); // Dirty but necessary to prevent validation bypassing
+    }
+
     const session = await getSession({ req });
 
     if(!isPermitted(resourceName, resourceId, routeType, session?.userType)) {
@@ -20,8 +22,16 @@ const handler = NextCrud({
       }
     }
 
+    if(routeType === RouteType.CREATE || routeType === RouteType.UPDATE) {
+      validateData(resourceName, routeType, req.body);
+    }
+
     // Else: OK
-  }
+  },
+  // TODO
+  /*onError: (req, res, error) => {
+    res.json({ error: error.message });
+  },*/
 });
 
 export default handler;
