@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useState } from 'react';
+import { isErrorCode } from '../components';
 
 // Inspired by: https://www.robinwieruch.de/react-hooks-fetch-data/
 
@@ -42,7 +43,14 @@ export const useDataApi = (url, initialParams) => {
     const fetchData = async () => {
       try {
         const urlWithParams = params ? url + '?' + new URLSearchParams(params) : url;
-        const json = await fetch(urlWithParams).then(result => result.json());
+        const json = await fetch(urlWithParams).then(response => {
+          if(isErrorCode(response.status)) {
+            return response.json().then(json => {
+              throw new Error(json.error);
+            });
+          }
+          return response.json();
+        });
 
         if (!didCancel) {
           dispatch({ type: FETCH_SUCCESS, payload: json });

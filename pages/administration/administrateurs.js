@@ -21,6 +21,7 @@ export default function AdminAdmins({ pathname }) {
         url="/api/admins"
         totalFrom={rows => rows.length}
         rowsFrom={rows => rows}
+        paginationFrom={null}
         columns={[{
           title: 'Adresse email',
           render: ({ email }) => (

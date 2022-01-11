@@ -29,9 +29,13 @@ const handler = NextCrud({
     // Else: OK
   },
   // TODO
-  /*onError: (req, res, error) => {
-    res.json({ error: error.message });
-  },*/
+  onError: (req, res, error) => {
+    if(error instanceof HttpError) {
+      res.status(error.statusCode).json({ error: error.message });
+    } else {
+      res.status(500).json({ status: error.statusCode, error: error.message });
+    }
+  },
 });
 
 export default handler;

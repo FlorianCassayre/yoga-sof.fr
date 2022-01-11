@@ -44,9 +44,11 @@ model session_models {
 model sessions {
   id          Int @id @default(autoincrement())
   type        Role
+  spots       Int @db.UnsignedInt
   date_start  DateTime @db.Timestamp(0)
   date_end    DateTime @db.Timestamp(0)
   is_canceled Boolean @default(false)
+  notes       String? @db.Text
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
 }

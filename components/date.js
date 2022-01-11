@@ -22,3 +22,5 @@ export const WEEKDAYS = [
   'Samedi',
   'Dimanche',
 ];
+
+export const dateFormat = 'dd/MM/yyyy';

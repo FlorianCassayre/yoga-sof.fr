@@ -18,6 +18,8 @@ export const isPermitted = (resourceType, resourceId, routeType, userType) => {
       return [RouteType.READ_ALL, RouteType.READ_ONE].includes(routeType);
     } else if(resourceType === 'session_models') {
       return true;
+    } else if(resourceType === 'sessions') {
+      return [RouteType.READ_ALL, RouteType.READ_ONE, RouteType.UPDATE].includes(routeType);
     }
   }
 

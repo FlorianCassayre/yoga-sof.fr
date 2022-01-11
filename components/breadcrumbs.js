@@ -38,17 +38,40 @@ export const BREADCRUMB_SESSIONS = [...BREADCRUMB_CATEGORY_YOGA, {
   pathname: '/administration/seances',
 }];
 
-export const BREADCRUMB_SESSION_CREATE = [...BREADCRUMB_SESSIONS, {
+const BREADCRUMB_SESSION_MODELS = [...BREADCRUMB_SESSIONS, {
+  title: 'Modèles',
+}];
+
+export const BREADCRUMB_SESSION_CREATE = [...BREADCRUMB_SESSION_MODELS, {
   title: 'Création',
-  pathname: '/administration/seances/creation',
+  pathname: '/administration/seances/modeles/creation',
 }];
 
-export const breadcrumbForSessionId = sessionId => [...BREADCRUMB_SESSIONS, {
+export const breadcrumbForSessionModelId = sessionId => [...BREADCRUMB_SESSION_MODELS, {
   title: `Séance "${SESSIONS_TYPES.filter(session => session.id === sessionId).map(({ title }) => title)[0]}"`,
-  //pathname: `/administration/seances/${sessionId}`,
+  //pathname: `/administration/seances/modeles/${sessionId}`,
 }];
 
-export const breadcrumbForSessionIdEdit = sessionId => [...breadcrumbForSessionId(sessionId), {
+export const breadcrumbForSessionModelIdEdit = sessionId => [...breadcrumbForSessionModelId(sessionId), {
   title: 'Edition',
-  //pathname: `/administration/seances/${sessionId}/edition`,
+  //pathname: `/administration/seances/modeles/${sessionId}/edition`,
+}];
+
+const BREADCRUMB_SESSION_PLANNING = [...BREADCRUMB_SESSIONS, {
+  title: 'Planning',
+}];
+
+export const BREADCRUMB_SESSION_PLANNING_CREATE = [...BREADCRUMB_SESSION_PLANNING, {
+  title: 'Création',
+  pathname: '/administration/seances/planning/creation',
+}];
+
+export const breadcrumbForSessionPlanningId = sessionPlanningId => [...BREADCRUMB_SESSION_PLANNING, {
+  title: `#${sessionPlanningId}`,
+  //pathname: `/administration/seances/planning/${sessionId}`,
+}];
+
+export const breadcrumbForSessionPlanningIdEdit = sessionPlanningId => [...breadcrumbForSessionPlanningId(sessionPlanningId), {
+  title: 'Edition',
+  //pathname: `/administration/seances/planning/${sessionId}/edition`,
 }];

@@ -34,7 +34,7 @@ export function SessionsCards() {
 
                     </Card.Text>
                     <span className="d-block text-end">
-                      <Link href={`/administration/seances/${id}/edition`} passHref>
+                      <Link href={`/administration/seances/modeles/${id}/edition`} passHref>
                         <Button size="sm">
                           <BsPencil className="icon me-2" />
                           Modifier
@@ -49,7 +49,7 @@ export function SessionsCards() {
                       <span className="d-block h1 mb-3">
                         <BsCalendar />
                       </span>
-                    <Link href={`/administration/seances/creation`} passHref>
+                    <Link href={`/administration/seances/modeles/creation`} passHref>
                       <Button variant="success">
                         <BsPlusLg className="icon me-2" />
                         Définir le modèle "{title}"
