@@ -23,7 +23,10 @@ export function SessionsCards() {
               {sessionData != null ? (
                 <Card>
                   <Card.Body>
-                    <Card.Title>{title}</Card.Title>
+                    <Card.Title>
+                      <BsCalendar className="icon me-2" />
+                      {title}
+                    </Card.Title>
                     <Card.Subtitle className="mb-2 text-muted">
                       Le <strong>{WEEKDAYS[sessionData.weekday].toLowerCase()}</strong> de <strong>{formatTime(sessionData.time_start)} à {formatTime(sessionData.time_end)}</strong>
                     </Card.Subtitle>
@@ -47,7 +50,7 @@ export function SessionsCards() {
                 <Card className="py-5 text-center">
                   <Card.Text>
                       <span className="d-block h1 mb-3">
-                        <BsCalendar />
+                        <BsCalendar className="icon" />
                       </span>
                     <Link href={`/administration/seances/modeles/creation`} passHref>
                       <Button variant="success">

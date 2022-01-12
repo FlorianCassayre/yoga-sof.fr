@@ -19,6 +19,7 @@ model users {
   name        String @db.VarChar(255)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
+  emails emails[]
 
   @@unique([id_provider, provider], map: "id_provider_unique_constraint")
 }
@@ -51,4 +52,20 @@ model sessions {
   notes       String? @db.Text
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt
+}
+
+enum EmailType {
+  OTHER
+}
+
+model emails {
+  id Int @id @default(autoincrement())
+  user_id Int
+  user users @relation(fields: [user_id], references: [id])
+  type EmailType
+  destination_address String @db.VarChar(255)
+  subject String @db.Text
+  message String @db.Text
+  created_at  DateTime @default(now())
+  sent_at DateTime?
 }

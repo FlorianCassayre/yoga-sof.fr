@@ -65,7 +65,7 @@ export function PaginatedTable({ url, params, initialResultsPerPage = 25, initia
       <ErrorMessage error={error} />
     ) : (
     <>
-      <Table striped bordered>
+      <Table striped bordered responsive>
         <thead>
         <tr>
           {columns.map(({ title }, i) => (

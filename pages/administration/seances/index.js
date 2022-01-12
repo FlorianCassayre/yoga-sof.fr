@@ -1,35 +1,50 @@
 import { format } from 'date-fns';
-import { useMemo } from 'react';
-import { Badge, Button, Card, Col, Row, Spinner } from 'react-bootstrap';
-import { BsCalendar, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
+import { Badge, Button } from 'react-bootstrap';
+import { BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import {
-  BREADCRUMB_SESSIONS, dateFormat,
+  BREADCRUMB_SESSIONS, ConfirmDialog, dateFormat,
   PaginatedTable,
   SESSIONS_TYPES,
   SessionsCards,
-  StarIndicator,
-  WEEKDAYS,
 } from '../../../components';
 import { PrivateLayout } from '../../../components/layout/admin';
-import { useDataApi } from '../../../hooks';
 import Link from 'next/link';
 
 export default function AdminSeances({ pathname }) {
 
-  const [{ isLoading, isError, data, error }] = useDataApi('/api/session_models');
+  const renderDate = ({ date_start: date }) => format(new Date(date), dateFormat);
 
-  const dataKV = useMemo(() => data && Object.fromEntries(data.map(obj => [obj.type, obj])), [data]);
+  const renderTimePeriod = ({ date_start, date_end }) => (
+    <>
+      {format(new Date(date_start), 'HH\'h\'mm')}
+      {' '}à{' '}
+      {format(new Date(date_end), 'HH\'h\'mm')}
+    </>
+  );
+
+  const renderSessionType = ({ type }) => SESSIONS_TYPES.find(({ id }) => id === type).title;
 
   return (
     <PrivateLayout pathname={pathname} title="Séances" breadcrumb={BREADCRUMB_SESSIONS}>
 
+      <h2 className="h5">Modèles de séances</h2>
+
       <p>
-        Ci-dessous, les modèles de séances.
-        Il s'agit des horaires normales de déroulement des séances et seront affichées sur le site.
-        Il reste possible de planifier des séances à d'autres dates et horaires.
+        Il s'agit des horaires hebdomadaires de déroulement des séances qui seront affichées sur le site.
+        Ces modèles servent ensuite à efficacement planifier un lot de séances (ci-dessous).
+        Il reste possible de planifier des séances à d'autres dates et horaires que celles indiquées par les modèles.
       </p>
 
       <SessionsCards />
+
+      <h2 className="h5">Planification de séances</h2>
+
+      <p>
+        Les utilisateurs ne peuvent seulement s'inscrire à des séances qui ont été planifiées.
+        Ce tableau contient la liste des séances passées, présentes et futures.
+        Le bouton permet de planifier de nouvelles séances.
+        Il n'est pas possible de supprimer de séances, en revanche il est possible d'en annuler.
+      </p>
 
       <Link href="/administration/seances/planning/creation" passHref>
         <Button variant="success" className="mb-2">
@@ -51,21 +66,15 @@ export default function AdminSeances({ pathname }) {
           },
           {
             title: 'Date',
-            render: ({ date_start: date }) => format(new Date(date), dateFormat),
+            render: renderDate,
           },
           {
             title: 'Horaire',
-            render: ({ date_start, date_end }) => (
-              <>
-                {format(new Date(date_start), 'HH\'h\'mm')}
-                {' '}à{' '}
-                {format(new Date(date_end), 'HH\'h\'mm')}
-              </>
-            ),
+            render: renderTimePeriod,
           },
           {
             title: 'Type de séance',
-            render: ({ type }) => SESSIONS_TYPES.find(({ id }) => id === type).title,
+            render: renderSessionType,
           },
           {
             title: 'Inscriptions / Places disponibles',
@@ -107,16 +116,37 @@ export default function AdminSeances({ pathname }) {
           },
           {
             title: 'Actions',
-            render: ({ id, is_canceled }) => (
+            render: obj => (
               <>
-                <Link href={`/administration/seances/planning/${id}/edition`} passHref>
+                <Link href={`/administration/seances/planning/${obj.id}/edition`} passHref>
                   <Button size="sm" className="m-1">
                     <BsPencil className="icon" />
                   </Button>
                 </Link>
-                <Button size="sm" variant="danger" className="m-1" disabled={is_canceled}>
-                  <BsXOctagon className="icon" />
-                </Button>
+                <ConfirmDialog
+                  title="Annuler la séance"
+                  description={(
+                    <>
+                      Souhaitez-vous réellement annuler cette séance ?
+                      <ul>
+                        <li>{renderSessionType(obj)} le {renderDate(obj)} de {renderTimePeriod(obj)}</li>
+                      </ul>
+                      Les éventuelles personnes qui s'y sont inscrites seront notifiées.
+                    </>
+                  )}
+                  confirmButton={(
+                    <Button variant="danger" onClick={() => console.log('cancel')}>
+                      <BsXOctagon className="icon me-2" />
+                      Annuler la séance
+                    </Button>
+                  )}
+                  triggerer={clickHandler => (
+                    <Button size="sm" variant="danger" className="m-1" disabled={obj.is_canceled} onClick={clickHandler}>
+                      <BsXOctagon className="icon" />
+                    </Button>
+                  )}
+                />
+
               </>
             ),
             props: {

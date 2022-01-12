@@ -11,3 +11,5 @@ export * from './permissions';
 export * from './date';
 export { SessionsCards } from './SessionsCards';
 export * from './http';
+export { ConfirmDialog } from './ConfirmDialog';
+export * from './emails';

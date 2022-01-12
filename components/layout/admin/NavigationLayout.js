@@ -6,11 +6,11 @@ import {
   BsBoxArrowRight,
   BsBoxArrowUpRight, BsCalendarWeek, BsCurrencyEuro, BsJournalText,
   BsKanban,
-  BsLock, BsMailbox, BsPeople,
+  BsMailbox, BsPeople,
   BsPerson,
   BsShieldLock,
-  BsSpeedometer2,
 } from 'react-icons/bs';
+import pkg from '../../../package.json';
 
 export function NavigationLayout({ pathname, children }) {
 
@@ -74,21 +74,24 @@ export function NavigationLayout({ pathname, children }) {
               <NavItemTitle title="Administration" />
               <NavItemLink pathname="/administration/administrateurs" icon={BsShieldLock} title="Administrateurs" />
               <NavItemLink pathname="/administration/utilisateurs" icon={BsPeople} title="Utilisateurs" />
-              <NavItemLink pathname="/administration/emails" icon={BsMailbox} title="Emails" disabled />
+              <NavItemLink pathname="/administration/emails" icon={BsMailbox} title="Emails" />
             </Nav>
 
-            <Dropdown as={Nav.Item} className="py-sm-4 mt-sm-auto ms-auto ms-sm-0 flex-shrink-1 mb-2">
-              <Dropdown.Toggle as={Nav.Link} className="link-light">
-                <BsPerson className="icon" />
-                <span className="ms-2 d-none d-sm-inline">{sessionData.user.name}</span>
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={handleSignOut}>
-                  <BsBoxArrowRight className="icon me-2" />
-                  Déconnexion
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
+            <div className="py-sm-4 mt-sm-auto ms-auto ms-sm-0 flex-shrink-1 mb-2 mb-sm-0">
+              <Dropdown as={Nav.Item} className="">
+                <Dropdown.Toggle as={Nav.Link} className="link-light">
+                  <BsPerson className="icon" />
+                  <span className="ms-2 d-none d-sm-inline">{sessionData.user.name}</span>
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={handleSignOut}>
+                    <BsBoxArrowRight className="icon me-2" />
+                    Déconnexion
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+              <div className="text-muted d-none d-sm-block ms-3">Version {pkg.version}</div>
+            </div>
 
           </div>
         </Col>

@@ -58,10 +58,10 @@ export default function Home({ pathname }) {
       <div className="py-2 course-card" style={{ backgroundColor: alt ? '#fcfcfc' : '#f7f7f7' }}>
         <Container>
           <Row className="align-items-center">
-            <Col className="p-5">
+            <Col xs={12} lg={6} className="px-5 py-4">
               {alt ? contentData : imageData}
             </Col>
-            <Col className="px-5">
+            <Col xs={12} lg={6} className="px-5 py-4">
               {alt ? imageData : contentData}
             </Col>
           </Row>
@@ -142,8 +142,8 @@ export default function Home({ pathname }) {
 
       <div className="py-5 course-card" style={{ backgroundColor: '#f7f7f7' }}>
         <Container>
-          <Row className="text-center my-4">
-            <Col className="px-4">
+          <Row className="text-center">
+            <Col xs={12} md={4} className="my-4 px-4">
               <h3>
                 <BsFillPeopleFill className="icon me-2" />
                 Effectifs réduits
@@ -151,7 +151,7 @@ export default function Home({ pathname }) {
               <div><BsDot className="icon" /></div>
               Les séances se déroulent en petit nombre, ceci pour permettre à la coach d'être attentive à vos postures.
             </Col>
-            <Col className="px-4">
+            <Col xs={12} md={4} className="my-4 px-4">
               <h3>
                 <BsStars className="icon me-2"/>
                 Personnalisation
@@ -159,7 +159,7 @@ export default function Home({ pathname }) {
               <div><BsDot className="icon" /></div>
               Chaque séance est unique, la coach est à l'écoute de votre corps et va adapter les positions en fonction de votre physionomie, de votre âge et de votre expérience.
             </Col>
-            <Col className="px-4">
+            <Col xs={12} md={4} className="my-4 px-4">
               <h3>
                 <BsFillCalendarWeekFill className="icon me-2" />
                 Flexibilité
@@ -169,7 +169,7 @@ export default function Home({ pathname }) {
             </Col>
           </Row>
           <Row className="justify-content-center">
-            <Col xs={6}>
+            <Col xs={12} sm={10} md={8} lg={6}>
               <Alert variant="primary">
                 <BsFillInfoCircleFill className="icon me-2" />
                 La première séance est gratuite, à la date de votre choix.

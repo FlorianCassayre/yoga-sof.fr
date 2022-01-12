@@ -75,3 +75,8 @@ export const breadcrumbForSessionPlanningIdEdit = sessionPlanningId => [...bread
   title: 'Edition',
   //pathname: `/administration/seances/planning/${sessionId}/edition`,
 }];
+
+export const BREADCRUMB_EMAILS = [...BREADCRUMB_CATEGORY_ADMINISTRATION, {
+  title: 'E-mails',
+  pathname: '/administration/emails',
+}];

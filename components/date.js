@@ -24,3 +24,21 @@ export const WEEKDAYS = [
 ];
 
 export const dateFormat = 'dd/MM/yyyy';
+
+
+const locale = 'fr-FR';
+const dateFormatter = new Intl.DateTimeFormat(locale, {
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+});
+const timeFormatter = new Intl.DateTimeFormat(locale, {
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+});
+
+export const formatTimestamp = timestamp => {
+  const dt = new Date(timestamp);
+  return [timeFormatter, dateFormatter].map(formatter => formatter.format(dt)).join(' le ');
+};

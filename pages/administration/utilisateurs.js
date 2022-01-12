@@ -2,7 +2,7 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { Badge, Button, Spinner, Table } from 'react-bootstrap';
 import { BsSearch } from 'react-icons/bs';
-import { BREADCRUMB_USERS, PaginatedTable, providersData, StarIndicator } from '../../components';
+import { BREADCRUMB_USERS, formatTimestamp, PaginatedTable, providersData, StarIndicator } from '../../components';
 import { ErrorMessage } from '../../components';
 import { PrivateLayout } from '../../components/layout/admin';
 import { useDataApi } from '../../hooks';
@@ -11,22 +11,6 @@ export default function AdminUsers({ pathname }) {
   const [total, setTotal] = useState(null);
 
   const { data: sessionData } = useSession();
-
-  const locale = 'fr-FR';
-  const dateFormatter = new Intl.DateTimeFormat(locale, {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  });
-  const timeFormatter = new Intl.DateTimeFormat(locale, {
-    hour: 'numeric',
-    minute: 'numeric',
-    second: 'numeric',
-  });
-  const formatTimestamp = timestamp => {
-    const dt = new Date(timestamp);
-    return [timeFormatter, dateFormatter].map(formatter => formatter.format(dt)).join(' le ');
-  }
 
   return (
     <PrivateLayout pathname={pathname} title="Utilisateurs" count={total} breadcrumb={BREADCRUMB_USERS}>

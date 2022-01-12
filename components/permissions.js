@@ -20,6 +20,8 @@ export const isPermitted = (resourceType, resourceId, routeType, userType) => {
       return true;
     } else if(resourceType === 'sessions') {
       return [RouteType.READ_ALL, RouteType.READ_ONE, RouteType.UPDATE].includes(routeType);
+    } else if(resourceType === 'emails') {
+      return [RouteType.READ_ALL, RouteType.READ_ONE].includes(routeType);
     }
   }
 

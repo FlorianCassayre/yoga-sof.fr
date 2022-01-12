@@ -24,7 +24,7 @@ export function ErrorMessage({ children = 'Une erreur est survenue.', error }) {
         <>
           <br />
           <div className="font-monospace" style={{ whiteSpace: 'pre-wrap' }}>
-            {error.stack}
+            {error.message} {/* .stack might be useful too */}
           </div>
         </>
       ))}

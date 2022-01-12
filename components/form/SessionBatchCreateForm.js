@@ -123,7 +123,7 @@ export function SessionBatchCreateForm() {
                 onChange={() => onLockChange(values.type, setValue)}
                 type="switch"
                 id="switch-lock"
-                label="Utiliser le modèle fourni par cette séance"
+                label="Utiliser le modèle fourni par cette séance (recommandé)"
                 className="mb-4"
               />
 
