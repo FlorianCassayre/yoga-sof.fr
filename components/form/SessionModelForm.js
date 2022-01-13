@@ -1,12 +1,7 @@
-import { Col, Form, Row } from 'react-bootstrap';
-import DatePicker from 'react-datepicker';
-import { Field } from 'react-final-form';
-import { WEEKDAYS } from '../date';
+
 import { SESSIONS_TYPES } from '../sessions';
-import { format, isValid, parse } from 'date-fns';
 import { CreateEditForm } from './CreateEditForm';
 import {
-  TimePickerField,
   TimePickerRangeFields,
   SessionTypeSelectField,
   SpotsNumberField,
@@ -20,7 +15,7 @@ export function SessionModelForm({ editRecordId }) {
       <CreateEditForm
         modelId="session_models"
         initialValues={{
-          id: SESSIONS_TYPES[0].id,
+          type: SESSIONS_TYPES[0].id,
           weekday: 0,
           time_start: null,
           time_end: null,
@@ -32,7 +27,7 @@ export function SessionModelForm({ editRecordId }) {
         deletable
       >
 
-        <SessionTypeSelectField name="id" fieldProps={{ disabled: editRecordId != null }} className="mb-2" />
+        <SessionTypeSelectField name="type" className="mb-2" />
 
         <WeekdaySelectField name="weekday" className="mb-2" />
 

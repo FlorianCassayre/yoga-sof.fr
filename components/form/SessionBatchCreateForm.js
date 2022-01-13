@@ -4,7 +4,7 @@ import DatePicker from 'react-datepicker';
 import { Field } from 'react-final-form';
 import { OnChange } from 'react-final-form-listeners';
 import { useDataApi } from '../../hooks';
-import { dateFormat, parseTime, WEEKDAYS } from '../date';
+import { dateFormat, formatTime, parseTime, WEEKDAYS } from '../date';
 import { ErrorMessage } from '../ErrorMessage';
 import { SESSIONS_TYPES } from '../sessions';
 import { addDays, format, getDay, isValid, parse } from 'date-fns';
@@ -15,18 +15,10 @@ export function SessionBatchCreateForm() {
 
   const [{ isLoading, isError, data, error }] = useDataApi('/api/session_models');
 
-  const [isLocked, setLocked] = useState(true);
-
-  const onLockChange = (type, setValue) => {
-    setLocked(!isLocked);
-    if(!isLocked) {
-      prefillValues(type, setValue)
-    }
-  }
-
-  const prefillValues = (type, setValue) => {
-    const modelData = data.filter(({ id }) => id === type)[0];
+  const prefillValues = (id, setValue) => {
+    const modelData = data.filter(({ id: thatId }) => thatId === id)[0];
     if(modelData) {
+      setValue('type', modelData.type);
       setValue('weekday', modelData.weekday);
       setValue('spots', modelData.spots);
       setValue('time_start', modelData.time_start);
@@ -86,12 +78,15 @@ export function SessionBatchCreateForm() {
     }
   };
 
+  const MODEL_NONE = 'NONE';
+
   return (
     <>
       {!isError ? (!isLoading ? (
         <CreateEditForm
           modelId="session_batch"
           initialValues={{
+            model_id: MODEL_NONE,
             type: SESSIONS_TYPES[0].id,
             weekday: 0,
             time_start: null,
@@ -112,30 +107,41 @@ export function SessionBatchCreateForm() {
         >
           {({ form: { mutators: { setValue } }, values }) => (
             <>
-              <SessionTypeSelectField name="type" className="mb-2" />
+              <Form.Group className="mb-4">
+                <Form.Label>Modèle de séance :</Form.Label>
+                <Field
+                  name="model_id"
+                  render={({ input }) => (
+                    <Form.Select {...input} required>
+                      <option value={MODEL_NONE}>Aucun modèle</option>
+                      {data.map(({ id, type, weekday, time_start: timeStart, time_end: timeEnd }) => (
+                        <option key={id} value={id}>
+                          {SESSIONS_TYPES.filter(({ id }) => id === type)[0].title} le {WEEKDAYS[weekday].toLowerCase()} de {formatTime(timeStart)} à {formatTime(timeEnd)}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  )}
+                />
+                <Form.Text className="text-muted">
+                  Facultatif, sert à pré-remplir les données ci-dessous
+                </Form.Text>
+              </Form.Group>
 
-              <OnChange name="type">
-                {type => isLocked && prefillValues(type, setValue)}
+              <OnChange name="model_id">
+                {modelId => modelId !== MODEL_NONE && prefillValues(parseInt(modelId), setValue)}
               </OnChange>
 
-              <Form.Check
-                checked={isLocked}
-                onChange={() => onLockChange(values.type, setValue)}
-                type="switch"
-                id="switch-lock"
-                label="Utiliser le modèle fourni par cette séance (recommandé)"
-                className="mb-4"
-              />
+              <SessionTypeSelectField name="type" className="mb-2" fieldProps={{ disabled: values.model_id !== MODEL_NONE }} />
 
-              <WeekdaySelectField name="weekday" className="mb-2" fieldProps={{ disabled: isLocked }} />
+              <WeekdaySelectField name="weekday" className="mb-2" fieldProps={{ disabled: values.model_id !== MODEL_NONE }} />
 
               <OnChange name="weekday">
                 {() => setValue('datesRange', null)}
               </OnChange>
 
-              <SpotsNumberField name="spots" className="mb-2" fieldProps={{ disabled: isLocked }} />
+              <SpotsNumberField name="spots" className="mb-2" fieldProps={{ disabled: values.model_id !== MODEL_NONE }} />
 
-              <TimePickerRangeFields disabled={isLocked} className="mb-4" />
+              <TimePickerRangeFields disabled={values.model_id !== MODEL_NONE} className="mb-4" />
 
               <div className="text-center">
                 <div className="mb-2">Sélection des séances à planifier (intervalle) :</div>

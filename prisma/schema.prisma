@@ -35,7 +35,8 @@ enum Role {
 // https://github.com/prisma/prisma/issues/3388
 
 model session_models {
-  id          Role @unique(map: "id")
+  id          Int @id @default(autoincrement())
+  type        Role
   spots       Int @db.UnsignedInt
   weekday     Int @db.UnsignedTinyInt
   time_start  String @db.VarChar(5)
