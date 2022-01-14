@@ -3,7 +3,7 @@ import { Pagination, Spinner, Table } from 'react-bootstrap';
 import { useDataApi, useNonInitialEffect } from '../hooks';
 import { ErrorMessage } from './ErrorMessage';
 
-export function PaginatedTable({ url, params, initialResultsPerPage = 25, initialPage = 1, rowsFrom = data => data.data, totalFrom = data => data.pagination.total, paginationFrom = data => data.pagination, columns, totalCallback }) {
+export function PaginatedTable({ url, params, initialResultsPerPage = 10, initialPage = 1, rowsFrom = data => data.data, totalFrom = data => data.pagination.total, paginationFrom = data => data.pagination, columns, totalCallback }) {
   const [page, setPage] = useState(initialPage);
   const [{ isLoading, isError, data, error }, setUrl] = useDataApi(url, params && params(page, initialResultsPerPage));
   const [resultsPerPage, setResultsPerPage] = useState(initialResultsPerPage);
@@ -37,7 +37,7 @@ export function PaginatedTable({ url, params, initialResultsPerPage = 25, initia
       pageSet.add(pageCount - i);
     }
 
-    const visiblePages = Array.from(pageSet).filter(i => i >= 1 && i <= pageCount).sort();
+    const visiblePages = Array.from(pageSet).filter(i => i >= 1 && i <= pageCount).sort((a, b) => a - b);
 
     return (
       <Pagination className="justify-content-center">

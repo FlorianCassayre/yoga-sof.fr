@@ -19,12 +19,12 @@ export function SessionsCards() {
   };
 
   return (
-    <Row className="mb-4">
+    <Row>
       {!isError ? (!isLoading ?
         (
           <>
-            {data.sort(compareModels).map(({ id, type, weekday, time_start: timeStart, time_end: timeEnd, spots }) => (
-              <Col key={id} xs={12} lg={4}>
+            {data.sort(compareModels).map(({ id, type, weekday, time_start: timeStart, time_end: timeEnd, slots, price }) => (
+              <Col key={id} xs={12} lg={4} className="mb-4">
                 <Card>
                   <Card.Body>
                     <Card.Title>
@@ -35,7 +35,16 @@ export function SessionsCards() {
                       Le <strong>{WEEKDAYS[weekday].toLowerCase()}</strong> de <strong>{formatTime(timeStart)} à {formatTime(timeEnd)}</strong>
                     </Card.Subtitle>
                     <Card.Subtitle className="mb-2 text-muted">
-                      <strong>{spots}</strong> places
+                      <strong>{slots}</strong> places
+                    </Card.Subtitle>
+                    <Card.Subtitle className="mb-2 text-muted">
+                      {price > 0 ? (
+                        <>
+                          <strong>{price} €</strong> par personne
+                        </>
+                        ) : (
+                        <strong>Gratuit</strong>
+                        )}
                     </Card.Subtitle>
                     {/*<Card.Text>
 
@@ -53,8 +62,8 @@ export function SessionsCards() {
               </Col>
             ))}
 
-            <Col xs={12} lg={4}>
-              <Card className="py-5 text-center">
+            <Col xs={12} lg={4} className="mb-4">
+              <Card className="py-3 text-center">
                 <Card.Text>
                       <span className="d-block h1 mb-3">
                         <BsCalendar className="icon" />

@@ -77,10 +77,14 @@ export default function AdminSeances({ pathname }) {
             render: renderSessionType,
           },
           {
+            title: 'Prix',
+            render: ({ price }) => price > 0 ? `${price} €` : 'Gratuit',
+          },
+          {
             title: 'Inscriptions / Places disponibles',
-            render: ({ spots }) => (
+            render: ({ slots }) => (
               <>
-                0 / {spots}
+                0 / {slots}
               </>
             ),
           },

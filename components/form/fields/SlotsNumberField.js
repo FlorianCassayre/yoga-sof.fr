@@ -1,7 +1,7 @@
 import { Form } from 'react-bootstrap';
 import { Field } from 'react-final-form';
 
-export function SpotsNumberField({ name, fieldProps = {}, ...props }) {
+export function SlotsNumberField({ name, fieldProps = {}, ...props }) {
   return (
     <Form.Group {...props}>
       <Form.Label>Nombre de places :</Form.Label>

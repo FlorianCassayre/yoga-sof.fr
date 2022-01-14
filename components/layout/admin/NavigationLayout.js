@@ -69,7 +69,7 @@ export function NavigationLayout({ pathname, children }) {
               <NavItemLink pathname="/administration" exactPathname icon={BsKanban} title="Aperçu" />
               <NavItemTitle title="Yoga" />
               <NavItemLink pathname="/administration/seances" icon={BsJournalText} title="Séances et horaires" />
-              <NavItemLink pathname="/administration/inscriptions" icon={BsCalendarWeek} title="Inscriptions" disabled />
+              <NavItemLink pathname="/administration/inscriptions" icon={BsCalendarWeek} title="Inscriptions" />
               <NavItemLink pathname="/administration/paiements" icon={BsCurrencyEuro} title="Factures et paiements" disabled />
               <NavItemTitle title="Administration" />
               <NavItemLink pathname="/administration/administrateurs" icon={BsShieldLock} title="Administrateurs" />

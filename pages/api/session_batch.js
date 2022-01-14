@@ -9,9 +9,9 @@ export default async function handler(req, res) {
       res.status(401).json({ error: 'Unauthorized' });
     } else if(session.userType === USER_TYPE_ADMIN) {
 
-      const { type, spots, dates } = req.body;
+      const { type, slots, price, dates } = req.body;
       if(!dates || !dates.length) {
-        res.status(400).json({ error: 'Bad Request: must schedule at least one date' });
+        res.status(400).json({ error: 'Bad Request: schedule must have at least one date' });
         return;
       }
       for(const e of dates) {
@@ -28,7 +28,8 @@ export default async function handler(req, res) {
       // Create the records
       const records = dates.map(([start, end]) => ({
         type,
-        spots,
+        slots,
+        price,
         date_start: new Date(start),
         date_end: new Date(end),
       }));

@@ -1,6 +1,7 @@
-export const formatTime = time => { // Input is HH:mm
+export const formatTime = (time, compact = false) => { // Input is HH:mm
   const split = parseTime(time);
-  return `${split[0].toString().padStart(2, '0')}h${split[1].toString().padStart(2, '0')}`;
+  const suffix = split[1].toString().padStart(2, '0');
+  return `${compact ? split[0] : split[0].toString().padStart(2, '0')}h` + (compact && split[1] === 0 ? '' : suffix);
 };
 
 export const parseTime = time => {
@@ -12,6 +13,10 @@ export const parseTime = time => {
 };
 
 export const parsedTimeToMinutes = ([hours, minutes]) => hours * 60 + minutes;
+
+export const parsedTimeToTime = ([hours, minutes]) => `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+
+export const minutesToParsedTime = minutes => [Math.floor(minutes / 60), minutes % 60];
 
 export const WEEKDAYS = [
   'Lundi',

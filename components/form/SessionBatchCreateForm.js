@@ -9,7 +9,13 @@ import { ErrorMessage } from '../ErrorMessage';
 import { SESSIONS_TYPES } from '../sessions';
 import { addDays, format, getDay, isValid, parse } from 'date-fns';
 import { CreateEditForm } from './CreateEditForm';
-import { TimePickerRangeFields, SessionTypeSelectField, SpotsNumberField, WeekdaySelectField } from './fields';
+import {
+  TimePickerRangeFields,
+  SessionTypeSelectField,
+  SlotsNumberField,
+  WeekdaySelectField,
+  PriceNumberField,
+} from './fields';
 
 export function SessionBatchCreateForm() {
 
@@ -20,9 +26,10 @@ export function SessionBatchCreateForm() {
     if(modelData) {
       setValue('type', modelData.type);
       setValue('weekday', modelData.weekday);
-      setValue('spots', modelData.spots);
+      setValue('slots', modelData.slots);
       setValue('time_start', modelData.time_start);
       setValue('time_end', modelData.time_end);
+      setValue('price', modelData.price);
     }
   };
 
@@ -54,7 +61,7 @@ export function SessionBatchCreateForm() {
   };
 
   const renderRecap = values => {
-    if(values.datesRange !== null && values.datesRange[0] !== null && values.datesRange[1] !== null) {
+    if(values.time_start !== null && values.time_end !== null && values.datesRange !== null && values.datesRange[0] !== null && values.datesRange[1] !== null) {
       const dates = computeDatesFromRange(values.datesRange, values.time_start, values.time_end, values.weekday);
 
       return (
@@ -91,11 +98,12 @@ export function SessionBatchCreateForm() {
             weekday: 0,
             time_start: null,
             time_end: null,
-            spots: null,
+            slots: null,
+            price: null,
             datesRange: null,
-            ...Object.fromEntries(Object.entries((data ?? []).filter(({ id }) => id === SESSIONS_TYPES[0].id)[0] ?? {}).filter(([key]) => ['weekday', 'spots', 'time_start', 'time_end'].includes(key)))
+            ...Object.fromEntries(Object.entries((data ?? []).filter(({ id }) => id === SESSIONS_TYPES[0].id)[0] ?? {}).filter(([key]) => ['type', 'weekday', 'time_start', 'time_end', 'slots', 'price'].includes(key)))
           }}
-          numberFields={['weekday', 'spots']}
+          numberFields={['weekday', 'slots', 'price']}
           redirect={() => `/administration/seances`}
           deletable
           loading={isLoading}
@@ -139,9 +147,11 @@ export function SessionBatchCreateForm() {
                 {() => setValue('datesRange', null)}
               </OnChange>
 
-              <SpotsNumberField name="spots" className="mb-2" fieldProps={{ disabled: values.model_id !== MODEL_NONE }} />
+              <TimePickerRangeFields disabled={values.model_id !== MODEL_NONE} className="mb-2" />
 
-              <TimePickerRangeFields disabled={values.model_id !== MODEL_NONE} className="mb-4" />
+              <SlotsNumberField name="slots" className="mb-2" fieldProps={{ disabled: values.model_id !== MODEL_NONE }} />
+
+              <PriceNumberField name="price" className="mb-4" fieldProps={{ disabled: values.model_id !== MODEL_NONE }} />
 
               <div className="text-center">
                 <div className="mb-2">Sélection des séances à planifier (intervalle) :</div>

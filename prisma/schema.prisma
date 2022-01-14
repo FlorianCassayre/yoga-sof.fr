@@ -12,19 +12,20 @@ model admins {
 }
 
 model users {
-  id          Int    @id @default(autoincrement())
-  id_provider String @db.VarChar(255)
-  email       String @db.VarChar(255)
-  provider    String @db.VarChar(255)
-  name        String @db.VarChar(255)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
-  emails emails[]
+  id            Int    @id @default(autoincrement())
+  id_provider   String @db.VarChar(255)
+  email         String @db.VarChar(255)
+  provider      String @db.VarChar(255)
+  name          String @db.VarChar(255)
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  emails        emails[]
+  registrations registrations[]
 
   @@unique([id_provider, provider], map: "id_provider_unique_constraint")
 }
 
-enum Role {
+enum SessionType {
   YOGA_ADULT
   YOGA_CHILD
   YOGA_ADULT_CHILD
@@ -36,23 +37,26 @@ enum Role {
 
 model session_models {
   id          Int @id @default(autoincrement())
-  type        Role
-  spots       Int @db.UnsignedInt
+  type        SessionType
+  slots       Int @db.UnsignedInt
+  price       Int @db.UnsignedInt
   weekday     Int @db.UnsignedTinyInt
   time_start  String @db.VarChar(5)
   time_end    String @db.VarChar(5)
 }
 
 model sessions {
-  id          Int @id @default(autoincrement())
-  type        Role
-  spots       Int @db.UnsignedInt
-  date_start  DateTime @db.Timestamp(0)
-  date_end    DateTime @db.Timestamp(0)
-  is_canceled Boolean @default(false)
-  notes       String? @db.Text
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  id            Int @id @default(autoincrement())
+  type          SessionType
+  slots         Int @db.UnsignedInt
+  price         Int @db.UnsignedInt
+  date_start    DateTime @db.Timestamp(0)
+  date_end      DateTime @db.Timestamp(0)
+  is_canceled   Boolean @default(false)
+  notes         String? @db.Text
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+  registrations registrations[]
 }
 
 enum EmailType {
@@ -60,13 +64,24 @@ enum EmailType {
 }
 
 model emails {
-  id Int @id @default(autoincrement())
-  user_id Int
-  user users @relation(fields: [user_id], references: [id])
-  type EmailType
+  id                  Int @id @default(autoincrement())
+  user_id             Int
+  user                users @relation(fields: [user_id], references: [id])
+  type                EmailType
   destination_address String @db.VarChar(255)
-  subject String @db.Text
-  message String @db.Text
-  created_at  DateTime @default(now())
-  sent_at DateTime?
+  subject             String @db.Text
+  message             String @db.Text
+  created_at          DateTime @default(now())
+  sent_at             DateTime?
+}
+
+model registrations {
+  id               Int @id @default(autoincrement())
+  user_id          Int
+  user             users @relation(fields: [user_id], references: [id])
+  session_id       Int
+  session          sessions @relation(fields: [session_id], references: [id])
+  is_user_canceled Boolean @default(false)
+  created_at       DateTime @default(now())
+  canceled_at      DateTime?
 }

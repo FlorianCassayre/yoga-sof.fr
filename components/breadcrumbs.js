@@ -24,9 +24,9 @@ export const BREADCRUMB_USERS = [...BREADCRUMB_CATEGORY_ADMINISTRATION, {
   pathname: '/administration/utilisateurs',
 }];
 
-export const breadcrumbForUser = user => [...BREADCRUMB_USERS, {
-  title: user.name,
-  pathname: `/administration/users/${user.id}`,
+export const breadcrumbForUser = userId => [...BREADCRUMB_USERS, {
+  title: `#${userId}`,
+  //pathname: `/administration/utilisateurs/${userId}`,
 }];
 
 export const BREADCRUMB_CATEGORY_YOGA = [...BREADCRUMB_BASE, {
@@ -48,7 +48,7 @@ export const BREADCRUMB_SESSION_CREATE = [...BREADCRUMB_SESSION_MODELS, {
 }];
 
 export const breadcrumbForSessionModelId = sessionId => [...BREADCRUMB_SESSION_MODELS, {
-  title: `Séance "${SESSIONS_TYPES.filter(session => session.id === sessionId).map(({ title }) => title)[0]}"`,
+  title: `#${sessionId}`,
   //pathname: `/administration/seances/modeles/${sessionId}`,
 }];
 
@@ -79,4 +79,9 @@ export const breadcrumbForSessionPlanningIdEdit = sessionPlanningId => [...bread
 export const BREADCRUMB_EMAILS = [...BREADCRUMB_CATEGORY_ADMINISTRATION, {
   title: 'E-mails',
   pathname: '/administration/emails',
+}];
+
+export const BREADCRUMB_REGISTRATIONS = [...BREADCRUMB_CATEGORY_YOGA, {
+  title: 'Inscriptions',
+  pathname: '/administration/inscriptions',
 }];

@@ -15,7 +15,9 @@ export default function Home({ pathname }) {
 
   const CourseCard = ({ alt, title, description, image, infoAge, infoLevel, infoGroup, urlSection }) => {
     const imageData = (
-      <Image src={image} fluid className="rounded-3 shadow" />
+      <div className="text-center">
+        <Image src={image} fluid className="rounded-3 shadow" />
+      </div>
     );
     const contentData = (
       <>

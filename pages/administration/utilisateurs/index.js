@@ -1,11 +1,10 @@
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { Badge, Button, Spinner, Table } from 'react-bootstrap';
-import { BsSearch } from 'react-icons/bs';
-import { BREADCRUMB_USERS, formatTimestamp, PaginatedTable, providersData, StarIndicator } from '../../components';
-import { ErrorMessage } from '../../components';
-import { PrivateLayout } from '../../components/layout/admin';
-import { useDataApi } from '../../hooks';
+import { Button } from 'react-bootstrap';
+import { BsEyeFill } from 'react-icons/bs';
+import { BREADCRUMB_USERS, formatTimestamp, PaginatedTable, providersData, StarIndicator } from '../../../components';
+import { PrivateLayout } from '../../../components/layout/admin';
+import Link from 'next/link';
 
 export default function AdminUsers({ pathname }) {
   const [total, setTotal] = useState(null);
@@ -69,10 +68,12 @@ export default function AdminUsers({ pathname }) {
           },
           {
             title: 'Détails',
-            render: () => (
-              <Button variant="secondary" disabled size="sm">
-                <BsSearch className="icon" />
-              </Button>
+            render: ({ id }) => (
+              <Link href={`/administration/utilisateurs/${id}`} passHref>
+                <Button variant="secondary" size="sm">
+                  <BsEyeFill className="icon" />
+                </Button>
+              </Link>
             ),
             props: {
               className: 'text-center',

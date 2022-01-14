@@ -22,6 +22,8 @@ export const isPermitted = (resourceType, resourceId, routeType, userType) => {
       return [RouteType.READ_ALL, RouteType.READ_ONE, RouteType.UPDATE].includes(routeType);
     } else if(resourceType === 'emails') {
       return [RouteType.READ_ALL, RouteType.READ_ONE].includes(routeType);
+    } else if(resourceType === 'registrations') {
+      return [RouteType.READ_ALL, RouteType.READ_ONE];
     }
   }
 
