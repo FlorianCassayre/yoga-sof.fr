@@ -77,7 +77,7 @@ export default NextAuth({
         provider: token.provider,
         name: session.user.name,
       };
-      await prisma.users.upsert({
+      const { id, public_access_token } = await prisma.users.upsert({
         where: {
           id_provider_provider: {
             id_provider: userDbData.id_provider,
@@ -87,6 +87,9 @@ export default NextAuth({
         update: userDbData,
         create: userDbData,
       });
+
+      session.user.db_id = id;
+      session.user.public_access_token = public_access_token;
 
       return session;
     },

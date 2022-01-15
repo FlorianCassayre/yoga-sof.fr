@@ -1,0 +1,1 @@
+export { IconYoga } from './IconYoga';

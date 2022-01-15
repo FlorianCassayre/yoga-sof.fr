@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Badge, Button } from 'react-bootstrap';
-import { BsPencil, BsXOctagon } from 'react-icons/bs';
+import { BsPencil, BsPerson, BsXOctagon } from 'react-icons/bs';
 import { BREADCRUMB_EMAILS, ConfirmDialog, EMAIL_TYPES, formatTimestamp, PaginatedTable } from '../../components';
 import { PrivateLayout } from '../../components/layout/admin';
 
@@ -32,7 +32,14 @@ export default function AdminEmails({ pathname }) {
           },
           {
             title: 'Utilisateur',
-            render: ({ user_id: userId, user: { name } }) => name, // TODO
+            render: ({ user_id: userId, user: { name } }) => (
+              <Link href={`/administration/utilisateurs/${userId}`} passHref>
+                <a>
+                  <BsPerson className="icon me-2" />
+                  {name}
+                </a>
+              </Link>
+            ),
           },
           {
             title: 'Adresse de destination',

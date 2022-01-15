@@ -58,6 +58,7 @@ export default function AdminSeances({ pathname }) {
         params={(page, limit) => ({
           page,
           limit,
+          include: ['registrations'],
         })}
         columns={[
           {
@@ -82,9 +83,9 @@ export default function AdminSeances({ pathname }) {
           },
           {
             title: 'Inscriptions / Places disponibles',
-            render: ({ slots }) => (
+            render: ({ slots, registrations }) => (
               <>
-                0 / {slots}
+                {registrations.filter(({ is_user_canceled }) => !is_user_canceled).length} / {slots}
               </>
             ),
           },

@@ -10,6 +10,7 @@ import {
   BsSpeedometer2,
 } from 'react-icons/bs';
 import { GrYoga } from 'react-icons/gr';
+import { IconYoga } from '../../icons';
 import { USER_TYPE_ADMIN } from '../../session';
 
 export function NavigationLayout({ pathname }) {
@@ -35,7 +36,7 @@ export function NavigationLayout({ pathname }) {
       <Container>
         <Link href="/" passHref>
           <Navbar.Brand>
-            <GrYoga className="icon me-2" />
+            <IconYoga className="icon me-2" />
             Yoga Sof
           </Navbar.Brand>
         </Link>
@@ -82,10 +83,12 @@ export function NavigationLayout({ pathname }) {
                     Inscription à un cours
                   </NavDropdown.Item>
                 </Link>
-                <NavDropdown.Item>
-                  <BsCalendarWeek className="icon me-2" />
-                  Mes cours inscrits
-                </NavDropdown.Item>
+                <Link href="/mes-cours" passHref>
+                  <NavDropdown.Item>
+                    <BsCalendarWeek className="icon me-2" />
+                    Mes inscriptions
+                  </NavDropdown.Item>
+                </Link>
                 <NavDropdown.Divider />
                 <NavDropdown.Item onClick={handleSignOut}>
                   <BsBoxArrowRight className="icon me-2" />

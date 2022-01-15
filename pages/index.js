@@ -21,7 +21,7 @@ export default function Home({ pathname }) {
     );
     const contentData = (
       <>
-        <h2 className={'display-6' + ' ' + (alt ? 'text-end' : '')}>{title}</h2>
+        <h2 className={'display-6 text-start' + ' ' + (alt ? 'text-lg-end' : '')}>{title}</h2>
         <div className="text-justify">
           {description}
           <Row className="mt-4 text-center">
@@ -60,10 +60,10 @@ export default function Home({ pathname }) {
       <div className="py-2 course-card" style={{ backgroundColor: alt ? '#fcfcfc' : '#f7f7f7' }}>
         <Container>
           <Row className="align-items-center">
-            <Col xs={12} lg={6} className="px-5 py-4">
+            <Col xs={{ span: 12, order: alt ? 2 : 1 }} lg={{ span: 6, order: 1 }} className="px-5 py-4">
               {alt ? contentData : imageData}
             </Col>
-            <Col xs={12} lg={6} className="px-5 py-4">
+            <Col xs={{ span: 12, order: alt ? 1 : 2 }} lg={{ span: 6, order: 2 }} className="px-5 py-4">
               {alt ? imageData : contentData}
             </Col>
           </Row>
