@@ -9,91 +9,73 @@ import {
   ErrorMessage,
   formatTimestamp,
   DynamicPaginatedTable,
-  SESSIONS_TYPES,
+  SESSIONS_TYPES, idColumn, plannedSessionLinkColumn, renderDatetime,
 } from '../../../components';
-import { PrivateLayout } from '../../../components/layout/admin';
+import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import { useDataApi } from '../../../hooks';
 
-
-export default function AdminUser({ pathname }) {
-  const router = useRouter();
-  const { id } = router.query;
-
+function AdminUserLayout({ pathname, id }) {
   const [{ isLoading, isError, data, error }] = useDataApi(`/api/users/${id}`, {
     include: 'registrations',
   });
 
   return (
-    <PrivateLayout pathname={pathname} title={(
-      <>
-        Utilisateur
-        {!isError && (!isLoading ? (
-          ` ${data.name}`
-        ) : (
-          <Spinner animation="border" />
-        ))}
-      </>
-    )} breadcrumb={breadcrumbForUser(id)}>
+    <ContentLayout
+      pathname={pathname}
+      title={`Utilisateur ${data && data.name}`}
+      breadcrumb={data && breadcrumbForUser(data)}
+      isLoading={isLoading}
+      isError={isError}
+      error={error}
+    >
 
       <p>
         Les inscriptions de cet utilisateur.
       </p>
 
-      {!isError ? (!isLoading ? (
-        <DynamicPaginatedTable
-          url="/api/registrations"
-          params={(page, limit) => ({
-            page,
-            limit,
-            where: JSON.stringify({
-              user_id: parseInt(id),
-            }),
-            include: ['session', 'user'],
-          })}
-          columns={[
-            {
-              title: '#',
-              render: ({ id }) => id,
-            },
-            {
-              title: 'Séance',
-              render: ({ session_id, session: { type, date_start } }) => (
-                <Link href={`/administration/seances/${session_id}`} passHref>
-                  <a>
-                    <BsCalendarDate className="icon me-2" />
-                    {SESSIONS_TYPES.filter(({ id }) => id === type)[0].title}
-                    {' le '}
-                    {format(new Date(date_start), dateFormat)}
-                  </a>
-                </Link>
-              )
-            },
-            {
-              title: 'Date d\'inscription',
-              render: ({ created_at }) => (
-                formatTimestamp(created_at)
-              ),
-            },
-            {
-              title: 'Statut',
-              render: ({ is_user_canceled, canceled_at }) => !is_user_canceled ? (
-                <Badge bg="success">Inscrit</Badge>
-              ) : (
-                <Badge bg="danger">Annulé à {formatTimestamp(canceled_at)}</Badge>
-              ),
-              props: {
-                className: 'text-center'
-              }
+      <DynamicPaginatedTable
+        url="/api/registrations"
+        params={(page, limit) => ({
+          page,
+          limit,
+          where: JSON.stringify({
+            user_id: parseInt(id),
+          }),
+          include: ['session', 'user'],
+        })}
+        columns={[
+          plannedSessionLinkColumn,
+          {
+            title: 'Date d\'inscription',
+            render: ({ created_at }) => renderDatetime(created_at),
+          },
+          {
+            title: 'Statut',
+            render: ({ is_user_canceled, canceled_at }) => !is_user_canceled ? (
+              <Badge bg="success">Inscrit</Badge>
+            ) : (
+              <Badge bg="danger">Annulé à {formatTimestamp(canceled_at)}</Badge>
+            ),
+            props: {
+              className: 'text-center'
             }
-          ]}
-        />
-      ) : (
-        <div className="m-5 text-center">
-          <Spinner animation="border" />
-        </div>
-      )) : (
-        <ErrorMessage error={error} />
-      )}
+          }
+        ]}
+        renderEmpty={() => `Cet utilisateur ne s'est pas encore inscrit à une séance.`}
+      />
+
+    </ContentLayout>
+  );
+}
+
+export default function AdminUser({ pathname }) {
+  const router = useRouter();
+  const { id } = router.query;
+
+  return (
+    <PrivateLayout pathname={pathname}>
+
+      <AdminUserLayout pathname={pathname} id={id} />
 
     </PrivateLayout>
   );

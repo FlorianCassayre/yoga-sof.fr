@@ -2,15 +2,17 @@ import {
   BREADCRUMB_SESSION_CREATE,
 } from '../../../../components';
 import { SessionModelForm } from '../../../../components/form';
-import { PrivateLayout } from '../../../../components/layout/admin';
+import { ContentLayout, PrivateLayout } from '../../../../components/layout/admin';
 
 export default function AdminSeanceCreate({ pathname }) {
 
   return (
-    <PrivateLayout pathname={pathname} title="Nouveau modèle de séance" breadcrumb={BREADCRUMB_SESSION_CREATE}>
+    <PrivateLayout pathname={pathname}>
+      <ContentLayout pathname={pathname} title="Nouveau modèle de séance" breadcrumb={BREADCRUMB_SESSION_CREATE}>
 
-      <SessionModelForm />
+        <SessionModelForm />
 
+      </ContentLayout>
     </PrivateLayout>
   );
 }

@@ -1,4 +1,5 @@
 import { SESSIONS_TYPES } from './sessions';
+import { renderSessionName } from './table';
 
 export const BREADCRUMB_BASE = [{
   title: 'Yoga Sof',
@@ -24,8 +25,8 @@ export const BREADCRUMB_USERS = [...BREADCRUMB_CATEGORY_ADMINISTRATION, {
   pathname: '/administration/utilisateurs',
 }];
 
-export const breadcrumbForUser = userId => [...BREADCRUMB_USERS, {
-  title: `#${userId}`,
+export const breadcrumbForUser = ({ name }) => [...BREADCRUMB_USERS, {
+  title: `${name}`,
   //pathname: `/administration/utilisateurs/${userId}`,
 }];
 
@@ -47,12 +48,12 @@ export const BREADCRUMB_SESSION_CREATE = [...BREADCRUMB_SESSION_MODELS, {
   pathname: '/administration/seances/modeles/creation',
 }];
 
-export const breadcrumbForSessionModelId = sessionId => [...BREADCRUMB_SESSION_MODELS, {
-  title: `#${sessionId}`,
+export const breadcrumbForSessionModel = ({ id }) => [...BREADCRUMB_SESSION_MODELS, {
+  title: `#${id}`,
   //pathname: `/administration/seances/modeles/${sessionId}`,
 }];
 
-export const breadcrumbForSessionModelIdEdit = sessionId => [...breadcrumbForSessionModelId(sessionId), {
+export const breadcrumbForSessionModelEdit = obj => [...breadcrumbForSessionModel(obj), {
   title: 'Edition',
   //pathname: `/administration/seances/modeles/${sessionId}/edition`,
 }];
@@ -66,12 +67,12 @@ export const BREADCRUMB_SESSION_PLANNING_CREATE = [...BREADCRUMB_SESSION_PLANNIN
   pathname: '/administration/seances/planning/creation',
 }];
 
-export const breadcrumbForSessionPlanningId = sessionPlanningId => [...BREADCRUMB_SESSION_PLANNING, {
-  title: `#${sessionPlanningId}`,
+export const breadcrumbForSessionPlanning = obj => [...BREADCRUMB_SESSION_PLANNING, {
+  title: `#${obj.id}` //renderSessionName(obj), // TODO
   //pathname: `/administration/seances/planning/${sessionId}`,
 }];
 
-export const breadcrumbForSessionPlanningIdEdit = sessionPlanningId => [...breadcrumbForSessionPlanningId(sessionPlanningId), {
+export const breadcrumbForSessionPlanningEdit = obj => [...breadcrumbForSessionPlanning(obj), {
   title: 'Edition',
   //pathname: `/administration/seances/planning/${sessionId}/edition`,
 }];

@@ -2,16 +2,15 @@ import { format } from 'date-fns';
 import { Badge, Button } from 'react-bootstrap';
 import { BsEyeFill, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import {
-  BREADCRUMB_SESSIONS, ConfirmDialog, dateFormat,
-  DynamicPaginatedTable,
+  BREADCRUMB_SESSIONS, ConfirmDialog, dateFormat, detailsColumnFor,
+  DynamicPaginatedTable, idColumn,
   SESSIONS_TYPES,
   SessionsCards,
 } from '../../../components';
-import { PrivateLayout } from '../../../components/layout/admin';
+import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import Link from 'next/link';
 
-export default function AdminSeances({ pathname }) {
-
+function AdminSeancesLayout({ pathname }) {
   const renderDate = ({ date_start: date }) => format(new Date(date), dateFormat);
 
   const renderTimePeriod = ({ date_start, date_end }) => (
@@ -25,7 +24,8 @@ export default function AdminSeances({ pathname }) {
   const renderSessionType = ({ type }) => SESSIONS_TYPES.find(({ id }) => id === type).title;
 
   return (
-    <PrivateLayout pathname={pathname} title="Séances" breadcrumb={BREADCRUMB_SESSIONS}>
+    <ContentLayout pathname={pathname} title="Séances" breadcrumb={BREADCRUMB_SESSIONS}>
+
 
       <h2 className="h5">Modèles de séances</h2>
 
@@ -61,10 +61,7 @@ export default function AdminSeances({ pathname }) {
           include: ['registrations'],
         })}
         columns={[
-          {
-            title: '#',
-            render: ({ id }) => id,
-          },
+          detailsColumnFor(id => `/administration/seances/planning/${id}`),
           {
             title: 'Date',
             render: renderDate,
@@ -123,11 +120,6 @@ export default function AdminSeances({ pathname }) {
             title: 'Actions',
             render: obj => (
               <>
-                <Link href={`/administration/seances/planning/${obj.id}`} passHref>
-                  <Button size="sm" variant="secondary" className="m-1">
-                    <BsEyeFill className="icon" />
-                  </Button>
-                </Link>
                 <Link href={`/administration/seances/planning/${obj.id}/edition`} passHref>
                   <Button size="sm" className="m-1">
                     <BsPencil className="icon" />
@@ -165,6 +157,17 @@ export default function AdminSeances({ pathname }) {
           }
         ]}
       />
+
+    </ContentLayout>
+  );
+}
+
+export default function AdminSeances({ pathname }) {
+
+  return (
+    <PrivateLayout pathname={pathname}>
+
+      <AdminSeancesLayout pathname={pathname} />
 
     </PrivateLayout>
   );

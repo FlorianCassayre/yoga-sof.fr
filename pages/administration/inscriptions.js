@@ -1,17 +1,17 @@
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { Badge } from 'react-bootstrap';
-import { BsCalendarDate, BsPerson } from 'react-icons/bs';
+import { BsCalendarDate } from 'react-icons/bs';
 import {
   BREADCRUMB_REGISTRATIONS, dateFormat, formatTimestamp,
-  DynamicPaginatedTable, SESSIONS_TYPES,
+  DynamicPaginatedTable, SESSIONS_TYPES, userLinkColumn, plannedSessionLinkColumn, idColumn, renderDatetime,
 } from '../../components';
-import { PrivateLayout } from '../../components/layout/admin';
+import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 
-export default function AdminRegistrations({ pathname }) {
+function AdminRegistrationsLayout({ pathname }) {
 
   return (
-    <PrivateLayout pathname={pathname} title="Inscriptions" breadcrumb={BREADCRUMB_REGISTRATIONS}>
+    <ContentLayout pathname={pathname} title="Inscriptions" breadcrumb={BREADCRUMB_REGISTRATIONS}>
 
       <p>
         Liste des inscriptions passées et futures à des séances programmées.
@@ -25,39 +25,11 @@ export default function AdminRegistrations({ pathname }) {
           include: ['session', 'user'],
         })}
         columns={[
-          {
-            title: '#',
-            render: ({ id }) => id,
-          },
-          {
-            title: 'Utilisateur',
-            render: ({ user_id, user: { name } }) => (
-              <Link href={`/administration/utilisateurs/${user_id}`} passHref>
-                <a>
-                  <BsPerson className="icon me-2" />
-                  {name}
-                </a>
-              </Link>
-            ),
-          },
-          {
-            title: 'Séance',
-            render: ({ session_id, session: { type, date_start } }) => (
-              <Link href={`/administration/seances/${session_id}`} passHref>
-                <a>
-                  <BsCalendarDate className="icon me-2" />
-                  {SESSIONS_TYPES.filter(({ id }) => id === type)[0].title}
-                  {' le '}
-                  {format(new Date(date_start), dateFormat)}
-                </a>
-              </Link>
-            )
-          },
+          userLinkColumn,
+          plannedSessionLinkColumn,
           {
             title: 'Date d\'inscription',
-            render: ({ created_at }) => (
-              formatTimestamp(created_at)
-            ),
+            render: ({ created_at }) => renderDatetime(created_at),
           },
           {
             title: 'Statut',
@@ -73,8 +45,19 @@ export default function AdminRegistrations({ pathname }) {
         ]}
       />
 
+    </ContentLayout>
+  );
+}
+
+export default function AdminRegistrations({ pathname }) {
+
+  return (
+    <PrivateLayout pathname={pathname} title="Inscriptions" breadcrumb={BREADCRUMB_REGISTRATIONS}>
+
+      <AdminRegistrationsLayout pathname={pathname} />
+
     </PrivateLayout>
-  )
+  );
 }
 
 AdminRegistrations.getInitialProps = ({ pathname })  => {

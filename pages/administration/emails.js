@@ -1,13 +1,16 @@
-import Link from 'next/link';
-import { Badge, Button } from 'react-bootstrap';
-import { BsPencil, BsPerson, BsXOctagon } from 'react-icons/bs';
-import { BREADCRUMB_EMAILS, ConfirmDialog, EMAIL_TYPES, formatTimestamp, DynamicPaginatedTable } from '../../components';
-import { PrivateLayout } from '../../components/layout/admin';
+import { Badge } from 'react-bootstrap';
+import {
+  BREADCRUMB_EMAILS,
+  EMAIL_TYPES,
+  formatTimestamp,
+  DynamicPaginatedTable,
+  userLinkColumn, idColumn, renderEmail, renderDatetime,
+} from '../../components';
+import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 
-export default function AdminEmails({ pathname }) {
-
+function AdminEmailsLayout({ pathname }) {
   return (
-    <PrivateLayout pathname={pathname} title="E-mails" breadcrumb={BREADCRUMB_EMAILS}>
+    <ContentLayout pathname={pathname} title="E-mails" breadcrumb={BREADCRUMB_EMAILS}>
 
       <p>
         Liste des e-mails envoyés par le système.
@@ -23,30 +26,13 @@ export default function AdminEmails({ pathname }) {
         })}
         columns={[
           {
-            title: '#',
-            render: ({ id }) => id,
-          },
-          {
             title: 'Type d\'e-mail',
             render: ({ type }) => EMAIL_TYPES[type].title,
           },
-          {
-            title: 'Utilisateur',
-            render: ({ user_id: userId, user: { name } }) => (
-              <Link href={`/administration/utilisateurs/${userId}`} passHref>
-                <a>
-                  <BsPerson className="icon me-2" />
-                  {name}
-                </a>
-              </Link>
-            ),
-          },
+          userLinkColumn,
           {
             title: 'Adresse de destination',
-            render: ({ destination_address }) => destination_address,
-            props: {
-              className: 'font-monospace',
-            },
+            render: ({ destination_address }) => renderEmail(destination_address),
           },
           {
             title: 'Sujet',
@@ -63,11 +49,11 @@ export default function AdminEmails({ pathname }) {
           },
           {
             title: 'Date',
-            render: ({ created_at: createdAt }) => formatTimestamp(createdAt),
+            render: ({ created_at: createdAt }) => renderDatetime(createdAt),
           },
           {
             title: 'Date d\'envoi',
-            render: ({ sent_at: sentAt }) => sentAt ? formatTimestamp(sentAt) : (
+            render: ({ sent_at: sentAt }) => sentAt ? renderDatetime(sentAt) : (
               <Badge bg="danger">Pas envoyé</Badge>
             ),
             props: {
@@ -77,8 +63,19 @@ export default function AdminEmails({ pathname }) {
         ]}
       />
 
+    </ContentLayout>
+  );
+}
+
+export default function AdminEmails({ pathname }) {
+
+  return (
+    <PrivateLayout pathname={pathname}>
+
+      <AdminEmailsLayout pathname={pathname} />
+
     </PrivateLayout>
-  )
+  );
 }
 
 AdminEmails.getInitialProps = ({ pathname })  => {

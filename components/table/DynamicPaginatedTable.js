@@ -12,7 +12,8 @@ export function DynamicPaginatedTable(
     totalFrom = data => data.pagination.total,
     paginationFrom = data => data.pagination,
     columns,
-    totalCallback
+    totalCallback,
+    renderEmpty,
   }) {
 
   const [page, setPage] = useState(initialPage);
@@ -42,6 +43,7 @@ export function DynamicPaginatedTable(
       page={data && (paginationFrom ? paginationFrom(data).page : 1)}
       pageCount={data && (paginationFrom ? paginationFrom(data).pageCount : 1)}
       columns={columns}
+      renderEmpty={renderEmpty}
     />
   );
 }

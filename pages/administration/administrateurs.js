@@ -1,16 +1,19 @@
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { Badge } from 'react-bootstrap';
-import { BREADCRUMB_ADMINS, DynamicPaginatedTable, StarIndicator } from '../../components';
-import { PrivateLayout } from '../../components/layout/admin';
+import {
+  BREADCRUMB_ADMINS,
+  DynamicPaginatedTable,
+  renderEmailCompare,
+} from '../../components';
+import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 
-export default function AdminAdmins({ pathname }) {
+function AdminAdminsLayout({ pathname }) {
   const { data: session } = useSession();
   const [total, setTotal] = useState(null);
   const sessionEmail = session?.user.email;
 
   return (
-    <PrivateLayout pathname={pathname} title="Administrateurs" count={total} breadcrumb={BREADCRUMB_ADMINS}>
+    <ContentLayout pathname={pathname} title="Administrateurs" count={total} breadcrumb={BREADCRUMB_ADMINS}>
 
       <p>
         Liste blanche des adresses emails autorisées à se connecter en tant qu'administrateur.
@@ -23,18 +26,21 @@ export default function AdminAdmins({ pathname }) {
         rowsFrom={rows => rows}
         paginationFrom={null}
         columns={[{
-          title: 'Adresse email',
-          render: ({ email }) => (
-            <>
-              <span className="font-monospace">{email}</span>
-              {sessionEmail === email && (
-                <StarIndicator text="Il s'agit de l'adresse de votre compte" />
-              )}
-            </>
-          ),
+          title: 'Adresse e-mail',
+          render: ({ email }) => renderEmailCompare(sessionEmail)(email),
         }]}
         totalCallback={total => setTotal(total)}
       />
+    </ContentLayout>
+  );
+}
+
+export default function AdminAdmins({ pathname }) {
+  return (
+    <PrivateLayout pathname={pathname}>
+
+      <AdminAdminsLayout pathname={pathname} />
+
     </PrivateLayout>
   );
 }

@@ -1,18 +1,21 @@
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { Button } from 'react-bootstrap';
-import { BsEyeFill } from 'react-icons/bs';
-import { BREADCRUMB_USERS, formatTimestamp, DynamicPaginatedTable, providersData, StarIndicator } from '../../../components';
-import { PrivateLayout } from '../../../components/layout/admin';
-import Link from 'next/link';
+import {
+  BREADCRUMB_USERS,
+  DynamicPaginatedTable,
+  providersData,
+  StarIndicator,
+  renderDatetime, detailsColumnFor,
+} from '../../../components';
+import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 
-export default function AdminUsers({ pathname }) {
+function AdminUsersLayout({ pathname }) {
   const [total, setTotal] = useState(null);
 
   const { data: sessionData } = useSession();
 
   return (
-    <PrivateLayout pathname={pathname} title="Utilisateurs" count={total} breadcrumb={BREADCRUMB_USERS}>
+    <ContentLayout pathname={pathname} title="Utilisateurs" count={total} breadcrumb={BREADCRUMB_USERS}>
 
       <p>
         Liste des utilisateurs s'étant connectés au moins une fois au site.
@@ -25,10 +28,7 @@ export default function AdminUsers({ pathname }) {
           limit,
         })}
         columns={[
-          {
-            title: '#',
-            render: ({ id }) => id,
-          },
+          detailsColumnFor(id => `/administration/utilisateurs/${id}`),
           {
             title: 'Service',
             render: ({ provider }) => {
@@ -56,32 +56,30 @@ export default function AdminUsers({ pathname }) {
           },
           {
             title: 'Dernière activité',
-            render: ({ updated_at: updatedAt }) => formatTimestamp(updatedAt),
+            render: ({ updated_at: updatedAt }) => renderDatetime(updatedAt),
           },
           {
             title: 'Première activité',
-            render: ({ created_at: createdAt }) => formatTimestamp(createdAt),
+            render: ({ created_at: createdAt }) => renderDatetime(createdAt),
           },
           {
             title: 'Identifiant du service',
             render: ({ id_provider: idProvider }) => <span className="font-monospace">{idProvider}</span>,
           },
-          {
-            title: 'Détails',
-            render: ({ id }) => (
-              <Link href={`/administration/utilisateurs/${id}`} passHref>
-                <Button variant="secondary" size="sm">
-                  <BsEyeFill className="icon" />
-                </Button>
-              </Link>
-            ),
-            props: {
-              className: 'text-center',
-            },
-          }
         ]}
         totalCallback={total => setTotal(total)}
       />
+
+    </ContentLayout>
+  );
+}
+
+export default function AdminUsers({ pathname }) {
+
+  return (
+    <PrivateLayout pathname={pathname}>
+
+      <AdminUsersLayout pathname={pathname} />
 
     </PrivateLayout>
   );

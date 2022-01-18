@@ -1,11 +1,12 @@
 import Head from 'next/head';
-import { Badge, Breadcrumb } from 'react-bootstrap';
+import { Badge, Breadcrumb, Spinner } from 'react-bootstrap';
+import { ErrorMessage } from '../../ErrorMessage';
 import { USER_TYPE_ADMIN } from '../../session';
 import { AuthGuard } from '../../AuthGuard';
 import { NavigationLayout } from './NavigationLayout';
 import Link from 'next/link';
 
-export function PrivateLayout({ children, pathname, title, count, breadcrumb }) {
+export function PrivateLayout({ children, pathname }) {
   return (
     <AuthGuard allowedUserTypes={[USER_TYPE_ADMIN]}>
       <div>
@@ -15,30 +16,6 @@ export function PrivateLayout({ children, pathname, title, count, breadcrumb }) 
         </Head>
 
         <NavigationLayout pathname={pathname}>
-          {breadcrumb && (
-            <Breadcrumb>
-              {breadcrumb.map(({ title, pathname: pathnameOther }, i) => pathnameOther && pathnameOther !== pathname ? (
-                <Link key={i} href={pathnameOther} passHref>
-                  <Breadcrumb.Item>{title}</Breadcrumb.Item>
-                </Link>
-              ) : (
-                <Breadcrumb.Item key={i} active>{title}</Breadcrumb.Item>
-              ))}
-            </Breadcrumb>
-          )}
-
-          {title && (
-            <>
-              <h1 className="h4">
-                {title}
-                {count != null && (
-                  <Badge pill bg="secondary" className="ms-2">{count}</Badge>
-                )}
-              </h1>
-              <hr />
-            </>
-          )}
-
           {children}
         </NavigationLayout>
 

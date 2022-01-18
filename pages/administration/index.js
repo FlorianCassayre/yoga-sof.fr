@@ -1,11 +1,21 @@
 import { BREADCRUMB_OVERVIEW, SessionsCards } from '../../components';
-import { PrivateLayout } from '../../components/layout/admin';
+import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
+
+function AdminHomeLayout({ pathname }) {
+  return (
+    <ContentLayout pathname={pathname} title="Aperçu" breadcrumb={BREADCRUMB_OVERVIEW}>
+
+      <SessionsCards />
+
+    </ContentLayout>
+  );
+}
 
 export default function AdminHome({ pathname }) {
   return (
-    <PrivateLayout pathname={pathname} title="Aperçu" breadcrumb={BREADCRUMB_OVERVIEW}>
+    <PrivateLayout pathname={pathname}>
 
-      <SessionsCards />
+      <AdminHomeLayout pathname={pathname} />
 
     </PrivateLayout>
   )
