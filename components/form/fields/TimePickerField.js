@@ -7,27 +7,28 @@ export function TimePickerField({ name, label, fieldProps = {}, ...props }) {
 
   const getEpoch = () => new Date(0);
 
-  const timeFormat = 'HH:mm';
+  const timeFormatDb = 'HH:mm';
+  const timeFormatDisplay = `HH'h'mm`
 
   return (
     <Form.Group {...props}>
       <Form.Label>{label}</Form.Label>
       <Field
         name={name}
-        render={({ input, input: { value, onChange } }) => {
-          const parsed = parse(value, timeFormat, getEpoch());
+        render={({ input: { value, onChange } }) => {
+          const parsed = parse(value, timeFormatDb, getEpoch());
           return (
             <DatePicker
               /*locale="fr"*/
               required
               selected={value && isValid(parsed) ? parsed : null}
-              onChange={date => input.onChange(isValid(date) ? format(new Date(date), timeFormat) : null)}
+              onChange={date => onChange(isValid(date) ? format(new Date(date), timeFormatDb) : null)}
               showTimeSelect
               showTimeSelectOnly
               timeIntervals={15}
               timeCaption="Heure"
-              dateFormat="HH'h'mm"
-              timeFormat="HH'h'mm"
+              dateFormat={timeFormatDisplay}
+              timeFormat={timeFormatDisplay}
               customInput={<Form.Control />}
               {...fieldProps}
             />

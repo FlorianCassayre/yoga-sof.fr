@@ -1,6 +1,8 @@
+import { isSameDay } from 'date-fns';
+import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
-import { Badge, Button, Card, Col, Container, ProgressBar, Row, Spinner } from 'react-bootstrap';
-import { BsCheck2 } from 'react-icons/bs';
+import { Badge, Button, Card, Col, Container, Form, ProgressBar, Row, Spinner, Table } from 'react-bootstrap';
+import { BsCheck2, BsCheckLg } from 'react-icons/bs';
 import {
   formatTime, minutesToParsedTime, parsedTimeToMinutes, parsedTimeToTime, parseTime,
   SESSIONS_TYPES,
@@ -14,18 +16,22 @@ import {
 import { AuthGuard } from '../components';
 import { PublicLayout } from '../components/layout/public';
 import DatePicker, { registerLocale } from 'react-datepicker';
+import { Form as FinalForm, Field } from 'react-final-form';
 
 import { fr } from 'date-fns/locale';
 import { useDataApi } from '../hooks';
 registerLocale('fr', fr);
 
 export default function Inscription({ pathname }) {
-  const [currentStep, setCurrentStep] = useState(1);
+  const { data: sessionData } = useSession();
 
   const [{ isLoading, isError, data, error }] = useDataApi('/api/sessions_schedule');
 
-  const CourseOption = ({ type, title, person, description }) => {
+  const CourseOption = ({ type, title, person, description, onSelect }) => {
     const matchedSessions = data.schedule.filter(({ type: otherType }) => otherType === type);
+    const matchedRegistrable = data.sessions.filter(({ type: otherType }) => otherType === type);
+
+    const existsAvailableSlot = matchedRegistrable.filter(({ slots, registrations }) => registrations < slots).length > 0;
 
     const renderPrices = () => {
       const distinctPrices = Array.from(new Set(matchedSessions.map(({ price }) => price))).sort((a, b) => a - b);
@@ -77,81 +83,111 @@ export default function Inscription({ pathname }) {
     };
 
     return (
-      <Card className="card-highlight text-center" style={{ cursor: 'pointer' }} onClick={() => setCurrentStep(2)}>
-        <Card.Img variant="top" src="/stock/woman_stretch_cropped.jpg" />
-        <Card.Body>
-          <Card.Title>{title}</Card.Title>
-          <Card.Text>
-            {matchedSessions.length > 0 ? (
-              <>
-                {renderPrices()} par {person} pour {renderDuration()} de pratique
-              </>
-            ) : (
-              <em>Pas d'informations disponibles</em>
-            )}
-          </Card.Text>
-        </Card.Body>
-        <Card.Footer>
-          <small className="text-muted">
-            {renderDatesAndTimes()}
-          </small>
-        </Card.Footer>
-      </Card>
+      <Col xs={12} md={4}>
+        <Card className={`text-center my-2 ${existsAvailableSlot ? 'card-highlight' : 'opacity-50'}`} style={{ cursor: existsAvailableSlot ? 'pointer' : null }} onClick={() => existsAvailableSlot && onSelect(type)}>
+          <Card.Img variant="top" src="/stock/woman_stretch_cropped.jpg" />
+          <Card.Body>
+            <Card.Title>{title}</Card.Title>
+            <Card.Text>
+              {matchedSessions.length > 0 ? (
+                <>
+                  {renderPrices()} par {person} pour {renderDuration()} de pratique
+                </>
+              ) : (
+                <em>Pas d'informations disponibles</em>
+              )}
+            </Card.Text>
+          </Card.Body>
+          <Card.Footer>
+            <small className="text-muted">
+              {renderDatesAndTimes()}
+            </small>
+          </Card.Footer>
+        </Card>
+      </Col>
     );
   }
 
-  const Step1 = () => (
-    <Row>
-      <Col>
+  const Step1 = ({ setValue }) => {
+    const handleSelect = type => {
+      setValue('type', type);
+      setValue('step', 2);
+    };
+    return (
+      <Row>
         <CourseOption
           type={YOGA_ADULT}
           title="Séance de yoga adulte"
           person="adulte"
-          description="10€ par adulte pour 1h"
+          onSelect={handleSelect}
         />
-      </Col>
-      <Col>
         <CourseOption
           type={YOGA_CHILD}
           title="Séance de yoga enfant"
           person="enfant"
-          description="15€ par enfant pour 2h"
+          onSelect={handleSelect}
         />
-      </Col>
-      <Col>
         <CourseOption
           type={YOGA_ADULT_CHILD}
           title="Séance de yoga parent-enfant"
           person="duo"
-          description="20€ par duo pour 1h"
+          onSelect={handleSelect}
         />
-      </Col>
-    </Row>
-  );
+      </Row>
+    );
+  };
 
-  const Step2 = () => {
-    const [startDate, setStartDate] = useState(null);
-    const isWeekday = (date) => {
-      return Math.random() < .5;
+  const Step2 = ({ type, setValue }) => {
+    const sessionsForType = data.sessions.filter(({ type: typeOther }) => typeOther === type);
+    // TODO remove already registered sessions
+    const selectableDates = sessionsForType.map(({ date_start: date }) => new Date(date));
+    const times = selectableDates.map(d => d.getTime());
+    const now = new Date();
+    const [minDate, maxDate] = selectableDates.length > 0 ? [new Date(Math.min(...times)), new Date(Math.max(...times))] : [now, now];
+
+    const isDateSelectable = date => {
+      return selectableDates.some(other => isSameDay(date, other));
+    };
+    const handleDayClick = currentValue => date => {
+      const matchingSessions = sessionsForType.filter(({ date_start: sessionDate }) => isSameDay(new Date(sessionDate), date));
+      if(matchingSessions.length > 0) {
+        if(matchingSessions.length === 1) {
+          const session = matchingSessions[0];
+          setValue('sessions', currentValue.includes(session.id) ? currentValue.filter(id => id !== session.id) : [...currentValue, session.id]);
+        } else { // Ambiguous
+          console.log('TODO'); // TODO
+        }
+      }
+      // Otherwise, do nothing
     };
     return (
-      <div className="text-center">
-        <DatePicker
-          locale="fr"
-          selected={startDate}
-          onChange={(date) => setStartDate(date)}
-          filterDate={isWeekday}
-          placeholderText="Select a weekday"
-          inline
-        />
+      <div className="text-center date-picker-registration">
+        <Field
+          name="sessions"
+        >
+          {({ input: { value } }) => (
+            <DatePicker
+              locale="fr"
+              selected={now}
+              highlightDates={sessionsForType.filter(({ id }) => value.includes(id)).map(({ date_start: date }) => new Date(date))}
+              filterDate={isDateSelectable}
+              onSelect={handleDayClick(value)}
+              minDate={minDate}
+              maxDate={maxDate}
+              placeholderText="Sélectionnez des dates"
+              inline
+            />
+          )}
+        </Field>
 
-        <Button variant="primary" className="mt-3" onClick={() => setCurrentStep(3)}>
+
+        <Button variant="primary" className="mt-3" onClick={() => setValue('step', 3)}>
           <BsCheck2 className="icon me-2" />
           Valider ces horaires et continuer
         </Button>
       </div>
     );
-  }
+  };
 
   const Step3 = () => (
     <>
@@ -165,6 +201,26 @@ export default function Inscription({ pathname }) {
         </Col>
         <Col>
           <h4>Vos informations</h4>
+          <Table bordered>
+            <tbody>
+            <tr>
+              <th>Nom</th>
+              <td>{sessionData.user.name}</td>
+            </tr>
+            <tr>
+              <th>Adresse e-mail</th>
+              <td>{sessionData.user.email}</td>
+            </tr>
+            </tbody>
+          </Table>
+        </Col>
+      </Row>
+      <Row>
+        <Col className="text-center py-3">
+          <Button type="submit">
+            <BsCheckLg className="icon me-2" />
+            Confirmer mes inscriptions
+          </Button>
         </Col>
       </Row>
 
@@ -178,6 +234,11 @@ export default function Inscription({ pathname }) {
 
   const courses = [1, 2, 3];
 
+  const onSubmit = values => {
+    console.log(values);
+    // TODO
+  };
+
   return (
     <AuthGuard allowedUserTypes={[USER_TYPE_REGULAR, USER_TYPE_ADMIN]}>
       <PublicLayout pathname={pathname} padNavbar>
@@ -189,48 +250,64 @@ export default function Inscription({ pathname }) {
             <li>Les séances peuvent être choisies à l'unité</li>
             <li>Il est possible de reporter une séance déjà réservée, merci de nous écrire à l'avance par email</li>
           </ul>
-          {!isLoading ? (
-            <div>
-              <Row className="text-center mt-4">
-                {courses.map(step => (
-                  <Col key={step} style={{ position: 'relative' }}>
-                    <h3 className="m-0">
-                      <Badge pill bg={step <= currentStep ? 'primary' : 'secondary'} style={{ border: 'solid white 5px' }}>{step}</Badge>
-                    </h3>
-                    {step < 3 && (
-                      <ProgressBar now={step < currentStep ? 100 : 0} style={{ position: 'absolute', width: '100%', left: 0, top: '50%', transform: 'translate(50%, -50%)', zIndex: -10 }} />
+          <FinalForm
+            onSubmit={onSubmit}
+            initialValues={{
+              step: 1,
+              type: null,
+              sessions: [],
+            }}
+            mutators={{
+              setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value)
+            }}
+            render={({ handleSubmit, form: { mutators: { setValue } }, values }) => (
+              <Form onSubmit={handleSubmit}>
+                {!isLoading ? (
+                  <div>
+                    {JSON.stringify(values)}
+                    <Row className="text-center mt-4">
+                      {courses.map(step => (
+                        <Col key={step} style={{ position: 'relative' }}>
+                          <h3 className="m-0">
+                            <Badge pill bg={step <= values.step ? 'primary' : 'secondary'} style={{ border: 'solid white 5px' }} onClick={() => step === values.step - 1 && setValue('step', step)}>{step}</Badge>
+                          </h3>
+                          {step < 3 && (
+                            <ProgressBar now={step < values.step ? 100 : 0} style={{ position: 'absolute', width: '100%', left: 0, top: '50%', transform: 'translate(50%, -50%)', zIndex: -10 }} />
+                          )}
+                        </Col>
+                      ))}
+                    </Row>
+                    <Row className="text-center mb-5">
+                      {courses.map(step => (
+                        <Col key={step}>
+                          <span className="text-muted">
+                            {step === 1 ? (
+                              <>Choix du type de séance</>
+                            ) : step === 2 ? (
+                              <>Choix des horaires</>
+                            ) : (
+                              <>Confirmation</>
+                            )}
+                          </span>
+                        </Col>
+                      ))}
+                    </Row>
+                    {values.step === 1 ? (
+                      <Step1 setValue={setValue} />
+                    ) : values.step === 2 ? (
+                      <Step2 setValue={setValue} type={values.type} />
+                    ) : (
+                      <Step3 />
                     )}
-                  </Col>
-                ))}
-              </Row>
-              <Row className="text-center mb-5">
-                {courses.map(step => (
-                  <Col key={step}>
-              <span className="text-muted">
-                {step === 1 ? (
-                  <>Choix de la séance</>
-                ) : step === 2 ? (
-                  <>Calendrier</>
+                  </div>
                 ) : (
-                  <>Confirmation</>
+                  <div className="m-5 text-center">
+                    <Spinner animation="border" />
+                  </div>
                 )}
-              </span>
-                  </Col>
-                ))}
-              </Row>
-              {currentStep === 1 ? (
-                <Step1 />
-              ) : currentStep === 2 ? (
-                <Step2 />
-              ) : (
-                <Step3 />
-              )}
-            </div>
-          ) : (
-            <div className="m-5 text-center">
-              <Spinner animation="border" />
-            </div>
-          )}
+              </Form>
+            )}
+          />
 
         </Container>
       </PublicLayout>

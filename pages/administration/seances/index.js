@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { Badge, Button } from 'react-bootstrap';
-import { BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
+import { BsEyeFill, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import {
   BREADCRUMB_SESSIONS, ConfirmDialog, dateFormat,
   PaginatedTable,
@@ -123,6 +123,11 @@ export default function AdminSeances({ pathname }) {
             title: 'Actions',
             render: obj => (
               <>
+                <Link href={`/administration/seances/planning/${obj.id}`} passHref>
+                  <Button size="sm" variant="secondary" className="m-1">
+                    <BsEyeFill className="icon" />
+                  </Button>
+                </Link>
                 <Link href={`/administration/seances/planning/${obj.id}/edition`} passHref>
                   <Button size="sm" className="m-1">
                     <BsPencil className="icon" />

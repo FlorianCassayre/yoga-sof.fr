@@ -158,21 +158,18 @@ export function SessionBatchCreateForm() {
 
                 <Field
                   name="datesRange"
-                  render={({ input, input: { value, onChange } }) => {
-
-                    return (
-                      <DatePicker
-                        selected={value && value[0]}
-                        onChange={onChange}
-                        startDate={value && value[0]}
-                        endDate={value && value[1]}
-                        filterDate={date => isSameWeekday(date, values.weekday)}
-                        selectsRange
-                        selectsDisabledDaysInRange
-                        inline
-                      />
-                    );
-                  }}
+                  render={({ input: { value, onChange } }) => (
+                    <DatePicker
+                      selected={value && value[0]}
+                      onChange={onChange}
+                      startDate={value && value[0]}
+                      endDate={value && value[1]}
+                      filterDate={date => isSameWeekday(date, values.weekday)}
+                      selectsRange
+                      selectsDisabledDaysInRange
+                      inline
+                    />
+                  )}
                 />
 
                 <small>Il n'est pas possible d'exclure des dates de l'intervalle sélectionné.<br />En revanche vous pouvez soumettre ce formulaire plusieurs fois.</small>

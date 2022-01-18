@@ -1,6 +1,3 @@
-import { isSameDay } from 'date-fns';
-import { getSession } from 'next-auth/react';
-import { USER_TYPE_ADMIN } from '../../components';
 import { prisma } from '../../server';
 
 export default async function handler(req, res) {
@@ -16,6 +13,14 @@ export default async function handler(req, res) {
           price: true,
           date_start: true,
           date_end: true,
+          registrations: {
+            where: {
+              is_user_canceled: false,
+            },
+            select: {
+              is_user_canceled: true,
+            },
+          },
         },
         where: {
           AND: [
@@ -32,7 +37,10 @@ export default async function handler(req, res) {
       }),
     ]);
 
-    res.status(200).json({ schedule: sessionModels, sessions: futureSessions });
+    // Convert array into count
+    // Follow https://github.com/prisma/prisma/issues/6570 for better alternative
+
+    res.status(200).json({ schedule: sessionModels, sessions: futureSessions.map(({ registrations, ...obj }) => ({ ...obj, registrations: registrations.length })) });
   } else {
     res.status(405).json({ error: 'Method Not Allowed' });
   }

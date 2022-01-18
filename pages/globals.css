@@ -61,3 +61,17 @@ body {
         height: 100vh;
     }
 }
+
+.date-picker-registration .react-datepicker__day--keyboard-selected:not(.react-datepicker__day--highlighted) {
+    background-color: inherit !important;
+    color: inherit;
+}
+
+.date-picker-registration .react-datepicker__day--selected:not(.react-datepicker__day--highlighted) {
+    background-color: inherit !important;
+}
+
+.date-picker-registration .react-datepicker__day--highlighted {
+    background-color: #32be3f !important;
+    color: white !important;
+}

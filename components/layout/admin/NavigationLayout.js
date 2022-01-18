@@ -95,7 +95,7 @@ export function NavigationLayout({ pathname, children }) {
 
           </div>
         </Col>
-        <Col className="d-flex flex-column">
+        <Col xs={12} sm={7} md={8} lg={9} xl={10} className="d-flex flex-column">
           <Row as="main" className="overflow-auto">
             <Col className="p-4">
               {children}
