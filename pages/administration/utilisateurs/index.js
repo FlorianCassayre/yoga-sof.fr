@@ -2,7 +2,7 @@ import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { BsEyeFill } from 'react-icons/bs';
-import { BREADCRUMB_USERS, formatTimestamp, PaginatedTable, providersData, StarIndicator } from '../../../components';
+import { BREADCRUMB_USERS, formatTimestamp, DynamicPaginatedTable, providersData, StarIndicator } from '../../../components';
 import { PrivateLayout } from '../../../components/layout/admin';
 import Link from 'next/link';
 
@@ -18,7 +18,7 @@ export default function AdminUsers({ pathname }) {
         Liste des utilisateurs s'étant connectés au moins une fois au site.
       </p>
 
-      <PaginatedTable
+      <DynamicPaginatedTable
         url="/api/users"
         params={(page, limit) => ({
           page,

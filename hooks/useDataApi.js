@@ -3,11 +3,19 @@ import { isErrorCode } from '../components';
 
 // Inspired by: https://www.robinwieruch.de/react-hooks-fetch-data/
 
+const FETCH_INITIATED = 'FETCH_INITIATED';
 const FETCH_SUCCESS = 'FETCH_SUCCESS';
 const FETCH_FAILURE = 'FETCH_FAILURE';
 
 const dataFetchReducer = (state, action) => {
   switch (action.type) {
+    case FETCH_INITIATED:
+      return {
+        isLoading: true,
+        isError: false,
+        data: state.data,
+        error: null,
+      };
     case FETCH_SUCCESS:
       return {
         isLoading: false,
@@ -41,6 +49,8 @@ export const useDataApi = (url, initialParams) => {
     let didCancel = false;
 
     const fetchData = async () => {
+      dispatch({ type: FETCH_INITIATED });
+
       try {
         const urlWithParams = params ? url + '?' + new URLSearchParams(params) : url;
         const json = await fetch(urlWithParams).then(response => {

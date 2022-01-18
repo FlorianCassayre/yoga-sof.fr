@@ -3,7 +3,7 @@ import { Badge, Button } from 'react-bootstrap';
 import { BsEyeFill, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import {
   BREADCRUMB_SESSIONS, ConfirmDialog, dateFormat,
-  PaginatedTable,
+  DynamicPaginatedTable,
   SESSIONS_TYPES,
   SessionsCards,
 } from '../../../components';
@@ -53,7 +53,7 @@ export default function AdminSeances({ pathname }) {
         </Button>
       </Link>
 
-      <PaginatedTable
+      <DynamicPaginatedTable
         url="/api/sessions"
         params={(page, limit) => ({
           page,

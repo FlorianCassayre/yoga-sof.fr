@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Badge, Button } from 'react-bootstrap';
 import { BsPencil, BsPerson, BsXOctagon } from 'react-icons/bs';
-import { BREADCRUMB_EMAILS, ConfirmDialog, EMAIL_TYPES, formatTimestamp, PaginatedTable } from '../../components';
+import { BREADCRUMB_EMAILS, ConfirmDialog, EMAIL_TYPES, formatTimestamp, DynamicPaginatedTable } from '../../components';
 import { PrivateLayout } from '../../components/layout/admin';
 
 export default function AdminEmails({ pathname }) {
@@ -14,7 +14,7 @@ export default function AdminEmails({ pathname }) {
         Ce module est en lecture seule.
       </p>
 
-      <PaginatedTable
+      <DynamicPaginatedTable
         url="/api/emails"
         params={(page, limit) => ({
           page,

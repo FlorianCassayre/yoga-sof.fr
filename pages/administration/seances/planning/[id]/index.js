@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { breadcrumbForSessionPlanningId, breadcrumbForSessionPlanningIdEdit } from '../../../../../components';
+import { breadcrumbForSessionPlanningId } from '../../../../../components';
 import { PrivateLayout } from '../../../../../components/layout/admin';
 
 export default function SessionView({ pathname }) {

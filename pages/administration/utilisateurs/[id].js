@@ -8,7 +8,7 @@ import {
   dateFormat,
   ErrorMessage,
   formatTimestamp,
-  PaginatedTable,
+  DynamicPaginatedTable,
   SESSIONS_TYPES,
 } from '../../../components';
 import { PrivateLayout } from '../../../components/layout/admin';
@@ -40,7 +40,7 @@ export default function AdminUser({ pathname }) {
       </p>
 
       {!isError ? (!isLoading ? (
-        <PaginatedTable
+        <DynamicPaginatedTable
           url="/api/registrations"
           params={(page, limit) => ({
             page,

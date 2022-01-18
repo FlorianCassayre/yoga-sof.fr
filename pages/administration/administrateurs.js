@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { Badge } from 'react-bootstrap';
-import { BREADCRUMB_ADMINS, PaginatedTable, StarIndicator } from '../../components';
+import { BREADCRUMB_ADMINS, DynamicPaginatedTable, StarIndicator } from '../../components';
 import { PrivateLayout } from '../../components/layout/admin';
 
 export default function AdminAdmins({ pathname }) {
@@ -17,7 +17,7 @@ export default function AdminAdmins({ pathname }) {
         Pour des raisons de sécurité, cette liste n'est pas directement modifiable depuis l'interface.
       </p>
 
-      <PaginatedTable
+      <DynamicPaginatedTable
         url="/api/admins"
         totalFrom={rows => rows.length}
         rowsFrom={rows => rows}

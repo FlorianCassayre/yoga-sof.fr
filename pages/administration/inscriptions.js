@@ -4,7 +4,7 @@ import { Badge } from 'react-bootstrap';
 import { BsCalendarDate, BsPerson } from 'react-icons/bs';
 import {
   BREADCRUMB_REGISTRATIONS, dateFormat, formatTimestamp,
-  PaginatedTable, SESSIONS_TYPES,
+  DynamicPaginatedTable, SESSIONS_TYPES,
 } from '../../components';
 import { PrivateLayout } from '../../components/layout/admin';
 
@@ -17,7 +17,7 @@ export default function AdminRegistrations({ pathname }) {
         Liste des inscriptions passées et futures à des séances programmées.
       </p>
 
-      <PaginatedTable
+      <DynamicPaginatedTable
         url="/api/registrations"
         params={(page, limit) => ({
           page,
