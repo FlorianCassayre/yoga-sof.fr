@@ -41,6 +41,9 @@ function AdminUserLayout({ pathname, id }) {
           where: JSON.stringify({
             user_id: parseInt(id),
           }),
+          orderBy: JSON.stringify({
+            created_at: '$desc',
+          }),
           include: ['session', 'user'],
         })}
         columns={[

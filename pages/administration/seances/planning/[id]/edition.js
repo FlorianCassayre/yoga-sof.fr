@@ -9,11 +9,14 @@ export default function AdminSeancePlanningEdit({ pathname }) {
 
   return (
     <PrivateLayout pathname={pathname}>
-      <ContentLayout pathname={pathname} title="Modification d'une séance planifiée" breadcrumb={breadcrumbForSessionPlanningEdit({ id })}>
 
-        <SessionForm editRecordId={id} />
+        <SessionForm
+          editRecordId={id}
+          container={({ data, ...props }) => (
+            <ContentLayout {...props} pathname={pathname} title="Modification d'une séance planifiée" breadcrumb={data && breadcrumbForSessionPlanningEdit(data)} />
+          )}
+        />
 
-      </ContentLayout>
     </PrivateLayout>
   );
 }

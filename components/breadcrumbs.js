@@ -1,3 +1,4 @@
+import { formatTime, WEEKDAYS } from './date';
 import { SESSIONS_TYPES } from './sessions';
 import { renderSessionName } from './table';
 
@@ -26,7 +27,7 @@ export const BREADCRUMB_USERS = [...BREADCRUMB_CATEGORY_ADMINISTRATION, {
 }];
 
 export const breadcrumbForUser = ({ name }) => [...BREADCRUMB_USERS, {
-  title: `${name}`,
+  title: name,
   //pathname: `/administration/utilisateurs/${userId}`,
 }];
 
@@ -48,8 +49,8 @@ export const BREADCRUMB_SESSION_CREATE = [...BREADCRUMB_SESSION_MODELS, {
   pathname: '/administration/seances/modeles/creation',
 }];
 
-export const breadcrumbForSessionModel = ({ id }) => [...BREADCRUMB_SESSION_MODELS, {
-  title: `#${id}`,
+export const breadcrumbForSessionModel = ({ type, weekday, time_start: timeStart, time_end: timeEnd }) => [...BREADCRUMB_SESSION_MODELS, {
+  title: [SESSIONS_TYPES.filter(({ id }) => type === id)[0].title, 'les', WEEKDAYS[weekday].toLowerCase() + 's', 'de', formatTime(timeStart), 'à', formatTime(timeEnd)].join(' '),
   //pathname: `/administration/seances/modeles/${sessionId}`,
 }];
 
@@ -68,7 +69,7 @@ export const BREADCRUMB_SESSION_PLANNING_CREATE = [...BREADCRUMB_SESSION_PLANNIN
 }];
 
 export const breadcrumbForSessionPlanning = obj => [...BREADCRUMB_SESSION_PLANNING, {
-  title: `#${obj.id}` //renderSessionName(obj), // TODO
+  title: renderSessionName(obj),
   //pathname: `/administration/seances/planning/${sessionId}`,
 }];
 

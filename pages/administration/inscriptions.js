@@ -22,6 +22,9 @@ function AdminRegistrationsLayout({ pathname }) {
         params={(page, limit) => ({
           page,
           limit,
+          orderBy: JSON.stringify({
+            created_at: '$desc',
+          }),
           include: ['session', 'user'],
         })}
         columns={[

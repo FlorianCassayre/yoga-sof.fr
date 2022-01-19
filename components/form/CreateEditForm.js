@@ -1,12 +1,12 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Form, Modal, Spinner } from 'react-bootstrap';
 import { Form as FinalForm } from 'react-final-form';
 import { BsCheckLg, BsPlusLg, BsTrash, BsXLg } from 'react-icons/bs';
 import { ErrorMessage } from '../ErrorMessage';
 import { isErrorCode } from '../http';
 
-export function CreateEditForm({ modelId, editRecordId, deletable, initialValues = {}, redirect, numberFields = [], disabled, loading, submitCallback, children }) {
+export function CreateEditForm({ modelId, editRecordId, deletable, initialValues = {}, redirect, numberFields = [], disabled, loading, submitCallback, container: Container = React.Fragment, children }) {
 
   const isEdit = editRecordId != null;
 
@@ -184,19 +184,22 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
     </Form>
   ) : renderLoader();
 
-  return !loadError ? (initialData != null ? (
-    <FinalForm
-      onSubmit={onSubmit}
-      initialValues={initialData}
-      mutators={{
-        setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value)
-      }}
-      /*validate={validate}*/
-      render={renderForm}
-    />
-  ) : renderLoader()) : (
-    <ErrorMessage error={loadError}>
-      Une erreur est survenue lors du chargement des données.
-    </ErrorMessage>
+  return (
+    <Container
+      isLoading={initialData == null}
+      isError={!!loadError}
+      error={loadError}
+      data={initialData}
+    >
+      <FinalForm
+        onSubmit={onSubmit}
+        initialValues={initialData}
+        mutators={{
+          setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value)
+        }}
+        /*validate={validate}*/
+        render={renderForm}
+      />
+    </Container>
   );
 }

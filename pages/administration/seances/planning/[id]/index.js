@@ -1,4 +1,6 @@
 import { useRouter } from 'next/router';
+import { useMemo } from 'react';
+import { Badge } from 'react-bootstrap';
 import {
   breadcrumbForSessionPlanning,
   renderDatetime,
@@ -16,6 +18,13 @@ function SessionViewLayout({ pathname, id }) {
     render: ({ created_at: createdAt }) => renderDatetime(createdAt),
   };
 
+  const sortedRegistrations = useMemo(() => {
+    return data && data.registrations.slice().sort(({ created_at: t1 }, { created_at: t2 }) => new Date(t2).getTime() - new Date(t1).getTime());
+  }, [data]);
+  const [notCanceledRegistrations, canceledRegistrations] = useMemo(() => {
+    return sortedRegistrations ? [sortedRegistrations.filter(({ is_user_canceled: isCanceled }) => !isCanceled), sortedRegistrations.filter(({ is_user_canceled: isCanceled }) => isCanceled)] : [];
+  }, [sortedRegistrations]);
+
   return (
     <ContentLayout
       pathname={pathname}
@@ -25,17 +34,20 @@ function SessionViewLayout({ pathname, id }) {
       isError={isError}
       error={error}
     >
-      <h2 className="h5">Participants</h2>
+      <h2 className="h5">
+        Participants
+        <Badge bg="secondary" className="ms-2">{data && notCanceledRegistrations.length} / {data && data.slots}</Badge>
+      </h2>
 
       <p>Liste des utilisateurs inscrits à cette séance et n'ayant pas annulé.</p>
 
       <StaticPaginatedTable
-        rows={data && data.registrations.filter(({ is_user_canceled: isCanceled }) => !isCanceled)}
+        rows={data && notCanceledRegistrations}
         columns={[
           userLinkColumn,
           registrationDateColumn,
         ]}
-        renderEmpty={() => `Aucun participant ne participe pour le moment.`}
+        renderEmpty={() => `Personne ne participe pour le moment.`}
       />
 
       <h2 className="h5">Annulations</h2>
@@ -43,7 +55,7 @@ function SessionViewLayout({ pathname, id }) {
       <p>Liste des annulations à cette séance.</p>
 
       <StaticPaginatedTable
-        rows={data && data.registrations.filter(({ is_user_canceled: isCanceled }) => isCanceled)}
+        rows={data && canceledRegistrations}
         columns={[
           userLinkColumn,
           registrationDateColumn,
