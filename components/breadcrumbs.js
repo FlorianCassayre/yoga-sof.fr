@@ -87,3 +87,8 @@ export const BREADCRUMB_REGISTRATIONS = [...BREADCRUMB_CATEGORY_YOGA, {
   title: 'Inscriptions',
   pathname: '/administration/inscriptions',
 }];
+
+export const BREADCRUMB_REGISTRATIONS_CREATE = [...BREADCRUMB_REGISTRATIONS, {
+  title: 'Création',
+  pathname: '/administration/inscriptions/creation',
+}];

@@ -10,6 +10,7 @@ export function SessionTypeSelectField({ name, fieldProps = {}, ...props }) {
         name={name}
         render={({ input }) => (
           <Form.Select {...input} required {...fieldProps}>
+            <option value={null} disabled />
             {SESSIONS_TYPES.map(({ id, title }) => (
               <option key={id} value={id}>{title}</option>
             ))}

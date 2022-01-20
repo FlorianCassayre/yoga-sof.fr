@@ -1,9 +1,10 @@
 import { format } from 'date-fns';
+import { useRouter } from 'next/router';
 import { Badge, Button } from 'react-bootstrap';
-import { BsEyeFill, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
+import { BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import {
   BREADCRUMB_SESSIONS, ConfirmDialog, dateFormat, detailsColumnFor,
-  DynamicPaginatedTable, idColumn,
+  DynamicPaginatedTable,
   SESSIONS_TYPES,
   SessionsCards,
 } from '../../../components';
@@ -11,6 +12,8 @@ import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import Link from 'next/link';
 
 function AdminSeancesLayout({ pathname }) {
+  const router = useRouter();
+
   const renderDate = ({ date_start: date }) => format(new Date(date), dateFormat);
 
   const renderTimePeriod = ({ date_start, date_end }) => (
@@ -22,6 +25,10 @@ function AdminSeancesLayout({ pathname }) {
   );
 
   const renderSessionType = ({ type }) => SESSIONS_TYPES.find(({ id }) => id === type).title;
+
+  const cancelSession = id => fetch(`/api/sessions/${id}/cancel`, {
+    method: 'POST',
+  });
 
   return (
     <ContentLayout pathname={pathname} title="Séances" breadcrumb={BREADCRUMB_SESSIONS}>
@@ -125,29 +132,30 @@ function AdminSeancesLayout({ pathname }) {
                     <BsPencil className="icon" />
                   </Button>
                 </Link>
-                <ConfirmDialog
-                  title="Annuler la séance"
-                  description={(
-                    <>
-                      Souhaitez-vous réellement annuler cette séance ?
-                      <ul>
-                        <li>{renderSessionType(obj)} le {renderDate(obj)} de {renderTimePeriod(obj)}</li>
-                      </ul>
-                      Les éventuelles personnes qui s'y sont inscrites seront notifiées.
-                    </>
-                  )}
-                  confirmButton={(
-                    <Button variant="danger" onClick={() => console.log('cancel')}>
-                      <BsXOctagon className="icon me-2" />
-                      Annuler la séance
-                    </Button>
-                  )}
-                  triggerer={clickHandler => (
-                    <Button size="sm" variant="danger" className="m-1" disabled={obj.is_canceled} onClick={clickHandler}>
-                      <BsXOctagon className="icon" />
-                    </Button>
-                  )}
-                />
+                {!obj.is_canceled && new Date().getTime() < new Date(obj.date_start).getTime() && (
+                  <ConfirmDialog
+                    title="Annuler la séance"
+                    description={(
+                      <>
+                        Souhaitez-vous réellement annuler cette séance ?
+                        <ul>
+                          <li>{renderSessionType(obj)} le {renderDate(obj)} de {renderTimePeriod(obj)}</li>
+                        </ul>
+                        Les éventuelles personnes qui s'y sont inscrites seront notifiées.
+                      </>
+                    )}
+                    variant="danger"
+                    icon={BsXOctagon}
+                    action="Annuler la séance"
+                    triggerer={clickHandler => (
+                      <Button size="sm" variant="danger" className="m-1" onClick={clickHandler}>
+                        <BsXOctagon className="icon" />
+                      </Button>
+                    )}
+                    confirmPromise={() => cancelSession(obj.id)}
+                    onSuccess={() => router.reload()}
+                  />
+                )}
 
               </>
             ),

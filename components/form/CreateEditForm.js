@@ -6,7 +6,7 @@ import { BsCheckLg, BsPlusLg, BsTrash, BsXLg } from 'react-icons/bs';
 import { ErrorMessage } from '../ErrorMessage';
 import { isErrorCode } from '../http';
 
-export function CreateEditForm({ modelId, editRecordId, deletable, initialValues = {}, redirect, numberFields = [], disabled, loading, submitCallback, container: Container = React.Fragment, children }) {
+export function CreateEditForm({ modelId, editRecordId, deletable, initialValues = {}, redirect, numberFields = [], disabled, loading, submitCallback, container: Container = ({ children }) => children, children }) {
 
   const isEdit = editRecordId != null;
 

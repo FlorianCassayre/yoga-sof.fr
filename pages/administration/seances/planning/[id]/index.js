@@ -1,9 +1,11 @@
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
-import { Badge } from 'react-bootstrap';
+import { Badge, Button } from 'react-bootstrap';
+import { BsPlusLg } from 'react-icons/bs';
+import Link from 'next/link';
 import {
   breadcrumbForSessionPlanning,
-  renderDatetime,
+  renderDatetime, renderSessionName,
   StaticPaginatedTable,
   userLinkColumn,
 } from '../../../../../components';
@@ -28,7 +30,7 @@ function SessionViewLayout({ pathname, id }) {
   return (
     <ContentLayout
       pathname={pathname}
-      title="Séance"
+      title={data && renderSessionName(data)}
       breadcrumb={data && breadcrumbForSessionPlanning(data)}
       isLoading={isLoading}
       isError={isError}
@@ -39,7 +41,9 @@ function SessionViewLayout({ pathname, id }) {
         <Badge bg="secondary" className="ms-2">{data && notCanceledRegistrations.length} / {data && data.slots}</Badge>
       </h2>
 
-      <p>Liste des utilisateurs inscrits à cette séance et n'ayant pas annulé.</p>
+      <p>
+        Liste des utilisateurs inscrits à cette séance et n'ayant pas annulé.
+      </p>
 
       <StaticPaginatedTable
         rows={data && notCanceledRegistrations}
@@ -50,9 +54,18 @@ function SessionViewLayout({ pathname, id }) {
         renderEmpty={() => `Personne ne participe pour le moment.`}
       />
 
+      <div className="text-center">
+        <Link href={{ pathname: '/administration/inscriptions/creation', query: { session_id: data && data.id } }} passHref>
+          <Button variant="success">
+            <BsPlusLg className="icon me-2" />
+            Inscrire un utilisateur
+          </Button>
+        </Link>
+      </div>
+
       <h2 className="h5">Annulations</h2>
 
-      <p>Liste des annulations à cette séance.</p>
+      <p>Liste des annulations pour cette séance.</p>
 
       <StaticPaginatedTable
         rows={data && canceledRegistrations}

@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Col, Form, Row, Spinner } from 'react-bootstrap';
+import { Form, Spinner } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import { Field } from 'react-final-form';
 import { OnChange } from 'react-final-form-listeners';
@@ -7,7 +6,7 @@ import { useDataApi } from '../../hooks';
 import { dateFormat, formatTime, parseTime, WEEKDAYS } from '../date';
 import { ErrorMessage } from '../ErrorMessage';
 import { SESSIONS_TYPES } from '../sessions';
-import { addDays, format, getDay, isValid, parse } from 'date-fns';
+import { addDays, format, getDay } from 'date-fns';
 import { CreateEditForm } from './CreateEditForm';
 import {
   TimePickerRangeFields,
@@ -94,8 +93,8 @@ export function SessionBatchCreateForm() {
           modelId="session_batch"
           initialValues={{
             model_id: MODEL_NONE,
-            type: SESSIONS_TYPES[0].id,
-            weekday: 0,
+            type: null,
+            weekday: null,
             time_start: null,
             time_end: null,
             slots: null,

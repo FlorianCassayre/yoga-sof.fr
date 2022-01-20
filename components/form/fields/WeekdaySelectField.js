@@ -10,6 +10,7 @@ export function WeekdaySelectField({ name, fieldProps = {}, ...props }) {
         name={name}
         render={({ input }) => (
           <Form.Select {...input} required {...fieldProps}>
+            <option value={null} disabled />
             {WEEKDAYS.map((weekday, id) => (
               <option key={id} value={id}>{weekday}</option>
             ))}
@@ -17,6 +18,5 @@ export function WeekdaySelectField({ name, fieldProps = {}, ...props }) {
         )}
       />
     </Form.Group>
-
   );
 }

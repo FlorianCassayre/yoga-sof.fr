@@ -1,12 +1,12 @@
 import { format } from 'date-fns';
 import Link from 'next/link';
-import { Badge } from 'react-bootstrap';
-import { BsCalendarDate } from 'react-icons/bs';
+import { Badge, Button } from 'react-bootstrap';
+import { BsCalendarDate, BsPlusLg } from 'react-icons/bs';
 import {
   BREADCRUMB_REGISTRATIONS, dateFormat, formatTimestamp,
   DynamicPaginatedTable, SESSIONS_TYPES, userLinkColumn, plannedSessionLinkColumn, idColumn, renderDatetime,
-} from '../../components';
-import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
+} from '../../../components';
+import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 
 function AdminRegistrationsLayout({ pathname }) {
 
@@ -47,6 +47,15 @@ function AdminRegistrationsLayout({ pathname }) {
           }
         ]}
       />
+
+      <div className="text-center">
+        <Link href="/administration/inscriptions/creation" passHref>
+          <Button variant="success">
+            <BsPlusLg className="icon me-2" />
+            Inscrire un utilisateur à une séance
+          </Button>
+        </Link>
+      </div>
 
     </ContentLayout>
   );

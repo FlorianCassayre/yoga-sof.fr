@@ -14,8 +14,8 @@ export function SessionModelForm({ editRecordId, container }) {
     <CreateEditForm
       modelId="session_models"
       initialValues={{
-        type: SESSIONS_TYPES[0].id,
-        weekday: 0,
+        type: null,
+        weekday: null,
         time_start: null,
         time_end: null,
         slots: null,

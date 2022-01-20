@@ -1,8 +1,8 @@
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Badge, Spinner } from 'react-bootstrap';
-import { BsCalendarDate } from 'react-icons/bs';
+import { Badge, Button, Spinner } from 'react-bootstrap';
+import { BsCalendarDate, BsPlusLg } from 'react-icons/bs';
 import {
   breadcrumbForUser,
   dateFormat,
@@ -66,6 +66,15 @@ function AdminUserLayout({ pathname, id }) {
         ]}
         renderEmpty={() => `Cet utilisateur ne s'est pas encore inscrit à une séance.`}
       />
+
+      <div className="text-center">
+        <Link href={{ pathname: '/administration/inscriptions/creation', query: { user_id: data && data.id } }} passHref>
+          <Button variant="success">
+            <BsPlusLg className="icon me-2" />
+            Inscrire cet utilisateur à une séance
+          </Button>
+        </Link>
+      </div>
 
     </ContentLayout>
   );

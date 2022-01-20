@@ -4,3 +4,5 @@ export { SessionTypeSelectField } from './SessionTypeSelectField';
 export { SlotsNumberField } from './SlotsNumberField';
 export { TimePickerRangeFields } from './TimePickerRangeFields';
 export { PriceNumberField } from './PriceNumberField';
+export { UserSelectField } from './UserSelectField';
+export { SessionSelectField } from './SessionSelectField';
