@@ -3,10 +3,10 @@ import { useRouter } from 'next/router';
 import { Badge, Button } from 'react-bootstrap';
 import { BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import {
-  BREADCRUMB_SESSIONS, ConfirmDialog, dateFormat, detailsColumnFor,
+  BREADCRUMB_SESSIONS, CancelSessionConfirmDialog, ConfirmDialog, dateFormat, detailsColumnFor,
   DynamicPaginatedTable,
   SESSIONS_TYPES,
-  SessionsCards,
+  SessionsCards, SessionStatusBadge,
 } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import Link from 'next/link';
@@ -26,9 +26,80 @@ function AdminSeancesLayout({ pathname }) {
 
   const renderSessionType = ({ type }) => SESSIONS_TYPES.find(({ id }) => id === type).title;
 
-  const cancelSession = id => fetch(`/api/sessions/${id}/cancel`, {
-    method: 'POST',
-  });
+  const sessionColumns = hasPassed => [
+    detailsColumnFor(id => `/administration/seances/planning/${id}`),
+    {
+      title: 'Statut',
+      render: session => (
+        <SessionStatusBadge session={session} />
+      ),
+      props: {
+        className: 'text-center',
+      },
+    },
+    {
+      title: 'Date',
+      render: renderDate,
+    },
+    {
+      title: 'Horaire',
+      render: renderTimePeriod,
+    },
+    {
+      title: 'Type de séance',
+      render: renderSessionType,
+    },
+    {
+      title: 'Prix',
+      render: ({ price }) => price > 0 ? `${price} €` : 'Gratuit',
+    },
+    {
+      title: 'Inscriptions / Places disponibles',
+      render: ({ slots, registrations }) => (
+        <>
+          {registrations.filter(({ is_user_canceled }) => !is_user_canceled).length} / {slots}
+        </>
+      ),
+    },
+    {
+      title: 'Notes',
+      render: ({ notes }) => notes,
+      props: {
+        style: {
+          whiteSpace: 'pre-wrap',
+        },
+      },
+    },
+    {
+      title: 'Modifier',
+      render: obj => (
+        <Link href={`/administration/seances/planning/${obj.id}/edition`} passHref>
+          <Button size="sm">
+            <BsPencil className="icon" />
+          </Button>
+        </Link>
+      ),
+      props: {
+        className: 'text-center',
+      },
+    },
+    ...(!hasPassed ? [{
+      title: 'Annuler',
+      render: obj => (
+        <CancelSessionConfirmDialog
+          session={obj}
+          triggerer={clickHandler => (
+            <Button size="sm" variant="danger" onClick={clickHandler}>
+              <BsXOctagon className="icon" />
+            </Button>
+          )}
+        />
+      ),
+      props: {
+        className: 'text-center',
+      },
+    }] : []),
+  ];
 
   return (
     <ContentLayout pathname={pathname} title="Séances" breadcrumb={BREADCRUMB_SESSIONS}>
@@ -44,7 +115,7 @@ function AdminSeancesLayout({ pathname }) {
 
       <SessionsCards />
 
-      <h2 className="h5">Planification de séances</h2>
+      <h2 className="h5">Planification et séances à venir</h2>
 
       <p>
         Les utilisateurs ne peuvent seulement s'inscrire à des séances qui ont été planifiées.
@@ -66,104 +137,44 @@ function AdminSeancesLayout({ pathname }) {
           page,
           limit,
           include: ['registrations'],
+          where: JSON.stringify({
+            is_canceled: false,
+            date_end: {
+              $gt: new Date().toISOString(),
+            },
+          }),
+          orderBy: JSON.stringify({
+            date_start: '$asc',
+          }),
         })}
-        columns={[
-          detailsColumnFor(id => `/administration/seances/planning/${id}`),
-          {
-            title: 'Date',
-            render: renderDate,
-          },
-          {
-            title: 'Horaire',
-            render: renderTimePeriod,
-          },
-          {
-            title: 'Type de séance',
-            render: renderSessionType,
-          },
-          {
-            title: 'Prix',
-            render: ({ price }) => price > 0 ? `${price} €` : 'Gratuit',
-          },
-          {
-            title: 'Inscriptions / Places disponibles',
-            render: ({ slots, registrations }) => (
-              <>
-                {registrations.filter(({ is_user_canceled }) => !is_user_canceled).length} / {slots}
-              </>
-            ),
-          },
-          {
-            title: 'Statut',
-            render: ({ is_canceled, date_start, date_end }) => {
-              const now = new Date();
-              const dateStart = new Date(date_start), dateEnd = new Date(date_end);
-              return (
-                is_canceled ? (
-                  <Badge bg="danger">Annulée</Badge>
-                ) : (now.getTime() < dateStart.getTime() ? (
-                  <Badge bg="info">À venir</Badge>
-                ) : now.getTime() <= dateEnd.getTime() ? (
-                  <Badge bg="success">En cours</Badge>
-                ) : (
-                  <Badge bg="secondary">Passée</Badge>
-                ))
-              )
-            },
-            props: {
-              className: 'text-center',
-            },
-          },
-          {
-            title: 'Notes',
-            render: ({ notes }) => notes,
-            props: {
-              style: {
-                whiteSpace: 'pre-wrap',
+        columns={sessionColumns(false)}
+      />
+
+      <h2 className="h5">Séances passées et annulées</h2>
+
+      <p>
+        Les séances passées ou ayant été annulées.
+      </p>
+
+      <DynamicPaginatedTable
+        url="/api/sessions"
+        params={(page, limit) => ({
+          page,
+          limit,
+          include: ['registrations'],
+          where: JSON.stringify({
+            $not: {
+              is_canceled: false,
+              date_end: {
+                $gt: new Date().toISOString(),
               },
             },
-          },
-          {
-            title: 'Actions',
-            render: obj => (
-              <>
-                <Link href={`/administration/seances/planning/${obj.id}/edition`} passHref>
-                  <Button size="sm" className="m-1">
-                    <BsPencil className="icon" />
-                  </Button>
-                </Link>
-                {!obj.is_canceled && new Date().getTime() < new Date(obj.date_start).getTime() && (
-                  <ConfirmDialog
-                    title="Annuler la séance"
-                    description={(
-                      <>
-                        Souhaitez-vous réellement annuler cette séance ?
-                        <ul>
-                          <li>{renderSessionType(obj)} le {renderDate(obj)} de {renderTimePeriod(obj)}</li>
-                        </ul>
-                        Les éventuelles personnes qui s'y sont inscrites seront notifiées.
-                      </>
-                    )}
-                    variant="danger"
-                    icon={BsXOctagon}
-                    action="Annuler la séance"
-                    triggerer={clickHandler => (
-                      <Button size="sm" variant="danger" className="m-1" onClick={clickHandler}>
-                        <BsXOctagon className="icon" />
-                      </Button>
-                    )}
-                    confirmPromise={() => cancelSession(obj.id)}
-                    onSuccess={() => router.reload()}
-                  />
-                )}
-
-              </>
-            ),
-            props: {
-              className: 'text-center',
-            },
-          }
-        ]}
+          }),
+          orderBy: JSON.stringify({
+            date_start: '$desc',
+          }),
+        })}
+        columns={sessionColumns(true)}
       />
 
     </ContentLayout>

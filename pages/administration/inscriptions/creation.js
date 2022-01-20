@@ -18,7 +18,7 @@ export default function AdminRegistrationCreate({ pathname }) {
         <Alert variant="warning">
           <BsExclamationTriangleFill className="icon me-2" />
           Attention, en principe les utilisateurs sont censés s'inscrire eux-mêmes aux séances.
-          En remplissant ce formulaire vous prenez la main sur l'utilisateur.
+          En remplissant ce formulaire vous prenez la main sur le compte de l'utilisateur.
         </Alert>
 
         <RegistrationCreateForm

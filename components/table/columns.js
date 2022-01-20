@@ -5,6 +5,7 @@ import { BsCalendarDate, BsEyeFill, BsPerson } from 'react-icons/bs';
 import * as url from 'url';
 import { dateFormat, formatDayRange, formatTimestamp } from '../date';
 import { SESSIONS_TYPES } from '../sessions';
+import { SessionStatusBadge } from '../SessionStatusBadge';
 import { StarIndicator } from '../StarIndicator';
 
 const compose = f => g => x => f(g(x));
@@ -41,9 +42,10 @@ export const plannedSessionLinkColumn = {
       <a>
         <BsCalendarDate className="icon me-2" />
         {renderSessionName(session)}
+        <SessionStatusBadge session={session} className="ms-2" />
       </a>
     </Link>
-  )
+  ),
 };
 
 export const detailsColumnFor = urlFor => ({

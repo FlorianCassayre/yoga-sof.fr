@@ -11,7 +11,7 @@ export function PrivateLayout({ children, pathname }) {
     <AuthGuard allowedUserTypes={[USER_TYPE_ADMIN]}>
       <div>
         <Head>
-          <title>Yoga Sof</title>
+          <title>Administration Yoga Sof</title>
           <link rel="icon" href="/favicon.ico" />
         </Head>
 

@@ -19,6 +19,7 @@ export default async function handler(req, res) {
                 session_id: sessionId,
                 user_id: userId,
                 is_user_canceled: false,
+                // TODO (check date) + cancel status
               },
             }));
 

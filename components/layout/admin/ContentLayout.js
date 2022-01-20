@@ -1,11 +1,20 @@
+import Head from 'next/head';
 import Link from 'next/link';
 import { Badge, Breadcrumb, Spinner } from 'react-bootstrap';
 import { ErrorMessage } from '../../ErrorMessage';
 
 export function ContentLayout({ children, pathname, title, count, breadcrumb, isLoading, isError, error }) {
+  const renderHeadTitle = headTitle => (
+    <Head>
+      <title>{headTitle} - Administration Yoga Sof</title>
+    </Head>
+  );
+
   return !isError ? (
     !isLoading ? (
       <>
+        {title && renderHeadTitle(title)}
+
         {breadcrumb && (
           <Breadcrumb>
             {breadcrumb.map(({ title, pathname: pathnameOther }, i) => pathnameOther && pathnameOther !== pathname ? (
@@ -33,11 +42,17 @@ export function ContentLayout({ children, pathname, title, count, breadcrumb, is
         {children}
       </>
     ) : (
-      <div className="my-5 text-center">
-        <Spinner animation="border" />
-      </div>
+      <>
+        {renderHeadTitle('Chargement...')}
+        <div className="my-5 text-center">
+          <Spinner animation="border" />
+        </div>
+      </>
     )
   ) : (
-    <ErrorMessage error={error} />
+    <>
+      {renderHeadTitle('Erreur')}
+      <ErrorMessage error={error} />
+    </>
   );
 }

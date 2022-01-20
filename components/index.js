@@ -13,3 +13,5 @@ export * from './http';
 export { ConfirmDialog } from './ConfirmDialog';
 export * from './emails';
 export * from './table';
+export { SessionStatusBadge } from './SessionStatusBadge';
+export { CancelSessionConfirmDialog } from './CancelSessionConfirmDialog';

@@ -7,9 +7,10 @@ import { renderSessionName } from '../../table';
 export function SessionSelectField({ name, fieldProps = {}, disabled, ...props }) {
   const [{ isLoading, isError, data, error }] = useDataApi('/api/sessions', {
     where: JSON.stringify({
+      is_canceled: false,
       date_end: {
         $gt: new Date().toISOString(),
-      }
+      },
     }),
     orderBy: JSON.stringify({
       date_start: '$asc',

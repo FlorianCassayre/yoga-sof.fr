@@ -7,7 +7,7 @@ import { formatTime, parsedTimeToMinutes, parseTime, WEEKDAYS } from './date';
 import { ErrorMessage } from './ErrorMessage';
 import { SESSIONS_TYPES } from './sessions';
 
-export function SessionsCards() {
+export function SessionsCards({ readonly }) {
   const [{ isLoading, isError, data, error }] = useDataApi('/api/session_models');
 
   const compareModels = ({ weekday: d1, time_start: t1 }, { weekday: d2, time_start: t2 }) => {
@@ -49,7 +49,8 @@ export function SessionsCards() {
                     {/*<Card.Text>
 
                     </Card.Text>*/}
-                    <span className="d-block text-end">
+                    {!readonly && (
+                      <span className="d-block text-end">
                       <Link href={`/administration/seances/modeles/${id}/edition`} passHref>
                         <Button size="sm">
                           <BsPencil className="icon me-2" />
@@ -57,26 +58,29 @@ export function SessionsCards() {
                         </Button>
                       </Link>
                     </span>
+                    )}
                   </Card.Body>
                 </Card>
               </Col>
             ))}
 
-            <Col xs={12} lg={4} className="mb-4">
-              <Card className="py-3 text-center">
-                <Card.Text>
+            {!readonly && (
+              <Col xs={12} lg={4} className="mb-4">
+                <Card className="py-3 text-center">
+                  <Card.Text>
                       <span className="d-block h1 mb-3">
                         <BsCalendar className="icon" />
                       </span>
-                  <Link href="/administration/seances/modeles/creation" passHref>
-                    <Button variant="success">
-                      <BsPlusLg className="icon me-2" />
-                      Créer un nouveau modèle
-                    </Button>
-                  </Link>
-                </Card.Text>
-              </Card>
-            </Col>
+                    <Link href="/administration/seances/modeles/creation" passHref>
+                      <Button variant="success">
+                        <BsPlusLg className="icon me-2" />
+                        Créer un nouveau modèle
+                      </Button>
+                    </Link>
+                  </Card.Text>
+                </Card>
+              </Col>
+            )}
           </>
         ) : (
           <Col className="d-flex justify-content-center py-5">

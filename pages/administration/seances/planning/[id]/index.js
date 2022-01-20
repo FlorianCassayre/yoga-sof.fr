@@ -1,11 +1,11 @@
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { Badge, Button } from 'react-bootstrap';
-import { BsPlusLg } from 'react-icons/bs';
+import { BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
 import {
-  breadcrumbForSessionPlanning,
-  renderDatetime, renderSessionName,
+  breadcrumbForSessionPlanning, CancelSessionConfirmDialog,
+  renderDatetime, renderSessionName, SessionStatusBadge,
   StaticPaginatedTable,
   userLinkColumn,
 } from '../../../../../components';
@@ -27,15 +27,34 @@ function SessionViewLayout({ pathname, id }) {
     return sortedRegistrations ? [sortedRegistrations.filter(({ is_user_canceled: isCanceled }) => !isCanceled), sortedRegistrations.filter(({ is_user_canceled: isCanceled }) => isCanceled)] : [];
   }, [sortedRegistrations]);
 
+  const isFuture = data && !data.is_canceled && new Date().getTime() < new Date(data.date_end).getTime();
+
   return (
     <ContentLayout
       pathname={pathname}
-      title={data && renderSessionName(data)}
+      title={data && (
+        <>
+          {renderSessionName(data)}
+          <SessionStatusBadge session={data} className="ms-2" />
+        </>
+      )}
       breadcrumb={data && breadcrumbForSessionPlanning(data)}
       isLoading={isLoading}
       isError={isError}
       error={error}
     >
+      {isFuture && (
+        <CancelSessionConfirmDialog
+          session={data}
+          triggerer={clickHandler => (
+            <Button size="sm" variant="danger" onClick={clickHandler} className="mb-4">
+              <BsXOctagon className="icon me-2" />
+              Annuler cette séance
+            </Button>
+          )}
+        />
+      )}
+
       <h2 className="h5">
         Participants
         <Badge bg="secondary" className="ms-2">{data && notCanceledRegistrations.length} / {data && data.slots}</Badge>
@@ -54,14 +73,16 @@ function SessionViewLayout({ pathname, id }) {
         renderEmpty={() => `Personne ne participe pour le moment.`}
       />
 
-      <div className="text-center">
-        <Link href={{ pathname: '/administration/inscriptions/creation', query: { session_id: data && data.id } }} passHref>
-          <Button variant="success">
-            <BsPlusLg className="icon me-2" />
-            Inscrire un utilisateur
-          </Button>
-        </Link>
-      </div>
+      {isFuture && (
+        <div className="text-center">
+          <Link href={{ pathname: '/administration/inscriptions/creation', query: { session_id: data && data.id } }} passHref>
+            <Button variant="success">
+              <BsPlusLg className="icon me-2" />
+              Inscrire un utilisateur
+            </Button>
+          </Link>
+        </div>
+      )}
 
       <h2 className="h5">Annulations</h2>
 

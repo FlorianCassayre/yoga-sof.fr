@@ -54,7 +54,7 @@ function AdminEmailsLayout({ pathname }) {
           {
             title: 'Date d\'envoi',
             render: ({ sent_at: sentAt }) => sentAt ? renderDatetime(sentAt) : (
-              <Badge bg="danger">Pas envoyé</Badge>
+              <Badge bg="danger">Non envoyé</Badge>
             ),
             props: {
               className: 'text-center',

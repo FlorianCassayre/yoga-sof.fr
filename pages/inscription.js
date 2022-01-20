@@ -4,7 +4,14 @@ import React, { useState } from 'react';
 import { Badge, Button, Card, Col, Container, Form, ProgressBar, Row, Spinner, Table } from 'react-bootstrap';
 import { BsCheck2, BsCheckLg } from 'react-icons/bs';
 import {
-  formatTime, minutesToParsedTime, parsedTimeToMinutes, parsedTimeToTime, parseTime,
+  formatTime,
+  formatTimeRange,
+  minutesToParsedTime,
+  parsedTimeToMinutes,
+  parsedTimeToTime,
+  parseTime,
+  renderDateOnly,
+  SESSIONS_NAMES,
   SESSIONS_TYPES,
   USER_TYPE_ADMIN,
   USER_TYPE_REGULAR,
@@ -137,8 +144,8 @@ export default function Inscription({ pathname }) {
     );
   };
 
-  const Step2 = ({ type, setValue }) => {
-    const sessionsForType = data.sessions.filter(({ type: typeOther }) => typeOther === type);
+  const Step2 = ({ setValue, values }) => {
+    const sessionsForType = data.sessions.filter(({ type: typeOther }) => typeOther === values.type);
     // TODO remove already registered sessions
     const selectableDates = sessionsForType.map(({ date_start: date }) => new Date(date));
     const times = selectableDates.map(d => d.getTime());
@@ -181,7 +188,7 @@ export default function Inscription({ pathname }) {
         </Field>
 
 
-        <Button variant="primary" className="mt-3" onClick={() => setValue('step', 3)}>
+        <Button variant="primary" className="mt-3" onClick={() => setValue('step', 3)} disabled={!values.sessions.length}>
           <BsCheck2 className="icon me-2" />
           Valider ces horaires et continuer
         </Button>
@@ -189,15 +196,36 @@ export default function Inscription({ pathname }) {
     );
   };
 
-  const Step3 = () => (
+  const Step3 = ({ values }) => (
     <>
       <Row>
         <Col>
           <h4>Récapitulatif de vos inscriptions</h4>
-          <span><Badge bg="secondary">3</Badge> séances <strong>"yoga adulte"</strong> aux dates suivantes :</span>
-          <ul>
-            <li>01/01/2021 de 18h à 19h</li>
-          </ul>
+
+          <Table bordered>
+            <thead>
+            <tr>
+              <th>Séance</th>
+              <th>Date</th>
+              <th>Heures</th>
+            </tr>
+            </thead>
+            <tbody>
+            {values.sessions.map((id, i) => (
+              <tr key={id}>
+                {i === 0 && (
+                  <td rowSpan={values.sessions.length} className="align-middle text-center">{SESSIONS_NAMES[values.type]}</td>
+                )}
+                <td>{renderDateOnly(data.sessions.filter(({ id: idOther }) => idOther === id)[0].date_start)}</td>
+                <td>{data.sessions.filter(({ id: idOther }) => idOther === id).map(({ date_start, date_end }) => formatTimeRange(new Date(date_start), new Date(date_end)))[0]}</td>
+              </tr>
+            ))}
+            </tbody>
+          </Table>
+
+          <div className="text-center">
+            <Badge bg="secondary">{values.sessions.length}</Badge> {values.sessions.length > 1 ? 'séances' : 'séance'} au total.
+          </div>
         </Col>
         <Col>
           <h4>Vos informations</h4>
@@ -264,7 +292,6 @@ export default function Inscription({ pathname }) {
               <Form onSubmit={handleSubmit}>
                 {!isLoading ? (
                   <div>
-                    {JSON.stringify(values)}
                     <Row className="text-center mt-4">
                       {courses.map(step => (
                         <Col key={step} style={{ position: 'relative' }}>
@@ -295,9 +322,9 @@ export default function Inscription({ pathname }) {
                     {values.step === 1 ? (
                       <Step1 setValue={setValue} />
                     ) : values.step === 2 ? (
-                      <Step2 setValue={setValue} type={values.type} />
+                      <Step2 setValue={setValue} values={values} />
                     ) : (
-                      <Step3 />
+                      <Step3 values={values} />
                     )}
                   </div>
                 ) : (

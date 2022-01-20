@@ -5,7 +5,9 @@ function AdminHomeLayout({ pathname }) {
   return (
     <ContentLayout pathname={pathname} title="Aperçu" breadcrumb={BREADCRUMB_OVERVIEW}>
 
-      <SessionsCards />
+      <h2 className="h5">Planning</h2>
+
+      <SessionsCards readonly />
 
     </ContentLayout>
   );

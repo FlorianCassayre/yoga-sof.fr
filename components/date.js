@@ -52,7 +52,10 @@ export const formatTimestamp = timestamp => {
   return [timeFormatter, dateFormatter].map(formatter => formatter.format(dt)).join(' le ');
 };
 
+export const formatTimeRange = (start, end) => {
+  return [timeMinutesFormatter.format(new Date(start)).replace(':', 'h'), 'à', timeMinutesFormatter.format(new Date(end)).replace(':', 'h')].join(' ');
+};
+
 export const formatDayRange = (start, end) => {
-  const t1 = new Date(start), t2 = new Date(end);
-  return [dateFormatter.format(t1), 'de', timeMinutesFormatter.format(t1).replace(':', 'h'), 'à', timeMinutesFormatter.format(t2).replace(':', 'h')].join(' ');
+  return [dateFormatter.format(new Date(start)), 'de', formatTimeRange(start, end)].join(' ');
 };
