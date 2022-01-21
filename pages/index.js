@@ -1,5 +1,6 @@
 import { RiDoubleQuotesL, RiDoubleQuotesR } from 'react-icons/ri';
 import {
+  BsBoxArrowUpRight,
   BsDot,
   BsFillCalendarFill, BsFillCalendarWeekFill,
   BsFillInfoCircleFill,
@@ -150,7 +151,7 @@ export default function Home({ pathname }) {
                 <BsFillPeopleFill className="icon me-2" />
                 Effectifs réduits
               </h3>
-              <div><BsDot className="icon" /></div>
+              <div className="mb-2"><BsDot className="icon" /></div>
               Les séances se déroulent en petit nombre, ceci pour permettre à la coach d'être attentive à vos postures.
             </Col>
             <Col xs={12} md={4} className="my-4 px-4">
@@ -158,7 +159,7 @@ export default function Home({ pathname }) {
                 <BsStars className="icon me-2"/>
                 Personnalisation
               </h3>
-              <div><BsDot className="icon" /></div>
+              <div className="mb-2"><BsDot className="icon" /></div>
               Chaque séance est unique, la coach est à l'écoute de votre corps et va adapter les positions en fonction de votre physionomie, de votre âge et de votre expérience.
             </Col>
             <Col xs={12} md={4} className="my-4 px-4">
@@ -166,7 +167,7 @@ export default function Home({ pathname }) {
                 <BsFillCalendarWeekFill className="icon me-2" />
                 Flexibilité
               </h3>
-              <div><BsDot className="icon" /></div>
+              <div className="mb-2"><BsDot className="icon" /></div>
               Chaque séance peut être choisie "à la carte" et ne vous engage pas sur la durée.
             </Col>
           </Row>
@@ -177,7 +178,10 @@ export default function Home({ pathname }) {
                 La première séance est gratuite, à la date de votre choix.
                 {' '}
                 <Link href="/inscription" passHref>
-                  <Alert.Link>Je m'inscris</Alert.Link>
+                  <Alert.Link>
+                    Je m'inscris
+                    <BsBoxArrowUpRight className="icon ms-2" />
+                  </Alert.Link>
                 </Link>
               </Alert>
             </Col>

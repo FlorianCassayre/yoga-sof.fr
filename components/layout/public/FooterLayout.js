@@ -27,10 +27,10 @@ export function FooterLayout() {
   );
 
   return (
-    <footer className="py-4" style={{ backgroundColor: '#323232', zIndex: 10 }}>
+    <footer className="mt-auto" style={{ backgroundColor: '#323232', zIndex: 10 }}>
       <Container>
         <Row xs={1} md={3} className="align-items-center text-white">
-          <Col className="text-center px-5">
+          <Col className="py-4 px-5 text-center">
             <FooterLink href="/">Accueil</FooterLink>
             <FooterLink href="/yoga">Le yoga</FooterLink>
             <FooterLink href="/seances">Séances et informations pratiques</FooterLink>
@@ -40,7 +40,7 @@ export function FooterLayout() {
             <FooterLink href="/cgu">Conditions générales d'utilisation</FooterLink>
             <FooterLink href="/cgv">Conditions générales de vente</FooterLink>
           </Col>
-          <Col className="text-end px-5">
+          <Col className="py-4 px-5 text-center text-md-end">
             <strong>Association "Yoga Sof"</strong><br /><br />
             <strong>Coach</strong><br />
             Sophie Richaud-Cassayre<br />
@@ -52,7 +52,7 @@ export function FooterLayout() {
               Hésingue - 68220
             </em>
           </Col>
-          <Col>
+          <Col className="py-4 px-5">
             {isMapLoaded ? (
               <MapsComponent id="maps" zoomSettings={{ zoomFactor: 14 }} centerPosition={MAP_COORDINATES} height="250px">
                 <Inject services={[Marker, Zoom]} />

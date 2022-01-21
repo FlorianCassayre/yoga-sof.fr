@@ -49,13 +49,13 @@ export function NavigationLayout({ pathname, children }) {
   );
 
   return (
-    <Container fluid className="overflow-hidden">
-      <Row id="admin-menu" className="overflow-auto">
-        <Col xs={12} sm={5} md={4} lg={3} xl={2} className="px-sm-2 px-0 bg-dark d-flex sticky-top">
+    <Container fluid>
+      <Row>
+        <Col id="admin-menu" xs={12} sm={5} md={4} lg={3} xl={2} className="px-sm-2 px-0 bg-dark d-flex">
           <div className="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-3 pb-2 text-white">
             <Link href="/administration" passHref>
               <a className="d-flex align-items-center mb-md-0 me-md-auto text-white text-decoration-none mb-2">
-                <span className="fs-5">Y<span className="d-none d-sm-inline">oga </span>S<span className="d-none d-sm-inline">of</span><span className="text-muted fs-6 d-none d-sm-inline"> admin</span></span>
+                <span className="fs-5 d-none d-sm-inline">Yoga Sof<span className="text-muted fs-6 d-none d-sm-inline"> admin</span></span>
               </a>
             </Link>
 

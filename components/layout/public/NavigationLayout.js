@@ -40,7 +40,11 @@ export function NavigationLayout({ pathname }) {
             Yoga Sof
           </Navbar.Brand>
         </Link>
-        <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+        <Navbar.Toggle aria-controls="responsive-navbar-nav" as={props => (
+          <button type="button" style={{ border: 'none' }} {...props}>
+            <span className="navbar-toggler-icon" />
+          </button>
+        )} />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto text-center">
             <NavLink pathname="/">

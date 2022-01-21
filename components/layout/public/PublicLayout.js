@@ -5,7 +5,7 @@ import { NavigationLayout } from './NavigationLayout';
 export function PublicLayout({ children, pathname, padNavbar }) {
 
   return (
-    <div style={{ height: '100%' }}>
+    <div className="d-flex flex-column min-vh-100">
       <Head>
         <title>Yoga Sof</title>
         <link rel="icon" href="/favicon.ico" />
