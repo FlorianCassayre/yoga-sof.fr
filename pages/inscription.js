@@ -1,18 +1,19 @@
 import { isSameDay } from 'date-fns';
 import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
-import { Badge, Button, Card, Col, Container, Form, ProgressBar, Row, Spinner, Table } from 'react-bootstrap';
-import { BsCheck2, BsCheckLg } from 'react-icons/bs';
+import { Alert, Badge, Button, Card, Col, Container, Form, ProgressBar, Row, Spinner, Table } from 'react-bootstrap';
+import { BsArrowLeft, BsCheckLg } from 'react-icons/bs';
 import {
+  ErrorMessage,
   formatTime,
-  formatTimeRange,
+  formatTimeRange, isErrorCode,
   minutesToParsedTime,
   parsedTimeToMinutes,
   parsedTimeToTime,
   parseTime,
   renderDateOnly,
   SESSIONS_NAMES,
-  SESSIONS_TYPES,
+  StaticPaginatedTable,
   USER_TYPE_ADMIN,
   USER_TYPE_REGULAR,
   WEEKDAYS,
@@ -20,6 +21,7 @@ import {
   YOGA_ADULT_CHILD,
   YOGA_CHILD,
 } from '../components';
+import Link from 'next/link';
 import { AuthGuard } from '../components';
 import { PublicLayout } from '../components/layout/public';
 import DatePicker, { registerLocale } from 'react-datepicker';
@@ -33,6 +35,12 @@ export default function Inscription({ pathname }) {
   const { data: sessionData } = useSession();
 
   const [{ isLoading, isError, data, error }] = useDataApi('/api/sessions_schedule');
+
+  const [submitData, setSubmitData] = useState({});
+
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [isSubmitted, setSubmitted] = useState(false);
 
   const CourseOption = ({ type, title, person, description, onSelect }) => {
     const matchedSessions = data.schedule.filter(({ type: otherType }) => otherType === type);
@@ -118,6 +126,7 @@ export default function Inscription({ pathname }) {
   const Step1 = ({ setValue }) => {
     const handleSelect = type => {
       setValue('type', type);
+      setValue('sessions', []);
       setValue('step', 2);
     };
     return (
@@ -167,15 +176,19 @@ export default function Inscription({ pathname }) {
       }
       // Otherwise, do nothing
     };
+    const handleSessionClick = currentValue => id => {
+      setValue('sessions', currentValue.includes(id) ? currentValue.filter(otherId => id !== otherId) : [...currentValue, id]);
+    };
+
     return (
       <div className="text-center date-picker-registration">
-        <Field
+        {/*<Field
           name="sessions"
         >
           {({ input: { value } }) => (
             <DatePicker
               locale="fr"
-              selected={now}
+              selected={minDate}
               highlightDates={sessionsForType.filter(({ id }) => value.includes(id)).map(({ date_start: date }) => new Date(date))}
               filterDate={isDateSelectable}
               onSelect={handleDayClick(value)}
@@ -185,12 +198,55 @@ export default function Inscription({ pathname }) {
               inline
             />
           )}
+        </Field>*/}
+
+        <Field
+          name="sessions"
+        >
+          {({ input: { value } }) => (
+            <>
+              <div className="mb-2">Cochez les séances pour lesquelles vous souhaitez vous inscrire :</div>
+              <StaticPaginatedTable
+                rows={sessionsForType}
+                columns={[
+                  {
+                    title: 'Type de séance',
+                    render: () => SESSIONS_NAMES[values.type],
+                  },
+                  {
+                    title: 'Date',
+                    render: ({ date_start: date }) => renderDateOnly(date),
+                  },
+                  {
+                    title: 'Période',
+                    render: ({ date_start: dateStart, date_end: dateEnd }) => formatTimeRange(dateStart, dateEnd),
+                  },
+                  {
+                    title: 'Inscription',
+                    render: ({ id }) => (
+                      <Form.Check
+                        type="checkbox"
+                        id={`check-${id}`}
+                        checked={value.includes(id)}
+                        onChange={() => handleSessionClick(value)(id)}
+                      />
+                    ),
+                  },
+                ]}
+                renderEmpty="Aucune séance disponible."
+                initialResultsPerPage={25}
+                rowProps={({ id }) => ({
+                  onClick: () => handleSessionClick(value)(id),
+                })}
+              />
+            </>
+          )}
         </Field>
 
 
         <Button variant="primary" className="mt-3" onClick={() => setValue('step', 3)} disabled={!values.sessions.length}>
-          <BsCheck2 className="icon me-2" />
-          Valider ces horaires et continuer
+          <BsCheckLg className="icon me-2" />
+          Valider ces séances et continuer
         </Button>
       </div>
     );
@@ -260,11 +316,42 @@ export default function Inscription({ pathname }) {
     </>
   );
 
-  const courses = [1, 2, 3];
+  const steps = [1, 2, 3];
 
   const onSubmit = values => {
     console.log(values);
-    // TODO
+
+    const data = { sessions: values.sessions };
+
+    setSubmitData(values);
+    setSubmitting(true);
+
+    fetch(
+      '/api/self/registrations/batch',
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      }
+    )
+      .then(response => {
+        if(isErrorCode(response.status)) {
+          return response.json().then(json => {
+            throw new Error(json.error);
+          });
+        }
+        return response.json();
+      })
+      .then(json => {
+        setSubmitting(false);
+        setSubmitted(true);
+      })
+      .catch(e => {
+        setSubmitting(false);
+        setSubmitError(e);
+      });
   };
 
   return (
@@ -284,16 +371,18 @@ export default function Inscription({ pathname }) {
               step: 1,
               type: null,
               sessions: [],
+              ...submitData, // Dirty fix
             }}
             mutators={{
               setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value)
             }}
+            keepDirtyOnReinitialize
             render={({ handleSubmit, form: { mutators: { setValue } }, values }) => (
               <Form onSubmit={handleSubmit}>
                 {!isLoading ? (
                   <div>
                     <Row className="text-center mt-4">
-                      {courses.map(step => (
+                      {steps.map(step => (
                         <Col key={step} style={{ position: 'relative' }}>
                           <h3 className="m-0">
                             <Badge pill bg={step <= values.step ? 'primary' : 'secondary'} style={{ border: 'solid white 5px' }} onClick={() => step === values.step - 1 && setValue('step', step)}>{step}</Badge>
@@ -305,7 +394,7 @@ export default function Inscription({ pathname }) {
                       ))}
                     </Row>
                     <Row className="text-center mb-5">
-                      {courses.map(step => (
+                      {steps.map(step => (
                         <Col key={step}>
                           <span className="text-muted">
                             {step === 1 ? (
@@ -319,12 +408,39 @@ export default function Inscription({ pathname }) {
                         </Col>
                       ))}
                     </Row>
-                    {values.step === 1 ? (
-                      <Step1 setValue={setValue} />
-                    ) : values.step === 2 ? (
-                      <Step2 setValue={setValue} values={values} />
+
+                    {isSubmitting ? (
+                      <div className="text-center my-4">
+                        <Spinner animation="border" />
+                      </div>
+                    ) : isSubmitted ? (
+                      <Alert variant="success">
+                        Vos inscriptions ont été enregistrées avec succès.
+                        Vous pouvez les retrouver <Link href="/mes-cours" passHref><Alert.Link>sur votre page personnelle</Alert.Link></Link>.
+                      </Alert>
                     ) : (
-                      <Step3 values={values} />
+                      <>
+                        {submitError && (
+                          <ErrorMessage>
+                            Une erreur est survenue : impossible de vous inscrire aux cours sélectionnés.
+                          </ErrorMessage>
+                        )}
+
+                        {values.step > 1 && (
+                          <Button variant="secondary" size="sm" onClick={() => !isSubmitting && !isSubmitted && setValue('step', values.step - 1)} className="mb-4">
+                            <BsArrowLeft className="icon me-2" />
+                            Étape précédente
+                          </Button>
+                        )}
+
+                        {values.step === 1 ? (
+                          <Step1 setValue={setValue} />
+                        ) : values.step === 2 ? (
+                          <Step2 setValue={setValue} values={values} />
+                        ) : (
+                          <Step3 values={values} />
+                        )}
+                      </>
                     )}
                   </div>
                 ) : (

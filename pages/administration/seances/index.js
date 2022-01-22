@@ -124,12 +124,14 @@ function AdminSeancesLayout({ pathname }) {
         Il n'est pas possible de supprimer de séances, en revanche il est possible d'en annuler.
       </p>
 
-      <Link href="/administration/seances/planning/creation" passHref>
-        <Button variant="success" className="mb-2">
-          <BsPlusLg className="icon me-2" />
-          Planifier de nouvelles séances
-        </Button>
-      </Link>
+      <div className="text-center mb-4">
+        <Link href="/administration/seances/planning/creation" passHref>
+          <Button variant="success">
+            <BsPlusLg className="icon me-2" />
+            Planifier de nouvelles séances
+          </Button>
+        </Link>
+      </div>
 
       <DynamicPaginatedTable
         url="/api/sessions"

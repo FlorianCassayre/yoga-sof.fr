@@ -8,6 +8,7 @@ export function StaticPaginatedTable(
     initialResultsPerPage = 10,
     initialPage = 1,
     renderEmpty,
+    ...rest
   }) {
   const [page, setPage] = useState(initialPage);
   const [resultsPerPage, setResultsPerPage] = useState(initialResultsPerPage);
@@ -23,6 +24,7 @@ export function StaticPaginatedTable(
       pageCount={Math.ceil(rows.length / resultsPerPage)}
       columns={columns}
       renderEmpty={renderEmpty}
+      {...rest}
     />
   );
 }

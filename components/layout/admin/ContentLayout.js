@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Badge, Breadcrumb, Spinner } from 'react-bootstrap';
 import { ErrorMessage } from '../../ErrorMessage';
 
-export function ContentLayout({ children, pathname, title, count, breadcrumb, isLoading, isError, error }) {
+export function ContentLayout({ children, pathname, title, headTitle, count, breadcrumb, isLoading, isError, error }) {
   const renderHeadTitle = headTitle => (
     <Head>
       <title>{headTitle} - Administration Yoga Sof</title>
@@ -13,7 +13,7 @@ export function ContentLayout({ children, pathname, title, count, breadcrumb, is
   return !isError ? (
     !isLoading ? (
       <>
-        {title && renderHeadTitle(title)}
+        {headTitle ? renderHeadTitle(headTitle) : title && renderHeadTitle(title)}
 
         {breadcrumb && (
           <Breadcrumb>

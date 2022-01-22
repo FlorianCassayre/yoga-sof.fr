@@ -18,6 +18,7 @@ export function PaginatedTableLayout(
     columns,
     collapsePagination = true,
     renderEmpty,
+    rowProps = () => {},
   }) {
 
   const renderPagination = () => {
@@ -65,7 +66,7 @@ export function PaginatedTableLayout(
     <>
       <Table striped bordered responsive>
         <thead>
-        <tr>
+        <tr className="text-center">
           {columns.map(({ title }, i) => (
             <th key={i}>{title}</th>
           ))}
@@ -73,7 +74,7 @@ export function PaginatedTableLayout(
         </thead>
         <tbody className={`align-middle ${isLoading ? 'opacity-50' : ''}`}>
         {rows.map((rowData, i) => (
-          <tr key={i}>
+          <tr key={i} {...rowProps(rowData)}>
             {columns.map(({ render, props }, i) => (
               <td key={i} {...(props ?? {})}>{render(rowData, isDisabled || isLoading)}</td>
             ))}

@@ -1,4 +1,5 @@
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import React, { useMemo } from 'react';
 import {
   Button,
@@ -13,9 +14,9 @@ import {
 } from 'react-bootstrap';
 import { BsCalendar, BsClipboard, BsXOctagon } from 'react-icons/bs';
 import {
-  AuthGuard,
+  AuthGuard, ConfirmDialog,
   ErrorMessage, formatDayRange,
-  formatTimestamp,
+  formatTimestamp, renderSessionName,
   SESSIONS_TYPES,
   USER_TYPE_ADMIN,
   USER_TYPE_REGULAR,
@@ -24,21 +25,27 @@ import { PublicLayout } from '../components/layout/public';
 import { useDataApi } from '../hooks';
 
 const MesCoursLayout = () => {
-  const [{ isLoading, isError, data, error }] = useDataApi('/api/self/registrations');
+  const [{ isLoading, isError, data }] = useDataApi('/api/self/registrations');
 
   const [registrationsFuture, registrationsPast, registrationsCanceled] = useMemo(() => {
     if(data) {
       const now = new Date();
-      const notCanceled = data.filter(({ is_user_canceled: isCanceled }) => !isCanceled);
+      const notCanceled = data.filter(({ is_user_canceled: isUserCanceled, session: { is_canceled: isCanceled } }) => !isCanceled && !isUserCanceled);
       return [
         notCanceled.filter(({ session: { date_end: dateEnd } }) => now.getTime() <= new Date(dateEnd).getTime()),
         notCanceled.filter(({ session: { date_end: dateEnd } }) => now.getTime() > new Date(dateEnd).getTime()),
-        data.filter(({ is_user_canceled: isCanceled }) => isCanceled),
+        data.filter(({ is_user_canceled: isUserCanceled, session: { is_canceled: isCanceled } }) => isCanceled || isUserCanceled),
       ];
     } else {
       return [];
     }
   }, [data]);
+
+  const router = useRouter();
+
+  const cancelSession = id => fetch(`/api/self/registrations/${id}/cancel`, {
+    method: 'POST',
+  });
 
 
   const renderTable = ({ rows, cancellation = false, cancellable = false, emptyMessage }) => !isError ? (!isLoading ? (rows.length > 0 ? (
@@ -52,29 +59,60 @@ const MesCoursLayout = () => {
           <th>Action</th>
         )}
         {cancellation && (
-          <th>Date d'annulation</th>
+          <th>Détails</th>
         )}
       </tr>
       </thead>
       <tbody className="align-middle">
-      {rows.map(({ id, created_at: registeredAt, canceled_at: canceledAt, session: { type, date_start: dateStart, date_end: dateEnd } }) => (
-        <tr key={id}>
-          <td>{SESSIONS_TYPES.filter(({ id }) => id === type)[0].title}</td>
-          <td>{formatDayRange(dateStart, dateEnd)}</td>
-          <td>{formatTimestamp(registeredAt)}</td>
-          {cancellable && (
-            <td className="text-center">
-              <Button variant="danger" size="sm">
-                <BsXOctagon className="icon me-2" />
-                Annuler
-              </Button>
-            </td>
-          )}
-          {cancellation && (
-            <td>{canceledAt}</td>
-          )}
-        </tr>
-      ))}
+      {rows.map(registration => {
+        const { id, created_at: registeredAt, is_user_canceled: isUserCanceled, canceled_at: userCanceledAt, session } = registration;
+        const { type, date_start: dateStart, date_end: dateEnd, is_canceled: isCanceled } = session;
+        return (
+          <tr key={id}>
+            <td>{SESSIONS_TYPES.filter(({ id }) => id === type)[0].title}</td>
+            <td>{formatDayRange(dateStart, dateEnd)}</td>
+            <td>{formatTimestamp(registeredAt)}</td>
+            {cancellable && (
+              <td className="text-center">
+                <ConfirmDialog
+                  title="Annuler l'inscription à une séance"
+                  description={(
+                    <>
+                      Vous êtes sur le point d'annuler votre inscription à la séance suivante :
+                      <ul>
+                        <li>{renderSessionName(session)}</li>
+                      </ul>
+                      Vous pourrez à tout moment vous y réinscrire.
+                    </>
+                  )}
+                  variant="danger"
+                  icon={BsXOctagon}
+                  action="Confirmer ma désinscription"
+                  triggerer={clickHandler => (
+                    <Button variant="danger" size="sm" onClick={clickHandler}>
+                      <BsXOctagon className="icon me-2" />
+                      Désinscription
+                    </Button>
+                  )}
+                  confirmPromise={() => cancelSession(id)}
+                  onSuccess={() => router.reload()}
+                />
+              </td>
+            )}
+            {cancellation && (
+              <td>{isUserCanceled ? (
+                <>
+                  Vous vous êtes désinscrit ({formatTimestamp(userCanceledAt)})
+                </>
+              ) : (
+                <>
+                  La séance a été annulée
+                </>
+              )}</td>
+            )}
+          </tr>
+        );
+      })}
       </tbody>
     </Table>
   ) : (
@@ -119,7 +157,7 @@ const MesCoursLayout = () => {
           </Popover.Body>
         </Popover>
       )}>
-        <Button variant="secondary">
+        <Button variant="secondary" className="mb-2">
           <BsCalendar className="icon me-2" />
           Exporter le calendrier
         </Button>

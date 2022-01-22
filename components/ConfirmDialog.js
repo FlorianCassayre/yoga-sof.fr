@@ -4,7 +4,7 @@ import { BsXLg } from 'react-icons/bs';
 import { ErrorMessage } from './ErrorMessage';
 import { isErrorCode } from './http';
 
-export function ConfirmDialog({ triggerer, title, description, variant, icon: Icon, action, confirmPromise, onSuccess }) {
+export function ConfirmDialog({ triggerer, title, description, variant, icon: Icon, action, cancelAction, confirmPromise, onSuccess }) {
   const [show, setShow] = useState(false);
   const [error, setError] = useState(null);
   const [isLoading, setLoading] = useState(false);
@@ -59,7 +59,7 @@ export function ConfirmDialog({ triggerer, title, description, variant, icon: Ic
         <Modal.Footer>
           <Button variant="secondary" disabled={isLoading} onClick={() => setShow(false)}>
             <BsXLg className="icon me-2" />
-            Annuler
+            {cancelAction != null ? cancelAction : 'Annuler'}
           </Button>
           <Button variant={variant} disabled={isLoading} onClick={handleConfirm}>
             <Icon className="icon me-2" />

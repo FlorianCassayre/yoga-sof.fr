@@ -1,5 +1,5 @@
 import { getSession } from 'next-auth/react';
-import { prisma } from '../../../server';
+import { prisma } from '../../../../server';
 
 export default async function handler(req, res) {
   if (req.method === 'GET') {
@@ -26,6 +26,7 @@ export default async function handler(req, res) {
               price: true,
               date_start: true,
               date_end: true,
+              is_canceled: true,
             },
           },
         },

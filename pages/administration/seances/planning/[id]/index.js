@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { Badge, Button } from 'react-bootstrap';
-import { BsPlusLg, BsXOctagon } from 'react-icons/bs';
+import { BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
 import {
   breadcrumbForSessionPlanning, CancelSessionConfirmDialog,
@@ -38,21 +38,30 @@ function SessionViewLayout({ pathname, id }) {
           <SessionStatusBadge session={data} className="ms-2" />
         </>
       )}
+      headTitle={data && renderSessionName(data)}
       breadcrumb={data && breadcrumbForSessionPlanning(data)}
       isLoading={isLoading}
       isError={isError}
       error={error}
     >
       {isFuture && (
-        <CancelSessionConfirmDialog
-          session={data}
-          triggerer={clickHandler => (
-            <Button size="sm" variant="danger" onClick={clickHandler} className="mb-4">
-              <BsXOctagon className="icon me-2" />
-              Annuler cette séance
+        <div className="mb-4">
+          <Link href={`/administration/seances/planning/${id}/edition`} passHref>
+            <Button className="me-2">
+              <BsPencil className="icon me-2" />
+              Modifier mes notes
             </Button>
-          )}
-        />
+          </Link>
+          <CancelSessionConfirmDialog
+            session={data}
+            triggerer={clickHandler => (
+              <Button variant="danger" onClick={clickHandler}>
+                <BsXOctagon className="icon me-2" />
+                Annuler cette séance
+              </Button>
+            )}
+          />
+        </div>
       )}
 
       <h2 className="h5">
