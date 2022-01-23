@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Modal, Spinner } from 'react-bootstrap';
 import { Form as FinalForm } from 'react-final-form';
 import { BsCheckLg, BsPlusLg, BsTrash, BsXLg } from 'react-icons/bs';
-import { usePromiseCallback } from '../../hooks';
+import { usePromiseCallback, usePromiseEffect } from '../../hooks';
 import { DELETE, jsonFetch, POST, PUT } from '../../lib/client/api';
 import { ErrorMessage } from '../ErrorMessage';
 
@@ -16,16 +16,10 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
 
   const [{ isLoading: isSubmitLoading, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatcher] =
     usePromiseCallback(options => jsonFetch(url, options), []);
-  const [{ isLoading: isInitialDataLoading, isError: isInitialDataError, data: initialData1, error: initialDataError }, initialDataDispatcher] =
-    usePromiseCallback(() => jsonFetch(url), []);
+  const { isLoading: isInitialDataLoading, isError: isInitialDataError, data: initialData, error: initialDataError } =
+    usePromiseEffect(isEdit ? () => jsonFetch(url) : null, []);
 
-  const initialData = isEdit ? initialData1 : initialValues;
-
-  useEffect(() => {
-    if(isEdit) {
-      initialDataDispatcher();
-    }
-  }, []);
+  const initialFormData = isEdit ? initialData : initialValues;
 
   useEffect(() => {
     if(submitResult) {
@@ -143,11 +137,11 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
       isLoading={isInitialDataLoading}
       isError={!!isInitialDataError}
       error={initialDataError}
-      data={initialData}
+      data={initialFormData}
     >
       <FinalForm
         onSubmit={onSubmit}
-        initialValues={initialData}
+        initialValues={initialFormData}
         mutators={{
           setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value)
         }}
