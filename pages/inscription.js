@@ -28,21 +28,20 @@ import DatePicker, { registerLocale } from 'react-datepicker';
 import { Form as FinalForm, Field } from 'react-final-form';
 
 import { fr } from 'date-fns/locale';
-import { useDataApi } from '../hooks';
+import { usePromiseCallback, usePromiseEffect } from '../hooks';
+import { getSessionsSchedule, postRegistrationBatch } from '../lib/client/api';
 registerLocale('fr', fr);
 
 export default function Inscription({ pathname }) {
   const { data: sessionData } = useSession();
 
-  const [{ isLoading, isError, data, error }] = useDataApi('/api/sessions_schedule');
+  const { isLoading, isError, data, error } = usePromiseEffect(getSessionsSchedule, []);
 
   const [submitData, setSubmitData] = useState({});
 
-  const [isSubmitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
-  const [isSubmitted, setSubmitted] = useState(false);
+  const [{ isLoading: isSubmitting, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatch] = usePromiseCallback(data => postRegistrationBatch(data), []);
 
-  const CourseOption = ({ type, title, person, description, onSelect }) => {
+  const CourseOption = ({ type, title, person, onSelect }) => {
     const matchedSessions = data.schedule.filter(({ type: otherType }) => otherType === type);
     const matchedRegistrable = data.sessions.filter(({ type: otherType }) => otherType === type);
 
@@ -324,34 +323,8 @@ export default function Inscription({ pathname }) {
     const data = { sessions: values.sessions };
 
     setSubmitData(values);
-    setSubmitting(true);
 
-    fetch(
-      '/api/self/registrations/batch',
-      {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json'
-        },
-      }
-    )
-      .then(response => {
-        if(isErrorCode(response.status)) {
-          return response.json().then(json => {
-            throw new Error(json.error);
-          });
-        }
-        return response.json();
-      })
-      .then(json => {
-        setSubmitting(false);
-        setSubmitted(true);
-      })
-      .catch(e => {
-        setSubmitting(false);
-        setSubmitError(e);
-      });
+    submitDispatch(data);
   };
 
   return (
@@ -413,7 +386,7 @@ export default function Inscription({ pathname }) {
                       <div className="text-center my-4">
                         <Spinner animation="border" />
                       </div>
-                    ) : isSubmitted ? (
+                    ) : submitResult ? (
                       <Alert variant="success">
                         Vos inscriptions ont été enregistrées avec succès.
                         Vous pouvez les retrouver <Link href="/mes-cours" passHref><Alert.Link>sur votre page personnelle</Alert.Link></Link>.
@@ -427,7 +400,7 @@ export default function Inscription({ pathname }) {
                         )}
 
                         {values.step > 1 && (
-                          <Button variant="secondary" size="sm" onClick={() => !isSubmitting && !isSubmitted && setValue('step', values.step - 1)} className="mb-4">
+                          <Button variant="secondary" size="sm" onClick={() => !isSubmitting && !submitResult && setValue('step', values.step - 1)} className="mb-4">
                             <BsArrowLeft className="icon me-2" />
                             Étape précédente
                           </Button>

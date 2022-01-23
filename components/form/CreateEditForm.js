@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { Button, Form, Modal, Spinner } from 'react-bootstrap';
 import { Form as FinalForm } from 'react-final-form';
 import { BsCheckLg, BsPlusLg, BsTrash, BsXLg } from 'react-icons/bs';
+import { usePromiseCallback } from '../../hooks';
+import { DELETE, jsonFetch, POST, PUT } from '../../lib/client/api';
 import { ErrorMessage } from '../ErrorMessage';
-import { isErrorCode } from '../http';
 
 export function CreateEditForm({ modelId, editRecordId, deletable, initialValues = {}, redirect, numberFields = [], disabled, loading, submitCallback, container: Container = ({ children }) => children, children }) {
 
@@ -13,10 +14,24 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
   const urlBase = `/api/${modelId}`;
   const url = isEdit ? `${urlBase}/${editRecordId}` : urlBase;
 
-  const [isSubmitLoading, setSubmitLoading] = useState(false);
-  const [initialData, setInitialData] = useState(isEdit ? null : initialValues);
-  const [loadError, setLoadError] = useState(null);
-  const [submitError, setSubmitError] = useState(null);
+  const [{ isLoading: isSubmitLoading, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatcher] =
+    usePromiseCallback(options => jsonFetch(url, options), []);
+  const [{ isLoading: isInitialDataLoading, isError: isInitialDataError, data: initialData1, error: initialDataError }, initialDataDispatcher] =
+    usePromiseCallback(() => jsonFetch(url), []);
+
+  const initialData = isEdit ? initialData1 : initialValues;
+
+  useEffect(() => {
+    if(isEdit) {
+      initialDataDispatcher();
+    }
+  }, []);
+
+  useEffect(() => {
+    if(submitResult) {
+      submitSuccessCallback(submitResult);
+    }
+  }, [submitResult]);
 
   const router = useRouter();
 
@@ -27,26 +42,6 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
       <Spinner animation="border" />
     </div>
   );
-
-  useEffect(() => {
-    if(isEdit) {
-      fetch(url)
-        .then(response => {
-          if(isErrorCode(response.status)) {
-            return response.json().then(json => {
-              throw new Error(json.error);
-            });
-          }
-          return response.json();
-        })
-        .then(json => {
-          setInitialData(json);
-        })
-        .catch(e => {
-          setLoadError(e);
-        });
-    }
-  }, []);
 
   const submitSuccessCallback = json => {
     router.push(redirect(json));
@@ -64,31 +59,7 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
       data = submitCallback(data);
     }
 
-    setSubmitLoading(true);
-
-    fetch(url, {
-      method: isEdit ? 'PUT' : 'POST',
-      body: JSON.stringify(data),
-      headers: {
-        'Content-Type': 'application/json'
-      },
-    })
-      .then(response => {
-        if(isErrorCode(response.status)) {
-          return response.json().then(json => {
-            throw new Error(json.error);
-          });
-        }
-        return response.json();
-      })
-      .then(json => {
-        // Stay in loading state, until the redirect happens
-        submitSuccessCallback(json);
-      })
-      .catch(e => {
-        setSubmitError(e);
-        setSubmitLoading(false);
-      });
+    submitDispatcher({ method: isEdit ? PUT : POST, body: data });
   };
 
   const onCancel = () => {
@@ -102,30 +73,13 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
   const onDelete = () => {
     setDeleteDialogShow(false);
 
-    fetch(url, {
-      method: 'DELETE',
-    })
-      .then(response => {
-        if(isErrorCode(response.status)) {
-          return response.json().then(json => {
-            throw new Error(json.error);
-          });
-        }
-        return response.json();
-      })
-      .then(json => {
-        submitSuccessCallback(json);
-      })
-      .catch(e => {
-        setSubmitError(e);
-        setSubmitLoading(false);
-      });
+    submitDispatcher({ method: DELETE });
   }
 
-  const renderForm = props => !isSubmitLoading && !loading ? (
+  const renderForm = props => !submitResult && !loading ? (
     <Form onSubmit={props.handleSubmit}>
 
-      {submitError && (
+      {isSubmitError && (
         <ErrorMessage error={submitError}>
           Une erreur est survenue lors de la soumission du formulaire.
         </ErrorMessage>
@@ -186,9 +140,9 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
 
   return (
     <Container
-      isLoading={initialData == null}
-      isError={!!loadError}
-      error={loadError}
+      isLoading={isInitialDataLoading}
+      isError={!!isInitialDataError}
+      error={initialDataError}
       data={initialData}
     >
       <FinalForm

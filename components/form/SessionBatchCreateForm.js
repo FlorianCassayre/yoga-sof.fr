@@ -2,7 +2,8 @@ import { Form, Spinner } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import { Field } from 'react-final-form';
 import { OnChange } from 'react-final-form-listeners';
-import { useDataApi } from '../../hooks';
+import { usePromiseEffect } from '../../hooks';
+import { getSessionModels } from '../../lib/client/api';
 import { dateFormat, formatTime, parseTime, WEEKDAYS } from '../date';
 import { ErrorMessage } from '../ErrorMessage';
 import { SESSIONS_TYPES } from '../sessions';
@@ -18,7 +19,7 @@ import {
 
 export function SessionBatchCreateForm() {
 
-  const [{ isLoading, isError, data, error }] = useDataApi('/api/session_models');
+  const { isLoading, isError, data, error } = usePromiseEffect(getSessionModels, []);
 
   const prefillValues = (id, setValue) => {
     const modelData = data.filter(({ id: thatId }) => thatId === id)[0];

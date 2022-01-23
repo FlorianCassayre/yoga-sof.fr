@@ -1,14 +1,14 @@
 import Link from 'next/link';
-import { useMemo } from 'react';
 import { Button, Card, Col, Row, Spinner } from 'react-bootstrap';
 import { BsCalendar, BsPencil, BsPlusLg } from 'react-icons/bs';
-import { useDataApi } from '../hooks';
+import { usePromiseEffect } from '../hooks';
+import { getSessionModels } from '../lib/client/api';
 import { formatTime, parsedTimeToMinutes, parseTime, WEEKDAYS } from './date';
 import { ErrorMessage } from './ErrorMessage';
 import { SESSIONS_TYPES } from './sessions';
 
 export function SessionsCards({ readonly }) {
-  const [{ isLoading, isError, data, error }] = useDataApi('/api/session_models');
+  const { isLoading, isError, data, error } = usePromiseEffect(getSessionModels, []);
 
   const compareModels = ({ weekday: d1, time_start: t1 }, { weekday: d2, time_start: t2 }) => {
     if(d1 !== d2) {

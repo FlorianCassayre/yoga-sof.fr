@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useDataApi, useNonInitialEffect } from '../../hooks';
+import { usePromiseCallback } from '../../hooks';
+import { jsonFetch } from '../../lib/client/api';
 import { PaginatedTableLayout } from './PaginatedTableLayout';
 
 export function DynamicPaginatedTable(
@@ -18,12 +19,13 @@ export function DynamicPaginatedTable(
   }) {
 
   const [page, setPage] = useState(initialPage);
-  const [{ isLoading, isError, data, error }, setUrl] = useDataApi(url, params && params(page, initialResultsPerPage));
+  const [{ isLoading, isError, data, error }, dispatcher] = usePromiseCallback((url, query) => jsonFetch(url, { query }), []);
+
   const [resultsPerPage, setResultsPerPage] = useState(initialResultsPerPage);
 
-  useNonInitialEffect(() => {
-    setUrl(params && params(page, resultsPerPage));
-  }, [url, params, setUrl, page, resultsPerPage]);
+  useEffect(() => {
+    dispatcher(url, params && params(page, resultsPerPage));
+  }, [url, params, page, resultsPerPage]);
 
   useEffect(() => {
     if(totalCallback) {
@@ -33,7 +35,7 @@ export function DynamicPaginatedTable(
 
   return (
     <PaginatedTableLayout
-      isLoading={isLoading}
+      isLoading={isLoading || (!data && !isError)}
       isError={isError}
       error={error}
       resultsPerPage={resultsPerPage}

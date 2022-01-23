@@ -1,22 +1,23 @@
 import { Form } from 'react-bootstrap';
 import { Field } from 'react-final-form';
-import { useDataApi } from '../../../hooks';
+import { usePromiseEffect } from '../../../hooks';
+import { getSessions } from '../../../lib/client/api';
 import { ErrorMessage } from '../../ErrorMessage';
 import { renderSessionName } from '../../table';
 
 export function SessionSelectField({ name, fieldProps = {}, disabled, ...props }) {
-  const [{ isLoading, isError, data, error }] = useDataApi('/api/sessions', {
-    where: JSON.stringify({
+  const { isLoading, isError, data, error } = usePromiseEffect(() => getSessions({
+    where: {
       is_canceled: false,
       date_end: {
         $gt: new Date().toISOString(),
       },
-    }),
-    orderBy: JSON.stringify({
+    },
+    orderBy: {
       date_start: '$asc',
-    }),
+    },
     select: ['id', 'type', 'date_start', 'date_end'],
-  });
+  }), []);
 
   return (
     <Form.Group {...props}>

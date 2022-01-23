@@ -1,39 +1,15 @@
 import { useState } from 'react';
 import { Button, Modal, Spinner } from 'react-bootstrap';
 import { BsXLg } from 'react-icons/bs';
+import { usePromiseCallback } from '../hooks';
 import { ErrorMessage } from './ErrorMessage';
-import { isErrorCode } from './http';
 
 export function ConfirmDialog({ triggerer, title, description, variant, icon: Icon, action, cancelAction, confirmPromise, onSuccess }) {
   const [show, setShow] = useState(false);
-  const [error, setError] = useState(null);
-  const [isLoading, setLoading] = useState(false);
-
-  const handleConfirm = () => {
-    setLoading(true);
-    setError(null);
-
-    confirmPromise()
-      .then(response => {
-        if(isErrorCode(response.status)) {
-          return response.json().then(json => {
-            throw new Error(json.error);
-          });
-        }
-        return response.json();
-      })
-      .then(() => {
-        // Close and reset
-        setLoading(false);
-        setShow(false);
-        setError(null);
-        onSuccess();
-      })
-      .catch(error => {
-        setLoading(false);
-        setError(error);
-      });
-  };
+  const [{ isLoading, isError, data, error }, callback] = usePromiseCallback(() => confirmPromise().then(() => {
+    setShow(false);
+    onSuccess();
+  }), []);
 
   return (
     <>
@@ -51,7 +27,7 @@ export function ConfirmDialog({ triggerer, title, description, variant, icon: Ic
               <Spinner animation="border" />
             </div>
           )}
-          {error && (
+          {isError && (
             <ErrorMessage error={error} />
           )}
           {description}
@@ -61,7 +37,7 @@ export function ConfirmDialog({ triggerer, title, description, variant, icon: Ic
             <BsXLg className="icon me-2" />
             {cancelAction != null ? cancelAction : 'Annuler'}
           </Button>
-          <Button variant={variant} disabled={isLoading} onClick={handleConfirm}>
+          <Button variant={variant} disabled={isLoading} onClick={() => callback()}>
             <Icon className="icon me-2" />
             {action}
           </Button>

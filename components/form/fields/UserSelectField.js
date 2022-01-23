@@ -1,12 +1,13 @@
 import { Form } from 'react-bootstrap';
 import { Field } from 'react-final-form';
-import { useDataApi } from '../../../hooks';
+import { usePromiseEffect } from '../../../hooks';
+import { getUsers } from '../../../lib/client/api';
 import { ErrorMessage } from '../../ErrorMessage';
 
 export function UserSelectField({ name, fieldProps = {}, disabled, ...props }) {
-  const [{ isLoading, isError, data, error }] = useDataApi('/api/users', {
+  const { isLoading, isError, data, error } = usePromiseEffect(() => getUsers({
     select: ['id', 'name']
-  });
+  }));
 
   return (
     <Form.Group {...props}>

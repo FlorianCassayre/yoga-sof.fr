@@ -10,10 +10,11 @@ import {
   userLinkColumn,
 } from '../../../../../components';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
-import { useDataApi } from '../../../../../hooks';
+import { usePromiseEffect } from '../../../../../hooks';
+import { getSession } from '../../../../../lib/client/api';
 
 function SessionViewLayout({ pathname, id }) {
-  const [{ isLoading, isError, data, error }] = useDataApi(`/api/sessions/${id}`, { include: ['registrations.user'] });
+  const { isLoading, isError, data, error } = usePromiseEffect(() => getSession(id, { include: ['registrations.user'] }), []);
 
   const registrationDateColumn = {
     title: `Date d'inscription`,

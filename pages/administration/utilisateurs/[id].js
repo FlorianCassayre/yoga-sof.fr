@@ -1,23 +1,20 @@
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Badge, Button, Spinner } from 'react-bootstrap';
+import { Badge, Button } from 'react-bootstrap';
 import { BsCalendarDate, BsPlusLg } from 'react-icons/bs';
 import {
   breadcrumbForUser,
-  dateFormat,
-  ErrorMessage,
   formatTimestamp,
   DynamicPaginatedTable,
-  SESSIONS_TYPES, idColumn, plannedSessionLinkColumn, renderDatetime,
+  plannedSessionLinkColumn, renderDatetime,
 } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import { useDataApi } from '../../../hooks';
+import { usePromiseEffect } from '../../../hooks';
+import { getUser } from '../../../lib/client/api';
 
 function AdminUserLayout({ pathname, id }) {
-  const [{ isLoading, isError, data, error }] = useDataApi(`/api/users/${id}`, {
-    include: 'registrations',
-  });
+  const { isLoading, isError, data, error } = usePromiseEffect(() => getUser(id, { include: 'registrations' }), []);
 
   return (
     <ContentLayout

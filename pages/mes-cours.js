@@ -22,10 +22,11 @@ import {
   USER_TYPE_REGULAR,
 } from '../components';
 import { PublicLayout } from '../components/layout/public';
-import { useDataApi } from '../hooks';
+import { usePromiseEffect } from '../hooks';
+import { getSelfRegistrations, postCancelRegistration } from '../lib/client/api';
 
 const MesCoursLayout = () => {
-  const [{ isLoading, isError, data }] = useDataApi('/api/self/registrations');
+  const { isLoading, isError, data } = usePromiseEffect(getSelfRegistrations, []);
 
   const [registrationsFuture, registrationsPast, registrationsCanceled] = useMemo(() => {
     if(data) {
@@ -42,11 +43,6 @@ const MesCoursLayout = () => {
   }, [data]);
 
   const router = useRouter();
-
-  const cancelSession = id => fetch(`/api/self/registrations/${id}/cancel`, {
-    method: 'POST',
-  });
-
 
   const renderTable = ({ rows, cancellation = false, cancellable = false, emptyMessage }) => !isError ? (!isLoading ? (rows.length > 0 ? (
     <Table striped bordered responsive className="mt-2 mb-5 text-center">
@@ -94,7 +90,7 @@ const MesCoursLayout = () => {
                       Désinscription
                     </Button>
                   )}
-                  confirmPromise={() => cancelSession(id)}
+                  confirmPromise={() => postCancelRegistration(id)}
                   onSuccess={() => router.reload()}
                 />
               </td>
