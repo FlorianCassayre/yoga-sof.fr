@@ -1,40 +1,37 @@
-import { getSession } from 'next-auth/react';
+import { ALL_USER_TYPES } from '../../../../components';
+import { apiHandler } from '../../../../lib/server';
 import { prisma } from '../../../../server';
 
 export default async function handler(req, res) {
-  if (req.method === 'GET') {
-    const session = await getSession({ req });
-    if(!session) {
-      res.status(401).json({ error: 'Unauthorized' });
-    } else {
-      const { user: { db_id: id } } = session;
-
-      const result = await prisma.registrations.findMany({
-        where: {
-          user_id: id,
-        },
-        select: {
-          id: true,
-          is_user_canceled: true,
-          created_at: true,
-          canceled_at: true,
-          session: {
-            select: {
-              id: true,
-              type: true,
-              slots: true,
-              price: true,
-              date_start: true,
-              date_end: true,
-              is_canceled: true,
+  await apiHandler({
+    GET: {
+      permissions: ALL_USER_TYPES,
+      action: async (req, res, { userId, accept }) => {
+        const result = await prisma.registrations.findMany({
+          where: {
+            user_id: userId,
+          },
+          select: {
+            id: true,
+            is_user_canceled: true,
+            created_at: true,
+            canceled_at: true,
+            session: {
+              select: {
+                id: true,
+                type: true,
+                slots: true,
+                price: true,
+                date_start: true,
+                date_end: true,
+                is_canceled: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      res.status(200).json(result);
-    }
-  } else {
-    res.status(405).json({ error: 'Method Not Allowed' });
-  }
+        accept(result);
+      },
+    },
+  })(req, res);
 }

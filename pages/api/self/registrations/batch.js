@@ -1,20 +1,13 @@
-import { getSession } from 'next-auth/react';
-import Joi from 'joi';
-
-const schema = Joi.object({
-  sessions: Joi.array().required().min(1).max(100).unique().items(Joi.number().integer().required()),
-});
+import { ALL_USER_TYPES } from '../../../../components';
+import { schemaSelfRegistrationBatchBody } from '../../../../lib/common';
+import { apiHandler } from '../../../../lib/server';
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    const session = await getSession({ req });
-    if(!session) {
-      res.status(401).json({ error: 'Unauthorized' });
-    } else {
-      const { user: { db_id: userId } } = session;
-      const { value: { sessions }, error } = schema.validate(req.body);
-
-      if(error == null) {
+  await apiHandler({
+    POST: {
+      permissions: ALL_USER_TYPES,
+      schemaBody: schemaSelfRegistrationBatchBody,
+      action: async (req, res, { reject, accept, userId, body: { sessions } }) => {
         const now = new Date();
 
         try {
@@ -29,18 +22,13 @@ export default async function handler(req, res) {
                   (SELECT COUNT(*) FROM registrations AS tmp3 WHERE session_id = ${sessionId} AND NOT is_user_canceled) < slots),
                 ${userId}
             )
-          `
-          ));
+          `));
 
-          res.status(200).json({});
-        } catch (e) {
-          res.status(400).json({ error: 'Bad Request' });
+          accept();
+        } catch(e) {
+          reject('Bad Request');
         }
-      } else {
-        res.status(400).json({ error: `Bad Request: ${error}` });
       }
-    }
-  } else {
-    res.status(405).json({ error: 'Method Not Allowed' });
-  }
+    },
+  })(req, res);
 }

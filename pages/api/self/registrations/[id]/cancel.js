@@ -1,18 +1,14 @@
-import { getSession } from 'next-auth/react';
+import { ALL_USER_TYPES } from '../../../../../components';
+import { schemaSelfRegistrationCancelQuery } from '../../../../../lib/common';
+import { apiHandler } from '../../../../../lib/server';
 import { prisma } from '../../../../../server';
 
 export default async function handler(req, res) {
-  if (req.method === 'POST') {
-    const session = await getSession({ req });
-    if(!session) {
-      res.status(401).json({ error: 'Unauthorized' });
-    } else {
-      const { user: { db_id: userId } } = session;
-
-      const { id } = req.query;
-      const registrationId = parseInt(id);
-
-      if(!isNaN(registrationId)) {
+  await apiHandler({
+    POST: {
+      permissions: ALL_USER_TYPES,
+      schemaQuery: schemaSelfRegistrationCancelQuery,
+      action: async (req, res, { accept, reject, userId, query: { id: registrationId } }) => {
         const result = await prisma.registrations.updateMany({
           where: {
             id: registrationId,
@@ -32,15 +28,11 @@ export default async function handler(req, res) {
         });
 
         if(result.count === 1) {
-          res.status(200).json({});
+          accept({});
         } else {
-          res.status(400).json({ error: 'Bad Request' });
+          reject('Bad Request', 400);
         }
-      } else {
-        res.status(400).json({ error: 'Bad Request: invalid session' });
-      }
-    }
-  } else {
-    res.status(405).json({ error: 'Method Not Allowed' });
-  }
+      },
+    },
+  })(req, res);
 }
