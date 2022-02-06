@@ -1,8 +1,9 @@
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { Button } from 'react-bootstrap';
-import { BsCalendarDate, BsEyeFill, BsPerson } from 'react-icons/bs';
+import { BsCalendarDate, BsEyeFill, BsPerson, BsXOctagon } from 'react-icons/bs';
 import * as url from 'url';
+import { CancelRegistrationConfirmDialog } from '../CancelRegistrationConfirmDialog';
 import { dateFormat, formatDayRange, formatTimestamp } from '../date';
 import { SESSIONS_TYPES } from '../sessions';
 import { SessionStatusBadge } from '../SessionStatusBadge';
@@ -48,6 +49,23 @@ export const plannedSessionLinkColumn = {
   ),
 };
 
+export const cancelRegistrationColumn = {
+  title: 'Désinscription',
+  render: registration => !registration.session.is_canceled && !registration.is_user_canceled && (
+    <CancelRegistrationConfirmDialog
+      registration={registration}
+      triggerer={clickHandler => (
+        <Button size="sm" variant="danger" onClick={clickHandler}>
+          <BsXOctagon className="icon" />
+        </Button>
+      )}
+    />
+  ),
+  props: {
+    className: 'text-center',
+  },
+};
+
 export const detailsColumnFor = urlFor => ({
   title: 'Détails',
   render: ({ id }) => (
@@ -76,3 +94,13 @@ export const renderEmail = renderEmailCompare(null);
 export const renderDateOnly = date => format(new Date(date), dateFormat);
 
 export const renderDatetime = date => formatTimestamp(date);
+
+export const renderSessionType = type => SESSIONS_TYPES.find(({ id }) => id === type).title;
+
+export const renderTimePeriod = (dateStart, dateEnd) => (
+  <>
+    {format(new Date(dateStart), 'HH\'h\'mm')}
+    {' '}à{' '}
+    {format(new Date(dateEnd), 'HH\'h\'mm')}
+  </>
+);

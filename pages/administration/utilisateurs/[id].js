@@ -2,12 +2,12 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Badge, Button } from 'react-bootstrap';
-import { BsCalendarDate, BsPlusLg } from 'react-icons/bs';
+import { BsCalendarDate, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import {
   breadcrumbForUser,
   formatTimestamp,
   DynamicPaginatedTable,
-  plannedSessionLinkColumn, renderDatetime,
+  plannedSessionLinkColumn, renderDatetime, CancelRegistrationConfirmDialog, cancelRegistrationColumn,
 } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import { usePromiseEffect } from '../../../hooks';
@@ -27,7 +27,7 @@ function AdminUserLayout({ pathname, id }) {
     >
 
       <p>
-        Les inscriptions de cet utilisateur.
+        Les inscriptions (et désinscriptions) de cet utilisateur.
       </p>
 
       <DynamicPaginatedTable
@@ -59,7 +59,8 @@ function AdminUserLayout({ pathname, id }) {
             props: {
               className: 'text-center'
             }
-          }
+          },
+          cancelRegistrationColumn,
         ]}
         renderEmpty={() => `Cet utilisateur ne s'est pas encore inscrit à une séance.`}
       />

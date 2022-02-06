@@ -1,14 +1,22 @@
 import { format } from 'date-fns';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { Badge, Button } from 'react-bootstrap';
-import { BsCalendarDate, BsPlusLg } from 'react-icons/bs';
+import { BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import {
-  BREADCRUMB_REGISTRATIONS, dateFormat, formatTimestamp,
-  DynamicPaginatedTable, SESSIONS_TYPES, userLinkColumn, plannedSessionLinkColumn, idColumn, renderDatetime,
+  BREADCRUMB_REGISTRATIONS,
+  formatTimestamp,
+  DynamicPaginatedTable,
+  userLinkColumn,
+  plannedSessionLinkColumn,
+  renderDatetime,
+  renderSessionName, ConfirmDialog, CancelRegistrationConfirmDialog, cancelRegistrationColumn,
 } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
+import { postCancelRegistration } from '../../../lib/client/api';
 
 function AdminRegistrationsLayout({ pathname }) {
+  const router = useRouter();
 
   return (
     <ContentLayout pathname={pathname} title="Inscriptions" breadcrumb={BREADCRUMB_REGISTRATIONS}>
@@ -44,7 +52,8 @@ function AdminRegistrationsLayout({ pathname }) {
             props: {
               className: 'text-center'
             }
-          }
+          },
+          cancelRegistrationColumn,
         ]}
       />
 

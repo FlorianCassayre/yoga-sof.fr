@@ -4,7 +4,8 @@ import { Badge, Button } from 'react-bootstrap';
 import { BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
 import {
-  breadcrumbForSessionPlanning, CancelSessionConfirmDialog,
+  adaptColumn,
+  breadcrumbForSessionPlanning, cancelRegistrationColumn, CancelSessionConfirmDialog,
   renderDatetime, renderSessionName, SessionStatusBadge,
   StaticPaginatedTable,
   userLinkColumn,
@@ -79,6 +80,7 @@ function SessionViewLayout({ pathname, id }) {
         columns={[
           userLinkColumn,
           registrationDateColumn,
+          adaptColumn(registration => ({ ...registration, session: data }))(cancelRegistrationColumn),
         ]}
         renderEmpty={() => `Personne ne participe pour le moment.`}
       />
@@ -96,7 +98,7 @@ function SessionViewLayout({ pathname, id }) {
 
       <h2 className="h5">Annulations</h2>
 
-      <p>Liste des annulations pour cette séance.</p>
+      <p>Historique des annulations pour cette séance.</p>
 
       <StaticPaginatedTable
         rows={data && canceledRegistrations}

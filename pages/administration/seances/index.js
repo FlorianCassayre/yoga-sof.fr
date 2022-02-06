@@ -4,7 +4,7 @@ import { Badge, Button } from 'react-bootstrap';
 import { BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import {
   BREADCRUMB_SESSIONS, CancelSessionConfirmDialog, ConfirmDialog, dateFormat, detailsColumnFor,
-  DynamicPaginatedTable,
+  DynamicPaginatedTable, renderSessionType, renderTimePeriod,
   SESSIONS_TYPES,
   SessionsCards, SessionStatusBadge,
 } from '../../../components';
@@ -15,16 +15,6 @@ function AdminSeancesLayout({ pathname }) {
   const router = useRouter();
 
   const renderDate = ({ date_start: date }) => format(new Date(date), dateFormat);
-
-  const renderTimePeriod = ({ date_start, date_end }) => (
-    <>
-      {format(new Date(date_start), 'HH\'h\'mm')}
-      {' '}à{' '}
-      {format(new Date(date_end), 'HH\'h\'mm')}
-    </>
-  );
-
-  const renderSessionType = ({ type }) => SESSIONS_TYPES.find(({ id }) => id === type).title;
 
   const sessionColumns = hasPassed => [
     detailsColumnFor(id => `/administration/seances/planning/${id}`),
@@ -43,11 +33,11 @@ function AdminSeancesLayout({ pathname }) {
     },
     {
       title: 'Horaire',
-      render: renderTimePeriod,
+      render: ({ date_start, date_end }) => renderTimePeriod(date_start, date_end),
     },
     {
       title: 'Type de séance',
-      render: renderSessionType,
+      render: ({ type }) => renderSessionType(type),
     },
     {
       title: 'Prix',

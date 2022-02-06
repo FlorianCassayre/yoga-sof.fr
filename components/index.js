@@ -15,3 +15,4 @@ export * from './emails';
 export * from './table';
 export { SessionStatusBadge } from './SessionStatusBadge';
 export { CancelSessionConfirmDialog } from './CancelSessionConfirmDialog';
+export { CancelRegistrationConfirmDialog } from './CancelRegistrationConfirmDialog';
