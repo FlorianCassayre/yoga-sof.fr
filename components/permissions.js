@@ -13,7 +13,7 @@ export const isPermitted = (resourceType, resourceId, routeType, userType) => {
   // For now the following is sufficient. Adapt as needed.
   if(userType === USER_TYPE_ADMIN) {
     if(resourceType === 'users') {
-      return [RouteType.READ_ALL, RouteType.READ_ONE].includes(routeType);
+      return [RouteType.CREATE, RouteType.READ_ALL, RouteType.READ_ONE].includes(routeType);
     } else if(resourceType === 'admins') {
       return [RouteType.READ_ALL, RouteType.READ_ONE].includes(routeType);
     } else if(resourceType === 'session_models') {
@@ -23,7 +23,7 @@ export const isPermitted = (resourceType, resourceId, routeType, userType) => {
     } else if(resourceType === 'emails') {
       return [RouteType.READ_ALL, RouteType.READ_ONE].includes(routeType);
     } else if(resourceType === 'registrations') {
-      return [RouteType.READ_ALL, RouteType.READ_ONE];
+      return [RouteType.READ_ALL, RouteType.READ_ONE].includes(routeType);
     }
   }
 

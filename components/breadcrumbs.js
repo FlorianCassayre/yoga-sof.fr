@@ -26,6 +26,11 @@ export const BREADCRUMB_USERS = [...BREADCRUMB_CATEGORY_ADMINISTRATION, {
   pathname: '/administration/utilisateurs',
 }];
 
+export const BREADCRUMB_USER_CREATE = [...BREADCRUMB_USERS, {
+  title: 'Création',
+  pathname: '/administration/utilisateurs/creation',
+}];
+
 export const breadcrumbForUser = ({ name }) => [...BREADCRUMB_USERS, {
   title: name,
   //pathname: `/administration/utilisateurs/${userId}`,

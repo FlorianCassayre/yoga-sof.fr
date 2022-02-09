@@ -9,7 +9,7 @@ const generateICS = registrations => {
     const date = new Date(ts);
     return [
       date.getFullYear(),
-      date.getMonth(),
+      date.getMonth() + 1,
       date.getDay(),
       date.getHours(),
       date.getMinutes(),
@@ -39,7 +39,6 @@ const generateICS = registrations => {
 export default async function handler(req, res) {
   await apiHandler({
     GET: {
-      permissions: ALL_USER_TYPES,
       schemaQuery: schemaCalendarQuery,
       action: async (req, res, { reject, query: { id: userId, token } }) => {
         const userExists = !!(await prisma.users.count({

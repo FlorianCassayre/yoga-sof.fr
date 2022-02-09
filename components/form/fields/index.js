@@ -6,3 +6,4 @@ export { TimePickerRangeFields } from './TimePickerRangeFields';
 export { PriceNumberField } from './PriceNumberField';
 export { UserSelectField } from './UserSelectField';
 export { SessionSelectField } from './SessionSelectField';
+export { SimpleInputField } from './SimpleInputField';

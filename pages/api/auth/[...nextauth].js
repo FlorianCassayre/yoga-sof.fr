@@ -60,33 +60,60 @@ export default NextAuth({
     // async redirect(url, baseUrl) { return baseUrl },
     async session({ session, user, token }) {
       const email = session.user.email;
-      const isAdmin = !!(await prisma.admins.count(
-        {
-          where: {
-            email,
-          }
-        }
-      ));
-      session.userType = isAdmin ? USER_TYPE_ADMIN : USER_TYPE_REGULAR;
+
       session.user.provider = token.provider;
       session.user.id_provider = token.id_provider;
 
-      const userDbData = {
-        id_provider: token.id_provider,
-        email: email,
-        provider: token.provider,
-        name: session.user.name,
-      };
-      const { id, public_access_token } = await prisma.users.upsert({
+      const { id, user: { public_access_token, user_linked_accounts: linkedAccounts } } = await prisma.user_linked_account.upsert({
         where: {
           id_provider_provider: {
-            id_provider: userDbData.id_provider,
-            provider: userDbData.provider,
+            id_provider: token.id_provider,
+            provider: token.provider,
           },
         },
-        update: userDbData,
-        create: userDbData,
+        update: {
+          email: email,
+          name: session.user.name,
+          // We don't update the user's data
+        },
+        create: {
+          id_provider: token.id_provider,
+          email: email,
+          provider: token.provider,
+          name: session.user.name,
+          user: {
+            create: { // Nested create
+              email: email,
+              name: session.user.name,
+            },
+          },
+        },
+        select: {
+          id: true,
+          user: {
+            select: {
+              public_access_token: true,
+              user_linked_accounts: {
+                select: {
+                  email: true,
+                },
+              },
+            },
+          },
+        }
       });
+
+      const userVerifiedEmails = linkedAccounts.map(({ email }) => email).filter(email => email);
+      const whiteListedEmails = (await prisma.admins.findMany( // Not atomic, but doesn't matter
+        {
+          select: {
+            email: true,
+          },
+        }
+      )).map(({ email }) => email);
+      const isAdmin = whiteListedEmails.some(email => userVerifiedEmails.includes(email));
+
+      session.userType = isAdmin ? USER_TYPE_ADMIN : USER_TYPE_REGULAR;
 
       session.user.db_id = id;
       session.user.public_access_token = public_access_token;
