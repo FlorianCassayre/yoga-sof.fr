@@ -30,6 +30,7 @@ import { Form as FinalForm, Field } from 'react-final-form';
 import { fr } from 'date-fns/locale';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
 import { getSessionsSchedule, postRegistrationBatch } from '../lib/client/api';
+import { IS_REGISTRATION_DISABLED } from '../lib/common';
 registerLocale('fr', fr);
 
 export default function Inscription({ pathname }) {
@@ -132,19 +133,19 @@ export default function Inscription({ pathname }) {
       <Row>
         <CourseOption
           type={YOGA_ADULT}
-          title="Séance de yoga adulte"
+          title="Séance de Yoga adulte"
           person="adulte"
           onSelect={handleSelect}
         />
         <CourseOption
           type={YOGA_CHILD}
-          title="Séance de yoga enfant"
+          title="Séance de Yoga enfant"
           person="enfant"
           onSelect={handleSelect}
         />
         <CourseOption
           type={YOGA_ADULT_CHILD}
-          title="Séance de yoga parent-enfant"
+          title="Séance de Yoga parent-enfant"
           person="duo"
           onSelect={handleSelect}
         />
@@ -331,44 +332,54 @@ export default function Inscription({ pathname }) {
     <AuthGuard allowedUserTypes={[USER_TYPE_REGULAR, USER_TYPE_ADMIN]}>
       <PublicLayout pathname={pathname} padNavbar>
         <Container className="py-5">
-          <h2 className="display-6">Inscription à une ou plusieurs séance(s) de yoga</h2>
+          <h2 className="display-6">Inscription à une ou plusieurs séance(s) de Yoga adulte</h2>
           <ul>
-            <li>La première séance est gratuite</li>
+            <li>
+              Les inscriptions aux séances de Yoga adulte se font via le formulaire ci-dessous
+              <ul>
+                <li>En ce qui concerne les séances de Yoga enfant et Yoga parent-enfant, veuillez nous envoyer un email</li>
+              </ul>
+            </li>
+            <li>
+              La première séance vous est offerte, à la date de votre choix
+            </li>
+            {/*<li>La première séance est gratuite</li>
             <li>L'inscription à une séance est nécessaire pour y assister</li>
             <li>Les séances peuvent être choisies à l'unité</li>
-            <li>Il est possible de reporter une séance déjà réservée, merci de nous écrire à l'avance par email</li>
+            <li>Il est possible de reporter une séance déjà réservée, merci de nous écrire à l'avance par email</li>*/}
           </ul>
-          <FinalForm
-            onSubmit={onSubmit}
-            initialValues={{
-              step: 1,
-              type: null,
-              sessions: [],
-              ...submitData, // Dirty fix
-            }}
-            mutators={{
-              setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value)
-            }}
-            keepDirtyOnReinitialize
-            render={({ handleSubmit, form: { mutators: { setValue } }, values }) => (
-              <Form onSubmit={handleSubmit}>
-                {!isLoading ? (
-                  <div>
-                    <Row className="text-center mt-4">
-                      {steps.map(step => (
-                        <Col key={step} style={{ position: 'relative' }}>
-                          <h3 className="m-0">
-                            <Badge pill bg={step <= values.step ? 'primary' : 'secondary'} style={{ border: 'solid white 5px' }} onClick={() => step === values.step - 1 && setValue('step', step)}>{step}</Badge>
-                          </h3>
-                          {step < 3 && (
-                            <ProgressBar now={step < values.step ? 100 : 0} style={{ position: 'absolute', width: '100%', left: 0, top: '50%', transform: 'translate(50%, -50%)', zIndex: -10 }} />
-                          )}
-                        </Col>
-                      ))}
-                    </Row>
-                    <Row className="text-center mb-5">
-                      {steps.map(step => (
-                        <Col key={step}>
+          {!IS_REGISTRATION_DISABLED ? (
+            <FinalForm
+              onSubmit={onSubmit}
+              initialValues={{
+                step: 1,
+                type: null,
+                sessions: [],
+                ...submitData, // Dirty fix
+              }}
+              mutators={{
+                setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value)
+              }}
+              keepDirtyOnReinitialize
+              render={({ handleSubmit, form: { mutators: { setValue } }, values }) => (
+                <Form onSubmit={handleSubmit}>
+                  {!isLoading ? (
+                    <div>
+                      <Row className="text-center mt-4">
+                        {steps.map(step => (
+                          <Col key={step} style={{ position: 'relative' }}>
+                            <h3 className="m-0">
+                              <Badge pill bg={step <= values.step ? 'primary' : 'secondary'} style={{ border: 'solid white 5px' }} onClick={() => step === values.step - 1 && setValue('step', step)}>{step}</Badge>
+                            </h3>
+                            {step < 3 && (
+                              <ProgressBar now={step < values.step ? 100 : 0} style={{ position: 'absolute', width: '100%', left: 0, top: '50%', transform: 'translate(50%, -50%)', zIndex: -10 }} />
+                            )}
+                          </Col>
+                        ))}
+                      </Row>
+                      <Row className="text-center mb-5">
+                        {steps.map(step => (
+                          <Col key={step}>
                           <span className="text-muted">
                             {step === 1 ? (
                               <>Choix du type de séance</>
@@ -378,52 +389,58 @@ export default function Inscription({ pathname }) {
                               <>Confirmation</>
                             )}
                           </span>
-                        </Col>
-                      ))}
-                    </Row>
+                          </Col>
+                        ))}
+                      </Row>
 
-                    {isSubmitting ? (
-                      <div className="text-center my-4">
-                        <Spinner animation="border" />
-                      </div>
-                    ) : submitResult ? (
-                      <Alert variant="success">
-                        Vos inscriptions ont été enregistrées avec succès.
-                        Vous pouvez les retrouver <Link href="/mes-cours" passHref><Alert.Link>sur votre page personnelle</Alert.Link></Link>.
-                      </Alert>
-                    ) : (
-                      <>
-                        {submitError && (
-                          <ErrorMessage>
-                            Une erreur est survenue : impossible de vous inscrire aux cours sélectionnés.
-                          </ErrorMessage>
-                        )}
+                      {isSubmitting ? (
+                        <div className="text-center my-4">
+                          <Spinner animation="border" />
+                        </div>
+                      ) : submitResult ? (
+                        <Alert variant="success">
+                          Vos inscriptions ont été enregistrées avec succès.
+                          Vous pouvez les retrouver <Link href="/mes-cours" passHref><Alert.Link>sur votre page personnelle</Alert.Link></Link>.
+                        </Alert>
+                      ) : (
+                        <>
+                          {submitError && (
+                            <ErrorMessage>
+                              Une erreur est survenue : impossible de vous inscrire aux cours sélectionnés.
+                            </ErrorMessage>
+                          )}
 
-                        {values.step > 1 && (
-                          <Button variant="secondary" size="sm" onClick={() => !isSubmitting && !submitResult && setValue('step', values.step - 1)} className="mb-4">
-                            <BsArrowLeft className="icon me-2" />
-                            Étape précédente
-                          </Button>
-                        )}
+                          {values.step > 1 && (
+                            <Button variant="secondary" size="sm" onClick={() => !isSubmitting && !submitResult && setValue('step', values.step - 1)} className="mb-4">
+                              <BsArrowLeft className="icon me-2" />
+                              Étape précédente
+                            </Button>
+                          )}
 
-                        {values.step === 1 ? (
-                          <Step1 setValue={setValue} />
-                        ) : values.step === 2 ? (
-                          <Step2 setValue={setValue} values={values} />
-                        ) : (
-                          <Step3 values={values} />
-                        )}
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  <div className="m-5 text-center">
-                    <Spinner animation="border" />
-                  </div>
-                )}
-              </Form>
-            )}
-          />
+                          {values.step === 1 ? (
+                            <Step1 setValue={setValue} />
+                          ) : values.step === 2 ? (
+                            <Step2 setValue={setValue} values={values} />
+                          ) : (
+                            <Step3 values={values} />
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="m-5 text-center">
+                      <Spinner animation="border" />
+                    </div>
+                  )}
+                </Form>
+              )}
+            />
+          ) : (
+            <div className="text-center h3 mt-5">
+              Le formulaire d'inscription n'est pas ouvert pour le moment.
+            </div>
+          )}
+
 
         </Container>
       </PublicLayout>

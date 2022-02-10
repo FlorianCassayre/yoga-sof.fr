@@ -1,5 +1,5 @@
 import { ALL_USER_TYPES } from '../../../../components';
-import { schemaSelfRegistrationBatchBody } from '../../../../lib/common';
+import { IS_REGISTRATION_DISABLED, schemaSelfRegistrationBatchBody } from '../../../../lib/common';
 import { apiHandler } from '../../../../lib/server';
 
 export default async function handler(req, res) {
@@ -8,6 +8,11 @@ export default async function handler(req, res) {
       permissions: ALL_USER_TYPES,
       schemaBody: schemaSelfRegistrationBatchBody,
       action: async (req, res, { reject, accept, userId, body: { sessions } }) => {
+        if(IS_REGISTRATION_DISABLED) {
+          reject('Bad Request: temporarily disabled');
+          return;
+        }
+
         const now = new Date();
 
         try {

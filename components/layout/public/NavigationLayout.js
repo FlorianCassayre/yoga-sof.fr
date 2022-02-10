@@ -51,7 +51,7 @@ export function NavigationLayout({ pathname }) {
               Accueil
             </NavLink>
             <NavLink pathname="/yoga">
-              Le yoga
+              Le Yoga
             </NavLink>
             <NavLink pathname="/seances">
               Les séances

@@ -2,19 +2,24 @@ import { RiDoubleQuotesL, RiDoubleQuotesR } from 'react-icons/ri';
 import {
   BsBoxArrowUpRight,
   BsDot,
-  BsFillCalendarFill, BsFillCalendarWeekFill,
+  BsFillCalendarWeekFill,
   BsFillInfoCircleFill,
   BsFillPeopleFill,
-  BsMoonStarsFill,
   BsStars,
 } from 'react-icons/bs';
-import { Alert, Button, Col, Container, Image, Row } from 'react-bootstrap';
+import { Alert, Col, Container, Image, Row } from 'react-bootstrap';
 import { PublicLayout } from '../components/layout/public';
 import Link from 'next/link';
+import {
+  PracticalInformations,
+  practicalInformationsAdult,
+  practicalInformationsChildren,
+  practicalInformationsParentChildren,
+} from '../components/PracticalInformations';
 
 export default function Home({ pathname }) {
 
-  const CourseCard = ({ alt, title, description, image, infoAge, infoLevel, infoGroup, urlSection }) => {
+  const CourseCard = ({ alt, title, description, image, informationData, urlSection }) => {
     const imageData = (
       <div className="text-center">
         <Image src={image} fluid className="rounded-3 shadow" />
@@ -25,34 +30,7 @@ export default function Home({ pathname }) {
         <h2 className={'display-6 text-start' + ' ' + (alt ? 'text-lg-end' : '')}>{title}</h2>
         <div className="text-justify">
           {description}
-          <Row className="mt-4 text-center">
-            <Col>
-              <BsFillCalendarFill className="icon me-2" />
-              <strong className="h5">Âge</strong>
-              <br />
-              <span>{infoAge}</span>
-            </Col>
-            <Col>
-              <BsMoonStarsFill className="icon me-2" />
-              <strong className="h5">Niveau</strong>
-              <br />
-              <span>{infoLevel}</span>
-            </Col>
-            <Col>
-              <BsFillPeopleFill className="icon me-2" />
-              <strong className="h5">Groupe</strong>
-              <br />
-              <span>{infoGroup}</span>
-            </Col>
-            <Col xs={12}>
-              <Link href={`/seances#${urlSection}`}>
-                <Button variant="success" className="mt-4">
-                  <BsFillInfoCircleFill className="icon me-2" />
-                  Informations pratiques et inscription
-                </Button>
-              </Link>
-            </Col>
-          </Row>
+          <PracticalInformations data={informationData} condensed />
         </div>
       </>
     );
@@ -79,37 +57,41 @@ export default function Home({ pathname }) {
         <div className="text-white text-center p-4" style={{ position: 'absolute', bottom: 0, width: '100%', textShadow: '2px 2px 4px #000000', zIndex: 100 }}>
           <h1 className="display-1">Yoga Sof</h1>
           <br />
-          <span className="fs-2">Coach de yoga à Hésingue</span>
+          <span className="fs-2">Pratique du Yoga à Hésingue</span>
         </div>
       </div>
 
       <CourseCard
-        title="Séances de yoga adulte"
+        title="Séances de Yoga adulte"
         description={(
           <>
-            J'enseigne un hatha yoga doux et respectueux de votre corps, dans la bonne humeur et en petit groupe ou en individuel, à mon domicile à Hésingue. J'adapte les postures selon votre morphologie, votre force et votre souplesse, en toute bienveillance et loin de tout inconfort. Les séances sont progressives et incluent des postures, pranayamas relaxations ainsi qu'un travail mental pour vous amener à ressentir les bienfaits de votre pratique et progresser sur le chemin de la connaissance de vous. Tous niveaux.
+            <p className="mb-0">
+              J'enseigne un hatha Yoga respectueux de la physiologie de votre corps, en petit groupe convivial de 4 personnes, à Hésingue. Dès que nécessaire durant la séance, je vous proposerai des adaptations individuelles des postures à l'aide d'accessoires ou de variantes pour vous aider à développer votre force et votre souplesse sans inconfort, ni risque de blessure car selon moi, les postures doivent s'adapter à la personne, à sa morphologie et non l'inverse.
+            </p>
+            <p className="mb-0">
+              Mes séances sont progressives et incluent tous les outils du Yoga ; postures, pranayamas, relaxations ainsi qu'un travail mental pour vous amener à vous détendre et ressentir les bienfaits de votre pratique, ainsi progresser sur le chemin de la connaissance de votre moi.
+            </p>
+            <p className="mb-0">
+              La première séance est offerte.
+            </p>
           </>
         )}
-        image="/stock/woman_baby.jpg"
-        infoAge="Adultes"
-        infoLevel="Tous"
-        infoGroup="4 à 6 adultes"
+        image="/images/meditation-riviere.jpg"
+        informationData={practicalInformationsAdult}
         urlSection="adulte"
       />
 
       <div className="skewed-1" />
 
       <CourseCard
-        title="Séances de yoga enfant"
+        title="Séances de Yoga enfant"
         description={(
-          <>
-            J'anime des pratiques de yoga ludiques et adaptées pour les enfants de 6-11 ans en petit groupe, à Hésingue. Elles sont une voie d'exploration, d'expression et de sagesse, un moyen bienveillant pour les enfants d'explorer leurs capacités et étendre leurs frontières, d'améliorer la conscience d'eux-mêmes et des autres, développer leurs capacités à reconnaître et accueillir leurs pensées et leurs émotions. Les postures sont nommées sur la thématique de la nature pour renforcer les liens de l'enfant et la nature.
-          </>
+          <p className="mb-0">
+            J'anime des pratiques de Yoga ludiques et adaptées pour les enfants de 6-11 ans en petit groupe, à Hésingue. Elles sont une voie d'exploration, d'expression et de sagesse, un moyen bienveillant pour les enfants d'explorer leurs capacités et étendre leurs frontières, d'améliorer la conscience d'eux-mêmes et des autres, développer leurs capacités à reconnaitre et accueillir leurs pensées et leurs émotions. Les postures sont nommées sur la thématique de la nature pour renforcer les liens de l'enfant et la nature.
+          </p>
         )}
-        image="/stock/woman_baby.jpg"
-        infoAge="6 à 11 ans"
-        infoLevel="Initiation"
-        infoGroup="2 à 3 enfants"
+        image="/images/yoga-enfants-plage.jpg"
+        informationData={practicalInformationsChildren}
         urlSection="enfant"
         alt
       />
@@ -119,19 +101,17 @@ export default function Home({ pathname }) {
       <CourseCard
         title="Séances de yoga parent-enfant"
         description={(
-          <>
-            J'anime des ateliers de yoga en tandem parent-enfant de 4-6 ans, en petits groupes à Hésingue. Je les propose comme un moment de partage et de complicité où l'adulte (le parent ou grand-parent) se laisse guider dans sa pratique avec l'enfant, une pause privilégiée  à vivre loin de la dispersion et l'agitation du monde actuel. Il s'agit d'une approche ludique du yoga intégrant des petites histoires, contes ou chansons amusantes qui sollicite l'imaginaire et va renforcer le lien de l'adulte avec l'enfant.
-          </>
+          <p className="mb-0">
+            J'anime des ateliers de Yoga en tandem parent-enfant de 4-6 ans, en petits groupes à Hésingue. Je les propose comme un moment de partage et de complicité où l'adulte (le parent ou grand-parent) se laisse guider dans sa pratique avec l'enfant, une pause privilégiée à vivre loin de la dispersion et l'agitation du monde actuel. Il s'agit d'une approche ludique du yoga intégrant des petites histoires, contes ou chansons amusantes qui sollicite l'imaginaire et va renforcer le lien de l'adulte avec l'enfant.
+          </p>
         )}
-        image="/stock/woman_baby.jpg"
-        infoAge="4 à 6 ans"
-        infoLevel="Tous"
-        infoGroup="2 à 3 enfants"
+        image="/images/yoga-enfants-collaboration.jpg"
+        informationData={practicalInformationsParentChildren}
         urlSection="parent-enfant"
       />
 
       <div className="shadow quote-image" style={{ width: '100%' }}>
-        <div className="text-white p-4 text-center" style={{ width: '100%' }}>
+        <div className="text-white p-4 text-center" style={{ width: '100%', textShadow: '1px 1px 4px black, 1px 1px 4px black' }}>
           <blockquote className="blockquote">
             <RiDoubleQuotesL className="icon me-2" />
             C'est à travers l'alignement de mon corps que j'ai découvert l'alignement de mon esprit, de mon Être et de mon intelligence
@@ -152,7 +132,7 @@ export default function Home({ pathname }) {
                 Effectifs réduits
               </h3>
               <div className="mb-2"><BsDot className="icon" /></div>
-              Les séances se déroulent en petit nombre, ceci pour permettre à la coach d'être attentive à vos postures.
+              Les séances se déroulent en petit nombre.
             </Col>
             <Col xs={12} md={4} className="my-4 px-4">
               <h3>
@@ -160,7 +140,7 @@ export default function Home({ pathname }) {
                 Personnalisation
               </h3>
               <div className="mb-2"><BsDot className="icon" /></div>
-              Chaque séance est unique, la coach est à l'écoute de votre corps et va adapter les positions en fonction de votre physionomie, de votre âge et de votre expérience.
+              Adaptation des postures par rapport à vos possibilités et votre morphologie.
             </Col>
             <Col xs={12} md={4} className="my-4 px-4">
               <h3>
@@ -168,18 +148,18 @@ export default function Home({ pathname }) {
                 Flexibilité
               </h3>
               <div className="mb-2"><BsDot className="icon" /></div>
-              Chaque séance peut être choisie "à la carte" et ne vous engage pas sur la durée.
+              Les séances adultes peuvent être choisies "à la carte".
             </Col>
           </Row>
           <Row className="justify-content-center">
             <Col xs={12} sm={10} md={8} lg={6}>
-              <Alert variant="primary">
+              <Alert variant="primary" className="shadow">
                 <BsFillInfoCircleFill className="icon me-2" />
-                La première séance est gratuite, à la date de votre choix.
+                La première séance vous est offerte.
                 {' '}
                 <Link href="/inscription" passHref>
                   <Alert.Link>
-                    Je m'inscris
+                    Je m'inscris maintenant
                     <BsBoxArrowUpRight className="icon ms-2" />
                   </Alert.Link>
                 </Link>

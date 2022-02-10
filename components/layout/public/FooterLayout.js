@@ -10,7 +10,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button, Col, Container, Row } from 'react-bootstrap';
-import { BsFillGeoAltFill } from 'react-icons/bs';
+import { BsEnvelopeFill, BsFacebook, BsFillGeoAltFill } from 'react-icons/bs';
 
 const MAP_COORDINATES = { latitude: 47.576129, longitude: 7.514619 };
 
@@ -32,25 +32,28 @@ export function FooterLayout() {
         <Row xs={1} md={3} className="align-items-center text-white">
           <Col className="py-4 px-5 text-center">
             <FooterLink href="/">Accueil</FooterLink>
-            <FooterLink href="/yoga">Le yoga</FooterLink>
-            <FooterLink href="/seances">Séances et informations pratiques</FooterLink>
+            <FooterLink href="/yoga">Le Yoga</FooterLink>
+            <FooterLink href="/seances">Les séances</FooterLink>
             <FooterLink href="/inscription">Inscription</FooterLink>
             <FooterLink href="/a-propos">À propos</FooterLink>
             {/*<FooterLink href="#">Contact</FooterLink>*/}
-            <FooterLink href="/cgu">Conditions générales d'utilisation</FooterLink>
-            <FooterLink href="/cgv">Conditions générales de vente</FooterLink>
+            {/*<FooterLink href="/cgu">Conditions générales d'utilisation</FooterLink>
+            <FooterLink href="/cgv">Conditions générales de vente</FooterLink>*/}
           </Col>
           <Col className="py-4 px-5 text-center text-md-end">
-            <strong>Association "Yoga Sof"</strong><br /><br />
-            <strong>Coach</strong><br />
+            <strong>Yoga Sof</strong><br /><br />
             Sophie Richaud-Cassayre<br />
-            <em>Yoguyiste de niveau 4</em><br /><br />
+            <em>Enseignante de Yoga</em><br /><br />
 
-            <strong>Adresse</strong><br />
-            <em>
-              8 rue des moissonneurs<br />
-              Hésingue - 68220
-            </em>
+            <div className="h3">
+              <a href="https://www.facebook.com/Yoga-Sof-102478218061902" target="_blank" rel="noreferrer" className="footer-link">
+                <BsFacebook className="icon" />
+              </a>
+              <a href={`mailto:${'contact' + '@' + 'yoga-sof.fr'}`} target="_blank" rel="noreferrer" className="ms-3 footer-link">
+                <BsEnvelopeFill className="icon" />
+              </a>
+            </div>
+
           </Col>
           <Col className="py-4 px-5">
             {isMapLoaded ? (

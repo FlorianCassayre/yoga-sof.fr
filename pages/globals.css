@@ -12,7 +12,7 @@ body {
 }
 
 .header-image {
-    background: url(../public/stock/woman_stretch_cropped.jpg) center center / cover no-repeat
+    background: url(../public/images/maison-japon.jpg) center center / cover no-repeat
 }
 
 .header-image::after {
@@ -76,4 +76,12 @@ body {
 .date-picker-registration .react-datepicker__day--highlighted {
     background-color: #32be3f !important;
     color: white !important;
+}
+
+.footer-link {
+    color: #dedede;
+}
+
+.footer-link:hover {
+    color: #f8f8f8;
 }

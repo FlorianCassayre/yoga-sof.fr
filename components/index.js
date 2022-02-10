@@ -16,3 +16,4 @@ export * from './table';
 export { SessionStatusBadge } from './SessionStatusBadge';
 export { CancelSessionConfirmDialog } from './CancelSessionConfirmDialog';
 export { CancelRegistrationConfirmDialog } from './CancelRegistrationConfirmDialog';
+export { PracticalInformations } from './PracticalInformations';
