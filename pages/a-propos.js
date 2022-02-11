@@ -1,5 +1,6 @@
 import { Col, Container, Image, Row } from 'react-bootstrap';
 import { RiDoubleQuotesL, RiDoubleQuotesR } from 'react-icons/ri';
+import { IconEye, IconFidhy } from '../components/icons';
 import { PublicLayout } from '../components/layout/public';
 
 export default function APropos({ pathname }) {
@@ -27,13 +28,24 @@ export default function APropos({ pathname }) {
             <p>
               J'adhère au Code d'Éthique et de Déontologie des enseignants de Yoga et suis rattachée à la Fidhy (Fédérération Inter-enseignements de Hatha Yoga), elle-même membre de l'Union Européenne de Yoga.
             </p>
-            <h2 className="h5">Mes diplômes</h2>
+            <h2 className="h5">Mes diplômes et certificats</h2>
             <ul>
-              <li>2022 : Institut De Gasquet, Yoga sans dégâts (70h)</li>
-              <li>2020 : École de Yoga de l'Énergie, Formation d'enseignante de Yoga enfants et parents-enfants (80 heures sur 1 an)</li>
+              <li>2022 : Institut De Gasquet, Yoga sans dégâts (70 heures)</li>
+              <li>2020 : École de Yoga de l'Énergie, Formation d'enseignante de Yoga enfants et parents-enfants avec Nathalie Hérault et Agnès Bulté (80 heures sur 1 an)</li>
               <li>2019-2022 : École de Yoga de l'Énergie Formation d'enseignante de Yoga (636 heures sur 4 ans)</li>
-              <li>1995 : EPF Engineering school Ingénieur réseaux et télécoms</li>
+              <li>1995 : EPF Engineering school, Ingénieur réseaux et télécoms</li>
             </ul>
+          </Col>
+          <Col xs={12} className="text-center mt-3">
+            <a href="https://www.fidhy.fr/" target="_blank" rel="noreferrer">
+              <IconFidhy width="125px" className="logo-bw" />
+            </a>
+            <a href="https://www.yoga-energie.fr/" target="_blank" rel="noreferrer">
+              <IconEye width="125px" className="logo-bw" />
+            </a>
+            <a href="https://www.degasquet.com/" target="_blank" rel="noreferrer">
+              <img src="/images/logo-certifications-yoga-de-gasquet.png" width="125px" className="logo-bw mx-4" />
+            </a>
           </Col>
         </Row>
       </Container>

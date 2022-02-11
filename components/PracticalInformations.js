@@ -83,9 +83,9 @@ export const practicalInformationsChildren = {
 
 export const practicalInformationsParentChildren = {
   section: 'parent-enfant',
-  age: '4 à 6 ans',
+  age: '3 à 6 ans',
   level: 'Initiation',
-  group: '6 enfants',
+  group: '6 duos',
   duration: '1h',
   dates: 'Une fois tous les 15j sauf vacances scolaires',
   place: 'La Comète 16 Rue du 20 Novembre, 68220 Hésingue',

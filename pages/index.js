@@ -87,7 +87,7 @@ export default function Home({ pathname }) {
         title="Séances de Yoga enfant"
         description={(
           <p className="mb-0">
-            J'anime des pratiques de Yoga ludiques et adaptées pour les enfants de 6-11 ans en petit groupe, à Hésingue. Elles sont une voie d'exploration, d'expression et de sagesse, un moyen bienveillant pour les enfants d'explorer leurs capacités et étendre leurs frontières, d'améliorer la conscience d'eux-mêmes et des autres, développer leurs capacités à reconnaitre et accueillir leurs pensées et leurs émotions. Les postures sont nommées sur la thématique de la nature pour renforcer les liens de l'enfant et la nature.
+            J'anime des pratiques de Yoga ludiques et adaptées pour les enfants de 6-11 ans en petit groupe, à Hésingue. Elles sont une voie d'exploration, d'expression et de sagesse, un moyen bienveillant pour les enfants d'identifier leurs et étendre leurs frontières, d'améliorer la conscience d'eux-mêmes et des autres, développer leurs capacités à reconnaître et accueillir leurs pensées et leurs émotions. Les postures sont nommées sur la thématique de la nature pour renforcer les liens de l'enfant et la nature.
           </p>
         )}
         image="/images/yoga-enfants-plage.jpg"
@@ -102,7 +102,7 @@ export default function Home({ pathname }) {
         title="Séances de yoga parent-enfant"
         description={(
           <p className="mb-0">
-            J'anime des ateliers de Yoga en tandem parent-enfant de 4-6 ans, en petits groupes à Hésingue. Je les propose comme un moment de partage et de complicité où l'adulte (le parent ou grand-parent) se laisse guider dans sa pratique avec l'enfant, une pause privilégiée à vivre loin de la dispersion et l'agitation du monde actuel. Il s'agit d'une approche ludique du yoga intégrant des petites histoires, contes ou chansons amusantes qui sollicite l'imaginaire et va renforcer le lien de l'adulte avec l'enfant.
+            J'anime des ateliers de Yoga en tandem parent-enfant de 3-6 ans, en petits groupes à Hésingue. Je les propose comme un moment de partage et de complicité où l'adulte (le parent ou grand-parent) se laisse guider dans sa pratique avec l'enfant, une pause privilégiée à vivre loin de la dispersion et l'agitation du monde actuel. Il s'agit d'une approche ludique du yoga intégrant des petites histoires, contes ou chansons amusantes qui sollicite l'imaginaire et va renforcer le lien de l'adulte avec l'enfant.
           </p>
         )}
         image="/images/yoga-enfants-collaboration.jpg"

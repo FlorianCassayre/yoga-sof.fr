@@ -85,3 +85,12 @@ body {
 .footer-link:hover {
     color: #f8f8f8;
 }
+
+.logo-bw {
+    filter: grayscale(100%);
+    transition: filter 0.2s ease-in-out;
+}
+
+.logo-bw:hover {
+    filter: none;
+}

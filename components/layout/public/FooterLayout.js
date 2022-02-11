@@ -18,6 +18,11 @@ export function FooterLayout() {
 
   const [isMapLoaded, setMapLoaded] = useState(false);
 
+  const handleMapClick = () => {
+    const url = `https://www.google.com/maps/place/${MAP_COORDINATES.latitude},${MAP_COORDINATES.longitude}`;
+    window.open(url, '_blank').focus();
+  };
+
   const FooterLink = ({ href, children }) => (
     <div>
       <Link href={href} passHref>
@@ -29,8 +34,8 @@ export function FooterLayout() {
   return (
     <footer className="mt-auto" style={{ backgroundColor: '#323232', zIndex: 10 }}>
       <Container>
-        <Row xs={1} md={3} className="align-items-center text-white">
-          <Col className="py-4 px-5 text-center">
+        <Row className="align-items-center text-white">
+          <Col xs={12} sm={6} lg={4} className="py-4 px-5 text-center">
             <FooterLink href="/">Accueil</FooterLink>
             <FooterLink href="/yoga">Le Yoga</FooterLink>
             <FooterLink href="/seances">Les séances</FooterLink>
@@ -40,7 +45,7 @@ export function FooterLayout() {
             {/*<FooterLink href="/cgu">Conditions générales d'utilisation</FooterLink>
             <FooterLink href="/cgv">Conditions générales de vente</FooterLink>*/}
           </Col>
-          <Col className="py-4 px-5 text-center text-md-end">
+          <Col xs={12} sm={6} lg={4} className="py-4 px-5 text-center text-md-end">
             <strong>Yoga Sof</strong><br /><br />
             Sophie Richaud-Cassayre<br />
             <em>Enseignante de Yoga</em><br /><br />
@@ -55,9 +60,9 @@ export function FooterLayout() {
             </div>
 
           </Col>
-          <Col className="py-4 px-5">
+          <Col xs={12} sm={12} lg={4} className="py-4 px-5">
             {isMapLoaded ? (
-              <MapsComponent id="maps" zoomSettings={{ zoomFactor: 14 }} centerPosition={MAP_COORDINATES} height="250px">
+              <MapsComponent id="maps" zoomSettings={{ zoomFactor: 14 }} centerPosition={MAP_COORDINATES} height="250px" click={handleMapClick}>
                 <Inject services={[Marker, Zoom]} />
                 <LayersDirective>
                   <LayerDirective layerType="OSM">
