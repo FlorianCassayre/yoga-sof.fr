@@ -21,7 +21,7 @@ const generateICS = registrations => {
       title: SESSIONS_TYPES.filter(({ id }) => id === type)[0].title,
       start: timestampToDateArray(dateStart),
       end: timestampToDateArray(dateEnd),
-      url: `${process.env.NEXTAUTH_URL}/mes-cours`,
+      url: `${process.env.NEXTAUTH_URL}/mes-inscriptions`,
       organizer: {
         name: 'Sophie Richaud-Cassayre',
       },

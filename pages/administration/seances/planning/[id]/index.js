@@ -46,14 +46,14 @@ function SessionViewLayout({ pathname, id }) {
       isError={isError}
       error={error}
     >
-      {isFuture && (
-        <div className="mb-4">
-          <Link href={`/administration/seances/planning/${id}/edition`} passHref>
-            <Button className="me-2">
-              <BsPencil className="icon me-2" />
-              Modifier mes notes
-            </Button>
-          </Link>
+      <div className="mb-4">
+        <Link href={`/administration/seances/planning/${id}/edition`} passHref>
+          <Button className="me-2">
+            <BsPencil className="icon me-2" />
+            Modifier mes notes
+          </Button>
+        </Link>
+        {isFuture && (
           <CancelSessionConfirmDialog
             session={data}
             triggerer={clickHandler => (
@@ -63,7 +63,29 @@ function SessionViewLayout({ pathname, id }) {
               </Button>
             )}
           />
-        </div>
+        )}
+      </div>
+
+      {data && data.cancelation_reason && (
+        <>
+          <h2 className="h5">
+            Motif de l'annulation
+          </h2>
+          <p>
+            {data.cancelation_reason}
+          </p>
+        </>
+      )}
+
+      {data && data.notes && (
+        <>
+          <h2 className="h5">
+            Notes
+          </h2>
+          <p>
+            {data.notes}
+          </p>
+        </>
       )}
 
       <h2 className="h5">

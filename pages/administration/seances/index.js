@@ -140,6 +140,11 @@ function AdminSeancesLayout({ pathname }) {
           }),
         })}
         columns={sessionColumns(false)}
+        renderEmpty={() => (
+          <>
+            Il n'y a pas de séances à venir pour le moment.
+          </>
+        )}
       />
 
       <h2 className="h5">Séances passées et annulées</h2>
@@ -167,6 +172,11 @@ function AdminSeancesLayout({ pathname }) {
           }),
         })}
         columns={sessionColumns(true)}
+        renderEmpty={() => (
+          <>
+            Il n'y a pas encore de séances passées ou annulées.
+          </>
+        )}
       />
 
     </ContentLayout>

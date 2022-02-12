@@ -9,7 +9,7 @@ export function ConfirmDialog({ triggerer, title, description, variant, icon: Ic
   const [{ isLoading, isError, data, error }, callback] = usePromiseCallback(() => confirmPromise().then(() => {
     setShow(false);
     onSuccess();
-  }), []);
+  }), [confirmPromise]);
 
   return (
     <>

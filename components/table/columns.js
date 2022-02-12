@@ -33,8 +33,8 @@ export const userLinkColumn = {
   ),
 };
 
-export const renderSessionName = ({ type, date_start: dateStart, date_end: dateEnd }) =>
-  ['Séance', SESSIONS_TYPES.filter(({ id }) => id === type)[0].title.toLowerCase(), 'du', formatDayRange(dateStart, dateEnd)].join(' ');
+export const renderSessionName = ({ type, date_start: dateStart, date_end: dateEnd }, capitalize = true) =>
+  [capitalize ? 'Séance' : 'séance', SESSIONS_TYPES.filter(({ id }) => id === type)[0].title.toLowerCase(), 'du', formatDayRange(dateStart, dateEnd)].join(' ');
 
 export const plannedSessionLinkColumn = {
   title: 'Séance',

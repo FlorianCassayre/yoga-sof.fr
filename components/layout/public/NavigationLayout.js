@@ -84,10 +84,10 @@ export function NavigationLayout({ pathname }) {
                 <Link href="/inscription" passHref>
                   <NavDropdown.Item>
                     <BsPencilSquare className="icon me-2" />
-                    Inscription à un cours
+                    Inscription à une séance
                   </NavDropdown.Item>
                 </Link>
-                <Link href="/mes-cours" passHref>
+                <Link href="/mes-inscriptions" passHref>
                   <NavDropdown.Item>
                     <BsCalendarWeek className="icon me-2" />
                     Mes inscriptions

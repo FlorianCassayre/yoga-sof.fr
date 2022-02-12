@@ -400,13 +400,13 @@ export default function Inscription({ pathname }) {
                       ) : submitResult ? (
                         <Alert variant="success">
                           Vos inscriptions ont été enregistrées avec succès.
-                          Vous pouvez les retrouver <Link href="/mes-cours" passHref><Alert.Link>sur votre page personnelle</Alert.Link></Link>.
+                          Vous pouvez les retrouver <Link href="/mes-inscriptions" passHref><Alert.Link>sur votre page personnelle</Alert.Link></Link>.
                         </Alert>
                       ) : (
                         <>
                           {submitError && (
                             <ErrorMessage>
-                              Une erreur est survenue : impossible de vous inscrire aux cours sélectionnés.
+                              Une erreur est survenue : impossible de vous inscrire aux séances sélectionnés.
                             </ErrorMessage>
                           )}
 

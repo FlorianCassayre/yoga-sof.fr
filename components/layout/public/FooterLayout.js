@@ -10,16 +10,18 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button, Col, Container, Row } from 'react-bootstrap';
-import { BsEnvelopeFill, BsFacebook, BsFillGeoAltFill } from 'react-icons/bs';
+import { BsArrowLeft, BsEnvelopeFill, BsFacebook, BsFillGeoAltFill, BsSearch, BsZoomIn } from 'react-icons/bs';
 
-const MAP_COORDINATES = { latitude: 47.576129, longitude: 7.514619 };
+const MAP_COORDINATES_HOME = { latitude: 47.576129, longitude: 7.514619 };
+const MAP_COORDINATES_COMETE = { latitude: 47.580615, longitude: 7.520265 };
 
 export function FooterLayout() {
 
-  const [isMapLoaded, setMapLoaded] = useState(false);
+  const [isMapToggled, setMapToggled] = useState(false);
+  const [mapLocation, setMapLocation] = useState(null);
 
   const handleMapClick = () => {
-    const url = `https://www.google.com/maps/place/${MAP_COORDINATES.latitude},${MAP_COORDINATES.longitude}`;
+    const url = `https://www.google.com/maps/place/${mapLocation.latitude},${mapLocation.longitude}`;
     window.open(url, '_blank').focus();
   };
 
@@ -61,26 +63,48 @@ export function FooterLayout() {
 
           </Col>
           <Col xs={12} sm={12} lg={4} className="py-4 px-5">
-            {isMapLoaded ? (
-              <MapsComponent id="maps" zoomSettings={{ zoomFactor: 14 }} centerPosition={MAP_COORDINATES} height="250px" click={handleMapClick}>
-                <Inject services={[Marker, Zoom]} />
-                <LayersDirective>
-                  <LayerDirective layerType="OSM">
-                    <MarkersDirective>
-                      <MarkerDirective visible={true} height={50} width={50} dataSource={[
-                        {
-                          ...MAP_COORDINATES,
-                          name: 'Hésingue',
-                        },
-                      ]}>
-                      </MarkerDirective>
-                    </MarkersDirective>
-                  </LayerDirective>
-                </LayersDirective>
-              </MapsComponent>
+            {isMapToggled && mapLocation ? (
+              <>
+                <MapsComponent id="maps" zoomSettings={{ zoomFactor: 14 }} centerPosition={mapLocation} height="250px" click={handleMapClick} style={{ cursor: 'pointer' }}>
+                  <Inject services={[Marker, Zoom]} />
+                  <LayersDirective>
+                    <LayerDirective layerType="OSM">
+                      <MarkersDirective>
+                        <MarkerDirective visible={true} height={50} width={50} dataSource={[
+                          {
+                            ...mapLocation,
+                            name: 'Hésingue',
+                          },
+                        ]}>
+                        </MarkerDirective>
+                      </MarkersDirective>
+                    </LayerDirective>
+                  </LayersDirective>
+                </MapsComponent>
+                <div className="text-center">
+                  <Button variant="secondary" onClick={() => setMapLocation(null)} className="mt-2">
+                    <BsArrowLeft className="icon me-2" />
+                    Retour
+                  </Button>
+                </div>
+              </>
+            ) : isMapToggled ? (
+              <div className="text-center" key={1}>
+                <div>
+                  Les séances ne se déroulent pas toutes au même endroit :
+                </div>
+                <Button variant="secondary" onClick={() => setMapLocation(MAP_COORDINATES_HOME)} className="m-2">
+                  <BsZoomIn className="icon me-2" />
+                  Yoga adulte
+                </Button>
+                <Button variant="secondary" onClick={() => setMapLocation(MAP_COORDINATES_COMETE)} className="m-2">
+                  <BsZoomIn className="icon me-2" />
+                  Yoga enfant & parent-enfant
+                </Button>
+              </div>
             ) : (
               <div className="text-center">
-                <Button variant="secondary" onClick={() => setMapLoaded(true)}>
+                <Button variant="secondary" onClick={() => setMapToggled(true)}>
                   <BsFillGeoAltFill className="icon me-2" />
                   Voir sur la carte
                 </Button>
