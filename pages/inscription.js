@@ -12,7 +12,7 @@ import { Form as FinalForm, Field } from 'react-final-form';
 import { fr } from 'date-fns/locale';
 import { renderDateOnly, StaticPaginatedTable } from '../components/table';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
-import { getSessionsSchedule, postRegistrationBatch } from '../lib/client/api';
+import { getSessionsSchedule, postSelfRegistrationBatch } from '../lib/client/api';
 import {
   formatTime, formatTimeRange,
   IS_REGISTRATION_DISABLED,
@@ -30,7 +30,7 @@ export default function Inscription({ pathname }) {
 
   const [submitData, setSubmitData] = useState({});
 
-  const [{ isLoading: isSubmitting, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatch] = usePromiseCallback(data => postRegistrationBatch(data), []);
+  const [{ isLoading: isSubmitting, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatch] = usePromiseCallback(data => postSelfRegistrationBatch(data), []);
 
   const CourseOption = ({ type, title, person, onSelect }) => {
     const matchedSessions = data.schedule.filter(({ type: otherType }) => otherType === type);

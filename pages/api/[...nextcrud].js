@@ -1,7 +1,7 @@
 import NextCrud, { HttpError, PrismaAdapter, RouteType } from '@premieroctet/next-crud';
 import { getSession } from 'next-auth/react';
 import { isPermitted } from '../../lib/client';
-import { prisma, validateData } from '../../server';
+import { prisma, validateData } from '../../lib/server';
 
 const handler = NextCrud({
   adapter: new PrismaAdapter({

@@ -20,7 +20,7 @@ import { PublicLayout } from '../components/layout/public';
 import { renderSessionName } from '../components/table';
 import { usePromiseEffect } from '../hooks';
 import { SESSIONS_TYPES, USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../lib/common';
-import { getSelfRegistrations, postCancelRegistration } from '../lib/client/api';
+import { getSelfRegistrations, postSelfCancelRegistration } from '../lib/client/api';
 import { formatDayRange, formatTimestamp } from '../lib/common';
 
 const MesCoursLayout = () => {
@@ -88,7 +88,7 @@ const MesCoursLayout = () => {
                       Désinscription
                     </Button>
                   )}
-                  confirmPromise={() => postCancelRegistration(id)}
+                  confirmPromise={() => postSelfCancelRegistration(id)}
                   onSuccess={() => router.reload()}
                 />
               </td>

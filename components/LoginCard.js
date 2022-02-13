@@ -9,7 +9,9 @@ export function LoginCard({ providers }) {
         <Card>
           <Card.Body>
             <Card.Title className="mb-3 text-center">Connexion</Card.Title>
-            <Card.Text>Utilisez l'un des services ci-dessous pour vous connecter.</Card.Text>
+            <Card.Text>
+              Merci d'utiliser l'un des services ci-dessous pour vous inscrire ou vous connecter.
+            </Card.Text>
             {Object.values(providers).map((provider) => {
               const format = providersData[provider.id];
               const Icon = format.icon;
@@ -22,6 +24,9 @@ export function LoginCard({ providers }) {
                 </div>
               );
             })}
+            <Card.Text className="mt-3">
+              En cas de problème, <a href="">merci de nous contacter</a>.
+            </Card.Text>
           </Card.Body>
         </Card>
       </Col>

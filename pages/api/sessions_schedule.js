@@ -1,5 +1,5 @@
 import { apiHandler } from '../../lib/server';
-import { prisma } from '../../server';
+import { prisma } from '../../lib/server';
 
 export default async function handler(req, res) {
   await apiHandler({

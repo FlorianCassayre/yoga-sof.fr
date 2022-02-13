@@ -1,7 +1,7 @@
 import { SESSIONS_TYPES } from '../../lib/common';
 import { schemaCalendarQuery } from '../../lib/common';
 import { apiHandler } from '../../lib/server';
-import { prisma } from '../../server';
+import { prisma } from '../../lib/server';
 import { createEvents } from 'ics';
 
 const generateICS = registrations => {

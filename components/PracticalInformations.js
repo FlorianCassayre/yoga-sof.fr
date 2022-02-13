@@ -15,7 +15,7 @@ export const practicalInformationsAdult = {
   duration: '1h15',
   place: `À mon domicile au 8 rue des moissonneurs à Hésingue. Je peux également venir chez vous si vous constituez un petit groupe, n'hésitez pas à me contacter pour cela.`,
   material: 'Tapis de Yoga et une couverture, portez une tenue confortable. Vous pourrez emprunter sur place des blocs, sangles, coussins, balles et ballons.',
-  image2: '/images/interieur-debout.jpg',
+  image2: '/images/bras-ocean.jpg',
   program: (
     <>
       <p>

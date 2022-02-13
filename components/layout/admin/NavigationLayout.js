@@ -1,7 +1,7 @@
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Col, Container, Dropdown, Nav, Navbar, NavDropdown, Row } from 'react-bootstrap';
+import { Col, Container, Dropdown, Nav, Row } from 'react-bootstrap';
 import {
   BsBoxArrowRight,
   BsBoxArrowUpRight, BsCalendarWeek, BsCurrencyEuro, BsJournalText,
