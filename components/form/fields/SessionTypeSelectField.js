@@ -1,6 +1,6 @@
 import { Form } from 'react-bootstrap';
 import { Field } from 'react-final-form';
-import { SESSIONS_TYPES } from '../../sessions';
+import { SESSIONS_TYPES } from '../../../lib/common';
 
 export function SessionTypeSelectField({ name, fieldProps = {}, ...props }) {
   return (

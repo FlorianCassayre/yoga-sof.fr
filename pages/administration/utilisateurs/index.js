@@ -3,14 +3,10 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { BsPlusLg } from 'react-icons/bs';
-import {
-  BREADCRUMB_USERS,
-  DynamicPaginatedTable,
-  providersData,
-  StarIndicator,
-  renderDatetime, detailsColumnFor,
-} from '../../../components';
+import { StarIndicator } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
+import { detailsColumnFor, DynamicPaginatedTable, renderDatetime } from '../../../components/table';
+import { BREADCRUMB_USERS, providersData } from '../../../lib/client';
 
 function AdminUsersLayout({ pathname }) {
   const [total, setTotal] = useState(null);

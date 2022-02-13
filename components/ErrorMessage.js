@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Button } from 'react-bootstrap';
+import { Alert } from 'react-bootstrap';
 import { BsExclamationTriangleFill } from 'react-icons/bs';
 
 export function ErrorMessage({ children = 'Une erreur est survenue.', error }) {

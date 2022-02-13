@@ -1,12 +1,8 @@
 import { Badge } from 'react-bootstrap';
-import {
-  BREADCRUMB_EMAILS,
-  EMAIL_TYPES,
-  formatTimestamp,
-  DynamicPaginatedTable,
-  userLinkColumn, idColumn, renderEmail, renderDatetime,
-} from '../../components';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
+import { DynamicPaginatedTable, renderDatetime, renderEmail, userLinkColumn } from '../../components/table';
+import { BREADCRUMB_EMAILS } from '../../lib/client';
+import { EMAIL_TYPES } from '../../lib/common';
 
 function AdminEmailsLayout({ pathname }) {
   return (

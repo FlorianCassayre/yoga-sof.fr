@@ -1,5 +1,5 @@
 import { format, isValid, parse } from 'date-fns';
-import { Col, Form } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import { Field } from 'react-final-form';
 

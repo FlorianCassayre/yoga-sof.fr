@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
-import { breadcrumbForSessionModelEdit } from '../../../../../components';
 import { SessionModelForm } from '../../../../../components/form';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
+import { breadcrumbForSessionModelEdit } from '../../../../../lib/client';
 
 export default function AdminSeance({ pathname }) {
   const router = useRouter();

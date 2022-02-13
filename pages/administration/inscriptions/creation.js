@@ -1,9 +1,9 @@
 import { useRouter } from 'next/router';
 import { Alert } from 'react-bootstrap';
 import { BsExclamationTriangleFill } from 'react-icons/bs';
-import { BREADCRUMB_REGISTRATIONS_CREATE } from '../../../components';
 import { RegistrationCreateForm } from '../../../components/form';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
+import { BREADCRUMB_REGISTRATIONS_CREATE } from '../../../lib/client';
 
 export default function AdminRegistrationCreate({ pathname }) {
   const router = useRouter();

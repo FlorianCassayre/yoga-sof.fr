@@ -1,4 +1,4 @@
-import { USER_TYPE_ADMIN } from '../../../../components';
+import { USER_TYPE_ADMIN } from '../../../../lib/common';
 import { schemaSessionCancelBody, schemaSessionCancelQuery } from '../../../../lib/common';
 import { apiHandler } from '../../../../lib/server';
 import { notifySessionCanceled } from '../../../../lib/server/email';

@@ -1,6 +1,6 @@
 import { Form } from 'react-bootstrap';
 import { Field } from 'react-final-form';
-import { WEEKDAYS } from '../../date';
+import { WEEKDAYS } from '../../../lib/common';
 
 export function WeekdaySelectField({ name, fieldProps = {}, ...props }) {
   return (

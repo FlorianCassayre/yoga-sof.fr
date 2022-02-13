@@ -2,10 +2,9 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { Button } from 'react-bootstrap';
 import { BsCalendarDate, BsEyeFill, BsPerson, BsXOctagon } from 'react-icons/bs';
-import * as url from 'url';
 import { CancelRegistrationConfirmDialog } from '../CancelRegistrationConfirmDialog';
-import { dateFormat, formatDayRange, formatTimestamp } from '../date';
-import { SESSIONS_TYPES } from '../sessions';
+import { dateFormat, formatDayRange, formatTimestamp } from '../../lib/common';
+import { SESSIONS_TYPES } from '../../lib/common';
 import { SessionStatusBadge } from '../SessionStatusBadge';
 import { StarIndicator } from '../StarIndicator';
 

@@ -1,4 +1,4 @@
-import { USER_TYPE_ADMIN } from '../../../../components';
+import { USER_TYPE_ADMIN } from '../../../../lib/common';
 import { schemaRegistrationCancelQuery } from '../../../../lib/common';
 import { apiHandler } from '../../../../lib/server';
 import { prisma } from '../../../../server';

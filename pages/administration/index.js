@@ -1,15 +1,9 @@
 import { format } from 'date-fns';
-import Link from 'next/link';
-import { Button } from 'react-bootstrap';
-import { BsPencil, BsXOctagon } from 'react-icons/bs';
-import {
-  BREADCRUMB_OVERVIEW, CancelSessionConfirmDialog, dateFormat,
-  detailsColumnFor,
-  DynamicPaginatedTable,
-  renderEmailCompare, renderSessionType, renderTimePeriod,
-  SessionsCards, SessionStatusBadge,
-} from '../../components';
+import { SessionsCards } from '../../components';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
+import { detailsColumnFor, DynamicPaginatedTable, renderSessionType, renderTimePeriod } from '../../components/table';
+import { BREADCRUMB_OVERVIEW } from '../../lib/client';
+import { dateFormat } from '../../lib/common';
 
 function AdminHomeLayout({ pathname }) {
   return (

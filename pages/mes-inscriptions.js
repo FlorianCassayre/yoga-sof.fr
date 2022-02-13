@@ -5,7 +5,6 @@ import {
   Button,
   Container,
   Form,
-  FormControl,
   InputGroup,
   OverlayTrigger,
   Popover,
@@ -15,15 +14,14 @@ import {
 import { BsCalendar, BsClipboard, BsXOctagon } from 'react-icons/bs';
 import {
   AuthGuard, ConfirmDialog,
-  ErrorMessage, formatDayRange,
-  formatTimestamp, renderSessionName,
-  SESSIONS_TYPES,
-  USER_TYPE_ADMIN,
-  USER_TYPE_REGULAR,
+  ErrorMessage
 } from '../components';
 import { PublicLayout } from '../components/layout/public';
+import { renderSessionName } from '../components/table';
 import { usePromiseEffect } from '../hooks';
+import { SESSIONS_TYPES, USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../lib/common';
 import { getSelfRegistrations, postCancelRegistration } from '../lib/client/api';
+import { formatDayRange, formatTimestamp } from '../lib/common';
 
 const MesCoursLayout = () => {
   const { isLoading, isError, data } = usePromiseEffect(getSelfRegistrations, []);
@@ -187,7 +185,7 @@ const MesCoursLayout = () => {
 export default function MesCours({ pathname }) {
   return (
     <AuthGuard allowedUserTypes={[USER_TYPE_REGULAR, USER_TYPE_ADMIN]}>
-      <PublicLayout pathname={pathname} padNavbar>
+      <PublicLayout pathname={pathname} padNavbar title="Mes inscriptions">
         <MesCoursLayout />
       </PublicLayout>
     </AuthGuard>

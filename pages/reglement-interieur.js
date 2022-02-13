@@ -3,9 +3,12 @@ import { PublicLayout } from '../components/layout/public';
 
 export default function ReglementInterieur({ pathname }) {
   return (
-    <PublicLayout pathname={pathname} padNavbar>
+    <PublicLayout pathname={pathname} padNavbar title="Règlement intérieur">
       <Container className="p-4">
         <h1>Règlement intérieur</h1>
+        <p>
+          Règlement Intérieur Yoga Sof pour les cours de Yoga adulte.
+        </p>
         <h2 className="h4">1 – Objet</h2>
         <p>
           L'objet est de faire connaître et transmettre l'esprit du yoga lors de séances en petits groupes, dans une atmosphère agréable et bienveillante.

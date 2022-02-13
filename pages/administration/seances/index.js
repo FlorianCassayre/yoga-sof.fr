@@ -1,19 +1,19 @@
 import { format } from 'date-fns';
-import { useRouter } from 'next/router';
-import { Badge, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
-import {
-  BREADCRUMB_SESSIONS, CancelSessionConfirmDialog, ConfirmDialog, dateFormat, detailsColumnFor,
-  DynamicPaginatedTable, renderSessionType, renderTimePeriod,
-  SESSIONS_TYPES,
-  SessionsCards, SessionStatusBadge,
-} from '../../../components';
+import { CancelSessionConfirmDialog, SessionsCards, SessionStatusBadge } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import Link from 'next/link';
+import {
+  detailsColumnFor,
+  DynamicPaginatedTable,
+  renderSessionType,
+  renderTimePeriod,
+} from '../../../components/table';
+import { BREADCRUMB_SESSIONS } from '../../../lib/client';
+import { dateFormat } from '../../../lib/common';
 
 function AdminSeancesLayout({ pathname }) {
-  const router = useRouter();
-
   const renderDate = ({ date_start: date }) => format(new Date(date), dateFormat);
 
   const sessionColumns = hasPassed => [

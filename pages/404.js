@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function Page404() {
   return (
-    <PublicLayout pathname="/404" padNavbar>
+    <PublicLayout pathname="/404" padNavbar title="Page introuvable">
       <Container className="p-4">
         <h1>Page introuvable</h1>
         <p>

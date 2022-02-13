@@ -1,4 +1,4 @@
-import { ALL_USER_TYPES } from '../../../../components';
+import { ALL_USER_TYPES } from '../../../../lib/common';
 import { apiHandler } from '../../../../lib/server';
 import { prisma } from '../../../../server';
 

@@ -1,21 +1,18 @@
-import { format } from 'date-fns';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Badge, Button } from 'react-bootstrap';
-import { BsCalendarDate, BsPlusLg, BsXOctagon } from 'react-icons/bs';
+import { BsPlusLg } from 'react-icons/bs';
+import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import {
-  breadcrumbForUser,
-  formatTimestamp,
+  cancelRegistrationColumn,
   DynamicPaginatedTable,
   plannedSessionLinkColumn,
-  renderDatetime,
-  CancelRegistrationConfirmDialog,
-  cancelRegistrationColumn,
-  StaticPaginatedTable, providersData, renderEmail,
-} from '../../../components';
-import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
+  renderDatetime, renderEmail, StaticPaginatedTable,
+} from '../../../components/table';
 import { usePromiseEffect } from '../../../hooks';
+import { breadcrumbForUser, providersData } from '../../../lib/client';
 import { getUser } from '../../../lib/client/api';
+import { formatTimestamp } from '../../../lib/common';
 
 function AdminUserLayout({ pathname, id }) {
   const { isLoading, isError, data, error } = usePromiseEffect(() => getUser(id, { include: ['registrations', 'user_linked_accounts'] }), []);

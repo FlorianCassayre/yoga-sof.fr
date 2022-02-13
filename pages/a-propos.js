@@ -5,7 +5,7 @@ import { PublicLayout } from '../components/layout/public';
 
 export default function APropos({ pathname }) {
   return (
-    <PublicLayout pathname={pathname} padNavbar>
+    <PublicLayout pathname={pathname} padNavbar title="À propos">
       <Container className="p-4">
         <h1 className="mb-4">À propos</h1>
         <Row>

@@ -10,7 +10,7 @@ import {
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button, Col, Container, Row } from 'react-bootstrap';
-import { BsArrowLeft, BsEnvelopeFill, BsFacebook, BsFillGeoAltFill, BsSearch, BsZoomIn } from 'react-icons/bs';
+import { BsArrowLeft, BsEnvelopeFill, BsFacebook, BsFillGeoAltFill, BsZoomIn } from 'react-icons/bs';
 
 const MAP_COORDINATES_HOME = { latitude: 47.576129, longitude: 7.514619 };
 const MAP_COORDINATES_COMETE = { latitude: 47.580615, longitude: 7.520265 };

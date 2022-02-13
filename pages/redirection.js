@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../components';
+import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../lib/common';
 
 export default function Redirection() {
   const router = useRouter();

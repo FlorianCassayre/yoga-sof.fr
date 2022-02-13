@@ -1,5 +1,4 @@
-import { ALL_USER_TYPES } from '../../../../components';
-import { IS_REGISTRATION_DISABLED, schemaSelfRegistrationBatchBody } from '../../../../lib/common';
+import { ALL_USER_TYPES, IS_REGISTRATION_DISABLED, schemaSelfRegistrationBatchBody } from '../../../../lib/common';
 import { apiHandler } from '../../../../lib/server';
 
 export default async function handler(req, res) {

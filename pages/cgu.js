@@ -3,7 +3,7 @@ import { PublicLayout } from '../components/layout/public';
 
 export default function CGU({ pathname }) {
   return (
-    <PublicLayout pathname={pathname} padNavbar>
+    <PublicLayout pathname={pathname} padNavbar title="CGU">
       <Container>
         CGU
       </Container>

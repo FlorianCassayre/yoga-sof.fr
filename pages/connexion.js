@@ -1,16 +1,13 @@
 import { getProviders } from 'next-auth/react';
-import Head from 'next/head';
 import { Container } from 'react-bootstrap';
 import { LoginCard } from '../components';
+import { HeadMeta } from '../components/layout/HeadMeta';
 
 export default function Connexion({ providers }) {
 
   return (
     <div>
-      <Head>
-        <title>Connexion</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <HeadMeta title={`Connexion - Yoga Sof`} />
 
       <Container className="my-5 px-3">
         <LoginCard providers={providers} />

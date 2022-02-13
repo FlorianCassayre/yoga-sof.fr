@@ -11,7 +11,7 @@ import {
 
 export default function Seances({ pathname }) {
   return (
-    <PublicLayout pathname={pathname} padNavbar>
+    <PublicLayout pathname={pathname} padNavbar title="Les séances">
       <Container className="p-4">
         <h1>Les séances</h1>
         <h2 id="adulte">Yoga adulte</h2>

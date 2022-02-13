@@ -1,5 +1,3 @@
-import { USER_TYPE_ADMIN } from '../../components';
-import { schemaSessionBatchBody } from '../../lib/common';
 import { apiHandler } from '../../lib/server';
 import { prisma } from '../../server';
 

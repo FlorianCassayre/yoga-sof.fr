@@ -3,9 +3,9 @@ import { Button, Card, Col, Row, Spinner } from 'react-bootstrap';
 import { BsCalendar, BsPencil, BsPlusLg } from 'react-icons/bs';
 import { usePromiseEffect } from '../hooks';
 import { getSessionModels } from '../lib/client/api';
-import { formatTime, parsedTimeToMinutes, parseTime, WEEKDAYS } from './date';
+import { formatTime, parsedTimeToMinutes, parseTime, WEEKDAYS } from '../lib/common';
 import { ErrorMessage } from './ErrorMessage';
-import { SESSIONS_TYPES } from './sessions';
+import { SESSIONS_TYPES } from '../lib/common';
 
 export function SessionsCards({ readonly }) {
   const { isLoading, isError, data, error } = usePromiseEffect(getSessionModels, []);

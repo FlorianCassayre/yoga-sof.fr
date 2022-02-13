@@ -3,15 +3,17 @@ import { useMemo } from 'react';
 import { Badge, Button } from 'react-bootstrap';
 import { BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
+import { CancelSessionConfirmDialog, SessionStatusBadge } from '../../../../../components';
+import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
 import {
-  adaptColumn,
-  breadcrumbForSessionPlanning, cancelRegistrationColumn, CancelSessionConfirmDialog,
-  renderDatetime, renderSessionName, SessionStatusBadge,
+  adaptColumn, cancelRegistrationColumn,
+  renderDatetime,
+  renderSessionName,
   StaticPaginatedTable,
   userLinkColumn,
-} from '../../../../../components';
-import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
+} from '../../../../../components/table';
 import { usePromiseEffect } from '../../../../../hooks';
+import { breadcrumbForSessionPlanning } from '../../../../../lib/client';
 import { getSession } from '../../../../../lib/client/api';
 
 function SessionViewLayout({ pathname, id }) {

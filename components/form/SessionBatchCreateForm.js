@@ -4,9 +4,9 @@ import { Field } from 'react-final-form';
 import { OnChange } from 'react-final-form-listeners';
 import { usePromiseEffect } from '../../hooks';
 import { getSessionModels } from '../../lib/client/api';
-import { dateFormat, formatTime, parseTime, WEEKDAYS } from '../date';
+import { dateFormat, formatTime, parseTime, WEEKDAYS } from '../../lib/common';
 import { ErrorMessage } from '../ErrorMessage';
-import { SESSIONS_TYPES } from '../sessions';
+import { SESSIONS_TYPES } from '../../lib/common';
 import { addDays, format, getDay } from 'date-fns';
 import { CreateEditForm } from './CreateEditForm';
 import {

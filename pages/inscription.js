@@ -3,34 +3,24 @@ import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
 import { Alert, Badge, Button, Card, Col, Container, Form, ProgressBar, Row, Spinner, Table } from 'react-bootstrap';
 import { BsArrowLeft, BsCheckLg } from 'react-icons/bs';
-import {
-  ErrorMessage,
-  formatTime,
-  formatTimeRange, isErrorCode,
-  minutesToParsedTime,
-  parsedTimeToMinutes,
-  parsedTimeToTime,
-  parseTime,
-  renderDateOnly,
-  SESSIONS_NAMES,
-  StaticPaginatedTable,
-  USER_TYPE_ADMIN,
-  USER_TYPE_REGULAR,
-  WEEKDAYS,
-  YOGA_ADULT,
-  YOGA_ADULT_CHILD,
-  YOGA_CHILD,
-} from '../components';
 import Link from 'next/link';
-import { AuthGuard } from '../components';
+import { AuthGuard, ErrorMessage } from '../components';
 import { PublicLayout } from '../components/layout/public';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { Form as FinalForm, Field } from 'react-final-form';
 
 import { fr } from 'date-fns/locale';
+import { renderDateOnly, StaticPaginatedTable } from '../components/table';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
 import { getSessionsSchedule, postRegistrationBatch } from '../lib/client/api';
-import { IS_REGISTRATION_DISABLED } from '../lib/common';
+import {
+  formatTime, formatTimeRange,
+  IS_REGISTRATION_DISABLED,
+  minutesToParsedTime,
+  parsedTimeToMinutes,
+  parsedTimeToTime,
+  parseTime, SESSIONS_NAMES, USER_TYPE_ADMIN, USER_TYPE_REGULAR, WEEKDAYS, YOGA_ADULT, YOGA_ADULT_CHILD, YOGA_CHILD,
+} from '../lib/common';
 registerLocale('fr', fr);
 
 export default function Inscription({ pathname }) {
@@ -330,7 +320,7 @@ export default function Inscription({ pathname }) {
 
   return (
     <AuthGuard allowedUserTypes={[USER_TYPE_REGULAR, USER_TYPE_ADMIN]}>
-      <PublicLayout pathname={pathname} padNavbar>
+      <PublicLayout pathname={pathname} padNavbar title="Inscription">
         <Container className="py-5">
           <h2 className="display-6">Inscription à une ou plusieurs séance(s) de Yoga adulte</h2>
           <ul>

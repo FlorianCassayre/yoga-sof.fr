@@ -1,10 +1,9 @@
 import { Col, Container, Image, Row } from 'react-bootstrap';
-import { RiDoubleQuotesL, RiDoubleQuotesR } from 'react-icons/ri';
 import { PublicLayout } from '../components/layout/public';
 
 export default function Yoga({ pathname }) {
   return (
-    <PublicLayout pathname={pathname} padNavbar>
+    <PublicLayout pathname={pathname} padNavbar title="Le Yoga">
       <Container className="p-4">
         <h1>Le Yoga</h1>
         <p className="text-justify">

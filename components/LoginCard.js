@@ -1,7 +1,6 @@
 import { signIn } from 'next-auth/react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
-import { BsFacebook, BsGoogle } from 'react-icons/bs';
-import { providersData } from './providers';
+import { providersData } from '../lib/client';
 
 export function LoginCard({ providers }) {
   return (

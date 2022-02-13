@@ -1,5 +1,4 @@
-import { ALL_USER_TYPES } from '../../../../../components';
-import { schemaSelfRegistrationCancelQuery } from '../../../../../lib/common';
+import { ALL_USER_TYPES, schemaSelfRegistrationCancelQuery } from '../../../../../lib/common';
 import { apiHandler } from '../../../../../lib/server';
 import { prisma } from '../../../../../server';
 

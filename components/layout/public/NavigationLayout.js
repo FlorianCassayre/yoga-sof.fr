@@ -1,7 +1,7 @@
 import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Button, Container, Nav, Navbar, NavDropdown, Spinner } from 'react-bootstrap';
+import { Container, Nav, Navbar, NavDropdown, Spinner } from 'react-bootstrap';
 import {
   BsBoxArrowRight,
   BsCalendarWeek,
@@ -11,7 +11,7 @@ import {
 } from 'react-icons/bs';
 import { GrYoga } from 'react-icons/gr';
 import { IconYoga } from '../../icons';
-import { USER_TYPE_ADMIN } from '../../session';
+import { USER_TYPE_ADMIN } from '../../../lib/common';
 
 export function NavigationLayout({ pathname }) {
 

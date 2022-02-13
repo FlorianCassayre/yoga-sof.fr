@@ -1,11 +1,8 @@
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
-import {
-  BREADCRUMB_ADMINS,
-  DynamicPaginatedTable,
-  renderEmailCompare,
-} from '../../components';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
+import { DynamicPaginatedTable, renderEmailCompare } from '../../components/table';
+import { BREADCRUMB_ADMINS } from '../../lib/client';
 
 function AdminAdminsLayout({ pathname }) {
   const { data: session } = useSession();

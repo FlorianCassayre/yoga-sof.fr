@@ -1,4 +1,4 @@
-import { ALL_USER_TYPES, SESSIONS_TYPES } from '../../components';
+import { SESSIONS_TYPES } from '../../lib/common';
 import { schemaCalendarQuery } from '../../lib/common';
 import { apiHandler } from '../../lib/server';
 import { prisma } from '../../server';
