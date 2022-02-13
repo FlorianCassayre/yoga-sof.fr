@@ -1,5 +1,3 @@
-
-import { SESSIONS_TYPES } from '../sessions';
 import { CreateEditForm } from './CreateEditForm';
 import {
   TimePickerRangeFields,

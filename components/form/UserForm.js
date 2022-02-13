@@ -1,10 +1,5 @@
 import { CreateEditForm } from './CreateEditForm';
-import {
-  TimePickerRangeFields,
-  SessionTypeSelectField,
-  SlotsNumberField,
-  WeekdaySelectField, PriceNumberField, SimpleInputField,
-} from './fields';
+import { SimpleInputField } from './fields';
 
 export function UserForm({ editRecordId, container }) {
 
@@ -15,7 +10,7 @@ export function UserForm({ editRecordId, container }) {
         name: null,
         email: null,
       }}
-      redirect={({ id }) => `/administration/utilisateurs/${id}`}
+      redirect={obj => obj !== null ? `/administration/utilisateurs/${obj.id}` : '/administration/utilisateurs'}
       editRecordId={editRecordId}
       deletable
       container={container}

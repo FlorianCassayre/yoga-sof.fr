@@ -76,7 +76,7 @@ export default function Home({ pathname }) {
             </p>
           </>
         )}
-        image="/images/meditation-riviere.jpg"
+        image="/images/arbre-ocean.jpg"
         informationData={practicalInformationsAdult}
         urlSection="adulte"
       />
@@ -111,7 +111,7 @@ export default function Home({ pathname }) {
       />
 
       <div className="shadow quote-image" style={{ width: '100%' }}>
-        <div className="text-white p-4 text-center" style={{ width: '100%', textShadow: '1px 1px 4px black, 1px 1px 4px black' }}>
+        <div className="text-white p-4 text-center" style={{ width: '100%', textShadow: '1px 1px 4px black' }}>
           <blockquote className="blockquote">
             <RiDoubleQuotesL className="icon me-2" />
             C'est à travers l'alignement de mon corps que j'ai découvert l'alignement de mon esprit, de mon Être et de mon intelligence

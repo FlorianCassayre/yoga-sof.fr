@@ -7,7 +7,9 @@ import { usePromiseCallback, usePromiseEffect } from '../../hooks';
 import { DELETE, jsonFetch, POST, PUT } from '../../lib/client/api';
 import { ErrorMessage } from '../ErrorMessage';
 
-export function CreateEditForm({ modelId, editRecordId, deletable, initialValues = {}, redirect, numberFields = [], disabled, loading, submitCallback, container: Container = ({ children }) => children, children }) {
+const BasicContainer = props => props.children;
+
+export function CreateEditForm({ modelId, editRecordId, deletable, initialValues = {}, redirect, numberFields = [], disabled, loading, submitCallback, container: Container = BasicContainer, children }) {
 
   const isEdit = editRecordId != null;
 
@@ -70,7 +72,7 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
     submitDispatcher({ method: DELETE });
   }
 
-  const renderForm = props => !submitResult && !loading ? (
+  const renderForm = props => !submitResult && !loading && !isSubmitLoading ? (
     <Form onSubmit={props.handleSubmit}>
 
       {isSubmitError && (

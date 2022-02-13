@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button, Col, Container, Image, Row } from 'react-bootstrap';
+import { Button, Container } from 'react-bootstrap';
 import { BsPencilSquare } from 'react-icons/bs';
 import { PracticalInformations } from '../components';
 import { PublicLayout } from '../components/layout/public';
@@ -24,8 +24,10 @@ export default function Seances({ pathname }) {
             </Button>
           </Link>
         </div>
+        <hr />
         <h2 id="enfant" className="mt-4">Yoga enfant</h2>
         <PracticalInformations data={practicalInformationsChildren} />
+        <hr />
         <h2 id="parent-enfant" className="mt-4">Yoga parent-enfant</h2>
         <PracticalInformations data={practicalInformationsParentChildren} />
       </Container>

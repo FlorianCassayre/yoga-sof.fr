@@ -39,7 +39,7 @@ export default function Yoga({ pathname }) {
 
         <Row className="justify-content-center">
           <Col xs={12} md={10} lg={8} xl={6}>
-            <Image src="/images/meditation-australie.jpg" fluid className="rounded-3 shadow mb-3" />
+            <Image src="/images/meditation-riviere.jpg" fluid className="rounded-3 shadow mb-3" />
           </Col>
         </Row>
 

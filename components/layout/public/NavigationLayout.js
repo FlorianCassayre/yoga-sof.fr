@@ -100,12 +100,9 @@ export function NavigationLayout({ pathname }) {
                 </NavDropdown.Item>
               </NavDropdown>
             ) : (
-              <Link href="/inscription">
-                <Button disabled={pathname === '/inscription'} className="shadow">
-                  <BsPencilSquare className="icon me-2" />
-                  Je m'inscris à une séance
-                </Button>
-              </Link>
+              <NavLink pathname="/connexion">
+                Connexion
+              </NavLink>
             )}
 
           </Nav>
