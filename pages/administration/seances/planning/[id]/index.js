@@ -16,7 +16,7 @@ import { usePromiseEffect } from '../../../../../hooks';
 import { breadcrumbForSessionPlanning } from '../../../../../lib/client';
 import { getSession } from '../../../../../lib/client/api';
 
-function SessionViewLayout({ pathname, id }) {
+function SessionViewLayout({ id }) {
   const { isLoading, isError, data, error } = usePromiseEffect(() => getSession(id, { include: ['registrations.user'] }), []);
 
   const registrationDateColumn = {
@@ -35,7 +35,6 @@ function SessionViewLayout({ pathname, id }) {
 
   return (
     <ContentLayout
-      pathname={pathname}
       title={data && (
         <>
           {renderSessionName(data)}
@@ -140,19 +139,15 @@ function SessionViewLayout({ pathname, id }) {
   );
 }
 
-export default function SessionView({ pathname }) {
+export default function SessionView() {
   const router = useRouter();
   const { id } = router.query;
 
   return (
-    <PrivateLayout pathname={pathname}>
+    <PrivateLayout>
 
-      <SessionViewLayout pathname={pathname} id={id} />
+      <SessionViewLayout id={id} />
 
     </PrivateLayout>
   );
-}
-
-SessionView.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

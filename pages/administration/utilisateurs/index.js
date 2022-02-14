@@ -8,13 +8,13 @@ import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import { detailsColumnFor, DynamicPaginatedTable, renderDatetime } from '../../../components/table';
 import { BREADCRUMB_USERS, providersData } from '../../../lib/client';
 
-function AdminUsersLayout({ pathname }) {
+function AdminUsersLayout() {
   const [total, setTotal] = useState(null);
 
   const { data: sessionData } = useSession();
 
   return (
-    <ContentLayout pathname={pathname} title="Utilisateurs" count={total} breadcrumb={BREADCRUMB_USERS}>
+    <ContentLayout title="Utilisateurs" count={total} breadcrumb={BREADCRUMB_USERS}>
 
       <p>
         Liste des comptes utilisateurs.
@@ -84,17 +84,13 @@ function AdminUsersLayout({ pathname }) {
   );
 }
 
-export default function AdminUsers({ pathname }) {
+export default function AdminUsers() {
 
   return (
-    <PrivateLayout pathname={pathname}>
+    <PrivateLayout>
 
-      <AdminUsersLayout pathname={pathname} />
+      <AdminUsersLayout />
 
     </PrivateLayout>
   );
-}
-
-AdminUsers.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

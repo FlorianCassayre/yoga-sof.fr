@@ -4,13 +4,13 @@ import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 import { DynamicPaginatedTable, renderEmailCompare } from '../../components/table';
 import { BREADCRUMB_ADMINS } from '../../lib/client';
 
-function AdminAdminsLayout({ pathname }) {
+function AdminAdminsLayout() {
   const { data: session } = useSession();
   const [total, setTotal] = useState(null);
   const sessionEmail = session?.user.email;
 
   return (
-    <ContentLayout pathname={pathname} title="Administrateurs" count={total} breadcrumb={BREADCRUMB_ADMINS}>
+    <ContentLayout title="Administrateurs" count={total} breadcrumb={BREADCRUMB_ADMINS}>
 
       <p>
         Liste blanche des adresses emails autorisées à se connecter en tant qu'administrateur.
@@ -32,16 +32,12 @@ function AdminAdminsLayout({ pathname }) {
   );
 }
 
-export default function AdminAdmins({ pathname }) {
+export default function AdminAdmins() {
   return (
-    <PrivateLayout pathname={pathname}>
+    <PrivateLayout>
 
-      <AdminAdminsLayout pathname={pathname} />
+      <AdminAdminsLayout />
 
     </PrivateLayout>
   );
-}
-
-AdminAdmins.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

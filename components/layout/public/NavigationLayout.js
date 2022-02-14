@@ -13,11 +13,13 @@ import { GrYoga } from 'react-icons/gr';
 import { IconYoga } from '../../icons';
 import { USER_TYPE_ADMIN } from '../../../lib/common';
 
-export function NavigationLayout({ pathname }) {
+export function NavigationLayout() {
 
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const sessionLoading = sessionStatus === 'loading';
+
+  const { pathname } = router;
 
   const handleSignOut = () => {
     signOut({ redirect: false, callbackUrl: '/' }).then(data => router.push(data.url));

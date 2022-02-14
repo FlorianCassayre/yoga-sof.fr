@@ -3,9 +3,9 @@ import { RiDoubleQuotesL, RiDoubleQuotesR } from 'react-icons/ri';
 import { IconEye, IconFidhy } from '../components/icons';
 import { PublicLayout } from '../components/layout/public';
 
-export default function APropos({ pathname }) {
+export default function APropos() {
   return (
-    <PublicLayout pathname={pathname} padNavbar title="À propos">
+    <PublicLayout padNavbar title="À propos">
       <Container className="p-4">
         <h1 className="mb-4">À propos</h1>
         <Row>
@@ -51,8 +51,4 @@ export default function APropos({ pathname }) {
       </Container>
     </PublicLayout>
   );
-}
-
-APropos.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

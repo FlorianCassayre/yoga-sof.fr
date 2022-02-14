@@ -23,7 +23,7 @@ import {
 } from '../lib/common';
 registerLocale('fr', fr);
 
-export default function Inscription({ pathname }) {
+export default function Inscription() {
   const { data: sessionData } = useSession();
 
   const { isLoading, isError, data, error } = usePromiseEffect(getSessionsSchedule, []);
@@ -320,7 +320,7 @@ export default function Inscription({ pathname }) {
 
   return (
     <AuthGuard allowedUserTypes={[USER_TYPE_REGULAR, USER_TYPE_ADMIN]}>
-      <PublicLayout pathname={pathname} padNavbar title="Inscription">
+      <PublicLayout padNavbar title="Inscription">
         <Container className="py-5">
           <h2 className="display-6">Inscription à une ou plusieurs séance(s) de Yoga adulte</h2>
           <ul>
@@ -436,8 +436,4 @@ export default function Inscription({ pathname }) {
       </PublicLayout>
     </AuthGuard>
   );
-}
-
-Inscription.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

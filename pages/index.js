@@ -17,7 +17,7 @@ import {
   practicalInformationsParentChildren,
 } from '../components/PracticalInformations';
 
-export default function Home({ pathname }) {
+export default function Home() {
 
   const CourseCard = ({ alt, title, description, image, informationData, urlSection }) => {
     const imageData = (
@@ -52,7 +52,7 @@ export default function Home({ pathname }) {
   }
 
   return (
-    <PublicLayout pathname={pathname} title="Accueil">
+    <PublicLayout title="Accueil">
       <div className="shadow header-image" style={{ width: '100%', height: '50vh', position: 'relative' }}>
         <div className="text-white text-center p-4" style={{ position: 'absolute', bottom: 0, width: '100%', textShadow: '2px 2px 4px #000000', zIndex: 100 }}>
           <h1 className="display-1">Yoga Sof</h1>
@@ -170,8 +170,4 @@ export default function Home({ pathname }) {
       </div>
     </PublicLayout>
   )
-}
-
-Home.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

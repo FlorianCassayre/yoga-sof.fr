@@ -182,16 +182,12 @@ const MesCoursLayout = () => {
   )
 };
 
-export default function MesCours({ pathname }) {
+export default function MesCours() {
   return (
     <AuthGuard allowedUserTypes={[USER_TYPE_REGULAR, USER_TYPE_ADMIN]}>
-      <PublicLayout pathname={pathname} padNavbar title="Mes inscriptions">
+      <PublicLayout padNavbar title="Mes inscriptions">
         <MesCoursLayout />
       </PublicLayout>
     </AuthGuard>
   );
-}
-
-MesCours.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

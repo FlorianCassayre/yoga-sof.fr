@@ -11,9 +11,9 @@ import {
 import { BREADCRUMB_REGISTRATIONS } from '../../../lib/client';
 import { formatTimestamp } from '../../../lib/common';
 
-function AdminRegistrationsLayout({ pathname }) {
+function AdminRegistrationsLayout() {
   return (
-    <ContentLayout pathname={pathname} title="Inscriptions" breadcrumb={BREADCRUMB_REGISTRATIONS}>
+    <ContentLayout title="Inscriptions" breadcrumb={BREADCRUMB_REGISTRATIONS}>
 
       <p>
         Liste des inscriptions passées et futures à des séances programmées.
@@ -64,17 +64,13 @@ function AdminRegistrationsLayout({ pathname }) {
   );
 }
 
-export default function AdminRegistrations({ pathname }) {
+export default function AdminRegistrations() {
 
   return (
-    <PrivateLayout pathname={pathname} title="Inscriptions" breadcrumb={BREADCRUMB_REGISTRATIONS}>
+    <PrivateLayout title="Inscriptions" breadcrumb={BREADCRUMB_REGISTRATIONS}>
 
-      <AdminRegistrationsLayout pathname={pathname} />
+      <AdminRegistrationsLayout />
 
     </PrivateLayout>
   );
-}
-
-AdminRegistrations.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

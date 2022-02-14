@@ -1,16 +1,12 @@
 import { Container } from 'react-bootstrap';
 import { PublicLayout } from '../components/layout/public';
 
-export default function CGV({ pathname }) {
+export default function CGV() {
   return (
-    <PublicLayout pathname={pathname} padNavbar title="CGV">
+    <PublicLayout padNavbar title="CGV">
       <Container>
         CGV
       </Container>
     </PublicLayout>
   );
-}
-
-CGV.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

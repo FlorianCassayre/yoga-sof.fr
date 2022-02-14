@@ -5,15 +5,15 @@ import { RegistrationCreateForm } from '../../../components/form';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import { BREADCRUMB_REGISTRATIONS_CREATE } from '../../../lib/client';
 
-export default function AdminRegistrationCreate({ pathname }) {
+export default function AdminRegistrationCreate() {
   const router = useRouter();
   const { user_id, session_id } = router.query;
 
   const userId = parseInt(user_id), sessionId = parseInt(session_id);
 
   return (
-    <PrivateLayout pathname={pathname}>
-      <ContentLayout pathname={pathname} title="Inscription d'un utilisateur à une séance" breadcrumb={BREADCRUMB_REGISTRATIONS_CREATE}>
+    <PrivateLayout>
+      <ContentLayout title="Inscription d'un utilisateur à une séance" breadcrumb={BREADCRUMB_REGISTRATIONS_CREATE}>
 
         <Alert variant="warning">
           <BsExclamationTriangleFill className="icon me-2" />
@@ -32,8 +32,4 @@ export default function AdminRegistrationCreate({ pathname }) {
       </ContentLayout>
     </PrivateLayout>
   );
-}
-
-AdminRegistrationCreate.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

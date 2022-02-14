@@ -5,9 +5,9 @@ import { detailsColumnFor, DynamicPaginatedTable, renderSessionType, renderTimeP
 import { BREADCRUMB_OVERVIEW } from '../../lib/client';
 import { dateFormat } from '../../lib/common';
 
-function AdminHomeLayout({ pathname }) {
+function AdminHomeLayout() {
   return (
-    <ContentLayout pathname={pathname} title="Aperçu" breadcrumb={BREADCRUMB_OVERVIEW}>
+    <ContentLayout title="Aperçu" breadcrumb={BREADCRUMB_OVERVIEW}>
 
       <h2 className="h5">Planning</h2>
 
@@ -69,16 +69,12 @@ function AdminHomeLayout({ pathname }) {
   );
 }
 
-export default function AdminHome({ pathname }) {
+export default function AdminHome() {
   return (
-    <PrivateLayout pathname={pathname}>
+    <PrivateLayout>
 
-      <AdminHomeLayout pathname={pathname} />
+      <AdminHomeLayout />
 
     </PrivateLayout>
   )
-}
-
-AdminHome.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

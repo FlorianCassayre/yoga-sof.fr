@@ -4,9 +4,9 @@ import { DynamicPaginatedTable, renderDatetime, renderEmail, userLinkColumn } fr
 import { BREADCRUMB_EMAILS } from '../../lib/client';
 import { EMAIL_TYPES } from '../../lib/common';
 
-function AdminEmailsLayout({ pathname }) {
+function AdminEmailsLayout() {
   return (
-    <ContentLayout pathname={pathname} title="E-mails" breadcrumb={BREADCRUMB_EMAILS}>
+    <ContentLayout title="E-mails" breadcrumb={BREADCRUMB_EMAILS}>
 
       <p>
         Liste des e-mails envoyés par le système.
@@ -63,17 +63,13 @@ function AdminEmailsLayout({ pathname }) {
   );
 }
 
-export default function AdminEmails({ pathname }) {
+export default function AdminEmails() {
 
   return (
-    <PrivateLayout pathname={pathname}>
+    <PrivateLayout>
 
-      <AdminEmailsLayout pathname={pathname} />
+      <AdminEmailsLayout />
 
     </PrivateLayout>
   );
-}
-
-AdminEmails.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

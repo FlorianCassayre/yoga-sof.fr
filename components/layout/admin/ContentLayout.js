@@ -1,9 +1,12 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { Badge, Breadcrumb, Spinner } from 'react-bootstrap';
 import { ErrorMessage } from '../../ErrorMessage';
 
-export function ContentLayout({ children, pathname, title, headTitle, count, breadcrumb, isLoading, isError, error }) {
+export function ContentLayout({ children, title, headTitle, count, breadcrumb, isLoading, isError, error }) {
+  const { pathname } = useRouter();
+
   const renderHeadTitle = headTitle => (
     <Head>
       <title>{headTitle} - Administration Yoga Sof</title>

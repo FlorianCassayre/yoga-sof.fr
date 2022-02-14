@@ -9,9 +9,9 @@ import {
   practicalInformationsParentChildren,
 } from '../components/PracticalInformations';
 
-export default function Seances({ pathname }) {
+export default function Seances() {
   return (
-    <PublicLayout pathname={pathname} padNavbar title="Les séances">
+    <PublicLayout padNavbar title="Les séances">
       <Container className="p-4">
         <h1>Les séances</h1>
         <h2 id="adulte">Yoga adulte</h2>
@@ -33,8 +33,4 @@ export default function Seances({ pathname }) {
       </Container>
     </PublicLayout>
   );
-}
-
-Seances.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

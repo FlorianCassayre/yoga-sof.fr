@@ -12,10 +12,11 @@ import {
 } from 'react-icons/bs';
 import pkg from '../../../package.json';
 
-export function NavigationLayout({ pathname, children }) {
+export function NavigationLayout({ children }) {
 
   const router = useRouter();
   const { data: sessionData } = useSession();
+  const { pathname } = router;
 
   const handleSignOut = () => {
     signOut({ redirect: false, callbackUrl: '/' }).then(data => router.push(data.url));

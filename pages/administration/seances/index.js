@@ -13,7 +13,7 @@ import {
 import { BREADCRUMB_SESSIONS } from '../../../lib/client';
 import { dateFormat } from '../../../lib/common';
 
-function AdminSeancesLayout({ pathname }) {
+function AdminSeancesLayout() {
   const renderDate = ({ date_start: date }) => format(new Date(date), dateFormat);
 
   const sessionColumns = hasPassed => [
@@ -92,7 +92,7 @@ function AdminSeancesLayout({ pathname }) {
   ];
 
   return (
-    <ContentLayout pathname={pathname} title="Séances" breadcrumb={BREADCRUMB_SESSIONS}>
+    <ContentLayout title="Séances" breadcrumb={BREADCRUMB_SESSIONS}>
 
 
       <h2 className="h5">Modèles de séances</h2>
@@ -183,17 +183,13 @@ function AdminSeancesLayout({ pathname }) {
   );
 }
 
-export default function AdminSeances({ pathname }) {
+export default function AdminSeances() {
 
   return (
-    <PrivateLayout pathname={pathname}>
+    <PrivateLayout>
 
-      <AdminSeancesLayout pathname={pathname} />
+      <AdminSeancesLayout />
 
     </PrivateLayout>
   );
-}
-
-AdminSeances.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

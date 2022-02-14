@@ -2,11 +2,11 @@ import { UserForm } from '../../../components/form';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import { BREADCRUMB_USER_CREATE } from '../../../lib/client';
 
-export default function AdminUserCreate({ pathname }) {
+export default function AdminUserCreate() {
 
   return (
-    <PrivateLayout pathname={pathname}>
-      <ContentLayout pathname={pathname} title="Création d'un utilisateur" breadcrumb={BREADCRUMB_USER_CREATE}>
+    <PrivateLayout>
+      <ContentLayout title="Création d'un utilisateur" breadcrumb={BREADCRUMB_USER_CREATE}>
 
         <UserForm />
 
@@ -14,7 +14,3 @@ export default function AdminUserCreate({ pathname }) {
     </PrivateLayout>
   );
 }
-
-AdminUserCreate.getInitialProps = ({ pathname }) => {
-  return { pathname };
-};

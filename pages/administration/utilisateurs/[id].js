@@ -14,12 +14,11 @@ import { breadcrumbForUser, providersData } from '../../../lib/client';
 import { getUser } from '../../../lib/client/api';
 import { formatTimestamp } from '../../../lib/common';
 
-function AdminUserLayout({ pathname, id }) {
+function AdminUserLayout({ id }) {
   const { isLoading, isError, data, error } = usePromiseEffect(() => getUser(id, { include: ['registrations', 'user_linked_accounts'] }), []);
 
   return (
     <ContentLayout
-      pathname={pathname}
       title={`Utilisateur ${data && data.name}`}
       breadcrumb={data && breadcrumbForUser(data)}
       isLoading={isLoading}
@@ -123,19 +122,15 @@ function AdminUserLayout({ pathname, id }) {
   );
 }
 
-export default function AdminUser({ pathname }) {
+export default function AdminUser() {
   const router = useRouter();
   const { id } = router.query;
 
   return (
-    <PrivateLayout pathname={pathname}>
+    <PrivateLayout>
 
-      <AdminUserLayout pathname={pathname} id={id} />
+      <AdminUserLayout id={id} />
 
     </PrivateLayout>
   );
-}
-
-AdminUser.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

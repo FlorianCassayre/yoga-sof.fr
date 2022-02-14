@@ -3,24 +3,20 @@ import { SessionForm } from '../../../../../components/form';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
 import { breadcrumbForSessionPlanningEdit } from '../../../../../lib/client';
 
-export default function AdminSeancePlanningEdit({ pathname }) {
+export default function AdminSeancePlanningEdit() {
   const router = useRouter();
   const { id } = router.query;
 
   return (
-    <PrivateLayout pathname={pathname}>
+    <PrivateLayout>
 
         <SessionForm
           editRecordId={id}
           container={({ data, ...props }) => (
-            <ContentLayout {...props} pathname={pathname} title="Modification d'une séance planifiée" breadcrumb={data && breadcrumbForSessionPlanningEdit(data)} />
+            <ContentLayout {...props} title="Modification d'une séance planifiée" breadcrumb={data && breadcrumbForSessionPlanningEdit(data)} />
           )}
         />
 
     </PrivateLayout>
   );
-}
-
-AdminSeancePlanningEdit.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

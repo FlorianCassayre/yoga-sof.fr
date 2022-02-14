@@ -3,13 +3,13 @@ import { AuthGuard } from '../../AuthGuard';
 import { HeadMeta } from '../HeadMeta';
 import { NavigationLayout } from './NavigationLayout';
 
-export function PrivateLayout({ children, pathname }) {
+export function PrivateLayout({ children }) {
   return (
     <AuthGuard allowedUserTypes={[USER_TYPE_ADMIN]}>
       <div>
         <HeadMeta />
 
-        <NavigationLayout pathname={pathname}>
+        <NavigationLayout>
           {children}
         </NavigationLayout>
 

@@ -1,9 +1,9 @@
 import { Container } from 'react-bootstrap';
 import { PublicLayout } from '../components/layout/public';
 
-export default function ReglementInterieur({ pathname }) {
+export default function ReglementInterieur() {
   return (
-    <PublicLayout pathname={pathname} padNavbar title="Règlement intérieur">
+    <PublicLayout padNavbar title="Règlement intérieur">
       <Container className="p-4">
         <h1>Règlement intérieur</h1>
         <p>
@@ -50,8 +50,4 @@ export default function ReglementInterieur({ pathname }) {
       </Container>
     </PublicLayout>
   )
-}
-
-ReglementInterieur.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }

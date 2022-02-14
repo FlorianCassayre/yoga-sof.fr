@@ -1,9 +1,9 @@
 import { Col, Container, Image, Row } from 'react-bootstrap';
 import { PublicLayout } from '../components/layout/public';
 
-export default function Yoga({ pathname }) {
+export default function Yoga() {
   return (
-    <PublicLayout pathname={pathname} padNavbar title="Le Yoga">
+    <PublicLayout padNavbar title="Le Yoga">
       <Container className="p-4">
         <h1>Le Yoga</h1>
         <p className="text-justify">
@@ -45,8 +45,4 @@ export default function Yoga({ pathname }) {
       </Container>
     </PublicLayout>
   );
-}
-
-Yoga.getInitialProps = ({ pathname })  => {
-  return { pathname };
 }
