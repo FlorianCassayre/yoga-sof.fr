@@ -17,6 +17,7 @@ model users {
   email         String? @db.VarChar(255)
   name          String @db.VarChar(255)
   public_access_token String @default(uuid())
+  receive_emails Boolean @default(true)
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
   emails        emails[]

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "prisma-migrate-dev": "prisma migrate dev",
-    "start-production": "next start -p 8085",
+    "start-production": "next start -p 8085 -H localhost",
     "prisma-migrate-production": "dotenv -e .env.production -- npm run prisma migrate deploy",
     "backup-production": "(export $(cat .env.production | xargs) && mysqldump $DATABASE_NAME -u $DATABASE_USER -p$DATABASE_PASSWORD > \"backups/$(date +\"%Y_%m_%d_%I_%M_%p\").sql\")"
   },

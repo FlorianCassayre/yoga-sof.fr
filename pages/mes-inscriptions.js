@@ -16,6 +16,7 @@ import {
   AuthGuard, ConfirmDialog,
   ErrorMessage
 } from '../components';
+import { UserSelfForm } from '../components/form';
 import { PublicLayout } from '../components/layout/public';
 import { renderSessionName } from '../components/table';
 import { usePromiseEffect } from '../hooks';
@@ -178,6 +179,13 @@ const MesCoursLayout = () => {
       <h2 className="h3">Annulations</h2>
       {renderTable({ rows: registrationsCanceled, cancellation: true, emptyMessage: 'Pas d\'annulations.' })}
 
+      <h2 className="h3">Données personnelles</h2>
+      <p>
+        Votre adresse email nous permet notamment de vous informer en cas d'annulation de séance.
+      </p>
+      <div className="mb-4">
+        <UserSelfForm />
+      </div>
     </Container>
   )
 };

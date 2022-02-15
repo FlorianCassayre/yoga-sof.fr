@@ -64,7 +64,7 @@ export default NextAuth({
       session.user.provider = token.provider;
       session.user.id_provider = token.id_provider;
 
-      const { id, user: { public_access_token, user_linked_accounts: linkedAccounts } } = await prisma.user_linked_account.upsert({
+      const { id, user: { public_access_token, user_linked_accounts: linkedAccounts, name: displayName } } = await prisma.user_linked_account.upsert({
         where: {
           id_provider_provider: {
             id_provider: token.id_provider,
@@ -98,6 +98,7 @@ export default NextAuth({
                   email: true,
                 },
               },
+              name: true,
             },
           },
         }
@@ -117,6 +118,7 @@ export default NextAuth({
 
       session.user.db_id = id;
       session.user.public_access_token = public_access_token;
+      session.user.name = displayName;
 
       return session;
     },
