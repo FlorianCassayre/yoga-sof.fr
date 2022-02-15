@@ -1,6 +1,7 @@
 import { signIn } from 'next-auth/react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
 import { providersData } from '../lib/client';
+import { EMAIL_CONTACT } from '../lib/common';
 
 export function LoginCard({ providers }) {
   return (
@@ -25,7 +26,7 @@ export function LoginCard({ providers }) {
               );
             })}
             <Card.Text className="mt-3">
-              En cas de problème, <a href="">merci de nous contacter</a>.
+              En cas de problème, <a href={`mailto:${EMAIL_CONTACT}`}>merci de nous contacter</a>.
             </Card.Text>
           </Card.Body>
         </Card>

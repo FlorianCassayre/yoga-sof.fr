@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button, Col, Container, Row } from 'react-bootstrap';
 import { BsArrowLeft, BsEnvelopeFill, BsFacebook, BsFillGeoAltFill, BsZoomIn } from 'react-icons/bs';
+import { EMAIL_CONTACT } from '../../../lib/common';
 
 const MAP_COORDINATES_HOME = { latitude: 47.576129, longitude: 7.514619 };
 const MAP_COORDINATES_COMETE = { latitude: 47.580615, longitude: 7.520265 };
@@ -57,7 +58,7 @@ export function FooterLayout() {
               <a href="https://www.facebook.com/Yoga-Sof-102478218061902" target="_blank" rel="noreferrer" className="footer-link">
                 <BsFacebook className="icon" />
               </a>
-              <a href={`mailto:${'contact' + '@' + 'yoga-sof.fr'}`} target="_blank" rel="noreferrer" className="ms-3 footer-link">
+              <a href={`mailto:${EMAIL_CONTACT}`} target="_blank" rel="noreferrer" className="ms-3 footer-link">
                 <BsEnvelopeFill className="icon" />
               </a>
             </div>
