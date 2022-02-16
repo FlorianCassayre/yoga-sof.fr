@@ -1,13 +1,13 @@
-import { useRouter } from 'next/router';
 import { useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { BsXOctagon } from 'react-icons/bs';
 import { postCancelSession } from '../lib/client/api';
+import { useRefreshContext } from '../state';
 import { ConfirmDialog } from './ConfirmDialog';
 import { renderSessionName } from './table';
 
 export function CancelSessionConfirmDialog({ session, triggerer }) {
-  const router = useRouter();
+  const refresh = useRefreshContext();
 
   const [reason, setReason] = useState('');
 
@@ -37,7 +37,7 @@ export function CancelSessionConfirmDialog({ session, triggerer }) {
       action="Annuler la séance"
       triggerer={triggerer}
       confirmPromise={() => postCancelSession(session.id, { cancelation_reason: reason && reason.trim() ? reason.trim() : undefined })}
-      onSuccess={() => router.reload()}
+      onSuccess={refresh}
     />
   );
 }

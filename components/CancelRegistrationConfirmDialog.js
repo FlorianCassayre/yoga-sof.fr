@@ -1,11 +1,11 @@
-import { useRouter } from 'next/router';
 import { BsXOctagon } from 'react-icons/bs';
 import { postCancelRegistration } from '../lib/client/api';
+import { useRefreshContext } from '../state';
 import { ConfirmDialog } from './ConfirmDialog';
 import { renderSessionName } from './table';
 
 export function CancelRegistrationConfirmDialog({ registration, triggerer }) {
-  const router = useRouter();
+  const refresh = useRefreshContext();
 
   const { id, user, session } = registration;
 
@@ -26,7 +26,7 @@ export function CancelRegistrationConfirmDialog({ registration, triggerer }) {
       action="Confirmer la désinscription"
       triggerer={triggerer}
       confirmPromise={() => postCancelRegistration(id)}
-      onSuccess={() => router.reload()}
+      onSuccess={refresh}
     />
   );
 }

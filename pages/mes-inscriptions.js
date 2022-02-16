@@ -1,5 +1,4 @@
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
 import React, { useMemo } from 'react';
 import {
   Button,
@@ -23,8 +22,11 @@ import { usePromiseEffect } from '../hooks';
 import { SESSIONS_TYPES, USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../lib/common';
 import { getSelfRegistrations, postSelfCancelRegistration } from '../lib/client/api';
 import { formatDayRange, formatTimestamp } from '../lib/common';
+import { useRefreshContext } from '../state';
 
 const MesCoursLayout = () => {
+  const refresh = useRefreshContext();
+
   const { isLoading, isError, data } = usePromiseEffect(getSelfRegistrations, []);
 
   const [registrationsFuture, registrationsPast, registrationsCanceled] = useMemo(() => {
@@ -40,8 +42,6 @@ const MesCoursLayout = () => {
       return [];
     }
   }, [data]);
-
-  const router = useRouter();
 
   const renderTable = ({ rows, cancellation = false, cancellable = false, emptyMessage }) => !isError ? (!isLoading ? (rows.length > 0 ? (
     <Table striped bordered responsive className="mt-2 mb-5 text-center">
@@ -90,7 +90,7 @@ const MesCoursLayout = () => {
                     </Button>
                   )}
                   confirmPromise={() => postSelfCancelRegistration(id)}
-                  onSuccess={() => router.reload()}
+                  onSuccess={refresh}
                 />
               </td>
             )}
