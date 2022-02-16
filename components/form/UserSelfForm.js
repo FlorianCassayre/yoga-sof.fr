@@ -6,10 +6,12 @@ import { joiValidator } from '../../lib/client';
 import { getSelfUser, postSelfUser } from '../../lib/client/api';
 import { Form as FinalForm } from 'react-final-form';
 import { schemaSelfUserBody } from '../../lib/common';
+import { useNotificationsContext } from '../../state';
 import { ErrorMessage } from '../ErrorMessage';
 import { FloatingInputField, SwitchField } from './fields';
 
 export function UserSelfForm() {
+  const { notify } = useNotificationsContext();
 
   const [{ isLoading: isSubmitLoading, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatcher] =
     usePromiseCallback(postSelfUser, []);
@@ -35,6 +37,11 @@ export function UserSelfForm() {
 
   useEffect(() => {
     if(submitResult) {
+      notify({
+        title: 'Modifications enregistrées',
+        body: 'Vos informations personnelles ont été mises à jour.',
+      })
+
       reloadSession();
     }
   }, [submitResult]);

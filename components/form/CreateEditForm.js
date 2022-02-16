@@ -5,16 +5,20 @@ import { Form as FinalForm } from 'react-final-form';
 import { BsCheckLg, BsPlusLg, BsTrash, BsXLg } from 'react-icons/bs';
 import { usePromiseCallback, usePromiseEffect } from '../../hooks';
 import { DELETE, jsonFetch, POST, PUT } from '../../lib/client/api';
+import { useNotificationsContext } from '../../state';
 import { ErrorMessage } from '../ErrorMessage';
 
 const BasicContainer = props => props.children;
 
-export function CreateEditForm({ modelId, editRecordId, deletable, initialValues = {}, redirect, numberFields = [], disabled, loading, submitCallback, container: Container = BasicContainer, children }) {
+export function CreateEditForm({ modelId, editRecordId, deletable, initialValues = {}, redirect, numberFields = [], disabled, loading, submitCallback, successMessages = {}, container: Container = BasicContainer, children }) {
+  const { notify } = useNotificationsContext();
 
   const isEdit = editRecordId != null;
 
   const urlBase = `/api/${modelId}`;
   const url = isEdit ? `${urlBase}/${editRecordId}` : urlBase;
+
+  const [lastAction, setLastAction] = useState(null);
 
   const [{ isLoading: isSubmitLoading, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatcher] =
     usePromiseCallback(options => jsonFetch(url, options), []);
@@ -39,7 +43,31 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
     </div>
   );
 
+  const defaultSuccessMessages = {
+    create: {
+      title: 'Création réussie',
+      body: `L'enregistrement a été créé avec succès.`,
+      icon: BsPlusLg,
+    },
+    edit: {
+      title: 'Modifications appliquées',
+      body: `L'enregistrement a été modifié avec succès.`,
+      icon: BsCheckLg,
+    },
+    delete: {
+      title: 'Suppression réussie',
+      body: `L'enregistrement a été supprimé avec succès.`,
+      icon: BsTrash,
+    },
+  };
+
   const submitSuccessCallback = json => {
+    notify(lastAction === POST ?
+      { ...defaultSuccessMessages.create, ...successMessages.create }
+      : lastAction === PUT ?
+        { ...defaultSuccessMessages.edit, ...successMessages.edit } :
+        { ...defaultSuccessMessages.delete, ...successMessages.delete });
+
     router.push(redirect(json));
   };
 
@@ -55,7 +83,9 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
       data = submitCallback(data);
     }
 
-    submitDispatcher({ method: isEdit ? PUT : POST, body: data });
+    const method = isEdit ? PUT : POST;
+    setLastAction(method);
+    submitDispatcher({ method, body: data });
   };
 
   const onCancel = () => {
@@ -69,7 +99,9 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
   const onDelete = () => {
     setDeleteDialogShow(false);
 
-    submitDispatcher({ method: DELETE });
+    const method = DELETE;
+    setLastAction(method)
+    submitDispatcher({ method });
   }
 
   const renderForm = props => !submitResult && !loading && !isSubmitLoading ? (

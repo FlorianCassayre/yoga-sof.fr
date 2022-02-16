@@ -22,10 +22,11 @@ import { usePromiseEffect } from '../hooks';
 import { SESSIONS_TYPES, USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../lib/common';
 import { getSelfRegistrations, postSelfCancelRegistration } from '../lib/client/api';
 import { formatDayRange, formatTimestamp } from '../lib/common';
-import { useRefreshContext } from '../state';
+import { useNotificationsContext, useRefreshContext } from '../state';
 
 const MesCoursLayout = () => {
   const refresh = useRefreshContext();
+  const { notify } = useNotificationsContext();
 
   const { isLoading, isError, data } = usePromiseEffect(getSelfRegistrations, []);
 
@@ -77,7 +78,7 @@ const MesCoursLayout = () => {
                       <ul>
                         <li>{renderSessionName(session)}</li>
                       </ul>
-                      Vous pourrez à tout moment vous y réinscrire.
+                      Vous pourrez à tout moment vous y réinscrire, s'il reste de la place.
                     </>
                   )}
                   variant="danger"
@@ -90,7 +91,14 @@ const MesCoursLayout = () => {
                     </Button>
                   )}
                   confirmPromise={() => postSelfCancelRegistration(id)}
-                  onSuccess={refresh}
+                  onSuccess={() => {
+                    notify({
+                      title: 'Désinscription confirmée',
+                      body: `Vous vous êtes désinscrit de la ${renderSessionName(session, false)}.`,
+                    });
+
+                    refresh();
+                  }}
                 />
               </td>
             )}

@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { BsXOctagon } from 'react-icons/bs';
 import { postCancelSession } from '../lib/client/api';
-import { useRefreshContext } from '../state';
+import { useNotificationsContext, useRefreshContext } from '../state';
 import { ConfirmDialog } from './ConfirmDialog';
 import { renderSessionName } from './table';
 
 export function CancelSessionConfirmDialog({ session, triggerer }) {
   const refresh = useRefreshContext();
+  const { notify } = useNotificationsContext();
 
   const [reason, setReason] = useState('');
 
@@ -37,7 +38,16 @@ export function CancelSessionConfirmDialog({ session, triggerer }) {
       action="Annuler la séance"
       triggerer={triggerer}
       confirmPromise={() => postCancelSession(session.id, { cancelation_reason: reason && reason.trim() ? reason.trim() : undefined })}
-      onSuccess={refresh}
+      onSuccess={() => {
+        notify({
+          title: `Annulation réussie`,
+          body: `La ${renderSessionName(session, false)} a été annulée.`,
+          icon: BsXOctagon,
+          delay: 10,
+        });
+
+        refresh();
+      }}
     />
   );
 }

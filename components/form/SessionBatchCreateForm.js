@@ -112,6 +112,12 @@ export function SessionBatchCreateForm() {
             rest['dates'] = computeDatesFromRange(datesRange, time_start, time_end, weekday).map(two => two.map(date => date.getTime()));
             return rest;
           }}
+          successMessages={{
+            create: {
+              title: `Séances planifiées`,
+              body: `Les séances ont été panifiées avec succès.`,
+            }
+          }}
         >
           {({ form: { mutators: { setValue } }, values }) => (
             <>

@@ -1,11 +1,12 @@
 import { BsXOctagon } from 'react-icons/bs';
 import { postCancelRegistration } from '../lib/client/api';
-import { useRefreshContext } from '../state';
+import { useNotificationsContext, useRefreshContext } from '../state';
 import { ConfirmDialog } from './ConfirmDialog';
 import { renderSessionName } from './table';
 
 export function CancelRegistrationConfirmDialog({ registration, triggerer }) {
   const refresh = useRefreshContext();
+  const { notify } = useNotificationsContext();
 
   const { id, user, session } = registration;
 
@@ -26,7 +27,16 @@ export function CancelRegistrationConfirmDialog({ registration, triggerer }) {
       action="Confirmer la désinscription"
       triggerer={triggerer}
       confirmPromise={() => postCancelRegistration(id)}
-      onSuccess={refresh}
+      onSuccess={() => {
+        notify({
+          title: `Désinscription réussie`,
+          body: `L'utilisateur ${user.name} a été désinscrit de la ${renderSessionName(session, false)}.`,
+          icon: BsXOctagon,
+          delay: 10,
+        });
+
+        refresh();
+      }}
     />
   );
 }
