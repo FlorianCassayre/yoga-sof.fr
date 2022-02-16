@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { BsKanban } from 'react-icons/bs';
 import { SessionsCards } from '../../components';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 import { detailsColumnFor, DynamicPaginatedTable, renderSessionType, renderTimePeriod } from '../../components/table';
@@ -7,7 +8,7 @@ import { dateFormat } from '../../lib/common';
 
 function AdminHomeLayout() {
   return (
-    <ContentLayout title="Aperçu" breadcrumb={BREADCRUMB_OVERVIEW}>
+    <ContentLayout title="Aperçu" icon={BsKanban} breadcrumb={BREADCRUMB_OVERVIEW}>
 
       <h2 className="h5">Planning</h2>
 
@@ -63,6 +64,7 @@ function AdminHomeLayout() {
             },
           },
         ]}
+        renderEmpty={() => `Aucune séance planifiée à venir.`}
       />
 
     </ContentLayout>

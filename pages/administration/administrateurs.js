@@ -1,5 +1,6 @@
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
+import { BsShieldLock } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 import { DynamicPaginatedTable, renderEmailCompare } from '../../components/table';
 import { BREADCRUMB_ADMINS } from '../../lib/client';
@@ -10,7 +11,7 @@ function AdminAdminsLayout() {
   const sessionEmail = session?.user.email;
 
   return (
-    <ContentLayout title="Administrateurs" count={total} breadcrumb={BREADCRUMB_ADMINS}>
+    <ContentLayout title="Administrateurs" icon={BsShieldLock} count={total} breadcrumb={BREADCRUMB_ADMINS}>
 
       <p>
         Liste blanche des adresses emails autorisées à se connecter en tant qu'administrateur.

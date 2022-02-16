@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Badge, Breadcrumb, Spinner } from 'react-bootstrap';
 import { ErrorMessage } from '../../ErrorMessage';
 
-export function ContentLayout({ children, title, headTitle, count, breadcrumb, isLoading, isError, error }) {
+export function ContentLayout({ children, title, icon: Icon, headTitle, count, breadcrumb, isLoading, isError, error }) {
   const { pathname } = useRouter();
 
   const renderHeadTitle = headTitle => (
@@ -33,6 +33,7 @@ export function ContentLayout({ children, title, headTitle, count, breadcrumb, i
         {title && (
           <>
             <h1 className="h4">
+              {Icon && <Icon className="icon me-2" />}
               {title}
               {count != null && (
                 <Badge pill bg="secondary" className="ms-2">{count}</Badge>

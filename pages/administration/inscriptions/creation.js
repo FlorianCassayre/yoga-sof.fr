@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { Alert } from 'react-bootstrap';
-import { BsExclamationTriangleFill } from 'react-icons/bs';
+import { BsExclamationTriangleFill, BsJournalText } from 'react-icons/bs';
 import { RegistrationCreateForm } from '../../../components/form';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import { BREADCRUMB_REGISTRATIONS_CREATE } from '../../../lib/client';
@@ -13,7 +13,7 @@ export default function AdminRegistrationCreate() {
 
   return (
     <PrivateLayout>
-      <ContentLayout title="Inscription d'un utilisateur à une séance" breadcrumb={BREADCRUMB_REGISTRATIONS_CREATE}>
+      <ContentLayout title="Inscription d'un utilisateur à une séance" icon={BsJournalText} breadcrumb={BREADCRUMB_REGISTRATIONS_CREATE}>
 
         <Alert variant="warning">
           <BsExclamationTriangleFill className="icon me-2" />

@@ -53,7 +53,7 @@ export function NavigationLayout({ children }) {
     <Container fluid>
       <Row>
         <Col id="admin-menu" xs={12} sm={5} md={4} lg={3} xl={2} className="px-sm-2 px-0 bg-dark d-flex">
-          <div className="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-3 pb-2 text-white">
+          <div className="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-3 pb-2 text-white" style={{ maxWidth: '100%' }}>
             <Link href="/administration" passHref>
               <a className="d-flex align-items-center mb-md-0 me-md-auto text-white text-decoration-none mb-2">
                 <span className="fs-5 d-none d-sm-inline">Yoga Sof<span className="text-muted fs-6 d-none d-sm-inline"> admin</span></span>
@@ -69,8 +69,8 @@ export function NavigationLayout({ children }) {
               </Link>
               <NavItemLink pathname="/administration" exactPathname icon={BsKanban} title="Aperçu" />
               <NavItemTitle title="Yoga" />
-              <NavItemLink pathname="/administration/seances" icon={BsJournalText} title="Séances et horaires" />
-              <NavItemLink pathname="/administration/inscriptions" icon={BsCalendarWeek} title="Inscriptions" />
+              <NavItemLink pathname="/administration/seances" icon={BsCalendarWeek} title="Séances et horaires" />
+              <NavItemLink pathname="/administration/inscriptions" icon={BsJournalText} title="Inscriptions" />
               <NavItemLink pathname="/administration/paiements" icon={BsCurrencyEuro} title="Factures et paiements" disabled />
               <NavItemTitle title="Administration" />
               <NavItemLink pathname="/administration/administrateurs" icon={BsShieldLock} title="Administrateurs" />

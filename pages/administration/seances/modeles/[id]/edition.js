@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import { BsCalendar } from 'react-icons/bs';
 import { SessionModelForm } from '../../../../../components/form';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
 import { breadcrumbForSessionModelEdit } from '../../../../../lib/client';
@@ -13,7 +14,7 @@ export default function AdminSeance() {
         <SessionModelForm
           editRecordId={id}
           container={({ data, ...props }) => (
-            <ContentLayout {...props} title="Modification d'un modèle de séance" breadcrumb={data && breadcrumbForSessionModelEdit(data)} />
+            <ContentLayout {...props} title="Modification d'un modèle de séance" icon={BsCalendar} breadcrumb={data && breadcrumbForSessionModelEdit(data)} />
           )}
         />
 

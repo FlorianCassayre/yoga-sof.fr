@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Badge, Button } from 'react-bootstrap';
-import { BsPlusLg } from 'react-icons/bs';
+import { BsJournalText, BsPlusLg } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import {
   cancelRegistrationColumn,
@@ -13,7 +13,7 @@ import { formatTimestamp } from '../../../lib/common';
 
 function AdminRegistrationsLayout() {
   return (
-    <ContentLayout title="Inscriptions" breadcrumb={BREADCRUMB_REGISTRATIONS}>
+    <ContentLayout title="Inscriptions" icon={BsJournalText} breadcrumb={BREADCRUMB_REGISTRATIONS}>
 
       <p>
         Liste des inscriptions passées et futures à des séances programmées.
@@ -49,6 +49,7 @@ function AdminRegistrationsLayout() {
           },
           cancelRegistrationColumn,
         ]}
+        renderEmpty={() => `Aucun utilisateur ne s'est inscrit pour le moment.`}
       />
 
       <div className="text-center">

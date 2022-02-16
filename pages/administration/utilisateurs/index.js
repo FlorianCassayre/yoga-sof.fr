@@ -2,7 +2,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { BsPlusLg } from 'react-icons/bs';
+import { BsPeople, BsPlusLg } from 'react-icons/bs';
 import { StarIndicator } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import { detailsColumnFor, DynamicPaginatedTable, renderDatetime } from '../../../components/table';
@@ -14,7 +14,7 @@ function AdminUsersLayout() {
   const { data: sessionData } = useSession();
 
   return (
-    <ContentLayout title="Utilisateurs" count={total} breadcrumb={BREADCRUMB_USERS}>
+    <ContentLayout title="Utilisateurs" icon={BsPeople} count={total} breadcrumb={BREADCRUMB_USERS}>
 
       <p>
         Liste des comptes utilisateurs.

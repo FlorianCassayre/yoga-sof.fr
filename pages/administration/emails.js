@@ -1,4 +1,5 @@
 import { Badge } from 'react-bootstrap';
+import { BsMailbox } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 import { DynamicPaginatedTable, renderDatetime, renderEmail, userLinkColumn } from '../../components/table';
 import { BREADCRUMB_EMAILS } from '../../lib/client';
@@ -6,7 +7,7 @@ import { EMAIL_TYPES } from '../../lib/common';
 
 function AdminEmailsLayout() {
   return (
-    <ContentLayout title="E-mails" breadcrumb={BREADCRUMB_EMAILS}>
+    <ContentLayout title="E-mails" icon={BsMailbox} breadcrumb={BREADCRUMB_EMAILS}>
 
       <p>
         Liste des e-mails envoyés par le système.
@@ -57,6 +58,7 @@ function AdminEmailsLayout() {
             },
           },
         ]}
+        renderEmpty={() => `Aucun e-mail n'a été envoyé pour le moment.`}
       />
 
     </ContentLayout>

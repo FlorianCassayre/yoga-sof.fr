@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Badge, Button } from 'react-bootstrap';
-import { BsPlusLg } from 'react-icons/bs';
+import { BsPerson, BsPlusLg } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import {
   cancelRegistrationColumn,
@@ -20,6 +20,7 @@ function AdminUserLayout({ id }) {
   return (
     <ContentLayout
       title={`Utilisateur ${data && data.name}`}
+      icon={BsPerson}
       breadcrumb={data && breadcrumbForUser(data)}
       isLoading={isLoading}
       isError={isError}

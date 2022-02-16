@@ -64,7 +64,7 @@ export function SessionsCards({ readonly }) {
               </Col>
             ))}
 
-            {!readonly && (
+            {(!readonly || data.length === 0) && (
               <Col xs={12} lg={4} className="mb-4">
                 <Card className="py-3 text-center">
                   <Card.Text>

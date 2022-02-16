@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { Badge, Button } from 'react-bootstrap';
-import { BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
+import { BsCalendarEvent, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
 import { CancelSessionConfirmDialog, SessionStatusBadge } from '../../../../../components';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
@@ -41,6 +41,7 @@ function SessionViewLayout({ id }) {
           <SessionStatusBadge session={data} className="ms-2" />
         </>
       )}
+      icon={BsCalendarEvent}
       headTitle={data && renderSessionName(data)}
       breadcrumb={data && breadcrumbForSessionPlanning(data)}
       isLoading={isLoading}

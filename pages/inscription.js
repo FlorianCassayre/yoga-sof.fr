@@ -2,7 +2,7 @@ import { isSameDay } from 'date-fns';
 import { useSession } from 'next-auth/react';
 import React, { useState } from 'react';
 import { Alert, Badge, Button, Card, Col, Container, Form, ProgressBar, Row, Spinner, Table } from 'react-bootstrap';
-import { BsArrowLeft, BsCheckLg } from 'react-icons/bs';
+import { BsArrowLeft, BsCheckLg, BsInfoCircleFill } from 'react-icons/bs';
 import Link from 'next/link';
 import { AuthGuard, ErrorMessage } from '../components';
 import { PublicLayout } from '../components/layout/public';
@@ -14,6 +14,7 @@ import { renderDateOnly, StaticPaginatedTable } from '../components/table';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
 import { getSessionsSchedule, postSelfRegistrationBatch } from '../lib/client/api';
 import {
+  EMAIL_CONTACT,
   formatTime, formatTimeRange,
   IS_REGISTRATION_DISABLED,
   minutesToParsedTime,
@@ -426,9 +427,11 @@ export default function Inscription() {
               )}
             />
           ) : (
-            <div className="text-center h3 mt-5">
+            <Alert variant="info">
+              <BsInfoCircleFill className="icon me-2" />
               Le formulaire d'inscription n'est pas ouvert pour le moment.
-            </div>
+              Vous pouvez <Alert.Link href={`mailto:${EMAIL_CONTACT}`}>nous écrire</Alert.Link> pour obtenir plus de renseignements.
+            </Alert>
           )}
 
 

@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { Button } from 'react-bootstrap';
-import { BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
+import { BsCalendarWeek, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import { CancelSessionConfirmDialog, SessionsCards, SessionStatusBadge } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import Link from 'next/link';
@@ -92,7 +92,7 @@ function AdminSeancesLayout() {
   ];
 
   return (
-    <ContentLayout title="Séances" breadcrumb={BREADCRUMB_SESSIONS}>
+    <ContentLayout title="Séances" icon={BsCalendarWeek} breadcrumb={BREADCRUMB_SESSIONS}>
 
 
       <h2 className="h5">Modèles de séances</h2>
