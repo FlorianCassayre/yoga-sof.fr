@@ -1,12 +1,4 @@
-import {
-  Inject,
-  LayerDirective,
-  LayersDirective,
-  MapsComponent,
-  Marker, MarkerDirective,
-  MarkersDirective,
-  Zoom,
-} from '@syncfusion/ej2-react-maps';
+import { Inject, LayerDirective, LayersDirective, MapsComponent, Marker, MarkerDirective, MarkersDirective, Zoom } from '@syncfusion/ej2-react-maps';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button, Col, Container, Row } from 'react-bootstrap';
@@ -17,7 +9,6 @@ const MAP_COORDINATES_HOME = { latitude: 47.576129, longitude: 7.514619 };
 const MAP_COORDINATES_COMETE = { latitude: 47.580615, longitude: 7.520265 };
 
 export function FooterLayout() {
-
   const [isMapToggled, setMapToggled] = useState(false);
   const [mapLocation, setMapLocation] = useState(null);
 
@@ -50,10 +41,14 @@ export function FooterLayout() {
             <FooterLink href="/cgv">Conditions générales de vente</FooterLink>*/}
           </Col>
           <Col xs={12} sm={6} lg={4} className="py-4 px-5 text-center text-md-end">
-            <strong>Yoga Sof</strong><br /><br />
-            Sophie Richaud-Cassayre<br />
-            <em>Enseignante de Yoga</em><br /><br />
-
+            <strong>Yoga Sof</strong>
+            <br />
+            <br />
+            Sophie Richaud-Cassayre
+            <br />
+            <em>Enseignante de Yoga</em>
+            <br />
+            <br />
             <div className="h3">
               <a href="https://www.facebook.com/Yoga-Sof-102478218061902" target="_blank" rel="noreferrer" className="footer-link">
                 <BsFacebook className="icon" />
@@ -62,7 +57,6 @@ export function FooterLayout() {
                 <BsEnvelopeFill className="icon" />
               </a>
             </div>
-
           </Col>
           <Col xs={12} sm={12} lg={4} className="py-4 px-5">
             {isMapToggled && mapLocation ? (
@@ -72,13 +66,17 @@ export function FooterLayout() {
                   <LayersDirective>
                     <LayerDirective layerType="OSM">
                       <MarkersDirective>
-                        <MarkerDirective visible={true} height={50} width={50} dataSource={[
-                          {
-                            ...mapLocation,
-                            name: 'Hésingue',
-                          },
-                        ]}>
-                        </MarkerDirective>
+                        <MarkerDirective
+                          visible={true}
+                          height={50}
+                          width={50}
+                          dataSource={[
+                            {
+                              ...mapLocation,
+                              name: 'Hésingue',
+                            },
+                          ]}
+                        ></MarkerDirective>
                       </MarkersDirective>
                     </LayerDirective>
                   </LayersDirective>
@@ -92,9 +90,7 @@ export function FooterLayout() {
               </>
             ) : isMapToggled ? (
               <div className="text-center" key={1}>
-                <div>
-                  Les séances ne se déroulent pas toutes au même endroit :
-                </div>
+                <div>Les séances ne se déroulent pas toutes au même endroit :</div>
                 <Button variant="secondary" onClick={() => setMapLocation(MAP_COORDINATES_HOME)} className="m-2">
                   <BsZoomIn className="icon me-2" />
                   Yoga adulte
@@ -112,7 +108,6 @@ export function FooterLayout() {
                 </Button>
               </div>
             )}
-
           </Col>
         </Row>
       </Container>

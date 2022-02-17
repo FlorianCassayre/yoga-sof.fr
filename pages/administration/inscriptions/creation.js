@@ -9,26 +9,24 @@ export default function AdminRegistrationCreate() {
   const router = useRouter();
   const { user_id, session_id } = router.query;
 
-  const userId = parseInt(user_id), sessionId = parseInt(session_id);
+  const userId = parseInt(user_id),
+    sessionId = parseInt(session_id);
 
   return (
     <PrivateLayout>
       <ContentLayout title="Inscription d'un utilisateur à une séance" icon={BsJournalText} breadcrumb={BREADCRUMB_REGISTRATIONS_CREATE}>
-
         <Alert variant="warning">
           <BsExclamationTriangleFill className="icon me-2" />
-          Attention, en principe les utilisateurs sont censés s'inscrire eux-mêmes aux séances.
-          En remplissant ce formulaire vous prenez la main sur le compte de l'utilisateur.
+          Attention, en principe les utilisateurs sont censés s'inscrire eux-mêmes aux séances. En remplissant ce formulaire vous prenez la main sur le compte de l'utilisateur.
         </Alert>
 
         <RegistrationCreateForm
-          redirect={obj => obj != null ? `/administration/seances/planning/${obj.session_id}` : '/administration/inscriptions'}
+          redirect={(obj) => (obj != null ? `/administration/seances/planning/${obj.session_id}` : '/administration/inscriptions')}
           initialValues={{
             user_id: isNaN(userId) ? undefined : userId,
             session_id: isNaN(sessionId) ? undefined : sessionId,
           }}
         />
-
       </ContentLayout>
     </PrivateLayout>
   );

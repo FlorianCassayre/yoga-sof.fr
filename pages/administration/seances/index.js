@@ -4,25 +4,18 @@ import { BsCalendarWeek, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import { CancelSessionConfirmDialog, SessionsCards, SessionStatusBadge } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import Link from 'next/link';
-import {
-  detailsColumnFor,
-  DynamicPaginatedTable,
-  renderSessionType,
-  renderTimePeriod,
-} from '../../../components/table';
+import { detailsColumnFor, DynamicPaginatedTable, renderSessionType, renderTimePeriod } from '../../../components/table';
 import { BREADCRUMB_SESSIONS } from '../../../lib/client';
 import { dateFormat } from '../../../lib/common';
 
 function AdminSeancesLayout() {
   const renderDate = ({ date_start: date }) => format(new Date(date), dateFormat);
 
-  const sessionColumns = hasPassed => [
-    detailsColumnFor(id => `/administration/seances/planning/${id}`),
+  const sessionColumns = (hasPassed) => [
+    detailsColumnFor((id) => `/administration/seances/planning/${id}`),
     {
       title: 'Statut',
-      render: session => (
-        <SessionStatusBadge session={session} />
-      ),
+      render: (session) => <SessionStatusBadge session={session} />,
       props: {
         className: 'text-center',
       },
@@ -41,7 +34,7 @@ function AdminSeancesLayout() {
     },
     {
       title: 'Prix',
-      render: ({ price }) => price > 0 ? `${price} €` : 'Gratuit',
+      render: ({ price }) => (price > 0 ? `${price} €` : 'Gratuit'),
     },
     {
       title: 'Inscriptions / Places disponibles',
@@ -62,7 +55,7 @@ function AdminSeancesLayout() {
     },
     {
       title: 'Modifier',
-      render: obj => (
+      render: (obj) => (
         <Link href={`/administration/seances/planning/${obj.id}/edition`} passHref>
           <Button size="sm">
             <BsPencil className="icon" />
@@ -73,34 +66,35 @@ function AdminSeancesLayout() {
         className: 'text-center',
       },
     },
-    ...(!hasPassed ? [{
-      title: 'Annuler',
-      render: obj => (
-        <CancelSessionConfirmDialog
-          session={obj}
-          triggerer={clickHandler => (
-            <Button size="sm" variant="danger" onClick={clickHandler}>
-              <BsXOctagon className="icon" />
-            </Button>
-          )}
-        />
-      ),
-      props: {
-        className: 'text-center',
-      },
-    }] : []),
+    ...(!hasPassed
+      ? [
+          {
+            title: 'Annuler',
+            render: (obj) => (
+              <CancelSessionConfirmDialog
+                session={obj}
+                triggerer={(clickHandler) => (
+                  <Button size="sm" variant="danger" onClick={clickHandler}>
+                    <BsXOctagon className="icon" />
+                  </Button>
+                )}
+              />
+            ),
+            props: {
+              className: 'text-center',
+            },
+          },
+        ]
+      : []),
   ];
 
   return (
     <ContentLayout title="Séances" icon={BsCalendarWeek} breadcrumb={BREADCRUMB_SESSIONS}>
-
-
       <h2 className="h5">Modèles de séances</h2>
 
       <p>
-        Il s'agit des horaires hebdomadaires de déroulement des séances qui seront affichées sur le site.
-        Ces modèles servent ensuite à efficacement planifier un lot de séances (ci-dessous).
-        Il reste possible de planifier des séances à d'autres dates et horaires que celles indiquées par les modèles.
+        Il s'agit des horaires hebdomadaires de déroulement des séances qui seront affichées sur le site. Ces modèles servent ensuite à efficacement planifier un lot de séances (ci-dessous). Il reste
+        possible de planifier des séances à d'autres dates et horaires que celles indiquées par les modèles.
       </p>
 
       <SessionsCards />
@@ -108,10 +102,8 @@ function AdminSeancesLayout() {
       <h2 className="h5">Planification et séances à venir</h2>
 
       <p>
-        Les utilisateurs ne peuvent seulement s'inscrire à des séances qui ont été planifiées.
-        Ce tableau contient la liste des séances passées, présentes et futures.
-        Le bouton permet de planifier de nouvelles séances.
-        Il n'est pas possible de supprimer de séances, en revanche il est possible d'en annuler.
+        Les utilisateurs ne peuvent seulement s'inscrire à des séances qui ont été planifiées. Ce tableau contient la liste des séances passées, présentes et futures. Le bouton permet de planifier de
+        nouvelles séances. Il n'est pas possible de supprimer de séances, en revanche il est possible d'en annuler.
       </p>
 
       <div className="text-center mb-4">
@@ -140,18 +132,12 @@ function AdminSeancesLayout() {
           }),
         })}
         columns={sessionColumns(false)}
-        renderEmpty={() => (
-          <>
-            Il n'y a pas de séances à venir pour le moment.
-          </>
-        )}
+        renderEmpty={() => <>Il n'y a pas de séances à venir pour le moment.</>}
       />
 
       <h2 className="h5">Séances passées et annulées</h2>
 
-      <p>
-        Les séances passées ou ayant été annulées.
-      </p>
+      <p>Les séances passées ou ayant été annulées.</p>
 
       <DynamicPaginatedTable
         url="/api/sessions"
@@ -172,24 +158,16 @@ function AdminSeancesLayout() {
           }),
         })}
         columns={sessionColumns(true)}
-        renderEmpty={() => (
-          <>
-            Il n'y a pas encore de séances passées ou annulées.
-          </>
-        )}
+        renderEmpty={() => <>Il n'y a pas encore de séances passées ou annulées.</>}
       />
-
     </ContentLayout>
   );
 }
 
 export default function AdminSeances() {
-
   return (
     <PrivateLayout>
-
       <AdminSeancesLayout />
-
     </PrivateLayout>
   );
 }

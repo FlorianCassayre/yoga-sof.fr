@@ -10,8 +10,8 @@ export const usePromiseCallback = (createPromise, dependencies) => {
     setStateInitiated();
 
     createPromise(...args)
-      .then(result => !didCancel && setStateSuccess(result))
-      .catch(error => !didCancel && setStateFailure(error));
+      .then((result) => !didCancel && setStateSuccess(result))
+      .catch((error) => !didCancel && setStateFailure(error));
 
     return () => {
       didCancel = true;

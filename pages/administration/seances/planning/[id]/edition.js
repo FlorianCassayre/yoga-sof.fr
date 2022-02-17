@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { BsCalendarEvent, } from 'react-icons/bs';
+import { BsCalendarEvent } from 'react-icons/bs';
 import { SessionForm } from '../../../../../components/form';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
 import { breadcrumbForSessionPlanningEdit } from '../../../../../lib/client';
@@ -10,14 +10,10 @@ export default function AdminSeancePlanningEdit() {
 
   return (
     <PrivateLayout>
-
-        <SessionForm
-          editRecordId={id}
-          container={({ data, ...props }) => (
-            <ContentLayout {...props} title="Modification d'une séance planifiée" icon={BsCalendarEvent} breadcrumb={data && breadcrumbForSessionPlanningEdit(data)} />
-          )}
-        />
-
+      <SessionForm
+        editRecordId={id}
+        container={({ data, ...props }) => <ContentLayout {...props} title="Modification d'une séance planifiée" icon={BsCalendarEvent} breadcrumb={data && breadcrumbForSessionPlanningEdit(data)} />}
+      />
     </PrivateLayout>
   );
 }

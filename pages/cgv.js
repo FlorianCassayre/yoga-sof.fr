@@ -4,9 +4,7 @@ import { PublicLayout } from '../components/layout/public';
 export default function CGV() {
   return (
     <PublicLayout padNavbar title="CGV">
-      <Container>
-        CGV
-      </Container>
+      <Container>CGV</Container>
     </PublicLayout>
   );
 }

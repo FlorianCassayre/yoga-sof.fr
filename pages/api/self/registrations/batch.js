@@ -7,7 +7,7 @@ export default async function handler(req, res) {
       permissions: ALL_USER_TYPES,
       schemaBody: schemaSelfRegistrationBatchBody,
       action: async (req, res, { reject, accept, userId, body: { sessions } }) => {
-        if(IS_REGISTRATION_DISABLED) {
+        if (IS_REGISTRATION_DISABLED) {
           reject('Bad Request: temporarily disabled');
           return;
         }
@@ -15,8 +15,10 @@ export default async function handler(req, res) {
         const now = new Date();
 
         try {
-          await prisma.$transaction(sessions.map(sessionId =>
-            prisma.$executeRaw`
+          await prisma.$transaction(
+            sessions.map(
+              (sessionId) =>
+                prisma.$executeRaw`
               INSERT INTO registrations (session_id, user_id) VALUES (
                 (SELECT id FROM sessions AS tmp1 WHERE
                   id = ${sessionId} AND
@@ -26,13 +28,15 @@ export default async function handler(req, res) {
                   (SELECT COUNT(*) FROM registrations AS tmp3 WHERE session_id = ${sessionId} AND NOT is_user_canceled) < slots),
                 ${userId}
             )
-          `));
+          `
+            )
+          );
 
           accept();
-        } catch(e) {
+        } catch (e) {
           reject('Bad Request');
         }
-      }
+      },
     },
   })(req, res);
 }

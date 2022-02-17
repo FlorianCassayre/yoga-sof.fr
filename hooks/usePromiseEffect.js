@@ -9,18 +9,18 @@ export const usePromiseEffect = (createPromise, dependencies) => {
   useEffect(() => {
     let didCancel = false;
 
-    if(createPromise == null) {
+    if (createPromise == null) {
       return;
     }
 
-    if(!isFirstUpdate.current) {
+    if (!isFirstUpdate.current) {
       isFirstUpdate.current = false;
       setStateInitiated();
     }
 
     createPromise()
-      .then(result => !didCancel && setStateSuccess(result))
-      .catch(error => !didCancel && setStateFailure(error));
+      .then((result) => !didCancel && setStateSuccess(result))
+      .catch((error) => !didCancel && setStateFailure(error));
 
     return () => {
       didCancel = true;

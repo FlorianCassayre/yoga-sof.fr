@@ -7,9 +7,7 @@ export function RefreshProvider({ children }) {
   const value = () => setKey(key + 1);
   return (
     <RefreshContext.Provider value={value}>
-      <Fragment key={key}>
-        {children}
-      </Fragment>
+      <Fragment key={key}>{children}</Fragment>
     </RefreshContext.Provider>
   );
 }

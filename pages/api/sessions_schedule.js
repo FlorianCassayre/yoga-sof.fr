@@ -31,7 +31,7 @@ export default async function handler(req, res) {
                 },
                 {
                   date_start: {
-                    gt: new Date,
+                    gt: new Date(),
                   },
                 },
               ],
@@ -43,7 +43,7 @@ export default async function handler(req, res) {
         // Follow https://github.com/prisma/prisma/issues/6570 for better alternative
 
         accept({ schedule: sessionModels, sessions: futureSessions.map(({ registrations, ...obj }) => ({ ...obj, registrations: registrations.length })) });
-      }
-    }
+      },
+    },
   })(req, res);
 }

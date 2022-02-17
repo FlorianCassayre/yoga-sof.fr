@@ -2,19 +2,12 @@ import { useSession, signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Container, Nav, Navbar, NavDropdown, Spinner } from 'react-bootstrap';
-import {
-  BsBoxArrowRight,
-  BsCalendarWeek,
-  BsPencilSquare,
-  BsPerson,
-  BsSpeedometer2,
-} from 'react-icons/bs';
+import { BsBoxArrowRight, BsCalendarWeek, BsPencilSquare, BsPerson, BsSpeedometer2 } from 'react-icons/bs';
 import { GrYoga } from 'react-icons/gr';
 import { IconYoga } from '../../icons';
 import { USER_TYPE_ADMIN } from '../../../lib/common';
 
 export function NavigationLayout() {
-
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const sessionLoading = sessionStatus === 'loading';
@@ -22,10 +15,10 @@ export function NavigationLayout() {
   const { pathname } = router;
 
   const handleSignOut = () => {
-    signOut({ redirect: false, callbackUrl: '/' }).then(data => router.push(data.url));
+    signOut({ redirect: false, callbackUrl: '/' }).then((data) => router.push(data.url));
   };
 
-  const propsForPathname = pathnameOther => pathnameOther === pathname ? { active: true, className: 'navbar-page-active' } : {};
+  const propsForPathname = (pathnameOther) => (pathnameOther === pathname ? { active: true, className: 'navbar-page-active' } : {});
 
   const NavLink = ({ pathname: pathnameOther, children }) => (
     <Link href={pathnameOther} passHref>
@@ -42,36 +35,34 @@ export function NavigationLayout() {
             Yoga Sof
           </Navbar.Brand>
         </Link>
-        <Navbar.Toggle aria-controls="responsive-navbar-nav" as={props => (
-          <button type="button" style={{ border: 'none' }} {...props}>
-            <span className="navbar-toggler-icon" />
-          </button>
-        )} />
+        <Navbar.Toggle
+          aria-controls="responsive-navbar-nav"
+          as={(props) => (
+            <button type="button" style={{ border: 'none' }} {...props}>
+              <span className="navbar-toggler-icon" />
+            </button>
+          )}
+        />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto text-center">
-            <NavLink pathname="/">
-              Accueil
-            </NavLink>
-            <NavLink pathname="/yoga">
-              Le Yoga
-            </NavLink>
-            <NavLink pathname="/seances">
-              Les séances
-            </NavLink>
-            <NavLink pathname="/a-propos">
-              À propos
-            </NavLink>
+            <NavLink pathname="/">Accueil</NavLink>
+            <NavLink pathname="/yoga">Le Yoga</NavLink>
+            <NavLink pathname="/seances">Les séances</NavLink>
+            <NavLink pathname="/a-propos">À propos</NavLink>
           </Nav>
           <Nav className="text-center">
             {sessionLoading ? (
               <Spinner animation="border" />
             ) : session ? (
-              <NavDropdown title={(
-                <>
-                  <BsPerson className="icon me-2" />
-                  {session.user.name}
-                </>
-              )} id="nav-dropdown">
+              <NavDropdown
+                title={
+                  <>
+                    <BsPerson className="icon me-2" />
+                    {session.user.name}
+                  </>
+                }
+                id="nav-dropdown"
+              >
                 {session.userType === USER_TYPE_ADMIN && (
                   <>
                     <Link href="/administration" passHref>
@@ -102,11 +93,8 @@ export function NavigationLayout() {
                 </NavDropdown.Item>
               </NavDropdown>
             ) : (
-              <NavLink pathname="/connexion">
-                Connexion
-              </NavLink>
+              <NavLink pathname="/connexion">Connexion</NavLink>
             )}
-
           </Nav>
         </Navbar.Collapse>
       </Container>

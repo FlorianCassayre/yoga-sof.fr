@@ -13,40 +13,38 @@ import { FloatingInputField, SwitchField } from './fields';
 export function UserSelfForm() {
   const { notify } = useNotificationsContext();
 
-  const [{ isLoading: isSubmitLoading, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatcher] =
-    usePromiseCallback(postSelfUser, []);
-  const { isLoading: isInitialDataLoading, isError: isInitialDataError, data: initialData, error: initialDataError } =
-    usePromiseEffect(getSelfUser, []);
+  const [{ isLoading: isSubmitLoading, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatcher] = usePromiseCallback(postSelfUser, []);
+  const { isLoading: isInitialDataLoading, isError: isInitialDataError, data: initialData, error: initialDataError } = usePromiseEffect(getSelfUser, []);
   const [actualInitialData, setActualData] = useState(null);
   useEffect(() => {
-    if(initialData) {
+    if (initialData) {
       setActualData(initialData);
     }
   }, [initialData]);
   useEffect(() => {
-    if(submitResult && !isSubmitError) {
+    if (submitResult && !isSubmitError) {
       setActualData(submitResult);
     }
   }, [submitResult, isSubmitError, initialData]);
 
   const reloadSession = () => {
     // https://stackoverflow.com/a/70405437
-    const event = new Event("visibilitychange");
+    const event = new Event('visibilitychange');
     document.dispatchEvent(event);
   };
 
   useEffect(() => {
-    if(submitResult) {
+    if (submitResult) {
       notify({
         title: 'Modifications enregistrées',
         body: 'Vos informations personnelles ont été mises à jour.',
-      })
+      });
 
       reloadSession();
     }
-  }, [submitResult]);
+  }, [submitResult, notify]);
 
-  const onSubmit = data => {
+  const onSubmit = (data) => {
     const finalData = { ...data, email: data.email ? data.email : null };
 
     submitDispatcher(finalData);
@@ -60,15 +58,13 @@ export function UserSelfForm() {
 
   const renderForm = ({ handleSubmit, errors }) => (
     <Form onSubmit={handleSubmit}>
-      {isSubmitError && (
-        <ErrorMessage />
-      )}
+      {isSubmitError && <ErrorMessage />}
       <Row>
         <Col xs={12} md={6} xl={3} className="mb-2 mb-xl-0">
           <FloatingInputField name="name" label="Nom" placeholder="Nom" required fieldProps={{ disabled: isSubmitLoading }} />
         </Col>
         <Col xs={12} md={6} xl={3} className="mb-2 mb-xl-0">
-          <FloatingInputField name="email" label="Adresse email" placeholder="Adresse email" type="email" parse={v => v ? v : null} fieldProps={{ disabled: isSubmitLoading }} />
+          <FloatingInputField name="email" label="Adresse email" placeholder="Adresse email" type="email" parse={(v) => (v ? v : null)} fieldProps={{ disabled: isSubmitLoading }} />
         </Col>
         <Col xs={12} md={6} xl={3} className="mb-3 my-xl-auto">
           <SwitchField name="receive_emails" label="Recevoir les notifications par email" fieldProps={{ disabled: isSubmitLoading }} />
@@ -84,11 +80,8 @@ export function UserSelfForm() {
   );
 
   return !isInitialDataLoading && actualInitialData ? (
-    <FinalForm
-      onSubmit={onSubmit}
-      initialValues={actualInitialData}
-      validate={values => joiValidator(values, schemaSelfUserBody)}
-      render={renderForm}
-    />
-  ) : renderLoader();
+    <FinalForm onSubmit={onSubmit} initialValues={actualInitialData} validate={(values) => joiValidator(values, schemaSelfUserBody)} render={renderForm} />
+  ) : (
+    renderLoader()
+  );
 }

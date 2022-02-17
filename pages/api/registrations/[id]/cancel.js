@@ -26,7 +26,7 @@ export default async function handler(req, res) {
           },
         });
 
-        if(result.count === 1) {
+        if (result.count === 1) {
           accept({});
         } else {
           reject('Bad Request', 400);

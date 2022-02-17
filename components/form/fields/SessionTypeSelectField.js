@@ -12,10 +12,11 @@ export function SessionTypeSelectField({ name, fieldProps = {}, ...props }) {
           <Form.Select {...input} required {...fieldProps}>
             <option value={null} disabled />
             {SESSIONS_TYPES.map(({ id, title }) => (
-              <option key={id} value={id}>{title}</option>
+              <option key={id} value={id}>
+                {title}
+              </option>
             ))}
           </Form.Select>
-
         )}
       />
     </Form.Group>

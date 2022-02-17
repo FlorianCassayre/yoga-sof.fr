@@ -1,6 +1,6 @@
-import NextAuth from "next-auth"
-import GoogleProvider from "next-auth/providers/google";
-import FacebookProvider from "next-auth/providers/facebook";
+import NextAuth from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
+import FacebookProvider from 'next-auth/providers/facebook';
 import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../../../lib/common';
 import { prisma } from '../../../lib/server';
 
@@ -64,7 +64,10 @@ export default NextAuth({
       session.user.provider = token.provider;
       session.user.id_provider = token.id_provider;
 
-      const { id, user: { public_access_token, user_linked_accounts: linkedAccounts, name: displayName } } = await prisma.user_linked_account.upsert({
+      const {
+        id,
+        user: { public_access_token, user_linked_accounts: linkedAccounts, name: displayName },
+      } = await prisma.user_linked_account.upsert({
         where: {
           id_provider_provider: {
             id_provider: token.id_provider,
@@ -82,7 +85,8 @@ export default NextAuth({
           provider: token.provider,
           name: session.user.name,
           user: {
-            create: { // Nested create
+            create: {
+              // Nested create
               email: email,
               name: session.user.name,
             },
@@ -101,18 +105,21 @@ export default NextAuth({
               name: true,
             },
           },
-        }
+        },
       });
 
-      const userVerifiedEmails = linkedAccounts.map(({ email }) => email).filter(email => email);
-      const whiteListedEmails = (await prisma.admins.findMany( // Not atomic, but doesn't matter
-        {
-          select: {
-            email: true,
-          },
-        }
-      )).map(({ email }) => email);
-      const isAdmin = whiteListedEmails.some(email => userVerifiedEmails.includes(email));
+      const userVerifiedEmails = linkedAccounts.map(({ email }) => email).filter((email) => email);
+      const whiteListedEmails = (
+        await prisma.admins.findMany(
+          // Not atomic, but doesn't matter
+          {
+            select: {
+              email: true,
+            },
+          }
+        )
+      ).map(({ email }) => email);
+      const isAdmin = whiteListedEmails.some((email) => userVerifiedEmails.includes(email));
 
       session.userType = isAdmin ? USER_TYPE_ADMIN : USER_TYPE_REGULAR;
 

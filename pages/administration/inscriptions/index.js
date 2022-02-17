@@ -2,22 +2,14 @@ import Link from 'next/link';
 import { Badge, Button } from 'react-bootstrap';
 import { BsJournalText, BsPlusLg } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import {
-  cancelRegistrationColumn,
-  DynamicPaginatedTable,
-  plannedSessionLinkColumn, renderDatetime,
-  userLinkColumn,
-} from '../../../components/table';
+import { cancelRegistrationColumn, DynamicPaginatedTable, plannedSessionLinkColumn, renderDatetime, userLinkColumn } from '../../../components/table';
 import { BREADCRUMB_REGISTRATIONS } from '../../../lib/client';
 import { formatTimestamp } from '../../../lib/common';
 
 function AdminRegistrationsLayout() {
   return (
     <ContentLayout title="Inscriptions" icon={BsJournalText} breadcrumb={BREADCRUMB_REGISTRATIONS}>
-
-      <p>
-        Liste des inscriptions passées et futures à des séances programmées.
-      </p>
+      <p>Liste des inscriptions passées et futures à des séances programmées.</p>
 
       <DynamicPaginatedTable
         url="/api/registrations"
@@ -33,19 +25,15 @@ function AdminRegistrationsLayout() {
           userLinkColumn,
           plannedSessionLinkColumn,
           {
-            title: 'Date d\'inscription',
+            title: "Date d'inscription",
             render: ({ created_at }) => renderDatetime(created_at),
           },
           {
             title: 'Statut',
-            render: ({ is_user_canceled, canceled_at }) => !is_user_canceled ? (
-              <Badge bg="success">Inscrit</Badge>
-            ) : (
-              <Badge bg="danger">Annulé à {formatTimestamp(canceled_at)}</Badge>
-            ),
+            render: ({ is_user_canceled, canceled_at }) => (!is_user_canceled ? <Badge bg="success">Inscrit</Badge> : <Badge bg="danger">Annulé à {formatTimestamp(canceled_at)}</Badge>),
             props: {
-              className: 'text-center'
-            }
+              className: 'text-center',
+            },
           },
           cancelRegistrationColumn,
         ]}
@@ -60,18 +48,14 @@ function AdminRegistrationsLayout() {
           </Button>
         </Link>
       </div>
-
     </ContentLayout>
   );
 }
 
 export default function AdminRegistrations() {
-
   return (
     <PrivateLayout title="Inscriptions" breadcrumb={BREADCRUMB_REGISTRATIONS}>
-
       <AdminRegistrationsLayout />
-
     </PrivateLayout>
   );
 }

@@ -15,7 +15,7 @@ export function CancelSessionConfirmDialog({ session, triggerer }) {
   return (
     <ConfirmDialog
       title="Annuler la séance"
-      description={(
+      description={
         <>
           Souhaitez-vous réellement annuler cette séance ?
           <ul>
@@ -24,15 +24,9 @@ export function CancelSessionConfirmDialog({ session, triggerer }) {
           Les éventuelles personnes qui s'y sont inscrites seront notifiées.
           <br />
           Vous pouvez optionnellement indiquer un motif (qui sera également transmis aux personnes inscrites) :
-          <Form.Control
-            as="textarea"
-            placeholder="Motif..."
-            style={{ height: '100px' }}
-            value={reason}
-            onChange={e => setReason(e.target.value)}
-          />
+          <Form.Control as="textarea" placeholder="Motif..." style={{ height: '100px' }} value={reason} onChange={(e) => setReason(e.target.value)} />
         </>
-      )}
+      }
       variant="danger"
       icon={BsXOctagon}
       action="Annuler la séance"

@@ -11,7 +11,7 @@ export function SessionsCards({ readonly }) {
   const { isLoading, isError, data, error } = usePromiseEffect(getSessionModels, []);
 
   const compareModels = ({ weekday: d1, time_start: t1 }, { weekday: d2, time_start: t2 }) => {
-    if(d1 !== d2) {
+    if (d1 !== d2) {
       return d1 - d2;
     } else {
       return parsedTimeToMinutes(parseTime(t1)) - parsedTimeToMinutes(parseTime(t2));
@@ -20,8 +20,8 @@ export function SessionsCards({ readonly }) {
 
   return (
     <Row>
-      {!isError ? (!isLoading ?
-        (
+      {!isError ? (
+        !isLoading ? (
           <>
             {data.sort(compareModels).map(({ id, type, weekday, time_start: timeStart, time_end: timeEnd, slots, price }) => (
               <Col key={id} xs={12} lg={4} className="mb-4">
@@ -32,7 +32,10 @@ export function SessionsCards({ readonly }) {
                       {SESSIONS_TYPES.filter(({ id }) => type === id)[0].title}
                     </Card.Title>
                     <Card.Subtitle className="mb-2 text-muted">
-                      Le <strong>{WEEKDAYS[weekday].toLowerCase()}</strong> de <strong>{formatTime(timeStart)} à {formatTime(timeEnd)}</strong>
+                      Le <strong>{WEEKDAYS[weekday].toLowerCase()}</strong> de{' '}
+                      <strong>
+                        {formatTime(timeStart)} à {formatTime(timeEnd)}
+                      </strong>
                     </Card.Subtitle>
                     <Card.Subtitle className="mb-2 text-muted">
                       <strong>{slots}</strong> places
@@ -42,22 +45,22 @@ export function SessionsCards({ readonly }) {
                         <>
                           <strong>{price} €</strong> par personne
                         </>
-                        ) : (
+                      ) : (
                         <strong>Gratuit</strong>
-                        )}
+                      )}
                     </Card.Subtitle>
                     {/*<Card.Text>
 
                     </Card.Text>*/}
                     {!readonly && (
                       <span className="d-block text-end">
-                      <Link href={`/administration/seances/modeles/${id}/edition`} passHref>
-                        <Button size="sm">
-                          <BsPencil className="icon me-2" />
-                          Modifier
-                        </Button>
-                      </Link>
-                    </span>
+                        <Link href={`/administration/seances/modeles/${id}/edition`} passHref>
+                          <Button size="sm">
+                            <BsPencil className="icon me-2" />
+                            Modifier
+                          </Button>
+                        </Link>
+                      </span>
                     )}
                   </Card.Body>
                 </Card>
@@ -68,9 +71,9 @@ export function SessionsCards({ readonly }) {
               <Col xs={12} lg={4} className="mb-4">
                 <Card className="py-3 text-center">
                   <Card.Text>
-                      <span className="d-block h1 mb-3">
-                        <BsCalendar className="icon" />
-                      </span>
+                    <span className="d-block h1 mb-3">
+                      <BsCalendar className="icon" />
+                    </span>
                     <Link href="/administration/seances/modeles/creation" passHref>
                       <Button variant="success">
                         <BsPlusLg className="icon me-2" />
@@ -86,7 +89,8 @@ export function SessionsCards({ readonly }) {
           <Col className="d-flex justify-content-center py-5">
             <Spinner animation="border" />
           </Col>
-        )) : (
+        )
+      ) : (
         <ErrorMessage error={error} />
       )}
     </Row>

@@ -14,15 +14,15 @@ const handler = NextCrud({
 
     const session = await getSession({ req });
 
-    if(!isPermitted(resourceName, resourceId, routeType, session?.userType)) {
-      if(session) {
-        throw new HttpError(403, 'you don\'t have the required rights to perform this action');
+    if (!isPermitted(resourceName, resourceId, routeType, session?.userType)) {
+      if (session) {
+        throw new HttpError(403, "you don't have the required rights to perform this action");
       } else {
         throw new HttpError(401, 'you must be logged in to perform this action');
       }
     }
 
-    if(routeType === RouteType.CREATE || routeType === RouteType.UPDATE) {
+    if (routeType === RouteType.CREATE || routeType === RouteType.UPDATE) {
       validateData(resourceName, routeType, req.body);
     }
 
@@ -30,7 +30,7 @@ const handler = NextCrud({
   },
   // TODO
   onError: (req, res, error) => {
-    if(error instanceof HttpError) {
+    if (error instanceof HttpError) {
       res.status(error.statusCode).json({ error: error.message });
     } else {
       res.status(500).json({ status: error.statusCode, error: error.message });

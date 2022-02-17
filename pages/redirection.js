@@ -13,20 +13,20 @@ export default function Redirection() {
     //  router.push(router.pathname);
     //}
 
-    if(!loading) {
-      if(status === 'unauthenticated') {
+    if (!loading) {
+      if (status === 'unauthenticated') {
         router.push('/connexion');
       } else {
-        if(session.userType === USER_TYPE_REGULAR) {
+        if (session.userType === USER_TYPE_REGULAR) {
           router.push('/inscription');
-        } else if(session.userType === USER_TYPE_ADMIN) {
+        } else if (session.userType === USER_TYPE_ADMIN) {
           router.push('/administration');
         } else {
           throw new Error();
         }
       }
     }
-  }, [session, loading]);
+  }, [router, status, session, loading]);
 
   return null; // Nothing to display in any case
 }

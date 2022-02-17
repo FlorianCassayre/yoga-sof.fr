@@ -19,7 +19,7 @@ export default async function handler(req, res) {
               },
             }));
 
-            if(existsRegistration) {
+            if (existsRegistration) {
               throw new Error('user is already registered');
             }
 
@@ -27,16 +27,16 @@ export default async function handler(req, res) {
               data: {
                 session_id: sessionId,
                 user_id: userId,
-              }
+              },
             });
           });
 
           accept(result);
-        } catch(error) {
+        } catch (error) {
           console.log(error);
           reject('Bad Request: illegal', 400);
         }
       },
-    }
+    },
   })(req, res);
 }

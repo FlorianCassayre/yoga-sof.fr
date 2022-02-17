@@ -10,14 +10,10 @@ export default function AdminSeance() {
 
   return (
     <PrivateLayout>
-
-        <SessionModelForm
-          editRecordId={id}
-          container={({ data, ...props }) => (
-            <ContentLayout {...props} title="Modification d'un modèle de séance" icon={BsCalendar} breadcrumb={data && breadcrumbForSessionModelEdit(data)} />
-          )}
-        />
-
+      <SessionModelForm
+        editRecordId={id}
+        container={({ data, ...props }) => <ContentLayout {...props} title="Modification d'un modèle de séance" icon={BsCalendar} breadcrumb={data && breadcrumbForSessionModelEdit(data)} />}
+      />
     </PrivateLayout>
   );
 }

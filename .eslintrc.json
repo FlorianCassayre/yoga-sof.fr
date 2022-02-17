@@ -1,0 +1,8 @@
+{
+  "extends": ["next/core-web-vitals", "airbnb", "prettier"],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": ["error"],
+    "react/no-unescaped-entities": ["error", {"forbid": [">", "}"]}]
+  }
+}

@@ -9,7 +9,6 @@ import { dateFormat } from '../../lib/common';
 function AdminHomeLayout() {
   return (
     <ContentLayout title="Aperçu" icon={BsKanban} breadcrumb={BREADCRUMB_OVERVIEW}>
-
       <h2 className="h5">Planning</h2>
 
       <SessionsCards readonly />
@@ -33,7 +32,7 @@ function AdminHomeLayout() {
           }),
         })}
         columns={[
-          detailsColumnFor(id => `/administration/seances/planning/${id}`),
+          detailsColumnFor((id) => `/administration/seances/planning/${id}`),
           {
             title: 'Date',
             render: ({ date_start: date }) => format(new Date(date), dateFormat),
@@ -66,7 +65,6 @@ function AdminHomeLayout() {
         ]}
         renderEmpty={() => `Aucune séance planifiée à venir.`}
       />
-
     </ContentLayout>
   );
 }
@@ -74,9 +72,7 @@ function AdminHomeLayout() {
 export default function AdminHome() {
   return (
     <PrivateLayout>
-
       <AdminHomeLayout />
-
     </PrivateLayout>
-  )
+  );
 }

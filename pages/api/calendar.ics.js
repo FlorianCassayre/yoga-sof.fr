@@ -4,20 +4,14 @@ import { apiHandler } from '../../lib/server';
 import { prisma } from '../../lib/server';
 import { createEvents } from 'ics';
 
-const generateICS = registrations => {
-  const timestampToDateArray = ts => {
+const generateICS = (registrations) => {
+  const timestampToDateArray = (ts) => {
     const date = new Date(ts);
-    return [
-      date.getFullYear(),
-      date.getMonth() + 1,
-      date.getDay(),
-      date.getHours(),
-      date.getMinutes(),
-    ];
+    return [date.getFullYear(), date.getMonth() + 1, date.getDay(), date.getHours(), date.getMinutes()];
   };
 
-  const { error, value } = createEvents(registrations.map(
-    ({ session: { type, date_start: dateStart, date_end: dateEnd } }) => ({
+  const { error, value } = createEvents(
+    registrations.map(({ session: { type, date_start: dateStart, date_end: dateEnd } }) => ({
       title: SESSIONS_TYPES.filter(({ id }) => id === type)[0].title,
       start: timestampToDateArray(dateStart),
       end: timestampToDateArray(dateEnd),
@@ -26,10 +20,10 @@ const generateICS = registrations => {
         name: 'Sophie Richaud-Cassayre',
       },
       // TODO many more fields to be explored
-    }),
-  ));
+    }))
+  );
 
-  if(error) {
+  if (error) {
     throw error;
   } else {
     return value;
@@ -48,10 +42,9 @@ export default async function handler(req, res) {
           },
         }));
 
-        if(!userExists) {
+        if (!userExists) {
           reject('Not Found: no calendar available for the given parameters', 404);
         } else {
-
           // For now we return all (non cancelled) events, however if this starts to get large we can trim it
 
           const registeredSessions = await prisma.registrations.findMany({
@@ -64,7 +57,7 @@ export default async function handler(req, res) {
             },
             include: {
               session: true,
-            }
+            },
           });
 
           const icsDataString = generateICS(registeredSessions);

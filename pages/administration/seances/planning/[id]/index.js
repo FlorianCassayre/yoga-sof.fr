@@ -5,13 +5,7 @@ import { BsCalendarEvent, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs'
 import Link from 'next/link';
 import { CancelSessionConfirmDialog, SessionStatusBadge } from '../../../../../components';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
-import {
-  adaptColumn, cancelRegistrationColumn,
-  renderDatetime,
-  renderSessionName,
-  StaticPaginatedTable,
-  userLinkColumn,
-} from '../../../../../components/table';
+import { adaptColumn, cancelRegistrationColumn, renderDatetime, renderSessionName, StaticPaginatedTable, userLinkColumn } from '../../../../../components/table';
 import { usePromiseEffect } from '../../../../../hooks';
 import { breadcrumbForSessionPlanning } from '../../../../../lib/client';
 import { getSession } from '../../../../../lib/client/api';
@@ -35,12 +29,14 @@ function SessionViewLayout({ id }) {
 
   return (
     <ContentLayout
-      title={data && (
-        <>
-          {renderSessionName(data)}
-          <SessionStatusBadge session={data} className="ms-2" />
-        </>
-      )}
+      title={
+        data && (
+          <>
+            {renderSessionName(data)}
+            <SessionStatusBadge session={data} className="ms-2" />
+          </>
+        )
+      }
       icon={BsCalendarEvent}
       headTitle={data && renderSessionName(data)}
       breadcrumb={data && breadcrumbForSessionPlanning(data)}
@@ -58,7 +54,7 @@ function SessionViewLayout({ id }) {
         {isFuture && (
           <CancelSessionConfirmDialog
             session={data}
-            triggerer={clickHandler => (
+            triggerer={(clickHandler) => (
               <Button variant="danger" onClick={clickHandler}>
                 <BsXOctagon className="icon me-2" />
                 Annuler cette séance
@@ -70,42 +66,30 @@ function SessionViewLayout({ id }) {
 
       {data && data.cancelation_reason && (
         <>
-          <h2 className="h5">
-            Motif de l'annulation
-          </h2>
-          <p>
-            {data.cancelation_reason}
-          </p>
+          <h2 className="h5">Motif de l'annulation</h2>
+          <p>{data.cancelation_reason}</p>
         </>
       )}
 
       {data && data.notes && (
         <>
-          <h2 className="h5">
-            Notes
-          </h2>
-          <p>
-            {data.notes}
-          </p>
+          <h2 className="h5">Notes</h2>
+          <p>{data.notes}</p>
         </>
       )}
 
       <h2 className="h5">
         Participants
-        <Badge bg="secondary" className="ms-2">{data && notCanceledRegistrations.length} / {data && data.slots}</Badge>
+        <Badge bg="secondary" className="ms-2">
+          {data && notCanceledRegistrations.length} / {data && data.slots}
+        </Badge>
       </h2>
 
-      <p>
-        Liste des utilisateurs inscrits à cette séance et n'ayant pas annulé.
-      </p>
+      <p>Liste des utilisateurs inscrits à cette séance et n'ayant pas annulé.</p>
 
       <StaticPaginatedTable
         rows={data && notCanceledRegistrations}
-        columns={[
-          userLinkColumn,
-          registrationDateColumn,
-          adaptColumn(registration => ({ ...registration, session: data }))(cancelRegistrationColumn),
-        ]}
+        columns={[userLinkColumn, registrationDateColumn, adaptColumn((registration) => ({ ...registration, session: data }))(cancelRegistrationColumn)]}
         renderEmpty={() => `Personne ne participe pour le moment.`}
       />
 
@@ -146,9 +130,7 @@ export default function SessionView() {
 
   return (
     <PrivateLayout>
-
       <SessionViewLayout id={id} />
-
     </PrivateLayout>
   );
 }

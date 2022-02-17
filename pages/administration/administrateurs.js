@@ -12,22 +12,20 @@ function AdminAdminsLayout() {
 
   return (
     <ContentLayout title="Administrateurs" icon={BsShieldLock} count={total} breadcrumb={BREADCRUMB_ADMINS}>
-
-      <p>
-        Liste blanche des adresses emails autorisées à se connecter en tant qu'administrateur.
-        Pour des raisons de sécurité, cette liste n'est pas directement modifiable depuis l'interface.
-      </p>
+      <p>Liste blanche des adresses emails autorisées à se connecter en tant qu'administrateur. Pour des raisons de sécurité, cette liste n'est pas directement modifiable depuis l'interface.</p>
 
       <DynamicPaginatedTable
         url="/api/admins"
-        totalFrom={rows => rows.length}
-        rowsFrom={rows => rows}
+        totalFrom={(rows) => rows.length}
+        rowsFrom={(rows) => rows}
         paginationFrom={null}
-        columns={[{
-          title: 'Adresse e-mail',
-          render: ({ email }) => renderEmailCompare(sessionEmail)(email),
-        }]}
-        totalCallback={total => setTotal(total)}
+        columns={[
+          {
+            title: 'Adresse e-mail',
+            render: ({ email }) => renderEmailCompare(sessionEmail)(email),
+          },
+        ]}
+        totalCallback={(total) => setTotal(total)}
       />
     </ContentLayout>
   );
@@ -36,9 +34,7 @@ function AdminAdminsLayout() {
 export default function AdminAdmins() {
   return (
     <PrivateLayout>
-
       <AdminAdminsLayout />
-
     </PrivateLayout>
   );
 }

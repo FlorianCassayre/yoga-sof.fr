@@ -16,7 +16,7 @@ export default async function handler(req, res) {
             is_canceled: false,
             date_start: {
               gt: new Date(),
-            }
+            },
           },
           data: {
             is_canceled: true,
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
           },
         });
 
-        if(result.count === 1) {
+        if (result.count === 1) {
           // Note: updateMany does not support select
 
           const session = await prisma.sessions.findUnique({
@@ -35,9 +35,9 @@ export default async function handler(req, res) {
               registrations: {
                 include: {
                   user: true,
-                }
-              }
-            }
+                },
+              },
+            },
           });
 
           await notifySessionCanceled(session);
@@ -47,6 +47,6 @@ export default async function handler(req, res) {
           reject('Bad request: impossible to cancel this session', 400);
         }
       },
-    }
+    },
   })(req, res);
 }
