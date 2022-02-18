@@ -5,11 +5,7 @@ import { getUsers } from '../../../lib/client/api';
 import { ErrorMessage } from '../../ErrorMessage';
 
 export function UserSelectField({ name, fieldProps = {}, disabled, ...props }) {
-  const { isLoading, isError, data, error } = usePromiseEffect(() =>
-    getUsers({
-      select: ['id', 'name'],
-    })
-  );
+  const { isLoading, isError, data, error } = usePromiseEffect(() => getUsers({ select: ['id', 'name'] }));
 
   return (
     <Form.Group {...props}>
@@ -21,9 +17,9 @@ export function UserSelectField({ name, fieldProps = {}, disabled, ...props }) {
         render={({ input }) => (
           <Form.Select {...input} required disabled={isLoading || isError || disabled} {...fieldProps}>
             <option value={null} disabled />
-            {!isLoading &&
-              !isError &&
-              data.map(({ id, name }) => (
+            {!isLoading
+              && !isError
+              && data.map(({ id, name }) => (
                 <option key={id} value={id}>
                   {name}
                 </option>

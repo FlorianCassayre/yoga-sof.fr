@@ -1,7 +1,5 @@
-import { USER_TYPE_ADMIN } from '../../../../lib/common';
-import { schemaRegistrationCancelQuery } from '../../../../lib/common';
-import { apiHandler } from '../../../../lib/server';
-import { prisma } from '../../../../lib/server';
+import { USER_TYPE_ADMIN, schemaRegistrationCancelQuery } from '../../../../lib/common';
+import { apiHandler, prisma } from '../../../../lib/server';
 
 export default async function handler(req, res) {
   await apiHandler({
@@ -14,9 +12,7 @@ export default async function handler(req, res) {
             id: registrationId,
             is_user_canceled: false,
             session: {
-              date_start: {
-                gt: new Date(),
-              },
+              date_start: { gt: new Date() },
               is_canceled: false,
             },
           },

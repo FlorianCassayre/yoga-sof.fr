@@ -4,7 +4,7 @@ import { CreateEditForm } from './CreateEditForm';
 
 export function SessionForm({ editRecordId, container }) {
   return (
-    <CreateEditForm modelId="sessions" redirect={() => `/administration/seances`} editRecordId={editRecordId} container={container}>
+    <CreateEditForm modelId="sessions" redirect={() => '/administration/seances'} editRecordId={editRecordId} container={container}>
       <Field
         name="notes"
         render={({ input }) => (

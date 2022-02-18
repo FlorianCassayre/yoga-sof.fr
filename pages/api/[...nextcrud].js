@@ -4,9 +4,7 @@ import { isPermitted } from '../../lib/client';
 import { prisma, validateData } from '../../lib/server';
 
 const handler = NextCrud({
-  adapter: new PrismaAdapter({
-    prismaClient: prisma,
-  }),
+  adapter: new PrismaAdapter({ prismaClient: prisma }),
   onRequest: async (req, _res, { resourceName, routeType, resourceId }) => {
     if (req.method === 'PATCH') {
       throw new HttpError(405, 'use PUT instead'); // Dirty but necessary to prevent validation bypassing

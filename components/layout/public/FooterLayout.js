@@ -17,13 +17,15 @@ export function FooterLayout() {
     window.open(url, '_blank').focus();
   };
 
-  const FooterLink = ({ href, children }) => (
-    <div>
-      <Link href={href} passHref>
-        <a className="link-light">{children}</a>
-      </Link>
-    </div>
-  );
+  function FooterLink({ href, children }) {
+    return (
+      <div>
+        <Link href={href} passHref>
+          <a className="link-light">{children}</a>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <footer className="mt-auto" style={{ backgroundColor: '#323232', zIndex: 10 }}>
@@ -36,9 +38,9 @@ export function FooterLayout() {
             <FooterLink href="/inscription">Inscription</FooterLink>
             <FooterLink href="/a-propos">À propos</FooterLink>
             <FooterLink href="/reglement-interieur">Règlement intérieur</FooterLink>
-            {/*<FooterLink href="#">Contact</FooterLink>*/}
-            {/*<FooterLink href="/cgu">Conditions générales d'utilisation</FooterLink>
-            <FooterLink href="/cgv">Conditions générales de vente</FooterLink>*/}
+            {/* <FooterLink href="#">Contact</FooterLink> */}
+            {/* <FooterLink href="/cgu">Conditions générales d'utilisation</FooterLink>
+            <FooterLink href="/cgv">Conditions générales de vente</FooterLink> */}
           </Col>
           <Col xs={12} sm={6} lg={4} className="py-4 px-5 text-center text-md-end">
             <strong>Yoga Sof</strong>
@@ -67,7 +69,7 @@ export function FooterLayout() {
                     <LayerDirective layerType="OSM">
                       <MarkersDirective>
                         <MarkerDirective
-                          visible={true}
+                          visible
                           height={50}
                           width={50}
                           dataSource={[
@@ -76,7 +78,7 @@ export function FooterLayout() {
                               name: 'Hésingue',
                             },
                           ]}
-                        ></MarkerDirective>
+                        />
                       </MarkersDirective>
                     </LayerDirective>
                   </LayersDirective>

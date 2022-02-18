@@ -8,7 +8,7 @@ export const practicalInformationsAdult = {
   level: 'Tous',
   group: '4 personnes',
   duration: '1h15',
-  place: `À mon domicile au 8 rue des moissonneurs à Hésingue. Je peux également venir chez vous si vous constituez un petit groupe, n'hésitez pas à me contacter pour cela.`,
+  place: 'À mon domicile au 8 rue des moissonneurs à Hésingue. Je peux également venir chez vous si vous constituez un petit groupe, n\'hésitez pas à me contacter pour cela.',
   material: 'Tapis de Yoga et une couverture, portez une tenue confortable. Vous pourrez emprunter sur place des blocs, sangles, coussins, balles et ballons.',
   image2: '/images/bras-ocean.jpg',
   program: (
@@ -37,8 +37,8 @@ export const practicalInformationsChildren = {
   duration: '1h',
   dates: 'Une fois par semaine sauf vacances scolaires',
   place: 'La Comète 16 Rue du 20 Novembre, 68220 Hésingue',
-  material: `Venir en tenue souple et confortable qui ne serre pas au niveau de l'abdomen, tapis de yoga et couverture.`,
-  registration: `Informations ou inscriptions me contacter pour une première séance d'essai offerte`,
+  material: 'Venir en tenue souple et confortable qui ne serre pas au niveau de l\'abdomen, tapis de yoga et couverture.',
+  registration: 'Informations ou inscriptions me contacter pour une première séance d\'essai offerte',
   image2: '/images/bouda-tailleur.jpg',
   program: (
     <>
@@ -70,7 +70,7 @@ export const practicalInformationsChildren = {
       </ul>
     </>
   ),
-  price: `90€/ trimestre et cotisation 20€/ an pour l'association Zing & Zen`,
+  price: '90€/ trimestre et cotisation 20€/ an pour l\'association Zing & Zen',
   registrable: false,
 };
 
@@ -82,8 +82,8 @@ export const practicalInformationsParentChildren = {
   duration: '1h',
   dates: 'Une fois tous les 15j sauf vacances scolaires',
   place: 'La Comète 16 Rue du 20 Novembre, 68220 Hésingue',
-  material: `Venir en tenue souple et confortable qui ne sert pas au niveau de l'abdomen, apporter un ou mieux, deux tapis de yoga et une couverture.`,
-  registration: `Informations ou inscriptions me contacter pour une première séance d'essai offerte`,
+  material: 'Venir en tenue souple et confortable qui ne sert pas au niveau de l\'abdomen, apporter un ou mieux, deux tapis de yoga et une couverture.',
+  registration: 'Informations ou inscriptions me contacter pour une première séance d\'essai offerte',
   image2: '/images/yoga-enfant-arbre-plage.jpg',
   program: (
     <>
@@ -97,19 +97,21 @@ export const practicalInformationsParentChildren = {
       <p>C'est l'occasion idéale pour partager de précieux moments avec votre enfant, un petit rituel à vous deux.</p>
     </>
   ),
-  price: `90€/ trimestre pour un duo et cotisation 20€/ an pour l'association Zing & Zen maximum 6 duos par cours`,
+  price: '90€/ trimestre pour un duo et cotisation 20€/ an pour l\'association Zing & Zen maximum 6 duos par cours',
   registrable: false,
 };
 
 export function PracticalInformations({ data: { section, age, level, group, duration, place, material, registration, program, image2, registrable, dates }, condensed }) {
-  const AttributeIcon = ({ icon: Icon, title, value }) => (
-    <div className="mb-2">
-      <Icon className="icon me-2" />
-      <strong className="h5">{title}</strong>
-      <br />
-      <span>{value}</span>
-    </div>
-  );
+  function AttributeIcon({ icon: Icon, title, value }) {
+    return (
+      <div className="mb-2">
+        <Icon className="icon me-2" />
+        <strong className="h5">{title}</strong>
+        <br />
+        <span>{value}</span>
+      </div>
+    );
+  }
 
   return (
     <Row className="mt-4 text-center">
@@ -148,18 +150,26 @@ export function PracticalInformations({ data: { section, age, level, group, dura
             <ul>
               {dates && (
                 <li>
-                  <strong>Dates :</strong> {dates}
+                  <strong>Dates :</strong>
+                  {' '}
+                  {dates}
                 </li>
               )}
               <li>
-                <strong>Lieu :</strong> {place}
+                <strong>Lieu :</strong>
+                {' '}
+                {place}
               </li>
               <li>
-                <strong>Matériel à amener :</strong> {material}
+                <strong>Matériel à amener :</strong>
+                {' '}
+                {material}
               </li>
               {registration && (
                 <li>
-                  <strong>Inscription :</strong> {registration}
+                  <strong>Inscription :</strong>
+                  {' '}
+                  {registration}
                 </li>
               )}
             </ul>

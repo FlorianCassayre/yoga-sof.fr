@@ -14,16 +14,15 @@ function SessionViewLayout({ id }) {
   const { isLoading, isError, data, error } = usePromiseEffect(() => getSession(id, { include: ['registrations.user'] }), []);
 
   const registrationDateColumn = {
-    title: `Date d'inscription`,
+    title: 'Date d\'inscription',
     render: ({ created_at: createdAt }) => renderDatetime(createdAt),
   };
 
-  const sortedRegistrations = useMemo(() => {
-    return data && data.registrations.slice().sort(({ created_at: t1 }, { created_at: t2 }) => new Date(t2).getTime() - new Date(t1).getTime());
-  }, [data]);
-  const [notCanceledRegistrations, canceledRegistrations] = useMemo(() => {
-    return sortedRegistrations ? [sortedRegistrations.filter(({ is_user_canceled: isCanceled }) => !isCanceled), sortedRegistrations.filter(({ is_user_canceled: isCanceled }) => isCanceled)] : [];
-  }, [sortedRegistrations]);
+  const sortedRegistrations = useMemo(() => data && data.registrations.slice().sort(({ created_at: t1 }, { created_at: t2 }) => new Date(t2).getTime() - new Date(t1).getTime()), [data]);
+  const [notCanceledRegistrations, canceledRegistrations] = useMemo(
+    () => (sortedRegistrations ? [sortedRegistrations.filter(({ is_user_canceled: isCanceled }) => !isCanceled), sortedRegistrations.filter(({ is_user_canceled: isCanceled }) => isCanceled)] : []),
+    [sortedRegistrations],
+  );
 
   const isFuture = data && !data.is_canceled && new Date().getTime() < new Date(data.date_end).getTime();
 
@@ -54,7 +53,7 @@ function SessionViewLayout({ id }) {
         {isFuture && (
           <CancelSessionConfirmDialog
             session={data}
-            triggerer={(clickHandler) => (
+            triggerer={clickHandler => (
               <Button variant="danger" onClick={clickHandler}>
                 <BsXOctagon className="icon me-2" />
                 Annuler cette séance
@@ -81,7 +80,10 @@ function SessionViewLayout({ id }) {
       <h2 className="h5">
         Participants
         <Badge bg="secondary" className="ms-2">
-          {data && notCanceledRegistrations.length} / {data && data.slots}
+          {data && notCanceledRegistrations.length}
+          {' '}
+          /
+          {data && data.slots}
         </Badge>
       </h2>
 
@@ -89,8 +91,8 @@ function SessionViewLayout({ id }) {
 
       <StaticPaginatedTable
         rows={data && notCanceledRegistrations}
-        columns={[userLinkColumn, registrationDateColumn, adaptColumn((registration) => ({ ...registration, session: data }))(cancelRegistrationColumn)]}
-        renderEmpty={() => `Personne ne participe pour le moment.`}
+        columns={[userLinkColumn, registrationDateColumn, adaptColumn(registration => ({ ...registration, session: data }))(cancelRegistrationColumn)]}
+        renderEmpty={() => 'Personne ne participe pour le moment.'}
       />
 
       {isFuture && (
@@ -114,11 +116,11 @@ function SessionViewLayout({ id }) {
           userLinkColumn,
           registrationDateColumn,
           {
-            title: `Date d'annulation`,
+            title: 'Date d\'annulation',
             render: ({ canceled_at: canceledAt }) => renderDatetime(canceledAt),
           },
         ]}
-        renderEmpty={() => `Aucun utilisateur n'a annulé.`}
+        renderEmpty={() => 'Aucun utilisateur n\'a annulé.'}
       />
     </ContentLayout>
   );

@@ -1,5 +1,4 @@
-import { apiHandler } from '../../lib/server';
-import { prisma } from '../../lib/server';
+import { apiHandler, prisma } from '../../lib/server';
 
 export default async function handler(req, res) {
   await apiHandler({
@@ -16,24 +15,14 @@ export default async function handler(req, res) {
               date_start: true,
               date_end: true,
               registrations: {
-                where: {
-                  is_user_canceled: false,
-                },
-                select: {
-                  is_user_canceled: true,
-                },
+                where: { is_user_canceled: false },
+                select: { is_user_canceled: true },
               },
             },
             where: {
               AND: [
-                {
-                  is_canceled: false,
-                },
-                {
-                  date_start: {
-                    gt: new Date(),
-                  },
-                },
+                { is_canceled: false },
+                { date_start: { gt: new Date() } },
               ],
             },
           }),

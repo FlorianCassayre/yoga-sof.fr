@@ -4,12 +4,12 @@ import React, { useState } from 'react';
 import { Alert, Badge, Button, Card, Col, Container, Form, ProgressBar, Row, Spinner, Table } from 'react-bootstrap';
 import { BsArrowLeft, BsCheckLg, BsInfoCircleFill } from 'react-icons/bs';
 import Link from 'next/link';
-import { AuthGuard, ErrorMessage } from '../components';
-import { PublicLayout } from '../components/layout/public';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import { Form as FinalForm, Field } from 'react-final-form';
 
 import { fr } from 'date-fns/locale';
+import { PublicLayout } from '../components/layout/public';
+import { AuthGuard, ErrorMessage } from '../components';
 import { renderDateOnly, StaticPaginatedTable } from '../components/table';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
 import { getSessionsSchedule, postSelfRegistrationBatch } from '../lib/client/api';
@@ -30,6 +30,7 @@ import {
   YOGA_ADULT_CHILD,
   YOGA_CHILD,
 } from '../lib/common';
+
 registerLocale('fr', fr);
 
 export default function Inscription() {
@@ -39,9 +40,9 @@ export default function Inscription() {
 
   const [submitData, setSubmitData] = useState({});
 
-  const [{ isLoading: isSubmitting, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatch] = usePromiseCallback((data) => postSelfRegistrationBatch(data), []);
+  const [{ isLoading: isSubmitting, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatch] = usePromiseCallback(data => postSelfRegistrationBatch(data), []);
 
-  const CourseOption = ({ type, title, person, onSelect }) => {
+  function CourseOption({ type, title, person, onSelect }) {
     const matchedSessions = data.schedule.filter(({ type: otherType }) => otherType === type);
     const matchedRegistrable = data.sessions.filter(({ type: otherType }) => otherType === type);
 
@@ -54,10 +55,10 @@ export default function Inscription() {
 
     const renderDuration = () => {
       const distinctDurations = Array.from(
-        new Set(matchedSessions.map(({ time_start: timeStart, time_end: timeEnd }) => parsedTimeToMinutes(parseTime(timeEnd)) - parsedTimeToMinutes(parseTime(timeStart))))
+        new Set(matchedSessions.map(({ time_start: timeStart, time_end: timeEnd }) => parsedTimeToMinutes(parseTime(timeEnd)) - parsedTimeToMinutes(parseTime(timeStart)))),
       )
         .sort((a, b) => a - b)
-        .map((minutes) => formatTime(parsedTimeToTime(minutesToParsedTime(minutes)), true));
+        .map(minutes => formatTime(parsedTimeToTime(minutesToParsedTime(minutes)), true));
       return distinctDurations.length === 1 ? distinctDurations[0] : `${distinctDurations[0]} à ${distinctDurations[distinctDurations.length - 1]}`;
     };
 
@@ -67,19 +68,26 @@ export default function Inscription() {
 
         return (
           <>
-            Tous{' '}
-            {sortedDistinctWeekdays.map((weekday) => {
+            Tous
+            {' '}
+            {sortedDistinctWeekdays.map(weekday => {
               const sessionsForWeekday = matchedSessions
                 .filter(({ weekday: weekdayOther }) => weekdayOther === weekday)
                 .sort(({ time_start: t1 }, { time_end: t2 }) => parsedTimeToMinutes(parseTime(t1)) - parsedTimeToMinutes(parseTime(t2)));
 
               return (
                 <React.Fragment key={weekday}>
-                  les {WEEKDAYS[weekday].toLowerCase() + 's'}{' '}
+                  les
+                  {' '}
+                  {`${WEEKDAYS[weekday].toLowerCase()}s`}
+                  {' '}
                   {sessionsForWeekday.map(({ id, time_start: timeStart, time_end: timeEnd }, i) => (
                     <React.Fragment key={id}>
                       {'de '}
-                      {formatTime(timeStart, true)} à {formatTime(timeEnd, true)}
+                      {formatTime(timeStart, true)}
+                      {' '}
+                      à
+                      {formatTime(timeEnd, true)}
                       {i < sessionsForWeekday.length - 1 && ', '}
                     </React.Fragment>
                   ))}
@@ -88,9 +96,8 @@ export default function Inscription() {
             })}
           </>
         );
-      } else {
-        return <em>Pas d'horaires disponibles</em>;
       }
+      return <em>Pas d'horaires disponibles</em>;
     };
 
     return (
@@ -106,7 +113,15 @@ export default function Inscription() {
             <Card.Text>
               {matchedSessions.length > 0 ? (
                 <>
-                  {renderPrices()} par {person} pour {renderDuration()} de pratique
+                  {renderPrices()}
+                  {' '}
+                  par
+                  {person}
+                  {' '}
+                  pour
+                  {renderDuration()}
+                  {' '}
+                  de pratique
                 </>
               ) : (
                 <em>Pas d'informations disponibles</em>
@@ -119,10 +134,10 @@ export default function Inscription() {
         </Card>
       </Col>
     );
-  };
+  }
 
-  const Step1 = ({ setValue }) => {
-    const handleSelect = (type) => {
+  function Step1({ setValue }) {
+    const handleSelect = type => {
       setValue('type', type);
       setValue('sessions', []);
       setValue('step', 2);
@@ -134,25 +149,23 @@ export default function Inscription() {
         <CourseOption type={YOGA_ADULT_CHILD} title="Séance de Yoga parent-enfant" person="duo" onSelect={handleSelect} />
       </Row>
     );
-  };
+  }
 
-  const Step2 = ({ setValue, values }) => {
+  function Step2({ setValue, values }) {
     const sessionsForType = data.sessions.filter(({ type: typeOther }) => typeOther === values.type);
     // TODO remove already registered sessions
     const selectableDates = sessionsForType.map(({ date_start: date }) => new Date(date));
-    const times = selectableDates.map((d) => d.getTime());
+    const times = selectableDates.map(d => d.getTime());
     const now = new Date();
     const [minDate, maxDate] = selectableDates.length > 0 ? [new Date(Math.min(...times)), new Date(Math.max(...times))] : [now, now];
 
-    const isDateSelectable = (date) => {
-      return selectableDates.some((other) => isSameDay(date, other));
-    };
-    const handleDayClick = (currentValue) => (date) => {
+    const isDateSelectable = date => selectableDates.some(other => isSameDay(date, other));
+    const handleDayClick = currentValue => date => {
       const matchingSessions = sessionsForType.filter(({ date_start: sessionDate }) => isSameDay(new Date(sessionDate), date));
       if (matchingSessions.length > 0) {
         if (matchingSessions.length === 1) {
           const session = matchingSessions[0];
-          setValue('sessions', currentValue.includes(session.id) ? currentValue.filter((id) => id !== session.id) : [...currentValue, session.id]);
+          setValue('sessions', currentValue.includes(session.id) ? currentValue.filter(id => id !== session.id) : [...currentValue, session.id]);
         } else {
           // Ambiguous
           console.log('TODO'); // TODO
@@ -160,13 +173,13 @@ export default function Inscription() {
       }
       // Otherwise, do nothing
     };
-    const handleSessionClick = (currentValue) => (id) => {
-      setValue('sessions', currentValue.includes(id) ? currentValue.filter((otherId) => id !== otherId) : [...currentValue, id]);
+    const handleSessionClick = currentValue => id => {
+      setValue('sessions', currentValue.includes(id) ? currentValue.filter(otherId => id !== otherId) : [...currentValue, id]);
     };
 
     return (
       <div className="text-center date-picker-registration">
-        {/*<Field
+        {/* <Field
           name="sessions"
         >
           {({ input: { value } }) => (
@@ -182,7 +195,7 @@ export default function Inscription() {
               inline
             />
           )}
-        </Field>*/}
+        </Field> */}
 
         <Field name="sessions">
           {({ input: { value } }) => (
@@ -210,9 +223,7 @@ export default function Inscription() {
                 ]}
                 renderEmpty="Aucune séance disponible."
                 initialResultsPerPage={25}
-                rowProps={({ id }) => ({
-                  onClick: () => handleSessionClick(value)(id),
-                })}
+                rowProps={({ id }) => ({ onClick: () => handleSessionClick(value)(id) })}
               />
             </>
           )}
@@ -224,75 +235,81 @@ export default function Inscription() {
         </Button>
       </div>
     );
-  };
+  }
 
-  const Step3 = ({ values }) => (
-    <>
-      <Row>
-        <Col>
-          <h4>Récapitulatif de vos inscriptions</h4>
+  function Step3({ values }) {
+    return (
+      <>
+        <Row>
+          <Col>
+            <h4>Récapitulatif de vos inscriptions</h4>
 
-          <Table bordered>
-            <thead>
-              <tr>
-                <th>Séance</th>
-                <th>Date</th>
-                <th>Heures</th>
-              </tr>
-            </thead>
-            <tbody>
-              {values.sessions.map((id, i) => (
-                <tr key={id}>
-                  {i === 0 && (
-                    <td rowSpan={values.sessions.length} className="align-middle text-center">
-                      {SESSIONS_NAMES[values.type]}
-                    </td>
-                  )}
-                  <td>{renderDateOnly(data.sessions.filter(({ id: idOther }) => idOther === id)[0].date_start)}</td>
-                  <td>{data.sessions.filter(({ id: idOther }) => idOther === id).map(({ date_start, date_end }) => formatTimeRange(new Date(date_start), new Date(date_end)))[0]}</td>
+            <Table bordered>
+              <thead>
+                <tr>
+                  <th>Séance</th>
+                  <th>Date</th>
+                  <th>Heures</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {values.sessions.map((id, i) => (
+                  <tr key={id}>
+                    {i === 0 && (
+                      <td rowSpan={values.sessions.length} className="align-middle text-center">
+                        {SESSIONS_NAMES[values.type]}
+                      </td>
+                    )}
+                    <td>{renderDateOnly(data.sessions.filter(({ id: idOther }) => idOther === id)[0].date_start)}</td>
+                    <td>{data.sessions.filter(({ id: idOther }) => idOther === id).map(({ date_start, date_end }) => formatTimeRange(new Date(date_start), new Date(date_end)))[0]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
 
-          <div className="text-center">
-            <Badge bg="secondary">{values.sessions.length}</Badge> {values.sessions.length > 1 ? 'séances' : 'séance'} au total.
-          </div>
-        </Col>
-        <Col>
-          <h4>Vos informations</h4>
-          <Table bordered>
-            <tbody>
-              <tr>
-                <th>Nom</th>
-                <td>{sessionData.user.name}</td>
-              </tr>
-              <tr>
-                <th>Adresse e-mail</th>
-                <td>{sessionData.user.email}</td>
-              </tr>
-            </tbody>
-          </Table>
-        </Col>
-      </Row>
-      <Row>
-        <Col className="text-center py-3">
-          <Button type="submit">
-            <BsCheckLg className="icon me-2" />
-            Confirmer mes inscriptions
-          </Button>
-        </Col>
-      </Row>
+            <div className="text-center">
+              <Badge bg="secondary">{values.sessions.length}</Badge>
+              {' '}
+              {values.sessions.length > 1 ? 'séances' : 'séance'}
+              {' '}
+              au total.
+            </div>
+          </Col>
+          <Col>
+            <h4>Vos informations</h4>
+            <Table bordered>
+              <tbody>
+                <tr>
+                  <th>Nom</th>
+                  <td>{sessionData.user.name}</td>
+                </tr>
+                <tr>
+                  <th>Adresse e-mail</th>
+                  <td>{sessionData.user.email}</td>
+                </tr>
+              </tbody>
+            </Table>
+          </Col>
+        </Row>
+        <Row>
+          <Col className="text-center py-3">
+            <Button type="submit">
+              <BsCheckLg className="icon me-2" />
+              Confirmer mes inscriptions
+            </Button>
+          </Col>
+        </Row>
 
-      <div className="text-center">
-        <em>Vous avez la possibilité de reporter votre/vos séance(s). Merci de nous le faire savoir au moins une semaine à l'avance en nous écrivant par e-mail.</em>
-      </div>
-    </>
-  );
+        <div className="text-center">
+          <em>Vous avez la possibilité de reporter votre/vos séance(s). Merci de nous le faire savoir au moins une semaine à l'avance en nous écrivant par e-mail.</em>
+        </div>
+      </>
+    );
+  }
 
   const steps = [1, 2, 3];
 
-  const onSubmit = (values) => {
+  const onSubmit = values => {
     console.log(values);
 
     const data = { sessions: values.sessions };
@@ -315,10 +332,10 @@ export default function Inscription() {
               </ul>
             </li>
             <li>La première séance vous est offerte, à la date de votre choix</li>
-            {/*<li>La première séance est gratuite</li>
+            {/* <li>La première séance est gratuite</li>
             <li>L'inscription à une séance est nécessaire pour y assister</li>
             <li>Les séances peuvent être choisies à l'unité</li>
-            <li>Il est possible de reporter une séance déjà réservée, merci de nous écrire à l'avance par email</li>*/}
+            <li>Il est possible de reporter une séance déjà réservée, merci de nous écrire à l'avance par email</li> */}
           </ul>
           {!IS_REGISTRATION_DISABLED ? (
             <FinalForm
@@ -329,22 +346,18 @@ export default function Inscription() {
                 sessions: [],
                 ...submitData, // Dirty fix
               }}
-              mutators={{
-                setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value),
-              }}
+              mutators={{ setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value) }}
               keepDirtyOnReinitialize
               render={({
                 handleSubmit,
-                form: {
-                  mutators: { setValue },
-                },
+                form: { mutators: { setValue } },
                 values,
               }) => (
                 <Form onSubmit={handleSubmit}>
                   {!isLoading ? (
                     <div>
                       <Row className="text-center mt-4">
-                        {steps.map((step) => (
+                        {steps.map(step => (
                           <Col key={step} style={{ position: 'relative' }}>
                             <h3 className="m-0">
                               <Badge pill bg={step <= values.step ? 'primary' : 'secondary'} style={{ border: 'solid white 5px' }} onClick={() => step === values.step - 1 && setValue('step', step)}>
@@ -352,13 +365,16 @@ export default function Inscription() {
                               </Badge>
                             </h3>
                             {step < 3 && (
-                              <ProgressBar now={step < values.step ? 100 : 0} style={{ position: 'absolute', width: '100%', left: 0, top: '50%', transform: 'translate(50%, -50%)', zIndex: -10 }} />
+                              <ProgressBar
+                                now={step < values.step ? 100 : 0}
+                                style={{ position: 'absolute', width: '100%', left: 0, top: '50%', transform: 'translate(50%, -50%)', zIndex: -10 }}
+                              />
                             )}
                           </Col>
                         ))}
                       </Row>
                       <Row className="text-center mb-5">
-                        {steps.map((step) => (
+                        {steps.map(step => (
                           <Col key={step}>
                             <span className="text-muted">{step === 1 ? <>Choix du type de séance</> : step === 2 ? <>Choix des horaires</> : <>Confirmation</>}</span>
                           </Col>
@@ -371,7 +387,8 @@ export default function Inscription() {
                         </div>
                       ) : submitResult ? (
                         <Alert variant="success">
-                          Vos inscriptions ont été enregistrées avec succès. Vous pouvez les retrouver{' '}
+                          Vos inscriptions ont été enregistrées avec succès. Vous pouvez les retrouver
+                          {' '}
                           <Link href="/mes-inscriptions" passHref>
                             <Alert.Link>sur votre page personnelle</Alert.Link>
                           </Link>
@@ -403,7 +420,11 @@ export default function Inscription() {
           ) : (
             <Alert variant="info">
               <BsInfoCircleFill className="icon me-2" />
-              Le formulaire d'inscription n'est pas ouvert pour le moment. Vous pouvez <Alert.Link href={`mailto:${EMAIL_CONTACT}`}>nous écrire</Alert.Link> pour obtenir plus de renseignements.
+              Le formulaire d'inscription n'est pas ouvert pour le moment. Vous pouvez
+              {' '}
+              <Alert.Link href={`mailto:${EMAIL_CONTACT}`}>nous écrire</Alert.Link>
+              {' '}
+              pour obtenir plus de renseignements.
             </Alert>
           )}
         </Container>

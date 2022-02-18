@@ -1,5 +1,4 @@
-import { USER_TYPE_ADMIN } from '../../lib/common';
-import { schemaSessionBatchBody } from '../../lib/common';
+import { USER_TYPE_ADMIN, schemaSessionBatchBody } from '../../lib/common';
 import { apiHandler } from '../../lib/server';
 
 export default async function handler(req, res) {
@@ -15,9 +14,7 @@ export default async function handler(req, res) {
           date_start: new Date(start),
           date_end: new Date(end),
         }));
-        await prisma.sessions.createMany({
-          data: records,
-        });
+        await prisma.sessions.createMany({ data: records });
 
         accept({});
       },

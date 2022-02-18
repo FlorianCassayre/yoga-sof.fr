@@ -15,16 +15,18 @@ export function NavigationLayout() {
   const { pathname } = router;
 
   const handleSignOut = () => {
-    signOut({ redirect: false, callbackUrl: '/' }).then((data) => router.push(data.url));
+    signOut({ redirect: false, callbackUrl: '/' }).then(data => router.push(data.url));
   };
 
-  const propsForPathname = (pathnameOther) => (pathnameOther === pathname ? { active: true, className: 'navbar-page-active' } : {});
+  const propsForPathname = pathnameOther => (pathnameOther === pathname ? { active: true, className: 'navbar-page-active' } : {});
 
-  const NavLink = ({ pathname: pathnameOther, children }) => (
-    <Link href={pathnameOther} passHref>
-      <Nav.Link {...propsForPathname(pathnameOther)}>{children}</Nav.Link>
-    </Link>
-  );
+  function NavLink({ pathname: pathnameOther, children }) {
+    return (
+      <Link href={pathnameOther} passHref>
+        <Nav.Link {...propsForPathname(pathnameOther)}>{children}</Nav.Link>
+      </Link>
+    );
+  }
 
   return (
     <Navbar bg="light" fixed="top" expand="md" className="shadow" style={{ '--bs-bg-opacity': 0.95 }}>
@@ -37,7 +39,7 @@ export function NavigationLayout() {
         </Link>
         <Navbar.Toggle
           aria-controls="responsive-navbar-nav"
-          as={(props) => (
+          as={props => (
             <button type="button" style={{ border: 'none' }} {...props}>
               <span className="navbar-toggler-icon" />
             </button>
@@ -55,12 +57,12 @@ export function NavigationLayout() {
               <Spinner animation="border" />
             ) : session ? (
               <NavDropdown
-                title={
+                title={(
                   <>
                     <BsPerson className="icon me-2" />
                     {session.user.name}
                   </>
-                }
+                )}
                 id="nav-dropdown"
               >
                 {session.userType === USER_TYPE_ADMIN && (

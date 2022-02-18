@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { BsCheckLg } from 'react-icons/bs';
+import { Form as FinalForm } from 'react-final-form';
 import { usePromiseCallback, usePromiseEffect } from '../../hooks';
 import { joiValidator } from '../../lib/client';
 import { getSelfUser, postSelfUser } from '../../lib/client/api';
-import { Form as FinalForm } from 'react-final-form';
 import { schemaSelfUserBody } from '../../lib/common';
 import { useNotificationsContext } from '../../state';
 import { ErrorMessage } from '../ErrorMessage';
@@ -44,7 +44,7 @@ export function UserSelfForm() {
     }
   }, [submitResult, notify]);
 
-  const onSubmit = (data) => {
+  const onSubmit = data => {
     const finalData = { ...data, email: data.email ? data.email : null };
 
     submitDispatcher(finalData);
@@ -64,7 +64,7 @@ export function UserSelfForm() {
           <FloatingInputField name="name" label="Nom" placeholder="Nom" required fieldProps={{ disabled: isSubmitLoading }} />
         </Col>
         <Col xs={12} md={6} xl={3} className="mb-2 mb-xl-0">
-          <FloatingInputField name="email" label="Adresse email" placeholder="Adresse email" type="email" parse={(v) => (v ? v : null)} fieldProps={{ disabled: isSubmitLoading }} />
+          <FloatingInputField name="email" label="Adresse email" placeholder="Adresse email" type="email" parse={v => v || null} fieldProps={{ disabled: isSubmitLoading }} />
         </Col>
         <Col xs={12} md={6} xl={3} className="mb-3 my-xl-auto">
           <SwitchField name="receive_emails" label="Recevoir les notifications par email" fieldProps={{ disabled: isSubmitLoading }} />
@@ -80,7 +80,7 @@ export function UserSelfForm() {
   );
 
   return !isInitialDataLoading && actualInitialData ? (
-    <FinalForm onSubmit={onSubmit} initialValues={actualInitialData} validate={(values) => joiValidator(values, schemaSelfUserBody)} render={renderForm} />
+    <FinalForm onSubmit={onSubmit} initialValues={actualInitialData} validate={values => joiValidator(values, schemaSelfUserBody)} render={renderForm} />
   ) : (
     renderLoader()
   );

@@ -3,9 +3,8 @@ import { Button, Card, Col, Row, Spinner } from 'react-bootstrap';
 import { BsCalendar, BsPencil, BsPlusLg } from 'react-icons/bs';
 import { usePromiseEffect } from '../hooks';
 import { getSessionModels } from '../lib/client/api';
-import { formatTime, parsedTimeToMinutes, parseTime, WEEKDAYS } from '../lib/common';
+import { formatTime, parsedTimeToMinutes, parseTime, WEEKDAYS, SESSIONS_TYPES } from '../lib/common';
 import { ErrorMessage } from './ErrorMessage';
-import { SESSIONS_TYPES } from '../lib/common';
 
 export function SessionsCards({ readonly }) {
   const { isLoading, isError, data, error } = usePromiseEffect(getSessionModels, []);
@@ -13,9 +12,8 @@ export function SessionsCards({ readonly }) {
   const compareModels = ({ weekday: d1, time_start: t1 }, { weekday: d2, time_start: t2 }) => {
     if (d1 !== d2) {
       return d1 - d2;
-    } else {
-      return parsedTimeToMinutes(parseTime(t1)) - parsedTimeToMinutes(parseTime(t2));
     }
+    return parsedTimeToMinutes(parseTime(t1)) - parsedTimeToMinutes(parseTime(t2));
   };
 
   return (
@@ -32,35 +30,51 @@ export function SessionsCards({ readonly }) {
                       {SESSIONS_TYPES.filter(({ id }) => type === id)[0].title}
                     </Card.Title>
                     <Card.Subtitle className="mb-2 text-muted">
-                      Le <strong>{WEEKDAYS[weekday].toLowerCase()}</strong> de{' '}
+                      Le
+                      {' '}
+                      <strong>{WEEKDAYS[weekday].toLowerCase()}</strong>
+                      {' '}
+                      de
+                      {' '}
                       <strong>
-                        {formatTime(timeStart)} à {formatTime(timeEnd)}
+                        {formatTime(timeStart)}
+                        {' '}
+                        à
+                        {formatTime(timeEnd)}
                       </strong>
                     </Card.Subtitle>
                     <Card.Subtitle className="mb-2 text-muted">
-                      <strong>{slots}</strong> places
+                      <strong>{slots}</strong>
+                      {' '}
+                      places
                     </Card.Subtitle>
                     <Card.Subtitle className="mb-2 text-muted">
                       {price > 0 ? (
                         <>
-                          <strong>{price} €</strong> par personne
+                          <strong>
+                            {price}
+                            {' '}
+                            €
+                          </strong>
+                          {' '}
+                          par personne
                         </>
                       ) : (
                         <strong>Gratuit</strong>
                       )}
                     </Card.Subtitle>
-                    {/*<Card.Text>
+                    {/* <Card.Text>
 
-                    </Card.Text>*/}
+                    </Card.Text> */}
                     {!readonly && (
-                      <span className="d-block text-end">
-                        <Link href={`/administration/seances/modeles/${id}/edition`} passHref>
-                          <Button size="sm">
-                            <BsPencil className="icon me-2" />
-                            Modifier
-                          </Button>
-                        </Link>
-                      </span>
+                    <span className="d-block text-end">
+                      <Link href={`/administration/seances/modeles/${id}/edition`} passHref>
+                        <Button size="sm">
+                          <BsPencil className="icon me-2" />
+                          Modifier
+                        </Button>
+                      </Link>
+                    </span>
                     )}
                   </Card.Body>
                 </Card>

@@ -14,7 +14,7 @@ export function NotificationsOverlay({ marginTop }) {
               {Icon ? <Icon className="icon me-2" /> : variant === 'success' && <BsCheckLg className="icon me-2" />}
               {title}
             </strong>
-            {/*<small className="text-muted">à l'instant</small>*/}
+            {/* <small className="text-muted">à l'instant</small> */}
           </Toast.Header>
           <Toast.Body className="text-white">{body}</Toast.Body>
         </Toast>

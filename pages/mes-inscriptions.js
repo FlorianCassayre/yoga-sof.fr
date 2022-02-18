@@ -7,12 +7,11 @@ import { UserSelfForm } from '../components/form';
 import { PublicLayout } from '../components/layout/public';
 import { renderSessionName } from '../components/table';
 import { usePromiseEffect } from '../hooks';
-import { SESSIONS_TYPES, USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../lib/common';
+import { SESSIONS_TYPES, USER_TYPE_ADMIN, USER_TYPE_REGULAR, formatDayRange, formatTimestamp } from '../lib/common';
 import { getSelfRegistrations, postSelfCancelRegistration } from '../lib/client/api';
-import { formatDayRange, formatTimestamp } from '../lib/common';
 import { useNotificationsContext, useRefreshContext } from '../state';
 
-const MesCoursLayout = () => {
+function MesCoursLayout() {
   const refresh = useRefreshContext();
   const { notify } = useNotificationsContext();
 
@@ -27,89 +26,97 @@ const MesCoursLayout = () => {
         notCanceled.filter(({ session: { date_end: dateEnd } }) => now.getTime() > new Date(dateEnd).getTime()),
         data.filter(({ is_user_canceled: isUserCanceled, session: { is_canceled: isCanceled } }) => isCanceled || isUserCanceled),
       ];
-    } else {
-      return [];
     }
+    return [];
   }, [data]);
 
-  const renderTable = ({ rows, cancellation = false, cancellable = false, emptyMessage }) =>
-    !isError ? (
-      !isLoading ? (
-        rows.length > 0 ? (
-          <Table striped bordered responsive className="mt-2 mb-5 text-center">
-            <thead>
-              <tr>
-                <th>Séance</th>
-                <th>Date et horaire</th>
-                <th>Date d'inscription</th>
-                {cancellable && <th>Action</th>}
-                {cancellation && <th>Détails</th>}
-              </tr>
-            </thead>
-            <tbody className="align-middle">
-              {rows.map((registration) => {
-                const { id, created_at: registeredAt, is_user_canceled: isUserCanceled, canceled_at: userCanceledAt, session } = registration;
-                const { type, date_start: dateStart, date_end: dateEnd, is_canceled: isCanceled } = session;
-                return (
-                  <tr key={id}>
-                    <td>{SESSIONS_TYPES.filter(({ id }) => id === type)[0].title}</td>
-                    <td>{formatDayRange(dateStart, dateEnd)}</td>
-                    <td>{formatTimestamp(registeredAt)}</td>
-                    {cancellable && (
-                      <td className="text-center">
-                        <ConfirmDialog
-                          title="Annuler l'inscription à une séance"
-                          description={
-                            <>
-                              Vous êtes sur le point d'annuler votre inscription à la séance suivante :
-                              <ul>
-                                <li>{renderSessionName(session)}</li>
-                              </ul>
-                              Vous pourrez à tout moment vous y réinscrire, s'il reste de la place.
-                            </>
-                          }
-                          variant="danger"
-                          icon={BsXOctagon}
-                          action="Confirmer ma désinscription"
-                          triggerer={(clickHandler) => (
-                            <Button variant="danger" size="sm" onClick={clickHandler}>
-                              <BsXOctagon className="icon me-2" />
-                              Désinscription
-                            </Button>
+  const renderTable = ({ rows, cancellation = false, cancellable = false, emptyMessage }) => (!isError ? (
+    !isLoading ? (
+      rows.length > 0 ? (
+        <Table striped bordered responsive className="mt-2 mb-5 text-center">
+          <thead>
+            <tr>
+              <th>Séance</th>
+              <th>Date et horaire</th>
+              <th>Date d'inscription</th>
+              {cancellable && <th>Action</th>}
+              {cancellation && <th>Détails</th>}
+            </tr>
+          </thead>
+          <tbody className="align-middle">
+            {rows.map(registration => {
+              const { id, created_at: registeredAt, is_user_canceled: isUserCanceled, canceled_at: userCanceledAt, session } = registration;
+              const { type, date_start: dateStart, date_end: dateEnd, is_canceled: isCanceled } = session;
+              return (
+                <tr key={id}>
+                  <td>{SESSIONS_TYPES.filter(({ id }) => id === type)[0].title}</td>
+                  <td>{formatDayRange(dateStart, dateEnd)}</td>
+                  <td>{formatTimestamp(registeredAt)}</td>
+                  {cancellable && (
+                  <td className="text-center">
+                    <ConfirmDialog
+                      title="Annuler l'inscription à une séance"
+                      description={(
+                        <>
+                          Vous êtes sur le point d'annuler votre inscription à la séance suivante :
+                          <ul>
+                            <li>{renderSessionName(session)}</li>
+                          </ul>
+                          Vous pourrez à tout moment vous y réinscrire, s'il reste de la place.
+                        </>
                           )}
-                          confirmPromise={() => postSelfCancelRegistration(id)}
-                          onSuccess={() => {
-                            notify({
-                              title: 'Désinscription confirmée',
-                              body: `Vous vous êtes désinscrit de la ${renderSessionName(session, false)}.`,
-                            });
+                      variant="danger"
+                      icon={BsXOctagon}
+                      action="Confirmer ma désinscription"
+                      triggerer={clickHandler => (
+                        <Button variant="danger" size="sm" onClick={clickHandler}>
+                          <BsXOctagon className="icon me-2" />
+                          Désinscription
+                        </Button>
+                      )}
+                      confirmPromise={() => postSelfCancelRegistration(id)}
+                      onSuccess={() => {
+                        notify({
+                          title: 'Désinscription confirmée',
+                          body: `Vous vous êtes désinscrit de la ${renderSessionName(session, false)}.`,
+                        });
 
-                            refresh();
-                          }}
-                        />
-                      </td>
-                    )}
-                    {cancellation && <td>{isUserCanceled ? <>Vous vous êtes désinscrit ({formatTimestamp(userCanceledAt)})</> : <>La séance a été annulée</>}</td>}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Table>
-        ) : (
-          <div className="my-4 text-center">{emptyMessage}</div>
-        )
+                        refresh();
+                      }}
+                    />
+                  </td>
+                  )}
+                  {cancellation && (
+                    <td>
+                      {isUserCanceled ? (
+                        <>
+                          Vous vous êtes désinscrit (
+                          {formatTimestamp(userCanceledAt)}
+                          )
+                        </>
+                      ) : <>La séance a été annulée</>}
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
+          </tbody>
+        </Table>
       ) : (
-        <div className="m-5 text-center">
-          <Spinner animation="border" />
-        </div>
+        <div className="my-4 text-center">{emptyMessage}</div>
       )
     ) : (
-      <ErrorMessage />
-    );
+      <div className="m-5 text-center">
+        <Spinner animation="border" />
+      </div>
+    )
+  ) : (
+    <ErrorMessage />
+  ));
 
   const { data: session } = useSession();
 
-  const ButtonICSLink = () => {
+  function ButtonICSLink() {
     const url = `${window.location.origin}/api/calendar.ics?id=${session.user.db_id}&token=${session.user.public_access_token}`;
     const inputId = 'input-popover-copy-link';
     const selectInput = () => {
@@ -126,7 +133,7 @@ const MesCoursLayout = () => {
         trigger="click"
         placement="top"
         rootClose
-        overlay={
+        overlay={(
           <Popover id="popover-copy-link">
             <Popover.Header as="h3">Lien vers mon calendrier</Popover.Header>
             <Popover.Body>
@@ -140,7 +147,7 @@ const MesCoursLayout = () => {
               </Form.Group>
             </Popover.Body>
           </Popover>
-        }
+        )}
       >
         <Button variant="secondary" className="mb-2">
           <BsCalendar className="icon me-2" />
@@ -148,7 +155,7 @@ const MesCoursLayout = () => {
         </Button>
       </OverlayTrigger>
     );
-  };
+  }
 
   return (
     <Container>
@@ -175,7 +182,7 @@ const MesCoursLayout = () => {
       </div>
     </Container>
   );
-};
+}
 
 export default function MesCours() {
   return (

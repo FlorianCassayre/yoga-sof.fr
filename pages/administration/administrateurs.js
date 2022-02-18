@@ -16,8 +16,8 @@ function AdminAdminsLayout() {
 
       <DynamicPaginatedTable
         url="/api/admins"
-        totalFrom={(rows) => rows.length}
-        rowsFrom={(rows) => rows}
+        totalFrom={rows => rows.length}
+        rowsFrom={rows => rows}
         paginationFrom={null}
         columns={[
           {
@@ -25,7 +25,7 @@ function AdminAdminsLayout() {
             render: ({ email }) => renderEmailCompare(sessionEmail)(email),
           },
         ]}
-        totalCallback={(total) => setTotal(total)}
+        totalCallback={total => setTotal(total)}
       />
     </ContentLayout>
   );

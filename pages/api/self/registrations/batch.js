@@ -17,8 +17,7 @@ export default async function handler(req, res) {
         try {
           await prisma.$transaction(
             sessions.map(
-              (sessionId) =>
-                prisma.$executeRaw`
+              sessionId => prisma.$executeRaw`
               INSERT INTO registrations (session_id, user_id) VALUES (
                 (SELECT id FROM sessions AS tmp1 WHERE
                   id = ${sessionId} AND
@@ -28,8 +27,8 @@ export default async function handler(req, res) {
                   (SELECT COUNT(*) FROM registrations AS tmp3 WHERE session_id = ${sessionId} AND NOT is_user_canceled) < slots),
                 ${userId}
             )
-          `
-            )
+          `,
+            ),
           );
 
           accept();

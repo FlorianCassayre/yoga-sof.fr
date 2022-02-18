@@ -5,7 +5,7 @@ import { BsExclamationTriangleFill } from 'react-icons/bs';
 export function ErrorMessage({ children = 'Une erreur est survenue.', error }) {
   const [isCollapsed, setCollapsed] = useState(true);
 
-  const handleClick = (e) => {
+  const handleClick = e => {
     e.preventDefault();
     setCollapsed(false);
   };
@@ -14,8 +14,8 @@ export function ErrorMessage({ children = 'Une erreur est survenue.', error }) {
     <Alert variant="danger">
       <BsExclamationTriangleFill className="icon me-2" />
       {children}
-      {error &&
-        (isCollapsed ? (
+      {error
+        && (isCollapsed ? (
           <>
             {' '}
             <Alert.Link href="#" onClick={handleClick}>
@@ -26,7 +26,9 @@ export function ErrorMessage({ children = 'Une erreur est survenue.', error }) {
           <>
             <br />
             <div className="font-monospace" style={{ whiteSpace: 'pre-wrap' }}>
-              {error.message} {/* .stack might be useful too */}
+              {error.message}
+              {' '}
+              {/* .stack might be useful too */}
             </div>
           </>
         ))}

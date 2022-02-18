@@ -16,9 +16,7 @@ function AdminRegistrationsLayout() {
         params={(page, limit) => ({
           page,
           limit,
-          orderBy: JSON.stringify({
-            created_at: '$desc',
-          }),
+          orderBy: JSON.stringify({ created_at: '$desc' }),
           include: ['session', 'user'],
         })}
         columns={[
@@ -30,14 +28,17 @@ function AdminRegistrationsLayout() {
           },
           {
             title: 'Statut',
-            render: ({ is_user_canceled, canceled_at }) => (!is_user_canceled ? <Badge bg="success">Inscrit</Badge> : <Badge bg="danger">Annulé à {formatTimestamp(canceled_at)}</Badge>),
-            props: {
-              className: 'text-center',
-            },
+            render: ({ is_user_canceled, canceled_at }) => (!is_user_canceled ? <Badge bg="success">Inscrit</Badge> : (
+              <Badge bg="danger">
+                Annulé à
+                {formatTimestamp(canceled_at)}
+              </Badge>
+            )),
+            props: { className: 'text-center' },
           },
           cancelRegistrationColumn,
         ]}
-        renderEmpty={() => `Aucun utilisateur ne s'est inscrit pour le moment.`}
+        renderEmpty={() => 'Aucun utilisateur ne s\'est inscrit pour le moment.'}
       />
 
       <div className="text-center">

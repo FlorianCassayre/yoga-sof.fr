@@ -7,20 +7,17 @@ import { renderSessionName } from '../../table';
 
 export function SessionSelectField({ name, fieldProps = {}, disabled, ...props }) {
   const { isLoading, isError, data, error } = usePromiseEffect(
-    () =>
-      getSessions({
-        where: {
-          is_canceled: false,
-          date_end: {
-            $gt: new Date().toISOString(),
-          },
+    () => getSessions({
+      where: {
+        is_canceled: false,
+        date_end: {
+          $gt: new Date().toISOString(),
         },
-        orderBy: {
-          date_start: '$asc',
-        },
-        select: ['id', 'type', 'date_start', 'date_end'],
-      }),
-    []
+      },
+      orderBy: { date_start: '$asc' },
+      select: ['id', 'type', 'date_start', 'date_end'],
+    }),
+    [],
   );
 
   return (
@@ -33,9 +30,9 @@ export function SessionSelectField({ name, fieldProps = {}, disabled, ...props }
         render={({ input }) => (
           <Form.Select {...input} required disabled={isLoading || isError || disabled} {...fieldProps}>
             <option value={null} disabled />
-            {!isLoading &&
-              !isError &&
-              data.map((obj) => (
+            {!isLoading
+              && !isError
+              && data.map(obj => (
                 <option key={obj.id} value={obj.id}>
                   {renderSessionName(obj)}
                 </option>

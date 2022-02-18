@@ -23,16 +23,12 @@ function AdminHomeLayout() {
           include: ['registrations'],
           where: JSON.stringify({
             is_canceled: false,
-            date_end: {
-              $gt: new Date().toISOString(),
-            },
+            date_end: { $gt: new Date().toISOString() },
           }),
-          orderBy: JSON.stringify({
-            date_start: '$asc',
-          }),
+          orderBy: JSON.stringify({ date_start: '$asc' }),
         })}
         columns={[
-          detailsColumnFor((id) => `/administration/seances/planning/${id}`),
+          detailsColumnFor(id => `/administration/seances/planning/${id}`),
           {
             title: 'Date',
             render: ({ date_start: date }) => format(new Date(date), dateFormat),
@@ -49,21 +45,20 @@ function AdminHomeLayout() {
             title: 'Inscriptions / Places disponibles',
             render: ({ slots, registrations }) => (
               <>
-                {registrations.filter(({ is_user_canceled }) => !is_user_canceled).length} / {slots}
+                {registrations.filter(({ is_user_canceled }) => !is_user_canceled).length}
+                {' '}
+                /
+                {slots}
               </>
             ),
           },
           {
             title: 'Notes',
             render: ({ notes }) => notes,
-            props: {
-              style: {
-                whiteSpace: 'pre-wrap',
-              },
-            },
+            props: { style: { whiteSpace: 'pre-wrap' } },
           },
         ]}
-        renderEmpty={() => `Aucune séance planifiée à venir.`}
+        renderEmpty={() => 'Aucune séance planifiée à venir.'}
       />
     </ContentLayout>
   );

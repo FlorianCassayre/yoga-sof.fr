@@ -19,8 +19,8 @@ export const usePromiseEffect = (createPromise, dependencies) => {
     }
 
     createPromise()
-      .then((result) => !didCancel && setStateSuccess(result))
-      .catch((error) => !didCancel && setStateFailure(error));
+      .then(result => !didCancel && setStateSuccess(result))
+      .catch(error => !didCancel && setStateFailure(error));
 
     return () => {
       didCancel = true;

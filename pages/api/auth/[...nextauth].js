@@ -50,16 +50,15 @@ export default NextAuth({
       const isAllowedToSignIn = true; // TODO
       if (isAllowedToSignIn) {
         return true;
-      } else {
-        // Return false to display a default error message
-        return false;
-        // Or you can return a URL to redirect to:
-        // return '/unauthorized'
       }
+      // Return false to display a default error message
+      return false;
+      // Or you can return a URL to redirect to:
+      // return '/unauthorized'
     },
     // async redirect(url, baseUrl) { return baseUrl },
     async session({ session, user, token }) {
-      const email = session.user.email;
+      const { email } = session.user;
 
       session.user.provider = token.provider;
       session.user.id_provider = token.id_provider;
@@ -75,19 +74,19 @@ export default NextAuth({
           },
         },
         update: {
-          email: email,
+          email,
           name: session.user.name,
           // We don't update the user's data
         },
         create: {
           id_provider: token.id_provider,
-          email: email,
+          email,
           provider: token.provider,
           name: session.user.name,
           user: {
             create: {
               // Nested create
-              email: email,
+              email,
               name: session.user.name,
             },
           },
@@ -97,29 +96,21 @@ export default NextAuth({
           user: {
             select: {
               public_access_token: true,
-              user_linked_accounts: {
-                select: {
-                  email: true,
-                },
-              },
+              user_linked_accounts: { select: { email: true } },
               name: true,
             },
           },
         },
       });
 
-      const userVerifiedEmails = linkedAccounts.map(({ email }) => email).filter((email) => email);
+      const userVerifiedEmails = linkedAccounts.map(({ email }) => email).filter(email => email);
       const whiteListedEmails = (
         await prisma.admins.findMany(
           // Not atomic, but doesn't matter
-          {
-            select: {
-              email: true,
-            },
-          }
+          { select: { email: true } },
         )
       ).map(({ email }) => email);
-      const isAdmin = whiteListedEmails.some((email) => userVerifiedEmails.includes(email));
+      const isAdmin = whiteListedEmails.some(email => userVerifiedEmails.includes(email));
 
       session.userType = isAdmin ? USER_TYPE_ADMIN : USER_TYPE_REGULAR;
 

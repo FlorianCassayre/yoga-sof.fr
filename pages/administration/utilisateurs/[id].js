@@ -22,12 +22,8 @@ function AdminUserLayout({ id }) {
         params={(page, limit) => ({
           page,
           limit,
-          where: JSON.stringify({
-            user_id: parseInt(id),
-          }),
-          orderBy: JSON.stringify({
-            created_at: '$desc',
-          }),
+          where: JSON.stringify({ user_id: parseInt(id) }),
+          orderBy: JSON.stringify({ created_at: '$desc' }),
           include: ['session', 'user'],
         })}
         columns={[
@@ -38,14 +34,17 @@ function AdminUserLayout({ id }) {
           },
           {
             title: 'Statut',
-            render: ({ is_user_canceled, canceled_at }) => (!is_user_canceled ? <Badge bg="success">Inscrit</Badge> : <Badge bg="danger">Annulé à {formatTimestamp(canceled_at)}</Badge>),
-            props: {
-              className: 'text-center',
-            },
+            render: ({ is_user_canceled, canceled_at }) => (!is_user_canceled ? <Badge bg="success">Inscrit</Badge> : (
+              <Badge bg="danger">
+                Annulé à
+                {formatTimestamp(canceled_at)}
+              </Badge>
+            )),
+            props: { className: 'text-center' },
           },
           cancelRegistrationColumn,
         ]}
-        renderEmpty={() => `Cet utilisateur ne s'est pas encore inscrit à une séance.`}
+        renderEmpty={() => 'Cet utilisateur ne s\'est pas encore inscrit à une séance.'}
       />
 
       <div className="text-center mb-3">
@@ -68,30 +67,24 @@ function AdminUserLayout({ id }) {
               const { icon: Icon, name: providerName } = providersData[provider];
               return <Icon className="icon" title={providerName} />;
             },
-            props: {
-              className: 'text-center',
-            },
+            props: { className: 'text-center' },
           },
           {
             title: 'Identifiant du service',
             render: ({ id_provider }) => id_provider,
-            props: {
-              className: 'font-monospace',
-            },
+            props: { className: 'font-monospace' },
           },
           {
             title: 'Adresse email',
             render: ({ email }) => renderEmail(email),
-            props: {
-              className: 'font-monospace',
-            },
+            props: { className: 'font-monospace' },
           },
           {
-            title: `Dernière connexion`,
+            title: 'Dernière connexion',
             render: ({ updated_at: updatedAt }) => renderDatetime(updatedAt),
           },
           {
-            title: `Première connexion`,
+            title: 'Première connexion',
             render: ({ created_at: createdAt }) => renderDatetime(createdAt),
           },
         ]}

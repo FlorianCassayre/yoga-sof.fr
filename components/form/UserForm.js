@@ -9,7 +9,7 @@ export function UserForm({ editRecordId, container }) {
         name: null,
         email: null,
       }}
-      redirect={(obj) => (obj !== null ? `/administration/utilisateurs/${obj.id}` : '/administration/utilisateurs')}
+      redirect={obj => (obj !== null ? `/administration/utilisateurs/${obj.id}` : '/administration/utilisateurs')}
       editRecordId={editRecordId}
       deletable
       container={container}

@@ -1,6 +1,6 @@
 import { Container } from 'react-bootstrap';
-import { PublicLayout } from '../components/layout/public';
 import Link from 'next/link';
+import { PublicLayout } from '../components/layout/public';
 
 export default function Page404() {
   return (

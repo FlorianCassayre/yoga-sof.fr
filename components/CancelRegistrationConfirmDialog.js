@@ -13,7 +13,7 @@ export function CancelRegistrationConfirmDialog({ registration, triggerer }) {
   return (
     <ConfirmDialog
       title="Désinscrire un utilisateur d'une séance"
-      description={
+      description={(
         <>
           Souhaitez-vous réellement désinscrire l'utilisateur de cette séance ?
           <ul>
@@ -21,7 +21,7 @@ export function CancelRegistrationConfirmDialog({ registration, triggerer }) {
             <li>{renderSessionName(session)}</li>
           </ul>
         </>
-      }
+      )}
       variant="danger"
       icon={BsXOctagon}
       action="Confirmer la désinscription"
@@ -29,7 +29,7 @@ export function CancelRegistrationConfirmDialog({ registration, triggerer }) {
       confirmPromise={() => postCancelRegistration(id)}
       onSuccess={() => {
         notify({
-          title: `Désinscription réussie`,
+          title: 'Désinscription réussie',
           body: `L'utilisateur ${user.name} a été désinscrit de la ${renderSessionName(session, false)}.`,
           icon: BsXOctagon,
           delay: 10,

@@ -1,5 +1,4 @@
-import { USER_TYPE_ADMIN } from '../../../../lib/common';
-import { schemaSessionCancelBody, schemaSessionCancelQuery } from '../../../../lib/common';
+import { USER_TYPE_ADMIN, schemaSessionCancelBody, schemaSessionCancelQuery } from '../../../../lib/common';
 import { apiHandler } from '../../../../lib/server';
 import { notifySessionCanceled } from '../../../../lib/server/email';
 
@@ -14,9 +13,7 @@ export default async function handler(req, res) {
           where: {
             id: sessionId,
             is_canceled: false,
-            date_start: {
-              gt: new Date(),
-            },
+            date_start: { gt: new Date() },
           },
           data: {
             is_canceled: true,
@@ -28,16 +25,8 @@ export default async function handler(req, res) {
           // Note: updateMany does not support select
 
           const session = await prisma.sessions.findUnique({
-            where: {
-              id: sessionId,
-            },
-            include: {
-              registrations: {
-                include: {
-                  user: true,
-                },
-              },
-            },
+            where: { id: sessionId },
+            include: { registrations: { include: { user: true } } },
           });
 
           await notifySessionCanceled(session);

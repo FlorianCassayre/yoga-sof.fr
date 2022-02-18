@@ -14,7 +14,7 @@ export function SessionModelForm({ editRecordId, container }) {
         price: null,
       }}
       numberFields={['weekday', 'slots', 'price']}
-      redirect={() => `/administration/seances`}
+      redirect={() => '/administration/seances'}
       editRecordId={editRecordId}
       deletable
       container={container}

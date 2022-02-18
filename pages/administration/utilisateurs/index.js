@@ -37,7 +37,7 @@ function AdminUsersLayout() {
           include: ['user_linked_accounts'],
         })}
         columns={[
-          detailsColumnFor((id) => `/administration/utilisateurs/${id}`),
+          detailsColumnFor(id => `/administration/utilisateurs/${id}`),
           {
             title: 'Adresse email',
             render: ({ email }) => (
@@ -53,25 +53,22 @@ function AdminUsersLayout() {
           },
           {
             title: 'Services reliés',
-            render: ({ user_linked_accounts }) =>
-              user_linked_accounts.length > 0 ? (
-                user_linked_accounts.map(({ provider }) => {
-                  const { icon: Icon, name: providerName } = providersData[provider];
-                  return <Icon key={provider} className="icon mx-1" title={providerName} />;
-                })
-              ) : (
-                <>(aucun)</>
-              ),
-            props: {
-              className: 'text-center',
-            },
+            render: ({ user_linked_accounts }) => (user_linked_accounts.length > 0 ? (
+              user_linked_accounts.map(({ provider }) => {
+                const { icon: Icon, name: providerName } = providersData[provider];
+                return <Icon key={provider} className="icon mx-1" title={providerName} />;
+              })
+            ) : (
+              <>(aucun)</>
+            )),
+            props: { className: 'text-center' },
           },
           {
             title: 'Date de création',
             render: ({ created_at: createdAt }) => renderDatetime(createdAt),
           },
         ]}
-        totalCallback={(total) => setTotal(total)}
+        totalCallback={total => setTotal(total)}
       />
     </ContentLayout>
   );

@@ -1,9 +1,9 @@
 import { format } from 'date-fns';
 import { Button } from 'react-bootstrap';
 import { BsCalendarWeek, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
+import Link from 'next/link';
 import { CancelSessionConfirmDialog, SessionsCards, SessionStatusBadge } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import Link from 'next/link';
 import { detailsColumnFor, DynamicPaginatedTable, renderSessionType, renderTimePeriod } from '../../../components/table';
 import { BREADCRUMB_SESSIONS } from '../../../lib/client';
 import { dateFormat } from '../../../lib/common';
@@ -11,14 +11,12 @@ import { dateFormat } from '../../../lib/common';
 function AdminSeancesLayout() {
   const renderDate = ({ date_start: date }) => format(new Date(date), dateFormat);
 
-  const sessionColumns = (hasPassed) => [
-    detailsColumnFor((id) => `/administration/seances/planning/${id}`),
+  const sessionColumns = hasPassed => [
+    detailsColumnFor(id => `/administration/seances/planning/${id}`),
     {
       title: 'Statut',
-      render: (session) => <SessionStatusBadge session={session} />,
-      props: {
-        className: 'text-center',
-      },
+      render: session => <SessionStatusBadge session={session} />,
+      props: { className: 'text-center' },
     },
     {
       title: 'Date',
@@ -40,51 +38,46 @@ function AdminSeancesLayout() {
       title: 'Inscriptions / Places disponibles',
       render: ({ slots, registrations }) => (
         <>
-          {registrations.filter(({ is_user_canceled }) => !is_user_canceled).length} / {slots}
+          {registrations.filter(({ is_user_canceled }) => !is_user_canceled).length}
+          {' '}
+          /
+          {slots}
         </>
       ),
     },
     {
       title: 'Notes',
       render: ({ notes }) => notes,
-      props: {
-        style: {
-          whiteSpace: 'pre-wrap',
-        },
-      },
+      props: { style: { whiteSpace: 'pre-wrap' } },
     },
     {
       title: 'Modifier',
-      render: (obj) => (
+      render: obj => (
         <Link href={`/administration/seances/planning/${obj.id}/edition`} passHref>
           <Button size="sm">
             <BsPencil className="icon" />
           </Button>
         </Link>
       ),
-      props: {
-        className: 'text-center',
-      },
+      props: { className: 'text-center' },
     },
     ...(!hasPassed
       ? [
-          {
-            title: 'Annuler',
-            render: (obj) => (
-              <CancelSessionConfirmDialog
-                session={obj}
-                triggerer={(clickHandler) => (
-                  <Button size="sm" variant="danger" onClick={clickHandler}>
-                    <BsXOctagon className="icon" />
-                  </Button>
-                )}
-              />
-            ),
-            props: {
-              className: 'text-center',
-            },
-          },
-        ]
+        {
+          title: 'Annuler',
+          render: obj => (
+            <CancelSessionConfirmDialog
+              session={obj}
+              triggerer={clickHandler => (
+                <Button size="sm" variant="danger" onClick={clickHandler}>
+                  <BsXOctagon className="icon" />
+                </Button>
+              )}
+            />
+          ),
+          props: { className: 'text-center' },
+        },
+      ]
       : []),
   ];
 
@@ -123,13 +116,9 @@ function AdminSeancesLayout() {
           include: ['registrations'],
           where: JSON.stringify({
             is_canceled: false,
-            date_end: {
-              $gt: new Date().toISOString(),
-            },
+            date_end: { $gt: new Date().toISOString() },
           }),
-          orderBy: JSON.stringify({
-            date_start: '$asc',
-          }),
+          orderBy: JSON.stringify({ date_start: '$asc' }),
         })}
         columns={sessionColumns(false)}
         renderEmpty={() => <>Il n'y a pas de séances à venir pour le moment.</>}
@@ -148,14 +137,10 @@ function AdminSeancesLayout() {
           where: JSON.stringify({
             $not: {
               is_canceled: false,
-              date_end: {
-                $gt: new Date().toISOString(),
-              },
+              date_end: { $gt: new Date().toISOString() },
             },
           }),
-          orderBy: JSON.stringify({
-            date_start: '$desc',
-          }),
+          orderBy: JSON.stringify({ date_start: '$desc' }),
         })}
         columns={sessionColumns(true)}
         renderEmpty={() => <>Il n'y a pas encore de séances passées ou annulées.</>}

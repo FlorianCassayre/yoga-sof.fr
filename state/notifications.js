@@ -7,7 +7,7 @@ export function NotificationsProvider({ children }) {
   const stateRef = useRef();
   const [notificationsMeta, setNotificationsMeta] = useState({ id: 0, notifications: [] });
   stateRef.current = notificationsMeta;
-  const deleteNotification = (id) => {
+  const deleteNotification = id => {
     const { id: idCounter, notifications } = stateRef.current;
     const tasks = [];
     notifications.forEach(({ id: idOther }) => {
@@ -17,13 +17,13 @@ export function NotificationsProvider({ children }) {
           setTimeout(() => {
             const { id: idCounter, notifications } = stateRef.current;
             setNotificationsMeta({ id: idCounter, notifications: notifications.filter(({ id: idOther }) => id !== idOther) });
-          }, timeToDisappear)
+          }, timeToDisappear),
         );
       }
     });
     setNotificationsMeta({
       id: idCounter,
-      notifications: notifications.map((notification) => (notification.id === id ? { ...notification, tasks: [...notification.tasks, ...tasks], hidden: true } : notification)),
+      notifications: notifications.map(notification => (notification.id === id ? { ...notification, tasks: [...notification.tasks, ...tasks], hidden: true } : notification)),
     });
   };
   const notify = ({ title, body, variant, icon, delay = 5 }) => {
@@ -37,13 +37,13 @@ export function NotificationsProvider({ children }) {
   useEffect(() => {
     // Cleanup
     notificationsMeta.notifications.forEach(({ tasks }) => {
-      tasks.forEach((task) => clearTimeout(task));
+      tasks.forEach(task => clearTimeout(task));
     });
   }, []);
   useEffect(() => {
     const { id, notifications } = notificationsMeta;
     if (notifications.some(({ mounted }) => !mounted)) {
-      setNotificationsMeta({ id, notifications: notifications.map((notification) => ({ ...notification, mounted: true })) });
+      setNotificationsMeta({ id, notifications: notifications.map(notification => ({ ...notification, mounted: true })) });
     }
   }, [notificationsMeta]);
   const value = { notify, deleteNotification, notifications: stateRef.current.notifications };

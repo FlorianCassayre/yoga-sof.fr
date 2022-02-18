@@ -1,11 +1,9 @@
-import { SESSIONS_TYPES } from '../../lib/common';
-import { schemaCalendarQuery } from '../../lib/common';
-import { apiHandler } from '../../lib/server';
-import { prisma } from '../../lib/server';
 import { createEvents } from 'ics';
+import { SESSIONS_TYPES, schemaCalendarQuery } from '../../lib/common';
+import { apiHandler, prisma } from '../../lib/server';
 
-const generateICS = (registrations) => {
-  const timestampToDateArray = (ts) => {
+const generateICS = registrations => {
+  const timestampToDateArray = ts => {
     const date = new Date(ts);
     return [date.getFullYear(), date.getMonth() + 1, date.getDay(), date.getHours(), date.getMinutes()];
   };
@@ -16,11 +14,9 @@ const generateICS = (registrations) => {
       start: timestampToDateArray(dateStart),
       end: timestampToDateArray(dateEnd),
       url: `${process.env.NEXTAUTH_URL}/mes-inscriptions`,
-      organizer: {
-        name: 'Sophie Richaud-Cassayre',
-      },
+      organizer: { name: 'Sophie Richaud-Cassayre' },
       // TODO many more fields to be explored
-    }))
+    })),
   );
 
   if (error) {
@@ -51,13 +47,9 @@ export default async function handler(req, res) {
             where: {
               user_id: userId,
               is_user_canceled: false,
-              session: {
-                is_canceled: false,
-              },
+              session: { is_canceled: false },
             },
-            include: {
-              session: true,
-            },
+            include: { session: true },
           });
 
           const icsDataString = generateICS(registeredSessions);

@@ -25,8 +25,8 @@ export function PaginatedTableLayout({
     }
 
     const pageSet = new Set();
-    const radiusPage = 2,
-      radiusExtremity = 1;
+    const radiusPage = 2;
+    const radiusExtremity = 1;
     for (let i = page - radiusPage + 1; i <= page + radiusPage - 1; i++) {
       pageSet.add(i);
     }
@@ -36,7 +36,7 @@ export function PaginatedTableLayout({
     }
 
     const visiblePages = Array.from(pageSet)
-      .filter((i) => i >= 1 && i <= pageCount)
+      .filter(i => i >= 1 && i <= pageCount)
       .sort((a, b) => a - b);
 
     return (

@@ -34,11 +34,7 @@ function AdminEmailsLayout() {
           {
             title: 'Corps',
             render: ({ message }) => message,
-            props: {
-              style: {
-                whiteSpace: 'pre-wrap',
-              },
-            },
+            props: { style: { whiteSpace: 'pre-wrap' } },
           },
           {
             title: 'Date',
@@ -47,12 +43,10 @@ function AdminEmailsLayout() {
           {
             title: "Date d'envoi",
             render: ({ sent_at: sentAt }) => (sentAt ? renderDatetime(sentAt) : <Badge bg="danger">Non envoyé</Badge>),
-            props: {
-              className: 'text-center',
-            },
+            props: { className: 'text-center' },
           },
         ]}
-        renderEmpty={() => `Aucun e-mail n'a été envoyé pour le moment.`}
+        renderEmpty={() => 'Aucun e-mail n\'a été envoyé pour le moment.'}
       />
     </ContentLayout>
   );

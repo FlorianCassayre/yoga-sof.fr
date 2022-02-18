@@ -9,8 +9,8 @@ export default function AdminRegistrationCreate() {
   const router = useRouter();
   const { user_id, session_id } = router.query;
 
-  const userId = parseInt(user_id),
-    sessionId = parseInt(session_id);
+  const userId = parseInt(user_id);
+  const sessionId = parseInt(session_id);
 
   return (
     <PrivateLayout>
@@ -21,7 +21,7 @@ export default function AdminRegistrationCreate() {
         </Alert>
 
         <RegistrationCreateForm
-          redirect={(obj) => (obj != null ? `/administration/seances/planning/${obj.session_id}` : '/administration/inscriptions')}
+          redirect={obj => (obj != null ? `/administration/seances/planning/${obj.session_id}` : '/administration/inscriptions')}
           initialValues={{
             user_id: isNaN(userId) ? undefined : userId,
             session_id: isNaN(sessionId) ? undefined : sessionId,

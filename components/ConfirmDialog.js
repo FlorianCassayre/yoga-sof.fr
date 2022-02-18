@@ -6,13 +6,12 @@ import { ErrorMessage } from './ErrorMessage';
 
 export function ConfirmDialog({ triggerer, title, description, variant, icon: Icon, action, cancelAction, confirmPromise, onSuccess }) {
   const [show, setShow] = useState(false);
-  const [{ isLoading, isError, data, error }, callback] = usePromiseCallback(
-    () =>
-      confirmPromise().then((result) => {
-        setShow(false);
-        onSuccess(result);
-      }),
-    [confirmPromise]
+  const [{ isLoading, isError, error }, callback] = usePromiseCallback(
+    () => confirmPromise().then(result => {
+      setShow(false);
+      onSuccess(result);
+    }),
+    [confirmPromise],
   );
 
   return (

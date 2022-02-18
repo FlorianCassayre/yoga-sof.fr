@@ -9,21 +9,19 @@ export default function Redirection() {
   const loading = status === 'loading';
 
   useEffect(() => {
-    //if (router.asPath.endsWith("#")) {
+    // if (router.asPath.endsWith("#")) {
     //  router.push(router.pathname);
-    //}
+    // }
 
     if (!loading) {
       if (status === 'unauthenticated') {
         router.push('/connexion');
+      } else if (session.userType === USER_TYPE_REGULAR) {
+        router.push('/inscription');
+      } else if (session.userType === USER_TYPE_ADMIN) {
+        router.push('/administration');
       } else {
-        if (session.userType === USER_TYPE_REGULAR) {
-          router.push('/inscription');
-        } else if (session.userType === USER_TYPE_ADMIN) {
-          router.push('/administration');
-        } else {
-          throw new Error();
-        }
+        throw new Error();
       }
     }
   }, [router, status, session, loading]);

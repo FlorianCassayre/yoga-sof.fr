@@ -1,6 +1,5 @@
 import { ALL_USER_TYPES, schemaSelfRegistrationCancelQuery } from '../../../../../lib/common';
-import { apiHandler } from '../../../../../lib/server';
-import { prisma } from '../../../../../lib/server';
+import { apiHandler, prisma } from '../../../../../lib/server';
 
 export default async function handler(req, res) {
   await apiHandler({
@@ -14,9 +13,7 @@ export default async function handler(req, res) {
             user_id: userId,
             is_user_canceled: false,
             session: {
-              date_start: {
-                gt: new Date(),
-              },
+              date_start: { gt: new Date() },
               is_canceled: false,
             },
           },
