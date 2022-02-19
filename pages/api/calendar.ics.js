@@ -1,5 +1,5 @@
 import { createEvents } from 'ics';
-import { SESSIONS_TYPES, schemaCalendarQuery } from '../../lib/common';
+import { schemaCalendarQuery, SESSIONS_NAMES } from '../../lib/common';
 import { apiHandler, prisma } from '../../lib/server';
 
 const generateICS = registrations => {
@@ -10,7 +10,7 @@ const generateICS = registrations => {
 
   const { error, value } = createEvents(
     registrations.map(({ session: { type, date_start: dateStart, date_end: dateEnd } }) => ({
-      title: SESSIONS_TYPES.filter(({ id }) => id === type)[0].title,
+      title: SESSIONS_NAMES[type].title,
       start: timestampToDateArray(dateStart),
       end: timestampToDateArray(dateEnd),
       url: `${process.env.NEXTAUTH_URL}/mes-inscriptions`,
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   await apiHandler({
     GET: {
       schemaQuery: schemaCalendarQuery,
-      action: async (req, res, { reject, query: { id: userId, token } }) => {
+      action: async ({ reject, query: { id: userId, token } }) => {
         const userExists = !!(await prisma.users.count({
           where: {
             id: userId,

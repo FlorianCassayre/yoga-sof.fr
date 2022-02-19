@@ -101,18 +101,18 @@ export const practicalInformationsParentChildren = {
   registrable: false,
 };
 
-export function PracticalInformations({ data: { section, age, level, group, duration, place, material, registration, program, image2, registrable, dates }, condensed }) {
-  function AttributeIcon({ icon: Icon, title, value }) {
-    return (
-      <div className="mb-2">
-        <Icon className="icon me-2" />
-        <strong className="h5">{title}</strong>
-        <br />
-        <span>{value}</span>
-      </div>
-    );
-  }
+function AttributeIcon({ icon: Icon, title, value }) {
+  return (
+    <div className="mb-2">
+      <Icon className="icon me-2" />
+      <strong className="h5">{title}</strong>
+      <br />
+      <span>{value}</span>
+    </div>
+  );
+}
 
+export function PracticalInformations({ data: { section, age, level, group, duration, place, material, registration, program, image2, registrable, dates }, condensed }) {
   return (
     <Row className="mt-4 text-center">
       <Col xs={6} sm={3}>

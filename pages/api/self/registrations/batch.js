@@ -1,12 +1,12 @@
 import { ALL_USER_TYPES, IS_REGISTRATION_DISABLED, schemaSelfRegistrationBatchBody } from '../../../../lib/common';
-import { apiHandler } from '../../../../lib/server';
+import { apiHandler, prisma } from '../../../../lib/server';
 
 export default async function handler(req, res) {
   await apiHandler({
     POST: {
       permissions: ALL_USER_TYPES,
       schemaBody: schemaSelfRegistrationBatchBody,
-      action: async (req, res, { reject, accept, userId, body: { sessions } }) => {
+      action: async ({ reject, accept, userId, body: { sessions } }) => {
         if (IS_REGISTRATION_DISABLED) {
           reject('Bad Request: temporarily disabled');
           return;

@@ -1,6 +1,5 @@
 import { USER_TYPE_ADMIN, schemaSessionCancelBody, schemaSessionCancelQuery } from '../../../../lib/common';
-import { apiHandler } from '../../../../lib/server';
-import { notifySessionCanceled } from '../../../../lib/server/email';
+import { apiHandler, notifySessionCanceled, prisma } from '../../../../lib/server';
 
 export default async function handler(req, res) {
   await apiHandler({
@@ -8,7 +7,7 @@ export default async function handler(req, res) {
       permissions: [USER_TYPE_ADMIN],
       schemaQuery: schemaSessionCancelQuery,
       schemaBody: schemaSessionCancelBody,
-      action: async (req, res, { accept, reject, query: { id: sessionId }, body: { cancelation_reason } }) => {
+      action: async ({ accept, reject, query: { id: sessionId }, body: { cancelation_reason } }) => {
         const result = await prisma.sessions.updateMany({
           where: {
             id: sessionId,

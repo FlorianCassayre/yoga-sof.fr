@@ -10,6 +10,12 @@
     "no-else-return": "off",
     "arrow-parens": ["error", "as-needed"],
     "react/jsx-props-no-spreading": "off",
-    "object-curly-newline": ["error", { "consistent": true }]
+    "object-curly-newline": ["error", { "consistent": true }],
+    "no-nested-ternary": "off",
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "radix": ["error", "as-needed"],
+    "max-classes-per-file": "off",
+    "react/no-array-index-key": "off",
+    "no-plusplus": "off"
   }
 }

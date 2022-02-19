@@ -1,4 +1,4 @@
-import { Form, FormControl, InputGroup } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 import { Field } from 'react-final-form';
 
 export function SwitchField({ name, label, fieldProps = {}, ...props }) {

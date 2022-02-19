@@ -6,7 +6,7 @@ import { PublicLayout } from '../components/layout/public';
 import { PracticalInformations, practicalInformationsAdult, practicalInformationsChildren, practicalInformationsParentChildren } from '../components/PracticalInformations';
 
 export default function Home() {
-  function CourseCard({ alt, title, description, image, informationData, urlSection }) {
+  function CourseCard({ alt, title, description, image, informationData, urlSection }) { // eslint-disable-line no-unused-vars
     const imageData = (
       <div className="text-center">
         <Image src={image} alt={title} fluid className="rounded-3 shadow" />
@@ -14,7 +14,7 @@ export default function Home() {
     );
     const contentData = (
       <>
-        <h2 className={'display-6 text-start' + ` ${alt ? 'text-lg-end' : ''}`}>{title}</h2>
+        <h2 className={`display-6 text-start ${alt ? 'text-lg-end' : ''}`}>{title}</h2>
         <div className="text-justify">
           {description}
           <PracticalInformations data={informationData} condensed />

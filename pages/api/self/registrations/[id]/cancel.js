@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     POST: {
       permissions: ALL_USER_TYPES,
       schemaQuery: schemaSelfRegistrationCancelQuery,
-      action: async (req, res, { accept, reject, userId, query: { id: registrationId } }) => {
+      action: async ({ accept, reject, userId, query: { id: registrationId } }) => {
         const result = await prisma.registrations.updateMany({
           where: {
             id: registrationId,

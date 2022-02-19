@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+
 export function IconEye(props) {
   return (
     <svg viewBox="0 0 211.67 201.35" xmlns="http://www.w3.org/2000/svg" {...props}>

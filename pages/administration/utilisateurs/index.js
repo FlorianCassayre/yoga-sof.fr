@@ -68,7 +68,7 @@ function AdminUsersLayout() {
             render: ({ created_at: createdAt }) => renderDatetime(createdAt),
           },
         ]}
-        totalCallback={total => setTotal(total)}
+        totalCallback={newTotal => setTotal(newTotal)}
       />
     </ContentLayout>
   );

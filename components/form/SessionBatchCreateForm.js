@@ -5,7 +5,7 @@ import { OnChange } from 'react-final-form-listeners';
 import { addDays, format, getDay } from 'date-fns';
 import { usePromiseEffect } from '../../hooks';
 import { getSessionModels } from '../../lib/client/api';
-import { dateFormat, formatTime, parseTime, WEEKDAYS, SESSIONS_TYPES } from '../../lib/common';
+import { dateFormat, formatTime, parseTime, WEEKDAYS, SESSIONS_TYPES, SESSIONS_NAMES } from '../../lib/common';
 import { ErrorMessage } from '../ErrorMessage';
 import { CreateEditForm } from './CreateEditForm';
 import { TimePickerRangeFields, SessionTypeSelectField, SlotsNumberField, WeekdaySelectField, PriceNumberField } from './fields';
@@ -25,7 +25,7 @@ export function SessionBatchCreateForm() {
     }
   };
 
-  const isSameWeekday = (date, weekday) => (getDay(date) + 6) % WEEKDAYS.length === parseInt(weekday);
+  const isSameWeekday = (date, weekday) => (getDay(date) + 6) % WEEKDAYS.length === parseInt(weekday, 10);
 
   const computeDatesFromRange = (range, timeStart, timeEnd, weekday) => {
     // TODO time
@@ -136,7 +136,7 @@ export function SessionBatchCreateForm() {
                         <option value={MODEL_NONE}>Aucun modèle</option>
                         {data.map(({ id, type, weekday, time_start: timeStart, time_end: timeEnd }) => (
                           <option key={id} value={id}>
-                            {SESSIONS_TYPES.filter(({ id }) => id === type)[0].title}
+                            {SESSIONS_NAMES[type].title}
                             {' '}
                             le
                             {WEEKDAYS[weekday].toLowerCase()}

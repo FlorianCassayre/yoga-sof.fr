@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Alert, Badge, Button, Card, Col, Container, Form, ProgressBar, Row, Spinner, Table } from 'react-bootstrap';
 import { BsArrowLeft, BsCheckLg, BsInfoCircleFill } from 'react-icons/bs';
 import Link from 'next/link';
-import DatePicker, { registerLocale } from 'react-datepicker';
+import { registerLocale } from 'react-datepicker';
 import { Form as FinalForm, Field } from 'react-final-form';
 
 import { fr } from 'date-fns/locale';
@@ -36,7 +36,7 @@ registerLocale('fr', fr);
 export default function Inscription() {
   const { data: sessionData } = useSession();
 
-  const { isLoading, isError, data, error } = usePromiseEffect(getSessionsSchedule, []);
+  const { isLoading, isError, data, error } = usePromiseEffect(getSessionsSchedule, []); // eslint-disable-line no-unused-vars
 
   const [submitData, setSubmitData] = useState({});
 
@@ -155,12 +155,12 @@ export default function Inscription() {
     const sessionsForType = data.sessions.filter(({ type: typeOther }) => typeOther === values.type);
     // TODO remove already registered sessions
     const selectableDates = sessionsForType.map(({ date_start: date }) => new Date(date));
-    const times = selectableDates.map(d => d.getTime());
-    const now = new Date();
-    const [minDate, maxDate] = selectableDates.length > 0 ? [new Date(Math.min(...times)), new Date(Math.max(...times))] : [now, now];
+    // const times = selectableDates.map(d => d.getTime());
+    // const now = new Date();
+    // const [minDate, maxDate] = selectableDates.length > 0 ? [new Date(Math.min(...times)), new Date(Math.max(...times))] : [now, now];
 
-    const isDateSelectable = date => selectableDates.some(other => isSameDay(date, other));
-    const handleDayClick = currentValue => date => {
+    // const isDateSelectable = date => selectableDates.some(other => isSameDay(date, other));
+    /* const handleDayClick = currentValue => date => {
       const matchingSessions = sessionsForType.filter(({ date_start: sessionDate }) => isSameDay(new Date(sessionDate), date));
       if (matchingSessions.length > 0) {
         if (matchingSessions.length === 1) {
@@ -172,7 +172,7 @@ export default function Inscription() {
         }
       }
       // Otherwise, do nothing
-    };
+    }; */
     const handleSessionClick = currentValue => id => {
       setValue('sessions', currentValue.includes(id) ? currentValue.filter(otherId => id !== otherId) : [...currentValue, id]);
     };
@@ -310,7 +310,7 @@ export default function Inscription() {
   const steps = [1, 2, 3];
 
   const onSubmit = values => {
-    console.log(values);
+    // console.log(values);
 
     const data = { sessions: values.sessions };
 

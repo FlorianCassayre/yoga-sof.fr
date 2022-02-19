@@ -17,13 +17,11 @@ export function UserSelectField({ name, fieldProps = {}, disabled, ...props }) {
         render={({ input }) => (
           <Form.Select {...input} required disabled={isLoading || isError || disabled} {...fieldProps}>
             <option value={null} disabled />
-            {!isLoading
-              && !isError
-              && data.map(({ id, name }) => (
-                <option key={id} value={id}>
-                  {name}
-                </option>
-              ))}
+            {!isLoading && !isError && data.map(({ id, name }) => (
+              <option key={id} value={id}>
+                {name}
+              </option>
+            ))}
           </Form.Select>
         )}
       />

@@ -1,3 +1,5 @@
+/* eslint-disable no-param-reassign */
+
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook';
@@ -46,7 +48,7 @@ export default NextAuth({
     // newUser: null // If set, new users will be directed here on first sign in
   },
   callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
+    async signIn({ user, account, profile, email, credentials }) { // eslint-disable-line no-unused-vars
       const isAllowedToSignIn = true; // TODO
       if (isAllowedToSignIn) {
         return true;
@@ -110,7 +112,7 @@ export default NextAuth({
           { select: { email: true } },
         )
       ).map(({ email }) => email);
-      const isAdmin = whiteListedEmails.some(email => userVerifiedEmails.includes(email));
+      const isAdmin = whiteListedEmails.some(whiteListedEmail => userVerifiedEmails.includes(whiteListedEmail));
 
       session.userType = isAdmin ? USER_TYPE_ADMIN : USER_TYPE_REGULAR;
 
@@ -120,7 +122,7 @@ export default NextAuth({
 
       return session;
     },
-    async jwt({ token, user, account, profile, isNewUser }) {
+    async jwt({ token, user, account /* profile, isNewUser */ }) {
       if (user && account) {
         token = { provider: account.provider, id_provider: user.id, ...token };
       }

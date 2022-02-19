@@ -7,7 +7,13 @@ import { UserSelfForm } from '../components/form';
 import { PublicLayout } from '../components/layout/public';
 import { renderSessionName } from '../components/table';
 import { usePromiseEffect } from '../hooks';
-import { SESSIONS_TYPES, USER_TYPE_ADMIN, USER_TYPE_REGULAR, formatDayRange, formatTimestamp } from '../lib/common';
+import {
+  USER_TYPE_ADMIN,
+  USER_TYPE_REGULAR,
+  formatDayRange,
+  formatTimestamp,
+  SESSIONS_NAMES,
+} from '../lib/common';
 import { getSelfRegistrations, postSelfCancelRegistration } from '../lib/client/api';
 import { useNotificationsContext, useRefreshContext } from '../state';
 
@@ -46,10 +52,10 @@ function MesCoursLayout() {
           <tbody className="align-middle">
             {rows.map(registration => {
               const { id, created_at: registeredAt, is_user_canceled: isUserCanceled, canceled_at: userCanceledAt, session } = registration;
-              const { type, date_start: dateStart, date_end: dateEnd, is_canceled: isCanceled } = session;
+              const { type, date_start: dateStart, date_end: dateEnd } = session;
               return (
                 <tr key={id}>
-                  <td>{SESSIONS_TYPES.filter(({ id }) => id === type)[0].title}</td>
+                  <td>{SESSIONS_NAMES[type].title}</td>
                   <td>{formatDayRange(dateStart, dateEnd)}</td>
                   <td>{formatTimestamp(registeredAt)}</td>
                   {cancellable && (

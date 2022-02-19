@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+
 export function IconFidhy(props) {
   return (
     <svg viewBox="0 0 158.75 172.51" xmlns="http://www.w3.org/2000/svg" {...props}>

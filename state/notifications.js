@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 const NotificationsContext = createContext();
 
@@ -34,19 +34,21 @@ export function NotificationsProvider({ children }) {
     const notification = { id, title, body, variant, icon, tasks: [task], mounted: false, hidden: false };
     setNotificationsMeta({ id: id + 1, notifications: [notification, ...notifications] });
   };
-  useEffect(() => {
+  useEffect(
+    () =>
     // Cleanup
-    notificationsMeta.notifications.forEach(({ tasks }) => {
-      tasks.forEach(task => clearTimeout(task));
-    });
-  }, []);
+      () => notificationsMeta.notifications.forEach(({ tasks }) => {
+        tasks.forEach(task => clearTimeout(task));
+      }),
+    [],
+  );
   useEffect(() => {
     const { id, notifications } = notificationsMeta;
     if (notifications.some(({ mounted }) => !mounted)) {
       setNotificationsMeta({ id, notifications: notifications.map(notification => ({ ...notification, mounted: true })) });
     }
   }, [notificationsMeta]);
-  const value = { notify, deleteNotification, notifications: stateRef.current.notifications };
+  const value = useMemo(() => ({ notify, deleteNotification, notifications: stateRef.current.notifications }), [notify, deleteNotification, stateRef]);
   return <NotificationsContext.Provider value={value}>{children}</NotificationsContext.Provider>;
 }
 

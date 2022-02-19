@@ -3,7 +3,7 @@ import { apiHandler, prisma } from '../../lib/server';
 export default async function handler(req, res) {
   await apiHandler({
     GET: {
-      action: async (req, res, { accept }) => {
+      action: async ({ accept }) => {
         const [sessionModels, futureSessions] = await Promise.all([
           prisma.session_models.findMany(),
           prisma.sessions.findMany({

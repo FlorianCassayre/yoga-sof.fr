@@ -7,8 +7,8 @@ export function PaginatedTableLayout({
   isDisabled,
   isError,
   error,
-  resultsPerPage = 10,
-  onResultsPerPageChange,
+  resultsPerPage = 10, // eslint-disable-line no-unused-vars
+  onResultsPerPageChange, // eslint-disable-line no-unused-vars
   onPageChange,
   rows,
   totalRows,

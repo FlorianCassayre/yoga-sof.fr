@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Container, Nav, Navbar, NavDropdown, Spinner } from 'react-bootstrap';
 import { BsBoxArrowRight, BsCalendarWeek, BsPencilSquare, BsPerson, BsSpeedometer2 } from 'react-icons/bs';
-import { GrYoga } from 'react-icons/gr';
+// import { GrYoga } from 'react-icons/gr';
 import { IconYoga } from '../../icons';
 import { USER_TYPE_ADMIN } from '../../../lib/common';
 

@@ -25,6 +25,7 @@ export function CreateEditForm({
   children,
 }) {
   const { notify } = useNotificationsContext();
+  const router = useRouter();
 
   const isEdit = editRecordId != null;
 
@@ -37,22 +38,6 @@ export function CreateEditForm({
   const { isLoading: isInitialDataLoading, isError: isInitialDataError, data: initialData, error: initialDataError } = usePromiseEffect(isEdit ? () => jsonFetch(url) : null, []);
 
   const initialFormData = isEdit ? initialData : initialValues;
-
-  useEffect(() => {
-    if (submitResult) {
-      submitSuccessCallback(submitResult);
-    }
-  }, [submitResult, submitSuccessCallback]);
-
-  const router = useRouter();
-
-  const [deleteDialogShow, setDeleteDialogShow] = useState(false);
-
-  const renderLoader = () => (
-    <div className="m-5 text-center">
-      <Spinner animation="border" />
-    </div>
-  );
 
   const defaultSuccessMessages = {
     create: {
@@ -87,21 +72,33 @@ export function CreateEditForm({
     [notify, lastAction, successMessages, router],
   ); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (submitResult) {
+      submitSuccessCallback(submitResult);
+    }
+  }, [submitResult, submitSuccessCallback]);
+
+  const [deleteDialogShow, setDeleteDialogShow] = useState(false);
+
+  const renderLoader = () => (
+    <div className="m-5 text-center">
+      <Spinner animation="border" />
+    </div>
+  );
+
   const onSubmit = data => {
     numberFields.forEach(field => {
       const value = data[field];
       if (value != null) {
-        data[field] = parseInt(value);
+        data[field] = parseInt(value); // eslint-disable-line no-unused-vars
       }
     });
 
-    if (submitCallback) {
-      data = submitCallback(data);
-    }
+    const processedData = submitCallback ? submitCallback(data) : data;
 
     const method = isEdit ? PUT : POST;
     setLastAction(method);
-    submitDispatcher({ method, body: data });
+    submitDispatcher({ method, body: processedData });
   };
 
   const onCancel = () => {

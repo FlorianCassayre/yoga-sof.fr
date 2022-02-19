@@ -21,7 +21,7 @@ export function FooterLayout() {
     return (
       <div>
         <Link href={href} passHref>
-          <a className="link-light">{children}</a>
+          <a className="link-light">{children}</a> {/* eslint-disable-line */}
         </Link>
       </div>
     );

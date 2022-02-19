@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Button } from 'react-bootstrap';
 import { BsCalendarDate, BsEyeFill, BsPerson, BsXOctagon } from 'react-icons/bs';
 import { CancelRegistrationConfirmDialog } from '../CancelRegistrationConfirmDialog';
-import { dateFormat, formatDayRange, formatTimestamp, SESSIONS_TYPES } from '../../lib/common';
+import { dateFormat, formatDayRange, formatTimestamp, SESSIONS_NAMES, SESSIONS_TYPES } from '../../lib/common';
 import { SessionStatusBadge } from '../SessionStatusBadge';
 import { StarIndicator } from '../StarIndicator';
 
@@ -22,7 +22,7 @@ export const idColumn = {
 export const userLinkColumn = {
   title: 'Utilisateur',
   render: ({ user_id, user: { name } }) => (
-    <Link href={`/administration/utilisateurs/${user_id}`} passHref>
+    <Link href={`/administration/utilisateurs/${user_id}`}>
       <a>
         <BsPerson className="icon me-2" />
         {name}
@@ -31,12 +31,12 @@ export const userLinkColumn = {
   ),
 };
 
-export const renderSessionName = ({ type, date_start: dateStart, date_end: dateEnd }, capitalize = true) => [capitalize ? 'Séance' : 'séance', SESSIONS_TYPES.filter(({ id }) => id === type)[0].title.toLowerCase(), 'du', formatDayRange(dateStart, dateEnd)].join(' ');
+export const renderSessionName = ({ type, date_start: dateStart, date_end: dateEnd }, capitalize = true) => [capitalize ? 'Séance' : 'séance', SESSIONS_NAMES[type].title.toLowerCase(), 'du', formatDayRange(dateStart, dateEnd)].join(' ');
 
 export const plannedSessionLinkColumn = {
   title: 'Séance',
   render: ({ session_id, session }) => (
-    <Link href={`/administration/seances/planning/${session_id}`} passHref>
+    <Link href={`/administration/seances/planning/${session_id}`}>
       <a>
         <BsCalendarDate className="icon me-2" />
         {renderSessionName(session)}

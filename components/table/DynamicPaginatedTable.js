@@ -17,7 +17,7 @@ export function DynamicPaginatedTable({
   ...rest
 }) {
   const [page, setPage] = useState(initialPage);
-  const [{ isLoading, isError, data, error }, dispatcher] = usePromiseCallback((url, query) => jsonFetch(url, { query }), []);
+  const [{ isLoading, isError, data, error }, dispatcher] = usePromiseCallback((urlParameter, query) => jsonFetch(urlParameter, { query }), []);
 
   const [resultsPerPage, setResultsPerPage] = useState(initialResultsPerPage);
 
