@@ -1,6 +1,8 @@
-import NextAuth from "next-auth"
-import GoogleProvider from "next-auth/providers/google";
-import FacebookProvider from "next-auth/providers/facebook";
+/* eslint-disable no-param-reassign */
+
+import NextAuth from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
+import FacebookProvider from 'next-auth/providers/facebook';
 import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../../../lib/common';
 import { prisma } from '../../../lib/server';
 
@@ -46,25 +48,27 @@ export default NextAuth({
     // newUser: null // If set, new users will be directed here on first sign in
   },
   callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
+    async signIn({ user, account, profile, email, credentials }) { // eslint-disable-line no-unused-vars
       const isAllowedToSignIn = true; // TODO
       if (isAllowedToSignIn) {
         return true;
-      } else {
-        // Return false to display a default error message
-        return false;
-        // Or you can return a URL to redirect to:
-        // return '/unauthorized'
       }
+      // Return false to display a default error message
+      return false;
+      // Or you can return a URL to redirect to:
+      // return '/unauthorized'
     },
     // async redirect(url, baseUrl) { return baseUrl },
-    async session({ session, user, token }) {
-      const email = session.user.email;
+    async session({ session, /* user, */ token }) {
+      const { email } = session.user;
 
       session.user.provider = token.provider;
       session.user.id_provider = token.id_provider;
 
-      const { id, user: { public_access_token, user_linked_accounts: linkedAccounts, name: displayName } } = await prisma.user_linked_account.upsert({
+      const {
+        id,
+        user: { public_access_token: publicAccessToken, user_linked_accounts: linkedAccounts, name: displayName },
+      } = await prisma.user_linked_account.upsert({
         where: {
           id_provider_provider: {
             id_provider: token.id_provider,
@@ -72,18 +76,19 @@ export default NextAuth({
           },
         },
         update: {
-          email: email,
+          email,
           name: session.user.name,
           // We don't update the user's data
         },
         create: {
           id_provider: token.id_provider,
-          email: email,
+          email,
           provider: token.provider,
           name: session.user.name,
           user: {
-            create: { // Nested create
-              email: email,
+            create: {
+              // Nested create
+              email,
               name: session.user.name,
             },
           },
@@ -93,36 +98,31 @@ export default NextAuth({
           user: {
             select: {
               public_access_token: true,
-              user_linked_accounts: {
-                select: {
-                  email: true,
-                },
-              },
+              user_linked_accounts: { select: { email: true } },
               name: true,
             },
           },
-        }
+        },
       });
 
-      const userVerifiedEmails = linkedAccounts.map(({ email }) => email).filter(email => email);
-      const whiteListedEmails = (await prisma.admins.findMany( // Not atomic, but doesn't matter
-        {
-          select: {
-            email: true,
-          },
-        }
-      )).map(({ email }) => email);
-      const isAdmin = whiteListedEmails.some(email => userVerifiedEmails.includes(email));
+      const userVerifiedEmails = linkedAccounts.map(({ email: linkedAccountEmail }) => linkedAccountEmail).filter(linkedAccountEmail => linkedAccountEmail);
+      const whiteListedEmails = (
+        await prisma.admins.findMany(
+          // Not atomic, but doesn't matter
+          { select: { email: true } },
+        )
+      ).map(({ email: whiteListedEmail }) => whiteListedEmail);
+      const isAdmin = whiteListedEmails.some(whiteListedEmail => userVerifiedEmails.includes(whiteListedEmail));
 
       session.userType = isAdmin ? USER_TYPE_ADMIN : USER_TYPE_REGULAR;
 
       session.user.db_id = id;
-      session.user.public_access_token = public_access_token;
+      session.user.public_access_token = publicAccessToken;
       session.user.name = displayName;
 
       return session;
     },
-    async jwt({ token, user, account, profile, isNewUser }) {
+    async jwt({ token, user, account /* profile, isNewUser */ }) {
       if (user && account) {
         token = { provider: account.provider, id_provider: user.id, ...token };
       }

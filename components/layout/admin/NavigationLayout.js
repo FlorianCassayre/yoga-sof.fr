@@ -2,33 +2,17 @@ import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Col, Container, Dropdown, Nav, Row } from 'react-bootstrap';
-import {
-  BsBoxArrowRight,
-  BsBoxArrowUpRight, BsCalendarWeek, BsCurrencyEuro, BsJournalText,
-  BsKanban,
-  BsMailbox, BsPeople,
-  BsPerson,
-  BsShieldLock,
-} from 'react-icons/bs';
+import { BsBoxArrowRight, BsBoxArrowUpRight, BsCalendarWeek, BsCurrencyEuro, BsJournalText, BsKanban, BsMailbox, BsPeople, BsPerson, BsShieldLock } from 'react-icons/bs';
 import pkg from '../../../package.json';
 
-export function NavigationLayout({ children }) {
+function NavItem({ children, className = '' }) {
+  return <Nav.Item className={`mb-2 me-2 flex-grow-1 w-100 text-center text-sm-start ${className}`}>{children}</Nav.Item>;
+}
 
-  const router = useRouter();
-  const { data: sessionData } = useSession();
-  const { pathname } = router;
+function NavItemLink({ pathname: pathnameOther, icon: Icon, title, exactPathname, disabled }) {
+  const { pathname } = useRouter();
 
-  const handleSignOut = () => {
-    signOut({ redirect: false, callbackUrl: '/' }).then(data => router.push(data.url));
-  };
-
-  const NavItem = ({ children, className = '' }) => (
-    <Nav.Item className={`mb-2 me-2 flex-grow-1 w-100 text-center text-sm-start ${className}`}>
-      {children}
-    </Nav.Item>
-  );
-
-  const NavItemLink = ({ pathname: pathnameOther, icon: Icon, title, exactPathname, disabled }) => (
+  return (
     <NavItem>
       <Link href={pathnameOther} passHref>
         <Nav.Link active={exactPathname ? pathnameOther === pathname : pathname.startsWith(pathnameOther)} className="px-2 py-1 px-sm-3 py-sm-2" disabled={disabled}>
@@ -40,14 +24,23 @@ export function NavigationLayout({ children }) {
       </Link>
     </NavItem>
   );
+}
 
-  const NavItemTitle = ({ title }) => (
+function NavItemTitle({ title }) {
+  return (
     <NavItem className="d-none d-sm-block">
-      <div className="text-muted mt-2">
-        {title}
-      </div>
+      <div className="text-muted mt-2">{title}</div>
     </NavItem>
   );
+}
+
+export function NavigationLayout({ children }) {
+  const router = useRouter();
+  const { data: sessionData } = useSession();
+
+  const handleSignOut = () => {
+    signOut({ redirect: false, callbackUrl: '/' }).then(data => router.push(data.url));
+  };
 
   return (
     <Container fluid>
@@ -56,13 +49,23 @@ export function NavigationLayout({ children }) {
           <div className="d-flex flex-sm-column flex-row flex-grow-1 align-items-center align-items-sm-start px-3 pt-3 pb-2 text-white" style={{ maxWidth: '100%' }}>
             <Link href="/administration" passHref>
               <a className="d-flex align-items-center mb-md-0 me-md-auto text-white text-decoration-none mb-2">
-                <span className="fs-5 d-none d-sm-inline">Yoga Sof<span className="text-muted fs-6 d-none d-sm-inline"> admin</span></span>
+                {' '}
+                {/* eslint-disable-line jsx-a11y/anchor-is-valid */}
+                <span className="fs-5 d-none d-sm-inline">
+                  Yoga Sof
+                  <span className="text-muted fs-6 d-none d-sm-inline"> admin</span>
+                </span>
               </a>
             </Link>
 
-            <Nav variant="pills" className="w-100 flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto justify-content-center align-items-center align-items-sm-start">
+            <Nav
+              variant="pills"
+              className="w-100 flex-sm-column flex-row flex-nowrap flex-shrink-1 flex-sm-grow-0 flex-grow-1 mb-sm-auto justify-content-center align-items-center align-items-sm-start"
+            >
               <Link href="/" passHref>
                 <a className="link-light text-decoration-none mb-2 d-none d-sm-inline">
+                  {' '}
+                  {/* eslint-disable-line jsx-a11y/anchor-is-valid */}
                   Revenir sur le site
                   <BsBoxArrowUpRight className="icon ms-2" />
                 </a>
@@ -91,20 +94,20 @@ export function NavigationLayout({ children }) {
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              <div className="text-muted d-none d-sm-block ms-3">Version {pkg.version}</div>
+              <div className="text-muted d-none d-sm-block ms-3">
+                Version
+                {pkg.version}
+              </div>
             </div>
-
           </div>
         </Col>
         <Col xs={12} sm={7} md={8} lg={9} xl={10} className="d-flex flex-column">
           <Row as="main" className="overflow-auto">
-            <Col className="p-4">
-              {children}
-            </Col>
+            <Col className="p-4">{children}</Col>
           </Row>
-          {/*<Row as="footer" className="bg-light py-4 mt-auto">
+          {/* <Row as="footer" className="bg-light py-4 mt-auto">
             <Col>Footer</Col>
-          </Row>*/}
+          </Row> */}
         </Col>
       </Row>
     </Container>

@@ -1,4 +1,4 @@
-import { FloatingLabel, Form, InputGroup } from 'react-bootstrap';
+import { FloatingLabel, Form } from 'react-bootstrap';
 import { Field } from 'react-final-form';
 
 export function FloatingInputField({ name, label, placeholder, type = null, required, parse, fieldProps = {}, ...props }) {

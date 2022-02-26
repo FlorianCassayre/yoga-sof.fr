@@ -1,13 +1,7 @@
 import { CreateEditForm } from './CreateEditForm';
-import {
-  TimePickerRangeFields,
-  SessionTypeSelectField,
-  SlotsNumberField,
-  WeekdaySelectField, PriceNumberField,
-} from './fields';
+import { TimePickerRangeFields, SessionTypeSelectField, SlotsNumberField, WeekdaySelectField, PriceNumberField } from './fields';
 
 export function SessionModelForm({ editRecordId, container }) {
-
   return (
     <CreateEditForm
       modelId="session_models"
@@ -20,12 +14,11 @@ export function SessionModelForm({ editRecordId, container }) {
         price: null,
       }}
       numberFields={['weekday', 'slots', 'price']}
-      redirect={() => `/administration/seances`}
+      redirect={() => '/administration/seances'}
       editRecordId={editRecordId}
       deletable
       container={container}
     >
-
       <SessionTypeSelectField name="type" className="mb-2" />
 
       <WeekdaySelectField name="weekday" className="mb-2" />
@@ -35,7 +28,6 @@ export function SessionModelForm({ editRecordId, container }) {
       <SlotsNumberField name="slots" className="mb-2" />
 
       <PriceNumberField name="price" className="mb-2" />
-
     </CreateEditForm>
   );
 }

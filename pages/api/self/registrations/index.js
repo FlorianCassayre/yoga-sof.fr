@@ -1,16 +1,13 @@
 import { ALL_USER_TYPES } from '../../../../lib/common';
-import { apiHandler } from '../../../../lib/server';
-import { prisma } from '../../../../lib/server';
+import { apiHandler, prisma } from '../../../../lib/server';
 
 export default async function handler(req, res) {
   await apiHandler({
     GET: {
       permissions: ALL_USER_TYPES,
-      action: async (req, res, { userId, accept }) => {
+      action: async ({ userId, accept }) => {
         const result = await prisma.registrations.findMany({
-          where: {
-            user_id: userId,
-          },
+          where: { user_id: userId },
           select: {
             id: true,
             is_user_canceled: true,

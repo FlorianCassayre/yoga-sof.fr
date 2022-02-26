@@ -46,9 +46,12 @@ const setStateFailure = error => dispatch => dispatch({ type: PROMISE_FAILURE, e
 export const usePromiseReducer = isInitiallyLoading => {
   const [state, dispatch] = useReducer(promiseReducer, { ...initialState, isLoading: isInitiallyLoading });
 
-  return [state, {
-    setStateInitiated: () => setStateInitiated()(dispatch),
-    setStateSuccess: data => setStateSuccess(data)(dispatch),
-    setStateFailure: error => setStateFailure(error)(dispatch),
-  }];
-}
+  return [
+    state,
+    {
+      setStateInitiated: () => setStateInitiated()(dispatch),
+      setStateSuccess: data => setStateSuccess(data)(dispatch),
+      setStateFailure: error => setStateFailure(error)(dispatch),
+    },
+  ];
+};

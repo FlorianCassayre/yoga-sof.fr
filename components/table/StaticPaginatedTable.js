@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
 import { PaginatedTableLayout } from './PaginatedTableLayout';
 
-export function StaticPaginatedTable(
-  {
-    rows,
-    columns,
-    initialResultsPerPage = 10,
-    initialPage = 1,
-    renderEmpty,
-    ...rest
-  }) {
+export function StaticPaginatedTable({ rows, columns, initialResultsPerPage = 10, initialPage = 1, renderEmpty, ...rest }) {
   const [page, setPage] = useState(initialPage);
   const [resultsPerPage, setResultsPerPage] = useState(initialResultsPerPage);
 

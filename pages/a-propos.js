@@ -10,7 +10,7 @@ export default function APropos() {
         <h1 className="mb-4">À propos</h1>
         <Row>
           <Col xs={12} sm={12} md={5} lg={4} xl={3} className="px-5 px-md-4 pb-4">
-            <Image src="/images/portrait.jpg" fluid className="rounded-circle shadow mb-3" />
+            <Image src="/images/portrait.jpg" alt="Sophie Richaud-Cassayre" fluid className="rounded-circle shadow mb-3" />
             <div className="text-center">
               <strong>Sophie Richaud-Cassayre</strong>
               <span className="d-block text-muted">Enseignante de Yoga</span>
@@ -19,14 +19,18 @@ export default function APropos() {
           <Col xs={12} sm={12} md={7} lg={8} xl={9} className="text-justify">
             <p>
               <RiDoubleQuotesL className="icon me-2" />
-              Après 25 d'expérience dans le numérique, et avoir animé des ateliers connectés pour les enfants, je me suis reconvertie dans le Yoga.
-              J'enseigne exclusivement pour des petits groupes afin de pouvoir adapter et personnaliser les postures car j'ai à cœur de proposer une pratique sûre, respectueuse de la physiologie, des morphologies et des possibilités de chacun.
-              Consciente de l'importance de la biomécanique, je me suis formée et j'applique l'Approche Posturo-Respiratoire selon Bernadette De Gasquet, qui s'appuie sur les liens qui existent entre la posture, la respiration et le périnée pour renforcer la sangle abdominale et les muscles profonds. Je commencerai donc par corriger le placement de mes élèves dans les postures de base car la respiration en dépend. Puis lors de toutes postures, je guiderai de manière à toujours éloigner les épaules du bassin afin de limiter les pressions sur le périnée et les conséquences délétères qui en résultent sur l'ensemble du corps. Je vous aiderai le cas échéant à adapter les postures de manière à prendre en compte votre morphologie.
-              Mes pratiquants seront également autonomisés pour adapter par eux-même les postures pour tous les moments de la vie.
+              Après 25 d'expérience dans le numérique, et avoir animé des ateliers connectés pour les enfants, je me suis reconvertie dans le Yoga. J'enseigne exclusivement pour des petits groupes
+              afin de pouvoir adapter et personnaliser les postures car j'ai à cœur de proposer une pratique sûre, respectueuse de la physiologie, des morphologies et des possibilités de chacun.
+              Consciente de l'importance de la biomécanique, je me suis formée et j'applique l'Approche Posturo-Respiratoire selon Bernadette De Gasquet, qui s'appuie sur les liens qui existent entre
+              la posture, la respiration et le périnée pour renforcer la sangle abdominale et les muscles profonds. Je commencerai donc par corriger le placement de mes élèves dans les postures de
+              base car la respiration en dépend. Puis lors de toutes postures, je guiderai de manière à toujours éloigner les épaules du bassin afin de limiter les pressions sur le périnée et les
+              conséquences délétères qui en résultent sur l'ensemble du corps. Je vous aiderai le cas échéant à adapter les postures de manière à prendre en compte votre morphologie. Mes pratiquants
+              seront également autonomisés pour adapter par eux-même les postures pour tous les moments de la vie.
               <RiDoubleQuotesR className="icon ms-2" />
             </p>
             <p>
-              J'adhère au Code d'Éthique et de Déontologie des enseignants de Yoga et suis rattachée à la Fidhy (Fédérération Inter-enseignements de Hatha Yoga), elle-même membre de l'Union Européenne de Yoga.
+              J'adhère au Code d'Éthique et de Déontologie des enseignants de Yoga et suis rattachée à la Fidhy (Fédérération Inter-enseignements de Hatha Yoga), elle-même membre de l'Union Européenne
+              de Yoga.
             </p>
             <h2 className="h5">Mes diplômes et certificats</h2>
             <ul>
@@ -44,7 +48,7 @@ export default function APropos() {
               <IconEye width="125px" className="logo-bw" />
             </a>
             <a href="https://www.degasquet.com/" target="_blank" rel="noreferrer">
-              <img src="/images/logo-certifications-yoga-de-gasquet.png" width="125px" className="logo-bw mx-4" />
+              <Image src="/images/logo-certifications-yoga-de-gasquet.png" alt="Certifications Yoga de Gasquet" width="125px" className="logo-bw mx-4" />
             </a>
           </Col>
         </Row>

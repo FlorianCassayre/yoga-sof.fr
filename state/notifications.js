@@ -1,3 +1,5 @@
+// eslint-disable
+
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 
 const NotificationsContext = createContext();
@@ -11,16 +13,20 @@ export function NotificationsProvider({ children }) {
     const { id: idCounter, notifications } = stateRef.current;
     const tasks = [];
     notifications.forEach(({ id: idOther }) => {
-      if(id === idOther) {
+      if (id === idOther) {
         const timeToDisappear = 2 * 1000;
         tasks.push(setTimeout(() => {
-          const { id: idCounter, notifications } = stateRef.current;
-          setNotificationsMeta({ id: idCounter, notifications: notifications.filter(({ id: idOther }) => id !== idOther) });
+          const { id: idCounterCurrent, notifications: notificationsCurrent } = stateRef.current;
+          setNotificationsMeta({ id: idCounterCurrent, notifications: notificationsCurrent.filter(({ id: idOther1 }) => id !== idOther1) });
         }, timeToDisappear));
       }
     });
-    setNotificationsMeta({ id: idCounter, notifications: notifications.map(notification => notification.id === id ? { ...notification, tasks: [...notification.tasks, ...tasks], hidden: true } : notification) });
-  }
+    setNotificationsMeta({
+      id: idCounter,
+      notifications: notifications
+        .map(notification => (notification.id === id ? { ...notification, tasks: [...notification.tasks, ...tasks], hidden: true } : notification)),
+    });
+  };
   const notify = ({ title, body, variant, icon, delay = 5 }) => {
     const { id, notifications } = stateRef.current;
     const task = setTimeout(() => {
@@ -32,16 +38,16 @@ export function NotificationsProvider({ children }) {
   useEffect(() => {
     // Cleanup
     notificationsMeta.notifications.forEach(({ tasks }) => {
-      tasks.forEach(task => clearTimeout(task))
+      tasks.forEach(task => clearTimeout(task));
     });
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     const { id, notifications } = notificationsMeta;
-    if(notifications.some(({ mounted }) => !mounted)) {
+    if (notifications.some(({ mounted }) => !mounted)) {
       setNotificationsMeta({ id, notifications: notifications.map(notification => ({ ...notification, mounted: true })) });
     }
   }, [notificationsMeta]);
-  const value = { notify, deleteNotification, notifications: stateRef.current.notifications };
+  const value = { notify, deleteNotification, notifications: stateRef.current.notifications }; // eslint-disable-line react/jsx-no-constructed-context-values
   return (
     <NotificationsContext.Provider value={value}>
       {children}

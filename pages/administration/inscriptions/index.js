@@ -2,54 +2,44 @@ import Link from 'next/link';
 import { Badge, Button } from 'react-bootstrap';
 import { BsJournalText, BsPlusLg } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import {
-  cancelRegistrationColumn,
-  DynamicPaginatedTable,
-  plannedSessionLinkColumn, renderDatetime,
-  userLinkColumn,
-} from '../../../components/table';
+import { cancelRegistrationColumn, DynamicPaginatedTable, plannedSessionLinkColumn, userLinkColumn } from '../../../components/table';
 import { BREADCRUMB_REGISTRATIONS } from '../../../lib/client';
-import { formatTimestamp } from '../../../lib/common';
+import { displayDatetime, formatTimestamp } from '../../../lib/common';
 
 function AdminRegistrationsLayout() {
   return (
     <ContentLayout title="Inscriptions" icon={BsJournalText} breadcrumb={BREADCRUMB_REGISTRATIONS}>
-
-      <p>
-        Liste des inscriptions passées et futures à des séances programmées.
-      </p>
+      <p>Liste des inscriptions passées et futures à des séances programmées.</p>
 
       <DynamicPaginatedTable
         url="/api/registrations"
         params={(page, limit) => ({
           page,
           limit,
-          orderBy: JSON.stringify({
-            created_at: '$desc',
-          }),
+          orderBy: JSON.stringify({ created_at: '$desc' }),
           include: ['session', 'user'],
         })}
         columns={[
           userLinkColumn,
           plannedSessionLinkColumn,
           {
-            title: 'Date d\'inscription',
-            render: ({ created_at }) => renderDatetime(created_at),
+            title: "Date d'inscription",
+            render: ({ created_at: createdAt }) => displayDatetime(createdAt),
           },
           {
             title: 'Statut',
-            render: ({ is_user_canceled, canceled_at }) => !is_user_canceled ? (
-              <Badge bg="success">Inscrit</Badge>
-            ) : (
-              <Badge bg="danger">Annulé à {formatTimestamp(canceled_at)}</Badge>
-            ),
-            props: {
-              className: 'text-center'
-            }
+            render: ({ is_user_canceled: isUserCanceled, canceled_at: canceledAt }) => (!isUserCanceled ? <Badge bg="success">Inscrit</Badge> : (
+              <Badge bg="danger">
+                Annulé à
+                {' '}
+                {formatTimestamp(canceledAt)}
+              </Badge>
+            )),
+            props: { className: 'text-center' },
           },
           cancelRegistrationColumn,
         ]}
-        renderEmpty={() => `Aucun utilisateur ne s'est inscrit pour le moment.`}
+        renderEmpty={() => 'Aucun utilisateur ne s\'est inscrit pour le moment.'}
       />
 
       <div className="text-center">
@@ -60,18 +50,14 @@ function AdminRegistrationsLayout() {
           </Button>
         </Link>
       </div>
-
     </ContentLayout>
   );
 }
 
 export default function AdminRegistrations() {
-
   return (
     <PrivateLayout title="Inscriptions" breadcrumb={BREADCRUMB_REGISTRATIONS}>
-
       <AdminRegistrationsLayout />
-
     </PrivateLayout>
   );
 }

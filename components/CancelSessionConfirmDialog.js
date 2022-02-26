@@ -4,7 +4,7 @@ import { BsXOctagon } from 'react-icons/bs';
 import { postCancelSession } from '../lib/client/api';
 import { useNotificationsContext, useRefreshContext } from '../state';
 import { ConfirmDialog } from './ConfirmDialog';
-import { renderSessionName } from './table';
+import { displaySessionName } from '../lib/common';
 
 export function CancelSessionConfirmDialog({ session, triggerer }) {
   const refresh = useRefreshContext();
@@ -19,18 +19,12 @@ export function CancelSessionConfirmDialog({ session, triggerer }) {
         <>
           Souhaitez-vous réellement annuler cette séance ?
           <ul>
-            <li>{renderSessionName(session)}</li>
+            <li>{displaySessionName(session)}</li>
           </ul>
           Les éventuelles personnes qui s'y sont inscrites seront notifiées.
           <br />
           Vous pouvez optionnellement indiquer un motif (qui sera également transmis aux personnes inscrites) :
-          <Form.Control
-            as="textarea"
-            placeholder="Motif..."
-            style={{ height: '100px' }}
-            value={reason}
-            onChange={e => setReason(e.target.value)}
-          />
+          <Form.Control as="textarea" placeholder="Motif..." style={{ height: '100px' }} value={reason} onChange={e => setReason(e.target.value)} />
         </>
       )}
       variant="danger"
@@ -40,8 +34,8 @@ export function CancelSessionConfirmDialog({ session, triggerer }) {
       confirmPromise={() => postCancelSession(session.id, { cancelation_reason: reason && reason.trim() ? reason.trim() : undefined })}
       onSuccess={() => {
         notify({
-          title: `Annulation réussie`,
-          body: `La ${renderSessionName(session, false)} a été annulée.`,
+          title: 'Annulation réussie',
+          body: `La ${displaySessionName(session, false)} a été annulée.`,
           icon: BsXOctagon,
           delay: 10,
         });

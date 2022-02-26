@@ -6,12 +6,7 @@ export function PriceNumberField({ name, fieldProps = {}, ...props }) {
     <Form.Group {...props}>
       <Form.Label>Prix par participant :</Form.Label>
       <InputGroup {...props}>
-        <Field
-          name={name}
-          render={({ input }) => (
-            <FormControl type="number" required {...input} {...fieldProps} />
-          )}
-        />
+        <Field name={name} render={({ input }) => <FormControl type="number" required {...input} {...fieldProps} />} />
         <InputGroup.Text>€</InputGroup.Text>
       </InputGroup>
     </Form.Group>

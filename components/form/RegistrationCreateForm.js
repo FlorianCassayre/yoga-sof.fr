@@ -10,16 +10,14 @@ export function RegistrationCreateForm({ redirect, initialValues }) {
       redirect={redirect}
       successMessages={{
         create: {
-          title: `Inscription réussie`,
-          body: `L'utilisateur a été inscrit à la séance.`,
-        }
+          title: 'Inscription réussie',
+          body: 'L\'utilisateur a été inscrit à la séance.',
+        },
       }}
     >
-
       <UserSelectField name="user_id" disabled={initialValues.user_id !== undefined} className="mb-2" />
 
       <SessionSelectField name="session_id" disabled={initialValues.session_id !== undefined} className="mb-2" />
-
     </CreateEditForm>
   );
 }

@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+
 export function IconYoga(props) {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" stroke="none" fill="currentColor" width="1em" height="1em" {...props}>

@@ -1,15 +1,13 @@
-import { Fragment, createContext, useContext, useState } from 'react';
+import { Fragment, createContext, useContext, useState, useCallback } from 'react';
 
 const RefreshContext = createContext();
 
 export function RefreshProvider({ children }) {
   const [key, setKey] = useState(0);
-  const value = () => setKey(key + 1);
+  const value = useCallback(() => setKey(key + 1), [key, setKey]);
   return (
     <RefreshContext.Provider value={value}>
-      <Fragment key={key}>
-        {children}
-      </Fragment>
+      <Fragment key={key}>{children}</Fragment>
     </RefreshContext.Provider>
   );
 }

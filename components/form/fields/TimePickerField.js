@@ -4,11 +4,10 @@ import DatePicker from 'react-datepicker';
 import { Field } from 'react-final-form';
 
 export function TimePickerField({ name, label, fieldProps = {}, ...props }) {
-
   const getEpoch = () => new Date(0);
 
   const timeFormatDb = 'HH:mm';
-  const timeFormatDisplay = `HH'h'mm`
+  const timeFormatDisplay = 'HH\'h\'mm';
 
   return (
     <Form.Group {...props}>
@@ -19,7 +18,7 @@ export function TimePickerField({ name, label, fieldProps = {}, ...props }) {
           const parsed = parse(value, timeFormatDb, getEpoch());
           return (
             <DatePicker
-              /*locale="fr"*/
+              /* locale="fr" */
               required
               selected={value && isValid(parsed) ? parsed : null}
               onChange={date => onChange(isValid(date) ? format(new Date(date), timeFormatDb) : null)}

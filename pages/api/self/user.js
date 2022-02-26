@@ -1,5 +1,5 @@
 import { ALL_USER_TYPES, schemaSelfUserBody } from '../../../lib/common';
-import { apiHandler } from '../../../lib/server';
+import { apiHandler, prisma } from '../../../lib/server';
 
 const select = {
   name: true,
@@ -11,12 +11,10 @@ export default async function handler(req, res) {
   await apiHandler({
     GET: {
       permissions: ALL_USER_TYPES,
-      action: async (req, res, { userId, accept }) => {
+      action: async ({ userId, accept }) => {
         const result = await prisma.users.findUnique({
-          where: {
-            id: userId,
-          },
-          select: select,
+          where: { id: userId },
+          select,
         });
 
         accept(result);
@@ -25,17 +23,15 @@ export default async function handler(req, res) {
     POST: {
       permissions: ALL_USER_TYPES,
       schemaBody: schemaSelfUserBody,
-      action: async (req, res, { body: { name, email, receive_emails }, userId, accept }) => {
+      action: async ({ body: { name, email, receive_emails: receiveEmails }, userId, accept }) => {
         const result = await prisma.users.update({
-          where: {
-            id: userId,
-          },
+          where: { id: userId },
           data: {
-            name: name,
+            name,
             email: email !== null ? email.toLowerCase() : email,
-            receive_emails: receive_emails,
+            receive_emails: receiveEmails,
           },
-          select: select,
+          select,
         });
 
         accept(result);

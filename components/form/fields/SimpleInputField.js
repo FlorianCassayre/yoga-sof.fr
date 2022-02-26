@@ -6,12 +6,7 @@ export function SimpleInputField({ name, label, type = null, required, fieldProp
     <Form.Group {...props}>
       <Form.Label>{label}</Form.Label>
       <InputGroup {...props}>
-        <Field
-          name={name}
-          render={({ input }) => (
-            <Form.Control type={type} required={required} {...input} {...fieldProps} />
-          )}
-        />
+        <Field name={name} render={({ input }) => <Form.Control type={type} required={required} {...input} {...fieldProps} />} />
       </InputGroup>
     </Form.Group>
   );

@@ -10,8 +10,22 @@ import { ErrorMessage } from '../ErrorMessage';
 
 const BasicContainer = props => props.children;
 
-export function CreateEditForm({ modelId, editRecordId, deletable, initialValues = {}, redirect, numberFields = [], disabled, loading, submitCallback, successMessages = {}, container: Container = BasicContainer, children }) {
+export function CreateEditForm({
+  modelId,
+  editRecordId,
+  deletable,
+  initialValues = {},
+  redirect,
+  numberFields = [],
+  disabled,
+  loading,
+  submitCallback,
+  successMessages = {},
+  container: Container = BasicContainer,
+  children,
+}) {
   const { notify } = useNotificationsContext();
+  const router = useRouter();
 
   const isEdit = editRecordId != null;
 
@@ -20,20 +34,46 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
 
   const [lastAction, setLastAction] = useState(null);
 
-  const [{ isLoading: isSubmitLoading, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatcher] =
-    usePromiseCallback(options => jsonFetch(url, options), []);
-  const { isLoading: isInitialDataLoading, isError: isInitialDataError, data: initialData, error: initialDataError } =
-    usePromiseEffect(isEdit ? () => jsonFetch(url) : null, []);
+  const [{ isLoading: isSubmitLoading, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatcher] = usePromiseCallback(options => jsonFetch(url, options), []);
+  const { isLoading: isInitialDataLoading, isError: isInitialDataError, data: initialData, error: initialDataError } = usePromiseEffect(isEdit ? () => jsonFetch(url) : null, []);
 
   const initialFormData = isEdit ? initialData : initialValues;
 
+  const defaultSuccessMessages = {
+    create: {
+      title: 'Création réussie',
+      body: 'L\'enregistrement a été créé avec succès.',
+      icon: BsPlusLg,
+    },
+    edit: {
+      title: 'Modifications appliquées',
+      body: 'L\'enregistrement a été modifié avec succès.',
+      icon: BsCheckLg,
+    },
+    delete: {
+      title: 'Suppression réussie',
+      body: 'L\'enregistrement a été supprimé avec succès.',
+      icon: BsTrash,
+    },
+  };
+
+  const submitSuccessCallback = json => {
+    notify(
+      lastAction === POST
+        ? { ...defaultSuccessMessages.create, ...successMessages.create }
+        : lastAction === PUT
+          ? { ...defaultSuccessMessages.edit, ...successMessages.edit }
+          : { ...defaultSuccessMessages.delete, ...successMessages.delete },
+    );
+
+    router.push(redirect(json));
+  };
+
   useEffect(() => {
-    if(submitResult) {
+    if (submitResult) {
       submitSuccessCallback(submitResult);
     }
-  }, [submitResult]);
-
-  const router = useRouter();
+  }, [submitResult]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [deleteDialogShow, setDeleteDialogShow] = useState(false);
 
@@ -43,49 +83,19 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
     </div>
   );
 
-  const defaultSuccessMessages = {
-    create: {
-      title: 'Création réussie',
-      body: `L'enregistrement a été créé avec succès.`,
-      icon: BsPlusLg,
-    },
-    edit: {
-      title: 'Modifications appliquées',
-      body: `L'enregistrement a été modifié avec succès.`,
-      icon: BsCheckLg,
-    },
-    delete: {
-      title: 'Suppression réussie',
-      body: `L'enregistrement a été supprimé avec succès.`,
-      icon: BsTrash,
-    },
-  };
-
-  const submitSuccessCallback = json => {
-    notify(lastAction === POST ?
-      { ...defaultSuccessMessages.create, ...successMessages.create }
-      : lastAction === PUT ?
-        { ...defaultSuccessMessages.edit, ...successMessages.edit } :
-        { ...defaultSuccessMessages.delete, ...successMessages.delete });
-
-    router.push(redirect(json));
-  };
-
   const onSubmit = data => {
     numberFields.forEach(field => {
       const value = data[field];
-      if(value != null) {
-        data[field] = parseInt(value);
+      if (value != null) {
+        data[field] = parseInt(value); // eslint-disable-line no-param-reassign
       }
     });
 
-    if(submitCallback) {
-      data = submitCallback(data);
-    }
+    const processedData = submitCallback ? submitCallback(data) : data;
 
     const method = isEdit ? PUT : POST;
     setLastAction(method);
-    submitDispatcher({ method, body: data });
+    submitDispatcher({ method, body: processedData });
   };
 
   const onCancel = () => {
@@ -100,18 +110,13 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
     setDeleteDialogShow(false);
 
     const method = DELETE;
-    setLastAction(method)
+    setLastAction(method);
     submitDispatcher({ method });
-  }
+  };
 
-  const renderForm = props => !submitResult && !loading && !isSubmitLoading ? (
+  const renderForm = props => (!submitResult && !loading && !isSubmitLoading ? (
     <Form onSubmit={props.handleSubmit}>
-
-      {isSubmitError && (
-        <ErrorMessage error={submitError}>
-          Une erreur est survenue lors de la soumission du formulaire.
-        </ErrorMessage>
-      )}
+      {isSubmitError && <ErrorMessage error={submitError}>Une erreur est survenue lors de la soumission du formulaire.</ErrorMessage>}
 
       {typeof children === 'function' ? children(props) : children}
 
@@ -150,10 +155,10 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
             </Modal>
 
             {deletable && (
-              <Button variant="danger" className="me-2" onClick={onPreDelete} disabled={disabled}>
-                <BsTrash className="icon me-2" />
-                Supprimer
-              </Button>
+            <Button variant="danger" className="me-2" onClick={onPreDelete} disabled={disabled}>
+              <BsTrash className="icon me-2" />
+              Supprimer
+            </Button>
             )}
             <Button type="submit" disabled={disabled}>
               <BsCheckLg className="icon me-2" />
@@ -162,24 +167,18 @@ export function CreateEditForm({ modelId, editRecordId, deletable, initialValues
           </>
         )}
       </div>
-
     </Form>
-  ) : renderLoader();
+  ) : (
+    renderLoader()
+  ));
 
   return (
-    <Container
-      isLoading={isInitialDataLoading}
-      isError={!!isInitialDataError}
-      error={initialDataError}
-      data={initialFormData}
-    >
+    <Container isLoading={isInitialDataLoading} isError={!!isInitialDataError} error={initialDataError} data={initialFormData}>
       <FinalForm
         onSubmit={onSubmit}
         initialValues={initialFormData}
-        mutators={{
-          setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value)
-        }}
-        /*validate={validate}*/
+        mutators={{ setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value) }}
+        /* validate={validate} */
         render={renderForm}
       />
     </Container>

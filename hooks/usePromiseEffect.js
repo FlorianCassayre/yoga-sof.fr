@@ -9,11 +9,11 @@ export const usePromiseEffect = (createPromise, dependencies) => {
   useEffect(() => {
     let didCancel = false;
 
-    if(createPromise == null) {
-      return;
+    if (createPromise == null) {
+      return null;
     }
 
-    if(!isFirstUpdate.current) {
+    if (!isFirstUpdate.current) {
       isFirstUpdate.current = false;
       setStateInitiated();
     }
@@ -25,7 +25,7 @@ export const usePromiseEffect = (createPromise, dependencies) => {
     return () => {
       didCancel = true;
     };
-  }, dependencies);
+  }, dependencies); // eslint-disable-line react-hooks/exhaustive-deps
 
   return state;
 };

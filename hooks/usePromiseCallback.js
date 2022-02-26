@@ -16,7 +16,7 @@ export const usePromiseCallback = (createPromise, dependencies) => {
     return () => {
       didCancel = true;
     };
-  }, dependencies);
+  }, dependencies); // eslint-disable-line react-hooks/exhaustive-deps
 
   return [state, callback];
 };

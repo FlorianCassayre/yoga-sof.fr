@@ -2,7 +2,7 @@ import { BsXOctagon } from 'react-icons/bs';
 import { postCancelRegistration } from '../lib/client/api';
 import { useNotificationsContext, useRefreshContext } from '../state';
 import { ConfirmDialog } from './ConfirmDialog';
-import { renderSessionName } from './table';
+import { displaySessionName } from '../lib/common';
 
 export function CancelRegistrationConfirmDialog({ registration, triggerer }) {
   const refresh = useRefreshContext();
@@ -18,7 +18,7 @@ export function CancelRegistrationConfirmDialog({ registration, triggerer }) {
           Souhaitez-vous réellement désinscrire l'utilisateur de cette séance ?
           <ul>
             <li>{user.name}</li>
-            <li>{renderSessionName(session)}</li>
+            <li>{displaySessionName(session)}</li>
           </ul>
         </>
       )}
@@ -29,8 +29,8 @@ export function CancelRegistrationConfirmDialog({ registration, triggerer }) {
       confirmPromise={() => postCancelRegistration(id)}
       onSuccess={() => {
         notify({
-          title: `Désinscription réussie`,
-          body: `L'utilisateur ${user.name} a été désinscrit de la ${renderSessionName(session, false)}.`,
+          title: 'Désinscription réussie',
+          body: `L'utilisateur ${user.name} a été désinscrit de la ${displaySessionName(session, false)}.`,
           icon: BsXOctagon,
           delay: 10,
         });

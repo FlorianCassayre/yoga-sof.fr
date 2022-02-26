@@ -5,7 +5,6 @@ import { HeadMeta } from '../HeadMeta';
 import { NavigationLayout } from './NavigationLayout';
 
 export function PrivateLayout({ children }) {
-
   return (
     <AuthGuard allowedUserTypes={[USER_TYPE_ADMIN]}>
       <NotificationsOverlay />
@@ -13,10 +12,7 @@ export function PrivateLayout({ children }) {
       <div>
         <HeadMeta />
 
-        <NavigationLayout>
-          {children}
-        </NavigationLayout>
-
+        <NavigationLayout>{children}</NavigationLayout>
       </div>
     </AuthGuard>
   );

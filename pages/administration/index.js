@@ -2,14 +2,13 @@ import { format } from 'date-fns';
 import { BsKanban } from 'react-icons/bs';
 import { SessionsCards } from '../../components';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
-import { detailsColumnFor, DynamicPaginatedTable, renderSessionType, renderTimePeriod } from '../../components/table';
+import { detailsColumnFor, DynamicPaginatedTable } from '../../components/table';
+import { displaySessionType, displayTimePeriod, dateFormat } from '../../lib/common';
 import { BREADCRUMB_OVERVIEW } from '../../lib/client';
-import { dateFormat } from '../../lib/common';
 
 function AdminHomeLayout() {
   return (
     <ContentLayout title="Aperçu" icon={BsKanban} breadcrumb={BREADCRUMB_OVERVIEW}>
-
       <h2 className="h5">Planning</h2>
 
       <SessionsCards readonly />
@@ -24,13 +23,9 @@ function AdminHomeLayout() {
           include: ['registrations'],
           where: JSON.stringify({
             is_canceled: false,
-            date_end: {
-              $gt: new Date().toISOString(),
-            },
+            date_end: { $gt: new Date().toISOString() },
           }),
-          orderBy: JSON.stringify({
-            date_start: '$asc',
-          }),
+          orderBy: JSON.stringify({ date_start: '$asc' }),
         })}
         columns={[
           detailsColumnFor(id => `/administration/seances/planning/${id}`),
@@ -40,33 +35,32 @@ function AdminHomeLayout() {
           },
           {
             title: 'Horaire',
-            render: ({ date_start, date_end }) => renderTimePeriod(date_start, date_end),
+            render: ({ date_start: dateStart, date_end: dateEnd }) => displayTimePeriod(dateStart, dateEnd),
           },
           {
             title: 'Type de séance',
-            render: ({ type }) => renderSessionType(type),
+            render: ({ type }) => displaySessionType(type),
           },
           {
             title: 'Inscriptions / Places disponibles',
             render: ({ slots, registrations }) => (
               <>
-                {registrations.filter(({ is_user_canceled }) => !is_user_canceled).length} / {slots}
+                {registrations.filter(({ is_user_canceled: isUserCanceled }) => !isUserCanceled).length}
+                {' '}
+                /
+                {' '}
+                {slots}
               </>
             ),
           },
           {
             title: 'Notes',
             render: ({ notes }) => notes,
-            props: {
-              style: {
-                whiteSpace: 'pre-wrap',
-              },
-            },
+            props: { style: { whiteSpace: 'pre-wrap' } },
           },
         ]}
-        renderEmpty={() => `Aucune séance planifiée à venir.`}
+        renderEmpty={() => 'Aucune séance planifiée à venir.'}
       />
-
     </ContentLayout>
   );
 }
@@ -74,9 +68,7 @@ function AdminHomeLayout() {
 export default function AdminHome() {
   return (
     <PrivateLayout>
-
       <AdminHomeLayout />
-
     </PrivateLayout>
-  )
+  );
 }

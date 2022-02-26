@@ -6,10 +6,13 @@ import { ErrorMessage } from './ErrorMessage';
 
 export function ConfirmDialog({ triggerer, title, description, variant, icon: Icon, action, cancelAction, confirmPromise, onSuccess }) {
   const [show, setShow] = useState(false);
-  const [{ isLoading, isError, data, error }, callback] = usePromiseCallback(() => confirmPromise().then(result => {
-    setShow(false);
-    onSuccess(result);
-  }), [confirmPromise]);
+  const [{ isLoading, isError, error }, callback] = usePromiseCallback(
+    () => confirmPromise().then(result => {
+      setShow(false);
+      onSuccess(result);
+    }),
+    [confirmPromise],
+  );
 
   return (
     <>
@@ -17,9 +20,7 @@ export function ConfirmDialog({ triggerer, title, description, variant, icon: Ic
 
       <Modal show={show} onHide={() => !isLoading && setShow(false)}>
         <Modal.Header closeButton={!isLoading}>
-          <Modal.Title>
-            {title}
-          </Modal.Title>
+          <Modal.Title>{title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {isLoading && (
@@ -27,9 +28,7 @@ export function ConfirmDialog({ triggerer, title, description, variant, icon: Ic
               <Spinner animation="border" />
             </div>
           )}
-          {isError && (
-            <ErrorMessage error={error} />
-          )}
+          {isError && <ErrorMessage error={error} />}
           {description}
         </Modal.Body>
         <Modal.Footer>

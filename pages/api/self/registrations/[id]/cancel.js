@@ -1,22 +1,19 @@
 import { ALL_USER_TYPES, schemaSelfRegistrationCancelQuery } from '../../../../../lib/common';
-import { apiHandler } from '../../../../../lib/server';
-import { prisma } from '../../../../../lib/server';
+import { apiHandler, prisma } from '../../../../../lib/server';
 
 export default async function handler(req, res) {
   await apiHandler({
     POST: {
       permissions: ALL_USER_TYPES,
       schemaQuery: schemaSelfRegistrationCancelQuery,
-      action: async (req, res, { accept, reject, userId, query: { id: registrationId } }) => {
+      action: async ({ accept, reject, userId, query: { id: registrationId } }) => {
         const result = await prisma.registrations.updateMany({
           where: {
             id: registrationId,
             user_id: userId,
             is_user_canceled: false,
             session: {
-              date_start: {
-                gt: new Date(),
-              },
+              date_start: { gt: new Date() },
               is_canceled: false,
             },
           },
@@ -26,7 +23,7 @@ export default async function handler(req, res) {
           },
         });
 
-        if(result.count === 1) {
+        if (result.count === 1) {
           accept({});
         } else {
           reject('Bad Request', 400);
