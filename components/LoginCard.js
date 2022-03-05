@@ -12,15 +12,28 @@ export function LoginCard({ providers }) {
             <Card.Title className="mb-3 text-center">Connexion</Card.Title>
             <Card.Text>Merci d'utiliser l'un des services ci-dessous pour vous inscrire ou vous connecter.</Card.Text>
             {Object.values(providers).map(provider => {
+              const isEmail = provider.id === 'email';
               const format = providersData[provider.id];
               const Icon = format.icon;
               return (
-                <div key={provider.name} className="mt-2">
+                <div key={provider.id} className="mt-2">
+                  {isEmail && (
+                    <div className="hr-sect">OU</div>
+                  )}
                   <Button variant={format.variant} size="lg" onClick={() => signIn(provider.id, { callbackUrl: `${window.location.origin}/redirection` })} className="w-100">
                     <Icon className="icon me-2" />
-                    Se connecter avec
-                    {' '}
-                    <strong>{provider.name}</strong>
+                    {!isEmail ? (
+                      <>
+                        Se connecter avec
+                        {' '}
+                        <strong>{provider.name}</strong>
+                      </>
+                    ) : (
+                      <>
+                        Lien de connexion par e-mail
+                      </>
+                    )}
+
                   </Button>
                 </div>
               );
@@ -28,7 +41,7 @@ export function LoginCard({ providers }) {
             <Card.Text className="mt-3">
               En cas de problème,
               {' '}
-              <a href={`mailto:${EMAIL_CONTACT}`}>merci de nous contacter</a>
+              <a href={`mailto:${EMAIL_CONTACT}`}>n'hésitez pas à nous contacter</a>
               .
             </Card.Text>
           </Card.Body>

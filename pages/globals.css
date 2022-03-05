@@ -99,3 +99,22 @@ table th {
 .logo-bw:hover {
     filter: none;
 }
+
+/* https://stackoverflow.com/a/36159798 */
+.hr-sect {
+    display: flex;
+    flex-basis: 100%;
+    color: black;
+    align-items: center;
+    margin: 8px 0;
+}
+.hr-sect:before,
+.hr-sect:after {
+    content: "";
+    flex-grow: 1;
+    background: rgba(0, 0, 0, 0.35);
+    height: 1px;
+    font-size: 0;
+    line-height: 0;
+    margin: 0 8px;
+}

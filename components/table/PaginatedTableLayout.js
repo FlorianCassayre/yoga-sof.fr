@@ -18,6 +18,7 @@ export function PaginatedTableLayout({
   collapsePagination = true,
   renderEmpty,
   rowProps = () => {},
+  ...rest
 }) {
   const renderPagination = () => {
     if (pageCount <= 1 && collapsePagination) {
@@ -65,7 +66,7 @@ export function PaginatedTableLayout({
     <ErrorMessage error={error} />
   ) : totalRows > 0 || !renderEmpty ? (
     <>
-      <Table striped bordered responsive>
+      <Table striped bordered responsive {...rest}>
         <thead>
           <tr className="text-center">
             {columns.map(({ title }, i) => (

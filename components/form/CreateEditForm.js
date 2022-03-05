@@ -140,7 +140,7 @@ export function CreateEditForm({
               <Modal.Body>
                 Souhaitez-vous vraiment supprimer cet enregistrement ?
                 <br />
-                Cette action est irrévocable.
+                Cette action est irréversible.
               </Modal.Body>
               <Modal.Footer>
                 <Button variant="secondary" onClick={() => setDeleteDialogShow(false)}>

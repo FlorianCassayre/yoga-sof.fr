@@ -1,435 +1,383 @@
-/* eslint-disable */
-
-import { isSameDay } from 'date-fns';
 import { useSession } from 'next-auth/react';
-import React, { useState } from 'react';
-import { Alert, Badge, Button, Card, Col, Container, Form, ProgressBar, Row, Spinner, Table } from 'react-bootstrap';
-import { BsArrowLeft, BsCheckLg, BsInfoCircleFill } from 'react-icons/bs';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import { Alert, Button, Card, Col, Container, Form, Row, Spinner, Table } from 'react-bootstrap';
+import { BsArrowLeft, BsArrowRight, BsCheckLg, BsInfoCircleFill } from 'react-icons/bs';
 import Link from 'next/link';
-import { registerLocale } from 'react-datepicker';
-import { Form as FinalForm, Field } from 'react-final-form';
+import { Form as FinalForm } from 'react-final-form';
 
-import { fr } from 'date-fns/locale';
 import { PublicLayout } from '../components/layout/public';
-import { AuthGuard, ErrorMessage } from '../components';
+import { ErrorMessage } from '../components';
 import { StaticPaginatedTable } from '../components/table';
-import { displayDateOnly,
-  EMAIL_CONTACT,
-  formatTime,
-  formatTimeRange,
+import {
+  EMAIL_CONTACT, formatDayRange,
   IS_REGISTRATION_DISABLED,
-  minutesToParsedTime,
-  parsedTimeToMinutes,
-  parsedTimeToTime,
-  parseTime,
   SESSIONS_NAMES,
-  USER_TYPE_ADMIN,
-  USER_TYPE_REGULAR,
-  WEEKDAYS,
   YOGA_ADULT,
-  YOGA_ADULT_CHILD,
-  YOGA_CHILD } from '../lib/common';
+} from '../lib/common';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
-import { getSessionsSchedule, postSelfRegistrationBatch } from '../lib/client/api';
+import { getSelfRegistrations, getSessionsSchedule, postSelfRegistrationBatch } from '../lib/client/api';
+import { useNotificationsContext, useRefreshContext } from '../state';
 
-registerLocale('fr', fr);
+const REGISTRATION_SESSION_TYPE = YOGA_ADULT;
 
-export default function Inscription() {
-  const { data: sessionData } = useSession();
+function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }) {
+  const [{ isLoading: isSubmitting, isError: isSubmitError, data: submitResult }, submitDispatch] = usePromiseCallback(data => postSelfRegistrationBatch(data), []);
+  const { notify } = useNotificationsContext();
+  const refresh = useRefreshContext();
 
-  const { isLoading, isError, data, error } = usePromiseEffect(getSessionsSchedule, []); // eslint-disable-line no-unused-vars
+  const onSubmit = useCallback(data => {
+    const { isStateConfirm, ...dataToSubmit } = data;
 
-  const [submitData, setSubmitData] = useState({});
+    submitDispatch(dataToSubmit);
+  }, [submitDispatch]);
 
-  const [{ isLoading: isSubmitting, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatch] = usePromiseCallback(data => postSelfRegistrationBatch(data), []);
+  useEffect(() => {
+    if (submitResult) {
+      notify({
+        title: 'Inscriptions confirmées',
+        body: 'Vos inscriptions ont été prises en compte.',
+        icon: BsCheckLg,
+        delay: 10,
+      });
+    }
+  }, [submitResult]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  function CourseOption({ type, title, person, onSelect }) {
-    const matchedSessions = data.schedule.filter(({ type: otherType }) => otherType === type);
-    const matchedRegistrable = data.sessions.filter(({ type: otherType }) => otherType === type);
+  const isUserAlreadyRegisteredToSession = id => selfRegistrations.some(({ session: { id: sessionId }, is_user_canceled: isCanceled }) => sessionId === id && !isCanceled);
 
-    const existsAvailableSlot = matchedRegistrable.filter(({ slots, registrations }) => registrations < slots).length > 0;
-
-    const renderPrices = () => {
-      const distinctPrices = Array.from(new Set(matchedSessions.map(({ price }) => price))).sort((a, b) => a - b);
-      return distinctPrices.length === 1 ? `${distinctPrices[0]} €` : `${distinctPrices[0]} à ${distinctPrices[distinctPrices.length - 1]} €`;
+  const renderForm = ({ handleSubmit, values, form: { mutators: { setValue } } }) => {
+    const handleSessionSelect = id => {
+      if (isUserAlreadyRegisteredToSession(id)) {
+        return;
+      }
+      const session = scheduleData.sessions.filter(({ id: thatId }) => thatId === id)[0];
+      if (session.registrations >= session.slots) {
+        return;
+      }
+      const isSelected = values.sessions.includes(id);
+      const newSessions = isSelected ? values.sessions.filter(sessionId => sessionId !== id) : values.sessions.concat([id]);
+      setValue('sessions', newSessions);
     };
 
-    const renderDuration = () => {
-      const distinctDurations = Array.from(
-        new Set(matchedSessions.map(({ time_start: timeStart, time_end: timeEnd }) => parsedTimeToMinutes(parseTime(timeEnd)) - parsedTimeToMinutes(parseTime(timeStart)))),
-      )
-        .sort((a, b) => a - b)
-        .map(minutes => formatTime(parsedTimeToTime(minutesToParsedTime(minutes)), true));
-      return distinctDurations.length === 1 ? distinctDurations[0] : `${distinctDurations[0]} à ${distinctDurations[distinctDurations.length - 1]}`;
-    };
+    const sessionOrdinal = id => new Date(scheduleData.sessions.filter(({ id: thatId }) => thatId === id)[0].date_start).getTime();
 
-    const renderDatesAndTimes = () => {
-      if (matchedSessions.length > 0) {
-        const sortedDistinctWeekdays = Array.from(new Set(matchedSessions.map(({ weekday }) => weekday))).sort((a, b) => a - b);
-
-        return (
+    return !isSubmitting ? (
+      <Form onSubmit={handleSubmit}>
+        {!values.isStateConfirm ? (
           <>
-            Tous
-            {' '}
-            {sortedDistinctWeekdays.map(weekday => {
-              const sessionsForWeekday = matchedSessions
-                .filter(({ weekday: weekdayOther }) => weekdayOther === weekday)
-                .sort(({ time_start: t1 }, { time_end: t2 }) => parsedTimeToMinutes(parseTime(t1)) - parsedTimeToMinutes(parseTime(t2)));
+            <p>
+              Sélectionnez les séances pour lesquelles vous souhaitez vous inscrire :
+            </p>
 
-              return (
-                <React.Fragment key={weekday}>
-                  les
-                  {' '}
-                  {`${WEEKDAYS[weekday].toLowerCase()}s`}
-                  {' '}
-                  {sessionsForWeekday.map(({ id, time_start: timeStart, time_end: timeEnd }, i) => (
-                    <React.Fragment key={id}>
-                      {'de '}
-                      {formatTime(timeStart, true)}
+            <StaticPaginatedTable
+              rows={scheduleData.sessions}
+              columns={[
+                {
+                  title: 'Type de séance',
+                  render: ({ type }) => SESSIONS_NAMES[type],
+                  props: {
+                    className: 'text-center',
+                  },
+                },
+                {
+                  title: 'Date et horaire',
+                  render: ({ date_start: dateStart, date_end: dateEnd }) => (
+                    <>
+                      {formatDayRange(dateStart, dateEnd)}
+                    </>
+                  ),
+                  props: {
+                    className: 'text-center',
+                  },
+                },
+                {
+                  title: 'Places restantes',
+                  render: ({ slots, registrations }) => (
+                    <>
+                      <span className={slots >= registrations ? 'text-success' : 'text-danger'}>{slots - registrations}</span>
                       {' '}
-                      à
-                      {formatTime(timeEnd, true)}
-                      {i < sessionsForWeekday.length - 1 && ', '}
-                    </React.Fragment>
-                  ))}
-                </React.Fragment>
-              );
-            })}
-          </>
-        );
-      }
-      return <em>Pas d'horaires disponibles</em>;
-    };
-
-    return (
-      <Col xs={12} md={4}>
-        <Card
-          className={`text-center my-2 ${existsAvailableSlot ? 'card-highlight' : 'opacity-50'}`}
-          style={{ cursor: existsAvailableSlot ? 'pointer' : null }}
-          onClick={() => existsAvailableSlot && onSelect(type)}
-        >
-          <Card.Img variant="top" src="/stock/woman_stretch_cropped.jpg" />
-          <Card.Body>
-            <Card.Title>{title}</Card.Title>
-            <Card.Text>
-              {matchedSessions.length > 0 ? (
-                <>
-                  {renderPrices()}
-                  {' '}
-                  par
-                  {person}
-                  {' '}
-                  pour
-                  {renderDuration()}
-                  {' '}
-                  de pratique
-                </>
-              ) : (
-                <em>Pas d'informations disponibles</em>
-              )}
-            </Card.Text>
-          </Card.Body>
-          <Card.Footer>
-            <small className="text-muted">{renderDatesAndTimes()}</small>
-          </Card.Footer>
-        </Card>
-      </Col>
-    );
-  }
-
-  function Step1({ setValue }) {
-    const handleSelect = type => {
-      setValue('type', type);
-      setValue('sessions', []);
-      setValue('step', 2);
-    };
-    return (
-      <Row>
-        <CourseOption type={YOGA_ADULT} title="Séance de Yoga adulte" person="adulte" onSelect={handleSelect} />
-        <CourseOption type={YOGA_CHILD} title="Séance de Yoga enfant" person="enfant" onSelect={handleSelect} />
-        <CourseOption type={YOGA_ADULT_CHILD} title="Séance de Yoga parent-enfant" person="duo" onSelect={handleSelect} />
-      </Row>
-    );
-  }
-
-  function Step2({ setValue, values }) {
-    const sessionsForType = data.sessions.filter(({ type: typeOther }) => typeOther === values.type);
-    // TODO remove already registered sessions
-    const selectableDates = sessionsForType.map(({ date_start: date }) => new Date(date));
-    // const times = selectableDates.map(d => d.getTime());
-    // const now = new Date();
-    // const [minDate, maxDate] = selectableDates.length > 0 ? [new Date(Math.min(...times)), new Date(Math.max(...times))] : [now, now];
-
-    // const isDateSelectable = date => selectableDates.some(other => isSameDay(date, other));
-    /* const handleDayClick = currentValue => date => {
-      const matchingSessions = sessionsForType.filter(({ date_start: sessionDate }) => isSameDay(new Date(sessionDate), date));
-      if (matchingSessions.length > 0) {
-        if (matchingSessions.length === 1) {
-          const session = matchingSessions[0];
-          setValue('sessions', currentValue.includes(session.id) ? currentValue.filter(id => id !== session.id) : [...currentValue, session.id]);
-        } else {
-          // Ambiguous
-          console.log('TODO'); // TODO
-        }
-      }
-      // Otherwise, do nothing
-    }; */
-    const handleSessionClick = currentValue => id => {
-      setValue('sessions', currentValue.includes(id) ? currentValue.filter(otherId => id !== otherId) : [...currentValue, id]);
-    };
-
-    return (
-      <div className="text-center date-picker-registration">
-        {/* <Field
-          name="sessions"
-        >
-          {({ input: { value } }) => (
-            <DatePicker
-              locale="fr"
-              selected={minDate}
-              highlightDates={sessionsForType.filter(({ id }) => value.includes(id)).map(({ date_start: date }) => new Date(date))}
-              filterDate={isDateSelectable}
-              onSelect={handleDayClick(value)}
-              minDate={minDate}
-              maxDate={maxDate}
-              placeholderText="Sélectionnez des dates"
-              inline
+                      /
+                      {slots}
+                    </>
+                  ),
+                  props: {
+                    className: 'text-center',
+                  },
+                },
+                {
+                  title: 'Inscription ?',
+                  render: ({ id, slots, registrations }) => (
+                    <Form.Check
+                      type="checkbox"
+                      id={`check-${id}`}
+                      disabled={registrations >= slots || isUserAlreadyRegisteredToSession(id)}
+                      checked={isUserAlreadyRegisteredToSession(id) ? true : values.sessions.includes(id)}
+                      onClick={() => handleSessionSelect(id)}
+                      onChange={() => null}
+                    />
+                  ),
+                  props: {
+                    className: 'text-center justify-content-center',
+                  },
+                },
+              ]}
+              rowProps={({ id }) => ({
+                onClick: () => handleSessionSelect(id),
+                style: {
+                  opacity: isUserAlreadyRegisteredToSession(id) ? 0.3 : null,
+                  cursor: isUserAlreadyRegisteredToSession(id) ? null : 'pointer',
+                },
+              })}
+              striped={false}
             />
-          )}
-        </Field> */}
 
-        <Field name="sessions">
-          {({ input: { value } }) => (
-            <>
-              <div className="mb-2">Cochez les séances pour lesquelles vous souhaitez vous inscrire :</div>
-              <StaticPaginatedTable
-                rows={sessionsForType}
-                columns={[
-                  {
-                    title: 'Type de séance',
-                    render: () => SESSIONS_NAMES[values.type],
-                  },
-                  {
-                    title: 'Date',
-                    render: ({ date_start: date }) => displayDateOnly(date),
-                  },
-                  {
-                    title: 'Période',
-                    render: ({ date_start: dateStart, date_end: dateEnd }) => formatTimeRange(dateStart, dateEnd),
-                  },
-                  {
-                    title: 'Inscription',
-                    render: ({ id }) => <Form.Check type="checkbox" id={`check-${id}`} checked={value.includes(id)} onChange={() => handleSessionClick(value)(id)} />,
-                  },
-                ]}
-                renderEmpty="Aucune séance disponible."
-                initialResultsPerPage={25}
-                rowProps={({ id }) => ({ onClick: () => handleSessionClick(value)(id) })}
-              />
-            </>
-          )}
-        </Field>
+            <div className="text-center mb-2">
+              <small>
+                <strong>{values.sessions.length}</strong>
+                {' '}
+                séance
+                {values.sessions.length > 1 ? 's' : ''}
+                {' '}
+                sélectionnée
+                {values.sessions.length > 1 ? 's' : ''}
+              </small>
+            </div>
 
-        <Button variant="primary" className="mt-3" onClick={() => setValue('step', 3)} disabled={!values.sessions.length}>
-          <BsCheckLg className="icon me-2" />
-          Valider ces séances et continuer
-        </Button>
-      </div>
-    );
-  }
-
-  function Step3({ values }) {
-    return (
-      <>
-        <Row>
-          <Col>
-            <h4>Récapitulatif de vos inscriptions</h4>
-
-            <Table bordered>
-              <thead>
-                <tr>
-                  <th>Séance</th>
-                  <th>Date</th>
-                  <th>Heures</th>
-                </tr>
-              </thead>
-              <tbody>
-                {values.sessions.map((id, i) => (
-                  <tr key={id}>
-                    {i === 0 && (
-                      <td rowSpan={values.sessions.length} className="align-middle text-center">
-                        {SESSIONS_NAMES[values.type]}
-                      </td>
-                    )}
-                    <td>{displayDateOnly(data.sessions.filter(({ id: idOther }) => idOther === id)[0].date_start)}</td>
-                    <td>{data.sessions.filter(({ id: idOther }) => idOther === id).map(({ date_start: dateStart, date_end: dateEnd }) => formatTimeRange(new Date(dateStart), new Date(dateEnd)))[0]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+            {selfRegistrations.length > 0 && (
+              <p className="text-center">
+                Les séances grisées correspondent à celles pour lesquelles vous êtes déjà inscrit(e).
+              </p>
+            )}
 
             <div className="text-center">
-              <Badge bg="secondary">{values.sessions.length}</Badge>
-              {' '}
-              {values.sessions.length > 1 ? 'séances' : 'séance'}
-              {' '}
-              au total.
+              <Button size="lg" className="shadow" onClick={() => setValue('isStateConfirm', true)} disabled={values.sessions.length === 0}>
+                Étape suivante
+                <BsArrowRight className="icon ms-2" />
+              </Button>
             </div>
-          </Col>
-          <Col>
-            <h4>Vos informations</h4>
-            <Table bordered>
-              <tbody>
-                <tr>
-                  <th>Nom</th>
-                  <td>{sessionData.user.name}</td>
-                </tr>
-                <tr>
-                  <th>Adresse e-mail</th>
-                  <td>{sessionData.user.email}</td>
-                </tr>
-              </tbody>
-            </Table>
-          </Col>
-        </Row>
-        <Row>
-          <Col className="text-center py-3">
-            <Button type="submit">
-              <BsCheckLg className="icon me-2" />
-              Confirmer mes inscriptions
-            </Button>
-          </Col>
-        </Row>
+          </>
+        ) : (
+          <>
+            {isSubmitError && (
+              <ErrorMessage>
+                Une erreur est survenue lors de votre inscription aux séances sélectionnées, veuillez réessayer.
+              </ErrorMessage>
+            )}
 
-        <div className="text-center">
-          <em>Vous avez la possibilité de reporter votre/vos séance(s). Merci de nous le faire savoir au moins une semaine à l'avance en nous écrivant par e-mail.</em>
-        </div>
-      </>
+            {submitResult && (
+              <Alert variant="success">
+                <BsCheckLg className="icon me-2" />
+                Vos inscriptions ont bien été prises en compte, vous pouvez les retrouver sur
+                {' '}
+                <Link href="/mes-inscriptions" passHref><Alert.Link>votre page personnelle</Alert.Link></Link>
+                .
+                Si vous souhaitez vous inscrire à d'autres séances,
+                {' '}
+                <Alert.Link
+                  href="/inscription"
+                  onClick={e => {
+                    e.preventDefault();
+                    refresh();
+                  }}
+                >
+                  cliquez ici
+                </Alert.Link>
+                .
+                {' '}
+                À bientôt !
+              </Alert>
+            )}
+
+            <Row xs={1} xl={2}>
+              <Col>
+                <h2 className="h4">Récapitulatif de vos inscriptions</h2>
+
+                <Table bordered>
+                  <thead>
+                    <tr className="text-center">
+                      <th>Type de séance</th>
+                      <th>Date et horaire</th>
+                      <th>Prix</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {values.sessions.slice().sort((a, b) => sessionOrdinal(a) - sessionOrdinal(b)).map((id, i) => (
+                      <tr key={id}>
+                        {i === 0 && (
+                        <td rowSpan={values.sessions.length} className="align-middle text-center">
+                          {SESSIONS_NAMES[REGISTRATION_SESSION_TYPE]}
+                        </td>
+                        )}
+                        <td>
+                          {scheduleData.sessions.filter(({ id: idOther }) => idOther === id).map(({ date_start: dateStart, date_end: dateEnd }) => formatDayRange(dateStart, dateEnd))[0]}
+                        </td>
+                        <td className="text-center">
+                          {scheduleData.sessions.filter(({ id: idOther }) => idOther === id).map(({ price }) => `${price} €`)[0]}
+                        </td>
+                      </tr>
+                    ))}
+                    <tr style={{ borderTop: 'solid black 2px' }} className="table-secondary">
+                      <td colSpan={2} className="text-center">
+                        <strong>{values.sessions.length}</strong>
+                        {' '}
+                        séance
+                        {values.sessions.length > 1 ? 's' : ''}
+                        {' '}
+                        au total
+                      </td>
+                      <td className="text-center">
+                        <strong>
+                          {values.sessions.map(id => scheduleData.sessions.filter(({ id: idOther }) => idOther === id)[0].price).reduce((a, b) => a + b)}
+                          {' '}
+                          €
+                        </strong>
+                      </td>
+                    </tr>
+                  </tbody>
+                </Table>
+                <p className="mt-2">
+                  Le règlement d'une séance s'effectue le jour-même sur place.
+                  Il est également possible de régler toutes les séances en une fois.
+                </p>
+              </Col>
+              <Col>
+                <h4>Vos informations</h4>
+                <Table bordered>
+                  <tbody>
+                    <tr>
+                      <th>Nom</th>
+                      <td>{sessionData.user.name}</td>
+                    </tr>
+                    <tr>
+                      <th>Adresse e-mail</th>
+                      <td>{sessionData.user.email}</td>
+                    </tr>
+                  </tbody>
+                </Table>
+                <p>
+                  Vous pouvez modifier ces informations depuis votre page personnelle.
+                  Votre adresse e-mail nous permet notamment de vous informer en cas d'annulation de séance.
+                </p>
+              </Col>
+            </Row>
+
+            {!submitResult && (
+              <div className="text-center">
+                <Button size="lg" variant="secondary" className="m-2" onClick={() => setValue('isStateConfirm', false)}>
+                  <BsArrowLeft className="icon me-2" />
+                  Retour
+                </Button>
+                <Button type="submit" size="lg" className="m-2 shadow" onClick={() => setValue('isStateConfirm', true)}>
+                  <BsCheckLg className="icon me-2" />
+                  Valider ces inscriptions
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </Form>
+    ) : (
+      <div className="text-center my-2">
+        <Spinner animation="border" />
+      </div>
     );
-  }
-
-  const steps = [1, 2, 3];
-
-  const onSubmit = values => {
-    // console.log(values);
-
-    const data = { sessions: values.sessions };
-
-    setSubmitData(values);
-
-    submitDispatch(data);
   };
 
   return (
-    <AuthGuard allowedUserTypes={[USER_TYPE_REGULAR, USER_TYPE_ADMIN]}>
-      <PublicLayout padNavbar title="Inscription">
-        <Container className="py-5">
-          <h2 className="display-6">Inscription à une ou plusieurs séance(s) de Yoga adulte</h2>
-          <ul>
-            <li>
-              Les inscriptions aux séances de Yoga adulte se font via le formulaire ci-dessous
-              <ul>
-                <li>En ce qui concerne les séances de Yoga enfant et Yoga parent-enfant, veuillez nous envoyer un email</li>
-              </ul>
-            </li>
-            <li>La première séance vous est offerte, à la date de votre choix</li>
-            {/* <li>La première séance est gratuite</li>
-            <li>L'inscription à une séance est nécessaire pour y assister</li>
-            <li>Les séances peuvent être choisies à l'unité</li>
-            <li>Il est possible de reporter une séance déjà réservée, merci de nous écrire à l'avance par email</li> */}
-          </ul>
-          {!IS_REGISTRATION_DISABLED ? (
-            <FinalForm
-              onSubmit={onSubmit}
-              initialValues={{
-                step: 1,
-                type: null,
-                sessions: [],
-                ...submitData, // Dirty fix
-              }}
-              mutators={{ setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value) }}
-              keepDirtyOnReinitialize
-              render={({
-                handleSubmit,
-                form: { mutators: { setValue } },
-                values,
-              }) => (
-                <Form onSubmit={handleSubmit}>
-                  {!isLoading ? (
-                    <div>
-                      <Row className="text-center mt-4">
-                        {steps.map(step => (
-                          <Col key={step} style={{ position: 'relative' }}>
-                            <h3 className="m-0">
-                              <Badge pill bg={step <= values.step ? 'primary' : 'secondary'} style={{ border: 'solid white 5px' }} onClick={() => step === values.step - 1 && setValue('step', step)}>
-                                {step}
-                              </Badge>
-                            </h3>
-                            {step < 3 && (
-                              <ProgressBar
-                                now={step < values.step ? 100 : 0}
-                                style={{ position: 'absolute', width: '100%', left: 0, top: '50%', transform: 'translate(50%, -50%)', zIndex: -10 }}
-                              />
-                            )}
-                          </Col>
-                        ))}
-                      </Row>
-                      <Row className="text-center mb-5">
-                        {steps.map(step => (
-                          <Col key={step}>
-                            <span className="text-muted">{step === 1 ? <>Choix du type de séance</> : step === 2 ? <>Choix des horaires</> : <>Confirmation</>}</span>
-                          </Col>
-                        ))}
-                      </Row>
+    <FinalForm
+      onSubmit={onSubmit}
+      initialValuesEqual={() => true} // Important: this prevents remounting
+      initialValues={{
+        sessions: [],
+        isStateConfirm: false,
+      }}
+      mutators={{ setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value) }}
+      render={renderForm}
+    />
+  );
+}
 
-                      {isSubmitting ? (
-                        <div className="text-center my-4">
-                          <Spinner animation="border" />
-                        </div>
-                      ) : submitResult ? (
-                        <Alert variant="success">
-                          Vos inscriptions ont été enregistrées avec succès. Vous pouvez les retrouver
-                          {' '}
-                          <Link href="/mes-inscriptions" passHref>
-                            <Alert.Link>sur votre page personnelle</Alert.Link>
-                          </Link>
-                          .
-                        </Alert>
-                      ) : (
-                        <>
-                          {submitError && <ErrorMessage>Une erreur est survenue : impossible de vous inscrire aux séances sélectionnés.</ErrorMessage>}
+function RegistrationCard({ sessionData }) {
+  const { isLoading, isError, data } = usePromiseEffect(() => Promise.all([getSessionsSchedule(), getSelfRegistrations()]), []);
 
-                          {values.step > 1 && (
-                            <Button variant="secondary" size="sm" onClick={() => !isSubmitting && !submitResult && setValue('step', values.step - 1)} className="mb-4">
-                              <BsArrowLeft className="icon me-2" />
-                              Étape précédente
-                            </Button>
-                          )}
-
-                          {values.step === 1 ? <Step1 setValue={setValue} /> : values.step === 2 ? <Step2 setValue={setValue} values={values} /> : <Step3 values={values} />}
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="m-5 text-center">
-                      <Spinner animation="border" />
-                    </div>
-                  )}
-                </Form>
-              )}
-            />
+  return (
+    <Card>
+      <Card.Body>
+        {!isLoading ? (
+          !isError ? (
+            data[0].sessions.length > 0 ? (
+              <RegistrationFormLayout sessionData={sessionData} scheduleData={data[0]} selfRegistrations={data[1]} />
+            ) : (
+              <Alert variant="info" className="mb-0">
+                <BsInfoCircleFill className="icon me-2" />
+                Il n'y a pas de séance disponible à venir. Les séances sont planifiées au fur et à mesure, mais vous pouvez toujours nous envoyer un e-mail pour nous indiquer vos disponibilités.
+              </Alert>
+            )
           ) : (
-            <Alert variant="info">
-              <BsInfoCircleFill className="icon me-2" />
-              Le formulaire d'inscription n'est pas ouvert pour le moment. Vous pouvez
-              {' '}
-              <Alert.Link href={`mailto:${EMAIL_CONTACT}`}>nous écrire</Alert.Link>
-              {' '}
-              pour obtenir plus de renseignements.
-            </Alert>
-          )}
-        </Container>
-      </PublicLayout>
-    </AuthGuard>
+            <ErrorMessage>
+              Une erreur est survenue lors du chargement des horaires, essayez de recharger la page.
+            </ErrorMessage>
+          )
+        ) : (
+          <div className="text-center my-2">
+            <Spinner animation="border" />
+          </div>
+        )}
+      </Card.Body>
+    </Card>
+  );
+}
+
+export default function Inscription() {
+  const { data: sessionData, status } = useSession();
+  const isSessionLoading = useMemo(() => status === 'loading', [status]);
+
+  return (
+    <PublicLayout padNavbar title="Inscription">
+      <Container className="py-5">
+        <h2 className="display-6">Inscription à une ou plusieurs séance(s) de Yoga adulte</h2>
+        <ul>
+          <li>
+            Les inscriptions aux séances de Yoga adulte se font via le formulaire ci-dessous.
+            <br />
+            Pour une inscription à des séances de Yoga enfant et Yoga parent-enfant,
+            {' '}
+            <a href={`mailto:${EMAIL_CONTACT}`}>veuillez nous envoyer un e-mail</a>
+            .
+          </li>
+          <li>La première séance vous est offerte, à la date de votre choix.</li>
+        </ul>
+
+        {!IS_REGISTRATION_DISABLED ? (
+          !isSessionLoading ? (
+            sessionData ? (
+              <RegistrationCard sessionData={sessionData} />
+            ) : (
+              <Alert variant="info">
+                <BsInfoCircleFill className="icon me-2" />
+                Vous devez être connecté pour accéder au formulaire d'inscription.
+                {' '}
+                <Link href="/connexion" passHref>
+                  <Alert.Link>M'inscrire ou me connecter</Alert.Link>
+                </Link>
+              </Alert>
+            )
+          ) : (
+            <div className="text-center my-3">
+              <Spinner animation="border" />
+            </div>
+          )
+        ) : (
+          <Alert variant="info">
+            <BsInfoCircleFill className="icon me-2" />
+            Le formulaire d'inscription n'est pas ouvert pour le moment. Vous pouvez
+            {' '}
+            <Alert.Link href={`mailto:${EMAIL_CONTACT}`}>nous écrire</Alert.Link>
+            {' '}
+            pour obtenir plus de renseignements.
+          </Alert>
+        )}
+
+      </Container>
+    </PublicLayout>
   );
 }
