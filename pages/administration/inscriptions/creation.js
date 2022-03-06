@@ -1,16 +1,16 @@
 import { useRouter } from 'next/router';
 import { Alert } from 'react-bootstrap';
 import { BsExclamationTriangleFill, BsJournalText } from 'react-icons/bs';
-import { RegistrationCreateForm } from '../../../components/form';
+import { CourseRegistrationCreateForm } from '../../../components/form';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import { BREADCRUMB_REGISTRATIONS_CREATE } from '../../../lib/client';
 
 export default function AdminRegistrationCreate() {
   const router = useRouter();
-  const { user_id: userIdRaw, session_id: sessionIdRaw } = router.query;
+  const { userId: userIdRaw, courseId: courseIdRaw } = router.query;
 
   const userId = parseInt(userIdRaw);
-  const sessionId = parseInt(sessionIdRaw);
+  const courseId = parseInt(courseIdRaw);
 
   return (
     <PrivateLayout>
@@ -20,11 +20,11 @@ export default function AdminRegistrationCreate() {
           Attention, en principe les utilisateurs sont censés s'inscrire eux-mêmes aux séances. En remplissant ce formulaire vous prenez la main sur le compte de l'utilisateur.
         </Alert>
 
-        <RegistrationCreateForm
-          redirect={obj => (obj != null ? `/administration/seances/planning/${obj.session_id}` : '/administration/inscriptions')}
+        <CourseRegistrationCreateForm
+          redirect={obj => (obj != null ? `/administration/seances/planning/${obj.courseId}` : '/administration/inscriptions')}
           initialValues={{
-            user_id: Number.isNaN(userId) ? undefined : userId,
-            session_id: Number.isNaN(sessionId) ? undefined : sessionId,
+            userId: Number.isNaN(userId) ? undefined : userId,
+            courseId: Number.isNaN(courseId) ? undefined : courseId,
           }}
         />
       </ContentLayout>

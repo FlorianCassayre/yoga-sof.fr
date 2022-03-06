@@ -3,12 +3,14 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../../../lib/common';
 import { prisma } from '../../../lib/server';
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 export default NextAuth({
+  adapter: PrismaAdapter(prisma),
   // https://next-auth.js.org/configuration/providers
   providers: [
     GoogleProvider({
@@ -20,7 +22,8 @@ export default NextAuth({
       clientSecret: process.env.FACEBOOK_SECRET,
     }),
   ],
-  secret: process.env.SECRET,
+  // This option is not strictly required since next-auth will look for the variable `NEXTAUTH_SECRET` anyway
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     jwt: true,
     // maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -31,12 +34,8 @@ export default NextAuth({
   // option is set - or by default if no database is specified.
   // https://next-auth.js.org/configuration/options#jwt
   jwt: {
-    // A secret to use for key generation (you should set this explicitly)
-    // secret: 'INp8IvdIyeMcoGAgFGoA61DdBglwwSqnXJZkgz8PSnw',
-    // Set to true to use encryption (default: false)
+    secret: process.env.NEXTAUTH_SECRET,
     // encryption: true,
-    // You can define your own encode/decode functions for signing and encryption
-    // if you want to override the default behaviour.
     // encode: async ({ secret, token, maxAge }) => {},
     // decode: async ({ secret, token, maxAge }) => {},
   },
@@ -49,6 +48,16 @@ export default NextAuth({
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) { // eslint-disable-line no-unused-vars
+      await prisma.account.updateMany({
+        where: {
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+        },
+        data: {
+          updatedAt: new Date().toISOString(), // Force set current timestamp
+        },
+      });
+
       const isAllowedToSignIn = true; // TODO
       if (isAllowedToSignIn) {
         return true;
@@ -59,74 +68,35 @@ export default NextAuth({
       // return '/unauthorized'
     },
     // async redirect(url, baseUrl) { return baseUrl },
-    async session({ session, /* user, */ token }) {
-      const { email } = session.user;
+    async session({ session, user }) {
+      // `session` is the shared object between the client and the server (client can read it but only the server can modify it)
+      // `user` exactly corresponds to the data stored in the database under the model `User`
 
-      session.user.provider = token.provider;
-      session.user.id_provider = token.id_provider;
-
-      const {
-        id,
-        user: { public_access_token: publicAccessToken, user_linked_accounts: linkedAccounts, name: displayName },
-      } = await prisma.user_linked_account.upsert({
+      await prisma.user.update({
         where: {
-          id_provider_provider: {
-            id_provider: token.id_provider,
-            provider: token.provider,
-          },
+          id: user.id,
         },
-        update: {
-          email,
-          name: session.user.name,
-          // We don't update the user's data
-        },
-        create: {
-          id_provider: token.id_provider,
-          email,
-          provider: token.provider,
-          name: session.user.name,
-          user: {
-            create: {
-              // Nested create
-              email,
-              name: session.user.name,
-            },
-          },
-        },
-        select: {
-          id: true,
-          user: {
-            select: {
-              public_access_token: true,
-              user_linked_accounts: { select: { email: true } },
-              name: true,
-            },
-          },
+        data: {
+          lastActivity: new Date().toISOString(),
         },
       });
 
-      const userVerifiedEmails = linkedAccounts.map(({ email: linkedAccountEmail }) => linkedAccountEmail).filter(linkedAccountEmail => linkedAccountEmail);
-      const whiteListedEmails = (
-        await prisma.admins.findMany(
-          // Not atomic, but doesn't matter
-          { select: { email: true } },
-        )
-      ).map(({ email: whiteListedEmail }) => whiteListedEmail);
-      const isAdmin = whiteListedEmails.some(whiteListedEmail => userVerifiedEmails.includes(whiteListedEmail));
+      const isEmailAdminWhitelisted = !!(await prisma.adminWhitelist.count({
+        where: {
+          // This email must have necessarily come from one of the registered providers,
+          // and cannot be changed manually. Thus it should be safe to trust.
+          email: user.email,
+        },
+      }));
 
-      session.userType = isAdmin ? USER_TYPE_ADMIN : USER_TYPE_REGULAR;
-
-      session.user.db_id = id;
-      session.user.public_access_token = publicAccessToken;
-      session.user.name = displayName;
+      // We extend the `session` object to contain information about the permissions of the user
+      session.userId = user.id;
+      session.userType = isEmailAdminWhitelisted ? USER_TYPE_ADMIN : USER_TYPE_REGULAR;
+      session.displayName = user.customName ? user.customName : user.name;
+      session.displayEmail = user.customEmail ? user.customEmail : user.email;
+      session.publicAccessToken = user.publicAccessToken;
 
       return session;
-    },
-    async jwt({ token, user, account /* profile, isNewUser */ }) {
-      if (user && account) {
-        token = { provider: account.provider, id_provider: user.id, ...token };
-      }
-      return token;
     },
   },
   events: {},

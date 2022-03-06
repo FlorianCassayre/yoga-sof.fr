@@ -1,6 +1,6 @@
 import { Badge } from 'react-bootstrap';
 
-export function SessionStatusBadge({ session: { is_canceled: isCanceled, date_start: dateStartRaw, date_end: dateEndRaw }, ...props }) {
+export function CourseStatusBadge({ course: { isCanceled, dateStart: dateStartRaw, dateEnd: dateEndRaw }, ...props }) {
   const now = new Date();
   const dateStart = new Date(dateStartRaw), dateEnd = new Date(dateEndRaw);
   return isCanceled ? (

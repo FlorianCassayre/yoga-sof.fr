@@ -85,7 +85,7 @@ export function NavigationLayout({ children }) {
               <Dropdown as={Nav.Item} className="">
                 <Dropdown.Toggle as={Nav.Link} className="link-light">
                   <BsPerson className="icon" />
-                  <span className="ms-2 d-none d-sm-inline">{sessionData.user.name}</span>
+                  <span className="ms-2 d-none d-sm-inline">{sessionData.displayName}</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
                   <Dropdown.Item onClick={handleSignOut}>
@@ -96,6 +96,7 @@ export function NavigationLayout({ children }) {
               </Dropdown>
               <div className="text-muted d-none d-sm-block ms-3">
                 Version
+                {' '}
                 {pkg.version}
               </div>
             </div>

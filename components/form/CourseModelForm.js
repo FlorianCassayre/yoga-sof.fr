@@ -1,15 +1,15 @@
 import { CreateEditForm } from './CreateEditForm';
-import { TimePickerRangeFields, SessionTypeSelectField, SlotsNumberField, WeekdaySelectField, PriceNumberField } from './fields';
+import { TimePickerRangeFields, CourseTypeSelectField, SlotsNumberField, WeekdaySelectField, PriceNumberField } from './fields';
 
-export function SessionModelForm({ editRecordId, container }) {
+export function CourseModelForm({ editRecordId, container }) {
   return (
     <CreateEditForm
-      modelId="session_models"
+      modelId="courseModels"
       initialValues={{
         type: null,
         weekday: null,
-        time_start: null,
-        time_end: null,
+        timeStart: null,
+        timeEnd: null,
         slots: null,
         price: null,
       }}
@@ -19,7 +19,7 @@ export function SessionModelForm({ editRecordId, container }) {
       deletable
       container={container}
     >
-      <SessionTypeSelectField name="type" className="mb-2" />
+      <CourseTypeSelectField name="type" className="mb-2" />
 
       <WeekdaySelectField name="weekday" className="mb-2" />
 

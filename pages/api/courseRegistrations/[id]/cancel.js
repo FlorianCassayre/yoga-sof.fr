@@ -7,18 +7,18 @@ export default async function handler(req, res) {
       permissions: [USER_TYPE_ADMIN],
       schemaQuery: schemaRegistrationCancelQuery,
       action: async ({ accept, reject, query: { id: registrationId } }) => {
-        const result = await prisma.registrations.updateMany({
+        const result = await prisma.courseRegistration.updateMany({
           where: {
             id: registrationId,
-            is_user_canceled: false,
-            session: {
-              date_start: { gt: new Date() },
-              is_canceled: false,
+            isUserCanceled: false,
+            course: {
+              dateStart: { gt: new Date() },
+              isCanceled: false,
             },
           },
           data: {
-            is_user_canceled: true,
-            canceled_at: new Date(),
+            isUserCanceled: true,
+            canceledAt: new Date(),
           },
         });
 

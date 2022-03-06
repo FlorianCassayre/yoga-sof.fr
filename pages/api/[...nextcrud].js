@@ -1,7 +1,6 @@
 import NextCrud, { HttpError, PrismaAdapter, RouteType } from '@premieroctet/next-crud';
 import { getSession } from 'next-auth/react';
-import { isPermitted } from '../../lib/client';
-import { prisma, validateData } from '../../lib/server';
+import { isPermitted, prisma, validateData } from '../../lib/server';
 
 const handler = NextCrud({
   adapter: new PrismaAdapter({ prismaClient: prisma }),
@@ -14,7 +13,7 @@ const handler = NextCrud({
 
     if (!isPermitted(resourceName, resourceId, routeType, session?.userType)) {
       if (session) {
-        throw new HttpError(403, "you don't have the required rights to perform this action");
+        throw new HttpError(403, `you don't have the required rights to perform this action`);
       } else {
         throw new HttpError(401, 'you must be logged in to perform this action');
       }

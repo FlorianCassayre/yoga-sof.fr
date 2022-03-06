@@ -45,7 +45,7 @@ export function UserSelfForm() {
   }, [submitResult]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSubmit = data => {
-    const finalData = { ...data, email: data.email ? data.email : null };
+    const finalData = { ...data, customEmail: data.customEmail ? data.customEmail : null };
 
     submitDispatcher(finalData);
   };
@@ -61,13 +61,13 @@ export function UserSelfForm() {
       {isSubmitError && <ErrorMessage />}
       <Row>
         <Col xs={12} md={6} xl={3} className="mb-2 mb-xl-0">
-          <FloatingInputField name="name" label="Nom" placeholder="Nom" required fieldProps={{ disabled: isSubmitLoading }} />
+          <FloatingInputField name="customName" label="Nom" placeholder="Nom" required fieldProps={{ disabled: isSubmitLoading }} />
         </Col>
         <Col xs={12} md={6} xl={3} className="mb-2 mb-xl-0">
-          <FloatingInputField name="email" label="Adresse email" placeholder="Adresse email" type="email" parse={v => v || null} fieldProps={{ disabled: isSubmitLoading }} />
+          <FloatingInputField name="customEmail" label="Adresse email" placeholder="Adresse email" type="email" parse={v => v || null} fieldProps={{ disabled: isSubmitLoading }} />
         </Col>
         <Col xs={12} md={6} xl={3} className="mb-3 my-xl-auto">
-          <SwitchField name="receive_emails" label="Recevoir les notifications par email" fieldProps={{ disabled: isSubmitLoading }} />
+          <SwitchField name="receiveEmails" label="Recevoir les notifications par email" fieldProps={{ disabled: isSubmitLoading }} />
         </Col>
         <Col xs={12} xl={3} className="mb-2 my-xl-auto">
           <Button type="submit" disabled={isSubmitLoading || Object.keys(errors).length > 0} className="w-100">

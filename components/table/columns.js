@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { Button } from 'react-bootstrap';
 import { BsCalendarDate, BsEyeFill, BsPerson, BsXOctagon } from 'react-icons/bs';
-import { displaySessionName } from '../../lib/common';
+import { displayCourseName } from '../../lib/common';
 import { CancelRegistrationConfirmDialog } from '../CancelRegistrationConfirmDialog';
-import { SessionStatusBadge } from '../SessionStatusBadge';
+import { CourseStatusBadge } from '../CourseStatusBadge';
 import { StarIndicator } from '../StarIndicator';
 
 const compose = f => g => x => f(g(x));
@@ -20,7 +20,7 @@ export const idColumn = {
 
 export const userLinkColumn = {
   title: 'Utilisateur',
-  render: ({ user_id: userId, user: { name } }) => (
+  render: ({ userId, user: { name } }) => (
     <Link href={`/administration/utilisateurs/${userId}`} passHref>
       <a>
         <BsPerson className="icon me-2" />
@@ -30,14 +30,14 @@ export const userLinkColumn = {
   ),
 };
 
-export const plannedSessionLinkColumn = {
+export const plannedCourseLinkColumn = {
   title: 'Séance',
-  render: ({ session_id: sessionId, session }) => (
-    <Link href={`/administration/seances/planning/${sessionId}`} passHref>
+  render: ({ courseId, course }) => (
+    <Link href={`/administration/seances/planning/${courseId}`} passHref>
       <a>
         <BsCalendarDate className="icon me-2" />
-        {displaySessionName(session)}
-        <SessionStatusBadge session={session} className="ms-2" />
+        {displayCourseName(course)}
+        <CourseStatusBadge course={course} className="ms-2" />
       </a>
     </Link>
   ),
@@ -45,8 +45,8 @@ export const plannedSessionLinkColumn = {
 
 export const cancelRegistrationColumn = {
   title: 'Désinscription',
-  render: registration => !registration.session.is_canceled
-    && !registration.is_user_canceled && (
+  render: registration => !registration.course.isCanceled
+    && !registration.isUserCanceled && (
       <CancelRegistrationConfirmDialog
         registration={registration}
         triggerer={clickHandler => ( // eslint-disable-line react/no-unstable-nested-components

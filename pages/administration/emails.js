@@ -11,7 +11,7 @@ function AdminEmailsLayout() {
       <p>Liste des e-mails envoyés par le système. Ce module est en lecture seule.</p>
 
       <DynamicPaginatedTable
-        url="/api/emails"
+        url="/api/emailMessages"
         params={(page, limit) => ({
           page,
           limit,
@@ -19,13 +19,13 @@ function AdminEmailsLayout() {
         })}
         columns={[
           {
-            title: "Type d'e-mail",
+            title: `Type d'e-mail`,
             render: ({ type }) => EMAIL_TYPES[type].title,
           },
           userLinkColumn,
           {
             title: 'Adresse de destination',
-            render: ({ destination_address: destinationAddress }) => renderEmail(destinationAddress),
+            render: ({ destinationAddress }) => renderEmail(destinationAddress),
           },
           {
             title: 'Sujet',
@@ -38,11 +38,11 @@ function AdminEmailsLayout() {
           },
           {
             title: 'Date',
-            render: ({ created_at: createdAt }) => displayDatetime(createdAt),
+            render: ({ createdAt }) => displayDatetime(createdAt),
           },
           {
-            title: "Date d'envoi",
-            render: ({ sent_at: sentAt }) => (sentAt ? displayDatetime(sentAt) : <Badge bg="danger">Non envoyé</Badge>),
+            title: `Date d'envoi`,
+            render: ({ sentAt }) => (sentAt ? displayDatetime(sentAt) : <Badge bg="danger">Non envoyé</Badge>),
             props: { className: 'text-center' },
           },
         ]}

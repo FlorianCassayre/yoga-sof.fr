@@ -2,20 +2,20 @@ import { format } from 'date-fns';
 import { Button } from 'react-bootstrap';
 import { BsCalendarWeek, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
-import { CancelSessionConfirmDialog, SessionsCards, SessionStatusBadge } from '../../../components';
+import { CancelCourseConfirmDialog, CourseCards, CourseStatusBadge } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import { detailsColumnFor, DynamicPaginatedTable } from '../../../components/table';
-import { displaySessionType, displayTimePeriod, dateFormat } from '../../../lib/common';
-import { BREADCRUMB_SESSIONS } from '../../../lib/client';
+import { displayCourseType, displayTimePeriod, dateFormat } from '../../../lib/common';
+import { BREADCRUMB_COURSES } from '../../../lib/client';
 
 function AdminSeancesLayout() {
-  const renderDate = ({ date_start: date }) => format(new Date(date), dateFormat);
+  const renderDate = ({ dateStart: date }) => format(new Date(date), dateFormat);
 
-  const sessionColumns = hasPassed => [
+  const courseColumns = hasPassed => [
     detailsColumnFor(id => `/administration/seances/planning/${id}`),
     {
       title: 'Statut',
-      render: session => <SessionStatusBadge session={session} />,
+      render: course => <CourseStatusBadge course={course} />,
       props: { className: 'text-center' },
     },
     {
@@ -24,11 +24,11 @@ function AdminSeancesLayout() {
     },
     {
       title: 'Horaire',
-      render: ({ date_start: dateStart, date_end: dateEnd }) => displayTimePeriod(dateStart, dateEnd),
+      render: ({ dateStart, dateEnd }) => displayTimePeriod(dateStart, dateEnd),
     },
     {
       title: 'Type de séance',
-      render: ({ type }) => displaySessionType(type),
+      render: ({ type }) => displayCourseType(type),
     },
     {
       title: 'Prix',
@@ -38,7 +38,7 @@ function AdminSeancesLayout() {
       title: 'Inscriptions / Places disponibles',
       render: ({ slots, registrations }) => (
         <>
-          {registrations.filter(({ is_user_canceled: isUserCanceled }) => !isUserCanceled).length}
+          {registrations.filter(({ isUserCanceled }) => !isUserCanceled).length}
           {' '}
           /
           {' '}
@@ -67,8 +67,8 @@ function AdminSeancesLayout() {
         {
           title: 'Annuler',
           render: obj => (
-            <CancelSessionConfirmDialog
-              session={obj}
+            <CancelCourseConfirmDialog
+              course={obj}
               triggerer={clickHandler => ( // eslint-disable-line react/no-unstable-nested-components
                 <Button size="sm" variant="danger" onClick={clickHandler}>
                   <BsXOctagon className="icon" />
@@ -83,7 +83,7 @@ function AdminSeancesLayout() {
   ];
 
   return (
-    <ContentLayout title="Séances" icon={BsCalendarWeek} breadcrumb={BREADCRUMB_SESSIONS}>
+    <ContentLayout title="Séances" icon={BsCalendarWeek} breadcrumb={BREADCRUMB_COURSES}>
       <h2 className="h5">Modèles de séances</h2>
 
       <p>
@@ -91,7 +91,7 @@ function AdminSeancesLayout() {
         possible de planifier des séances à d'autres dates et horaires que celles indiquées par les modèles.
       </p>
 
-      <SessionsCards />
+      <CourseCards />
 
       <h2 className="h5">Planification et séances à venir</h2>
 
@@ -110,18 +110,18 @@ function AdminSeancesLayout() {
       </div>
 
       <DynamicPaginatedTable
-        url="/api/sessions"
+        url="/api/courses"
         params={(page, limit) => ({
           page,
           limit,
           include: ['registrations'],
           where: JSON.stringify({
-            is_canceled: false,
-            date_end: { $gt: new Date().toISOString() },
+            isCanceled: false,
+            dateEnd: { $gt: new Date().toISOString() },
           }),
-          orderBy: JSON.stringify({ date_start: '$asc' }),
+          orderBy: JSON.stringify({ dateStart: '$asc' }),
         })}
-        columns={sessionColumns(false)}
+        columns={courseColumns(false)}
         renderEmpty={() => <>Il n'y a pas de séances à venir pour le moment.</>}
       />
 
@@ -130,20 +130,20 @@ function AdminSeancesLayout() {
       <p>Les séances passées ou ayant été annulées.</p>
 
       <DynamicPaginatedTable
-        url="/api/sessions"
+        url="/api/courses"
         params={(page, limit) => ({
           page,
           limit,
           include: ['registrations'],
           where: JSON.stringify({
             $not: {
-              is_canceled: false,
-              date_end: { $gt: new Date().toISOString() },
+              isCanceled: false,
+              dateEnd: { $gt: new Date().toISOString() },
             },
           }),
-          orderBy: JSON.stringify({ date_start: '$desc' }),
+          orderBy: JSON.stringify({ dateStart: '$desc' }),
         })}
-        columns={sessionColumns(true)}
+        columns={courseColumns(true)}
         renderEmpty={() => <>Il n'y a pas encore de séances passées ou annulées.</>}
       />
     </ContentLayout>

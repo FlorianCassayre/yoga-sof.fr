@@ -20,6 +20,7 @@
     "one-var": "off",
     "one-var-declaration-per-line": "off",
     "jsx-a11y/anchor-is-valid": "off",
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
 
 
 

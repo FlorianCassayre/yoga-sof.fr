@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Badge, Button } from 'react-bootstrap';
 import { BsJournalText, BsPlusLg } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import { cancelRegistrationColumn, DynamicPaginatedTable, plannedSessionLinkColumn, userLinkColumn } from '../../../components/table';
+import { cancelRegistrationColumn, DynamicPaginatedTable, plannedCourseLinkColumn, userLinkColumn } from '../../../components/table';
 import { BREADCRUMB_REGISTRATIONS } from '../../../lib/client';
 import { displayDatetime, formatTimestamp } from '../../../lib/common';
 
@@ -12,23 +12,23 @@ function AdminRegistrationsLayout() {
       <p>Liste des inscriptions passées et futures à des séances programmées.</p>
 
       <DynamicPaginatedTable
-        url="/api/registrations"
+        url="/api/courseRegistrations"
         params={(page, limit) => ({
           page,
           limit,
-          orderBy: JSON.stringify({ created_at: '$desc' }),
-          include: ['session', 'user'],
+          orderBy: JSON.stringify({ createdAt: '$desc' }),
+          include: ['course', 'user'],
         })}
         columns={[
           userLinkColumn,
-          plannedSessionLinkColumn,
+          plannedCourseLinkColumn,
           {
-            title: "Date d'inscription",
-            render: ({ created_at: createdAt }) => displayDatetime(createdAt),
+            title: `Date d'inscription`,
+            render: ({ createdAt }) => displayDatetime(createdAt),
           },
           {
             title: 'Statut',
-            render: ({ is_user_canceled: isUserCanceled, canceled_at: canceledAt }) => (!isUserCanceled ? <Badge bg="success">Inscrit</Badge> : (
+            render: ({ isUserCanceled, canceledAt }) => (!isUserCanceled ? <Badge bg="success">Inscrit</Badge> : (
               <Badge bg="danger">
                 Annulé à
                 {' '}

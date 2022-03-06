@@ -2,14 +2,14 @@ import Link from 'next/link';
 import { Button, Card, Col, Row, Spinner } from 'react-bootstrap';
 import { BsCalendar, BsPencil, BsPlusLg } from 'react-icons/bs';
 import { usePromiseEffect } from '../hooks';
-import { getSessionModels } from '../lib/client/api';
+import { getCourseModels } from '../lib/client/api';
 import { formatTime, parsedTimeToMinutes, parseTime, WEEKDAYS, SESSIONS_NAMES } from '../lib/common';
 import { ErrorMessage } from './ErrorMessage';
 
-export function SessionsCards({ readonly }) {
-  const { isLoading, isError, data, error } = usePromiseEffect(getSessionModels, []);
+export function CourseCards({ readonly }) {
+  const { isLoading, isError, data, error } = usePromiseEffect(getCourseModels, []);
 
-  const compareModels = ({ weekday: d1, time_start: t1 }, { weekday: d2, time_start: t2 }) => {
+  const compareModels = ({ weekday: d1, timeStart: t1 }, { weekday: d2, timeStart: t2 }) => {
     if (d1 !== d2) {
       return d1 - d2;
     }
@@ -21,7 +21,7 @@ export function SessionsCards({ readonly }) {
       {!isError ? (
         !isLoading ? (
           <>
-            {data.sort(compareModels).map(({ id, type, weekday, time_start: timeStart, time_end: timeEnd, slots, price }) => (
+            {data.sort(compareModels).map(({ id, type, weekday, timeStart, timeEnd, slots, price }) => (
               <Col key={id} xs={12} lg={4} className="mb-4">
                 <Card>
                   <Card.Body>

@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     POST: {
       permissions: ALL_USER_TYPES,
       schemaBody: schemaSelfRegistrationBatchBody,
-      action: async ({ reject, accept, userId, body: { sessions } }) => {
+      action: async ({ reject, accept, userId, body: { courses } }) => {
         if (IS_REGISTRATION_DISABLED) {
           reject('Bad Request: temporarily disabled');
           return;
@@ -16,22 +16,22 @@ export default async function handler(req, res) {
 
         try {
           await prisma.$transaction(
-            sessions.map(
-              sessionId => prisma.$executeRaw`
-              INSERT INTO registrations (session_id, user_id) VALUES (
-                (SELECT id FROM sessions AS tmp1 WHERE
-                  id = ${sessionId} AND
+            courses.map(
+              courseId => prisma.$executeRaw`
+              INSERT INTO course_registration (course_id, user_id, created_at) VALUES (
+                (SELECT id FROM course AS tmp1 WHERE
+                  id = ${courseId} AND
                   NOT is_canceled AND
                   ${now} < date_start AND
-                  NOT EXISTS(SELECT * FROM registrations AS tmp2 WHERE user_id = ${userId} AND session_id = ${sessionId} AND NOT is_user_canceled) AND
-                  (SELECT COUNT(*) FROM registrations AS tmp3 WHERE session_id = ${sessionId} AND NOT is_user_canceled) < slots),
-                ${userId}
+                  NOT EXISTS(SELECT * FROM course_registration AS tmp2 WHERE user_id = ${userId} AND course_id = ${courseId} AND NOT is_user_canceled) AND
+                  (SELECT COUNT(*) FROM course_registration AS tmp3 WHERE course_id = ${courseId} AND NOT is_user_canceled) < slots),
+                ${userId}, ${new Date()}
             )
           `,
             ),
           );
 
-          accept();
+          accept({});
         } catch (e) {
           reject('Bad Request');
         }

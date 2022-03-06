@@ -8,38 +8,91 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model admins {
-  email String @unique(map: "email") @db.VarChar(255)
+// Start of the next-auth models
+
+model Account {
+  id                 Int      @id @default(autoincrement())
+  userId             Int      @map("user_id")
+  type               String
+  provider           String
+  providerAccountId  String   @map("provider_account_id")
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Begin account custom fields
+
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  // End account custom fields
+
+  @@unique([provider, providerAccountId])
+  @@map("account")
 }
 
-model users {
-  id            Int    @id @default(autoincrement())
-  email         String? @db.VarChar(255)
-  name          String @db.VarChar(255)
-  public_access_token String @default(uuid())
-  receive_emails Boolean @default(true)
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  emails        emails[]
-  registrations registrations[]
-  user_linked_accounts user_linked_account[]
+model Session {
+  id           Int      @id @default(autoincrement())
+  sessionToken String   @unique @map("session_token")
+  userId       Int      @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
 }
 
-model user_linked_account {
-  id          Int    @id @default(autoincrement())
-  user_id     Int
-  user        users @relation(fields: [user_id], references: [id])
-  id_provider String @db.VarChar(255)
-  email       String @db.VarChar(255)
-  provider    String @db.VarChar(255)
-  name        String @db.VarChar(255)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+model User {
+  id                  Int                  @id @default(autoincrement())
+  name                String?
+  email               String?              @unique
+  emailVerified       DateTime?            @map("email_verified")
+  image               String?
+  accounts            Account[]
+  sessions            Session[]
 
-  @@unique([id_provider, provider], map: "id_provider_unique_constraint")
+  // Begin user custom fields
+
+  customEmail         String?              @map("custom_email")
+  customName          String?              @map("custom_name")
+  publicAccessToken   String               @default(uuid()) @map("public_access_token")
+  receiveEmails       Boolean              @default(true) @map("receive_emails")
+
+  createdAt           DateTime             @default(now()) @map("created_at")
+  lastActivity        DateTime?            @map("last_activity")
+
+  emailsReceived      EmailMessage[]
+  courseRegistrations CourseRegistration[]
+
+  // End user custom fields
+
+  @@map("user")
 }
 
-enum SessionType {
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+
+  @@map("verification_token")
+}
+
+// End of the next-auth models
+
+model AdminWhitelist {
+  email String @unique
+
+  @@map("admin_whitelist")
+}
+
+enum CourseType {
   YOGA_ADULT
   YOGA_CHILD
   YOGA_ADULT_CHILD
@@ -49,56 +102,64 @@ enum SessionType {
 // https://github.com/prisma/prisma/issues/3102
 // https://github.com/prisma/prisma/issues/3388
 
-model session_models {
-  id          Int @id @default(autoincrement())
-  type        SessionType
-  slots       Int @db.UnsignedInt
-  price       Int @db.UnsignedInt
-  weekday     Int @db.UnsignedTinyInt
-  time_start  String @db.VarChar(5)
-  time_end    String @db.VarChar(5)
+model CourseModel {
+  id          Int        @id @default(autoincrement())
+  type        CourseType
+  slots       Int        @db.UnsignedInt
+  price       Int        @db.UnsignedInt
+  weekday     Int        @db.UnsignedTinyInt
+  timeStart  String      @db.VarChar(5) @map("time_start")
+  timeEnd    String      @db.VarChar(5) @map("time_end")
+
+  @@map("course_model")
 }
 
-model sessions {
-  id            Int @id @default(autoincrement())
-  type          SessionType
-  slots         Int @db.UnsignedInt
-  price         Int @db.UnsignedInt
-  date_start    DateTime @db.Timestamp(0)
-  date_end      DateTime @db.Timestamp(0)
-  is_canceled   Boolean @default(false)
-  cancelation_reason String? @db.Text
-  notes         String? @db.Text
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
-  registrations registrations[]
+model Course {
+  id                Int                  @id @default(autoincrement())
+  type              CourseType
+  slots             Int                  @db.UnsignedInt
+  price             Int                  @db.UnsignedInt
+  dateStart         DateTime             @db.Timestamp(0) @map("date_start")
+  dateEnd           DateTime             @db.Timestamp(0) @map("date_end")
+  isCanceled        Boolean              @default(false) @map("is_canceled")
+  cancelationReason String?              @db.Text @map("cancelation_reason")
+  notes             String?              @db.Text
+  createdAt         DateTime             @default(now()) @map("created_at")
+  updatedAt         DateTime             @updatedAt @map("updated_at")
+  registrations     CourseRegistration[]
+
+  @@map("course")
 }
 
-enum EmailType {
+model CourseRegistration {
+  id             Int       @id @default(autoincrement())
+  userId         Int       @map("user_id")
+  user           User      @relation(fields: [userId], references: [id])
+  courseId       Int       @map("course_id")
+  course         Course    @relation(fields: [courseId], references: [id])
+  isUserCanceled Boolean   @default(false) @map("is_user_canceled")
+  reminderSent   Boolean   @default(false) @map("reminder_sent")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  canceledAt     DateTime? @map("canceled_at")
+
+  @@map("course_registration")
+}
+
+enum EmailMessageType {
   SESSION_CANCELED
   OTHER
 }
 
-model emails {
-  id                  Int @id @default(autoincrement())
-  user_id             Int
-  user                users @relation(fields: [user_id], references: [id])
-  type                EmailType
-  destination_address String @db.VarChar(255)
-  subject             String @db.Text
-  message             String @db.Text
-  created_at          DateTime @default(now())
-  sent_at             DateTime?
-}
+model EmailMessage {
+  id                 Int              @id @default(autoincrement())
+  userId             Int              @map("user_id")
+  user               User             @relation(fields: [userId], references: [id])
+  type               EmailMessageType
+  destinationAddress String           @map("destination_address")
+  subject            String           @db.Text
+  message            String           @db.Text
+  createdAt          DateTime         @default(now()) @map("created_at")
+  sentAt             DateTime?        @map("sent_at")
 
-model registrations {
-  id               Int @id @default(autoincrement())
-  user_id          Int
-  user             users @relation(fields: [user_id], references: [id])
-  session_id       Int
-  session          sessions @relation(fields: [session_id], references: [id])
-  is_user_canceled Boolean @default(false)
-  reminder_sent    Boolean @default(false)
-  created_at       DateTime @default(now())
-  canceled_at      DateTime?
+  @@map("email_message")
 }

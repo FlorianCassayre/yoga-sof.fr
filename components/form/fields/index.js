@@ -1,11 +1,11 @@
 export { TimePickerField } from './TimePickerField';
 export { WeekdaySelectField } from './WeekdaySelectField';
-export { SessionTypeSelectField } from './SessionTypeSelectField';
+export { CourseTypeSelectField } from './CourseTypeSelectField';
 export { SlotsNumberField } from './SlotsNumberField';
 export { TimePickerRangeFields } from './TimePickerRangeFields';
 export { PriceNumberField } from './PriceNumberField';
 export { UserSelectField } from './UserSelectField';
-export { SessionSelectField } from './SessionSelectField';
+export { CourseSelectField } from './CourseSelectField';
 export { SimpleInputField } from './SimpleInputField';
 export { SwitchField } from './SwitchField';
 export { FloatingInputField } from './FloatingInputField';

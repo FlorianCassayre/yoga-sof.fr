@@ -15,7 +15,7 @@ import {
   YOGA_ADULT,
 } from '../lib/common';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
-import { getSelfRegistrations, getSessionsSchedule, postSelfRegistrationBatch } from '../lib/client/api';
+import { getSelfRegistrations, getCoursesSchedule, postSelfRegistrationBatch } from '../lib/client/api';
 import { useNotificationsContext, useRefreshContext } from '../state';
 
 const REGISTRATION_SESSION_TYPE = YOGA_ADULT;
@@ -42,23 +42,23 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
     }
   }, [submitResult]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const isUserAlreadyRegisteredToSession = id => selfRegistrations.some(({ session: { id: sessionId }, is_user_canceled: isCanceled }) => sessionId === id && !isCanceled);
+  const isUserAlreadyRegisteredToCourse = id => selfRegistrations.some(({ course: { id: courseId }, isUserCanceled }) => courseId === id && !isUserCanceled);
 
   const renderForm = ({ handleSubmit, values, form: { mutators: { setValue } } }) => {
-    const handleSessionSelect = id => {
-      if (isUserAlreadyRegisteredToSession(id)) {
+    const handleCourseSelect = id => {
+      if (isUserAlreadyRegisteredToCourse(id)) {
         return;
       }
-      const session = scheduleData.sessions.filter(({ id: thatId }) => thatId === id)[0];
-      if (session.registrations >= session.slots) {
+      const course = scheduleData.courses.filter(({ id: thatId }) => thatId === id)[0];
+      if (course.registrations >= course.slots) {
         return;
       }
-      const isSelected = values.sessions.includes(id);
-      const newSessions = isSelected ? values.sessions.filter(sessionId => sessionId !== id) : values.sessions.concat([id]);
-      setValue('sessions', newSessions);
+      const isSelected = values.courses.includes(id);
+      const newCourses = isSelected ? values.courses.filter(courseId => courseId !== id) : values.courses.concat([id]);
+      setValue('courses', newCourses);
     };
 
-    const sessionOrdinal = id => new Date(scheduleData.sessions.filter(({ id: thatId }) => thatId === id)[0].date_start).getTime();
+    const courseOrdinal = id => new Date(scheduleData.courses.filter(({ id: thatId }) => thatId === id)[0].dateStart).getTime();
 
     return !isSubmitting ? (
       <Form onSubmit={handleSubmit}>
@@ -69,7 +69,7 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
             </p>
 
             <StaticPaginatedTable
-              rows={scheduleData.sessions}
+              rows={scheduleData.courses}
               columns={[
                 {
                   title: 'Type de séance',
@@ -80,7 +80,7 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                 },
                 {
                   title: 'Date et horaire',
-                  render: ({ date_start: dateStart, date_end: dateEnd }) => (
+                  render: ({ dateStart, dateEnd }) => (
                     <>
                       {formatDayRange(dateStart, dateEnd)}
                     </>
@@ -96,6 +96,7 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                       <span className={slots >= registrations ? 'text-success' : 'text-danger'}>{slots - registrations}</span>
                       {' '}
                       /
+                      {' '}
                       {slots}
                     </>
                   ),
@@ -109,9 +110,9 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                     <Form.Check
                       type="checkbox"
                       id={`check-${id}`}
-                      disabled={registrations >= slots || isUserAlreadyRegisteredToSession(id)}
-                      checked={isUserAlreadyRegisteredToSession(id) ? true : values.sessions.includes(id)}
-                      onClick={() => handleSessionSelect(id)}
+                      disabled={registrations >= slots || isUserAlreadyRegisteredToCourse(id)}
+                      checked={isUserAlreadyRegisteredToCourse(id) ? true : values.courses.includes(id)}
+                      onClick={() => handleCourseSelect(id)}
                       onChange={() => null}
                     />
                   ),
@@ -121,10 +122,10 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                 },
               ]}
               rowProps={({ id }) => ({
-                onClick: () => handleSessionSelect(id),
+                onClick: () => handleCourseSelect(id),
                 style: {
-                  opacity: isUserAlreadyRegisteredToSession(id) ? 0.3 : null,
-                  cursor: isUserAlreadyRegisteredToSession(id) ? null : 'pointer',
+                  opacity: isUserAlreadyRegisteredToCourse(id) ? 0.3 : null,
+                  cursor: isUserAlreadyRegisteredToCourse(id) ? null : 'pointer',
                 },
               })}
               striped={false}
@@ -132,13 +133,13 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
 
             <div className="text-center mb-2">
               <small>
-                <strong>{values.sessions.length}</strong>
+                <strong>{values.courses.length}</strong>
                 {' '}
                 séance
-                {values.sessions.length > 1 ? 's' : ''}
+                {values.courses.length > 1 ? 's' : ''}
                 {' '}
                 sélectionnée
-                {values.sessions.length > 1 ? 's' : ''}
+                {values.courses.length > 1 ? 's' : ''}
               </small>
             </div>
 
@@ -149,7 +150,7 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
             )}
 
             <div className="text-center">
-              <Button size="lg" className="shadow" onClick={() => setValue('isStateConfirm', true)} disabled={values.sessions.length === 0}>
+              <Button size="lg" className="shadow" onClick={() => setValue('isStateConfirm', true)} disabled={values.courses.length === 0}>
                 Étape suivante
                 <BsArrowRight className="icon ms-2" />
               </Button>
@@ -200,33 +201,33 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                     </tr>
                   </thead>
                   <tbody>
-                    {values.sessions.slice().sort((a, b) => sessionOrdinal(a) - sessionOrdinal(b)).map((id, i) => (
+                    {values.courses.slice().sort((a, b) => courseOrdinal(a) - courseOrdinal(b)).map((id, i) => (
                       <tr key={id}>
                         {i === 0 && (
-                        <td rowSpan={values.sessions.length} className="align-middle text-center">
+                        <td rowSpan={values.courses.length} className="align-middle text-center">
                           {SESSIONS_NAMES[REGISTRATION_SESSION_TYPE]}
                         </td>
                         )}
                         <td>
-                          {scheduleData.sessions.filter(({ id: idOther }) => idOther === id).map(({ date_start: dateStart, date_end: dateEnd }) => formatDayRange(dateStart, dateEnd))[0]}
+                          {scheduleData.courses.filter(({ id: idOther }) => idOther === id).map(({ dateStart, dateEnd }) => formatDayRange(dateStart, dateEnd))[0]}
                         </td>
                         <td className="text-center">
-                          {scheduleData.sessions.filter(({ id: idOther }) => idOther === id).map(({ price }) => `${price} €`)[0]}
+                          {scheduleData.courses.filter(({ id: idOther }) => idOther === id).map(({ price }) => `${price} €`)[0]}
                         </td>
                       </tr>
                     ))}
                     <tr style={{ borderTop: 'solid black 2px' }} className="table-secondary">
                       <td colSpan={2} className="text-center">
-                        <strong>{values.sessions.length}</strong>
+                        <strong>{values.courses.length}</strong>
                         {' '}
                         séance
-                        {values.sessions.length > 1 ? 's' : ''}
+                        {values.courses.length > 1 ? 's' : ''}
                         {' '}
                         au total
                       </td>
                       <td className="text-center">
                         <strong>
-                          {values.sessions.map(id => scheduleData.sessions.filter(({ id: idOther }) => idOther === id)[0].price).reduce((a, b) => a + b)}
+                          {values.courses.map(id => scheduleData.courses.filter(({ id: idOther }) => idOther === id)[0].price).reduce((a, b) => a + b)}
                           {' '}
                           €
                         </strong>
@@ -245,11 +246,11 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                   <tbody>
                     <tr>
                       <th>Nom</th>
-                      <td>{sessionData.user.name}</td>
+                      <td>{sessionData.displayName}</td>
                     </tr>
                     <tr>
                       <th>Adresse e-mail</th>
-                      <td>{sessionData.user.email}</td>
+                      <td>{sessionData.displayEmail}</td>
                     </tr>
                   </tbody>
                 </Table>
@@ -287,7 +288,7 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
       onSubmit={onSubmit}
       initialValuesEqual={() => true} // Important: this prevents remounting
       initialValues={{
-        sessions: [],
+        courses: [],
         isStateConfirm: false,
       }}
       mutators={{ setValue: ([field, value], state, { changeValue }) => changeValue(state, field, () => value) }}
@@ -297,14 +298,14 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
 }
 
 function RegistrationCard({ sessionData }) {
-  const { isLoading, isError, data } = usePromiseEffect(() => Promise.all([getSessionsSchedule(), getSelfRegistrations()]), []);
+  const { isLoading, isError, data } = usePromiseEffect(() => Promise.all([getCoursesSchedule(), getSelfRegistrations()]), []);
 
   return (
     <Card>
       <Card.Body>
         {!isLoading ? (
           !isError ? (
-            data[0].sessions.length > 0 ? (
+            data[0].courses.length > 0 ? (
               <RegistrationFormLayout sessionData={sessionData} scheduleData={data[0]} selfRegistrations={data[1]} />
             ) : (
               <Alert variant="info" className="mb-0">
@@ -313,7 +314,7 @@ function RegistrationCard({ sessionData }) {
               </Alert>
             )
           ) : (
-            <ErrorMessage>
+            <ErrorMessage noMargin>
               Une erreur est survenue lors du chargement des horaires, essayez de recharger la page.
             </ErrorMessage>
           )
@@ -333,8 +334,8 @@ export default function Inscription() {
 
   return (
     <PublicLayout padNavbar title="Inscription">
-      <Container className="py-5">
-        <h2 className="display-6">Inscription à une ou plusieurs séance(s) de Yoga adulte</h2>
+      <Container className="py-4">
+        <h1>Inscription à une ou plusieurs séance(s) de Yoga adulte</h1>
         <ul>
           <li>
             Les inscriptions aux séances de Yoga adulte se font via le formulaire ci-dessous.

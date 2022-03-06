@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { BsXOctagon } from 'react-icons/bs';
-import { postCancelSession } from '../lib/client/api';
+import { postCancelCourse } from '../lib/client/api';
 import { useNotificationsContext, useRefreshContext } from '../state';
 import { ConfirmDialog } from './ConfirmDialog';
-import { displaySessionName } from '../lib/common';
+import { displayCourseName } from '../lib/common';
 
-export function CancelSessionConfirmDialog({ session, triggerer }) {
+export function CancelCourseConfirmDialog({ course, triggerer }) {
   const refresh = useRefreshContext();
   const { notify } = useNotificationsContext();
 
@@ -19,7 +19,7 @@ export function CancelSessionConfirmDialog({ session, triggerer }) {
         <>
           Souhaitez-vous réellement annuler cette séance ?
           <ul>
-            <li>{displaySessionName(session)}</li>
+            <li>{displayCourseName(course)}</li>
           </ul>
           Les éventuelles personnes qui s'y sont inscrites seront notifiées.
           <br />
@@ -31,11 +31,11 @@ export function CancelSessionConfirmDialog({ session, triggerer }) {
       icon={BsXOctagon}
       action="Annuler la séance"
       triggerer={triggerer}
-      confirmPromise={() => postCancelSession(session.id, { cancelation_reason: reason && reason.trim() ? reason.trim() : undefined })}
+      confirmPromise={() => postCancelCourse(course.id, { cancelationReason: reason && reason.trim() ? reason.trim() : undefined })}
       onSuccess={() => {
         notify({
           title: 'Annulation réussie',
-          body: `La ${displaySessionName(session, false)} a été annulée.`,
+          body: `La ${displayCourseName(course, false)} a été annulée.`,
           icon: BsXOctagon,
           delay: 10,
         });

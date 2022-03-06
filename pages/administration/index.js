@@ -1,9 +1,9 @@
 import { format } from 'date-fns';
 import { BsKanban } from 'react-icons/bs';
-import { SessionsCards } from '../../components';
+import { CourseCards } from '../../components';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 import { detailsColumnFor, DynamicPaginatedTable } from '../../components/table';
-import { displaySessionType, displayTimePeriod, dateFormat } from '../../lib/common';
+import { displayCourseType, displayTimePeriod, dateFormat } from '../../lib/common';
 import { BREADCRUMB_OVERVIEW } from '../../lib/client';
 
 function AdminHomeLayout() {
@@ -11,41 +11,41 @@ function AdminHomeLayout() {
     <ContentLayout title="Aperçu" icon={BsKanban} breadcrumb={BREADCRUMB_OVERVIEW}>
       <h2 className="h5">Planning</h2>
 
-      <SessionsCards readonly />
+      <CourseCards readonly />
 
       <h2 className="h5">Prochaines séances</h2>
 
       <DynamicPaginatedTable
-        url="/api/sessions"
+        url="/api/courses"
         params={(page, limit) => ({
           page,
           limit,
           include: ['registrations'],
           where: JSON.stringify({
-            is_canceled: false,
-            date_end: { $gt: new Date().toISOString() },
+            isCanceled: false,
+            dateEnd: { $gt: new Date().toISOString() },
           }),
-          orderBy: JSON.stringify({ date_start: '$asc' }),
+          orderBy: JSON.stringify({ dateStart: '$asc' }),
         })}
         columns={[
           detailsColumnFor(id => `/administration/seances/planning/${id}`),
           {
             title: 'Date',
-            render: ({ date_start: date }) => format(new Date(date), dateFormat),
+            render: ({ dateStart: date }) => format(new Date(date), dateFormat),
           },
           {
             title: 'Horaire',
-            render: ({ date_start: dateStart, date_end: dateEnd }) => displayTimePeriod(dateStart, dateEnd),
+            render: ({ dateStart, dateEnd }) => displayTimePeriod(dateStart, dateEnd),
           },
           {
             title: 'Type de séance',
-            render: ({ type }) => displaySessionType(type),
+            render: ({ type }) => displayCourseType(type),
           },
           {
             title: 'Inscriptions / Places disponibles',
             render: ({ slots, registrations }) => (
               <>
-                {registrations.filter(({ is_user_canceled: isUserCanceled }) => !isUserCanceled).length}
+                {registrations.filter(({ isUserCanceled }) => !isUserCanceled).length}
                 {' '}
                 /
                 {' '}

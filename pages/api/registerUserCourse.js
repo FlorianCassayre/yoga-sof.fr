@@ -6,14 +6,14 @@ export default async function handler(req, res) {
     POST: {
       permissions: [USER_TYPE_ADMIN],
       schemaBody: schemaRegisterBody,
-      action: async ({ accept, reject, body: { user_id: userId, session_id: sessionId } }) => {
+      action: async ({ accept, reject, body: { userId, courseId } }) => {
         try {
           const result = await prisma.$transaction(async () => {
-            const existsRegistration = !!(await prisma.registrations.count({
+            const existsRegistration = !!(await prisma.courseRegistration.count({
               where: {
-                session_id: sessionId,
-                user_id: userId,
-                is_user_canceled: false,
+                courseId,
+                userId,
+                isUserCanceled: false,
                 // TODO (check date) + cancel status
               },
             }));
@@ -22,10 +22,10 @@ export default async function handler(req, res) {
               throw new Error('user is already registered');
             }
 
-            return prisma.registrations.create({
+            return prisma.courseRegistration.create({
               data: {
-                session_id: sessionId,
-                user_id: userId,
+                courseId,
+                userId,
               },
             });
           });

@@ -8,14 +8,14 @@ import { BREADCRUMB_ADMINS } from '../../lib/client';
 function AdminAdminsLayout() {
   const { data: session } = useSession();
   const [total, setTotal] = useState(null);
-  const sessionEmail = session?.user.email;
+  const sessionEmail = session.email;
 
   return (
     <ContentLayout title="Administrateurs" icon={BsShieldLock} count={total} breadcrumb={BREADCRUMB_ADMINS}>
       <p>Liste blanche des adresses emails autorisées à se connecter en tant qu'administrateur. Pour des raisons de sécurité, cette liste n'est pas directement modifiable depuis l'interface.</p>
 
       <DynamicPaginatedTable
-        url="/api/admins"
+        url="/api/adminWhitelists"
         totalFrom={rows => rows.length}
         rowsFrom={rows => rows}
         paginationFrom={null}

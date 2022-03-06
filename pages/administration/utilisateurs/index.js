@@ -36,7 +36,7 @@ function AdminUsersLayout() {
         params={(page, limit) => ({
           page,
           limit,
-          include: ['user_linked_accounts'],
+          include: ['accounts'],
         })}
         columns={[
           detailsColumnFor(id => `/administration/utilisateurs/${id}`),
@@ -45,7 +45,7 @@ function AdminUsersLayout() {
             render: ({ email }) => (
               <>
                 <span className="font-monospace">{email}</span>
-                {sessionData.user.email === email && <StarIndicator text="Il s'agit de votre compte" />}
+                {sessionData.email === email && <StarIndicator text="Il s'agit de votre compte" />}
               </>
             ),
           },
@@ -55,8 +55,8 @@ function AdminUsersLayout() {
           },
           {
             title: 'Services reliés',
-            render: ({ user_linked_accounts: userLinkedAccounts }) => (userLinkedAccounts.length > 0 ? (
-              userLinkedAccounts.map(({ provider }) => {
+            render: ({ accounts }) => (accounts.length > 0 ? (
+              accounts.map(({ provider }) => {
                 const { icon: Icon, name: providerName } = providersData[provider];
                 return <Icon key={provider} className="icon mx-1" title={providerName} />;
               })
@@ -67,7 +67,7 @@ function AdminUsersLayout() {
           },
           {
             title: 'Date de création',
-            render: ({ created_at: createdAt }) => displayDatetime(createdAt),
+            render: ({ createdAt }) => displayDatetime(createdAt),
           },
         ]}
         totalCallback={newTotal => setTotal(newTotal)}

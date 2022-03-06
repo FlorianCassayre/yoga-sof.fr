@@ -9,7 +9,7 @@ const generateICS = registrations => {
   };
 
   const { error, value } = createEvents(
-    registrations.map(({ session: { type, date_start: dateStart, date_end: dateEnd } }) => ({
+    registrations.map(({ course: { type, dateStart, dateEnd } }) => ({
       title: SESSIONS_NAMES[type],
       start: timestampToDateArray(dateStart),
       end: timestampToDateArray(dateEnd),
@@ -31,10 +31,10 @@ export default async function handler(req, res) {
     GET: {
       schemaQuery: schemaCalendarQuery,
       action: async ({ reject, query: { id: userId, token } }) => {
-        const userExists = !!(await prisma.users.count({
+        const userExists = !!(await prisma.user.count({
           where: {
             id: userId,
-            public_access_token: token,
+            publicAccessToken: token,
           },
         }));
 
@@ -43,16 +43,16 @@ export default async function handler(req, res) {
         } else {
           // For now we return all (non cancelled) events, however if this starts to get large we can trim it
 
-          const registeredSessions = await prisma.registrations.findMany({
+          const registeredCourses = await prisma.courseRegistration.findMany({
             where: {
-              user_id: userId,
-              is_user_canceled: false,
-              session: { is_canceled: false },
+              userId,
+              isUserCanceled: false,
+              course: { isCanceled: false },
             },
-            include: { session: true },
+            include: { course: true },
           });
 
-          const icsDataString = generateICS(registeredSessions);
+          const icsDataString = generateICS(registeredCourses);
 
           res.status(200);
           res.setHeader('Content-Type', 'text/calendar');

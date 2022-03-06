@@ -2,9 +2,9 @@ import { Form } from 'react-bootstrap';
 import { Field } from 'react-final-form';
 import { CreateEditForm } from './CreateEditForm';
 
-export function SessionForm({ editRecordId, container }) {
+export function CourseForm({ editRecordId, container }) {
   return (
-    <CreateEditForm modelId="sessions" redirect={() => '/administration/seances'} editRecordId={editRecordId} container={container}>
+    <CreateEditForm modelId="courses" redirect={() => '/administration/seances'} editRecordId={editRecordId} container={container}>
       <Field
         name="notes"
         render={({ input }) => (

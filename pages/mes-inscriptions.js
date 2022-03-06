@@ -5,7 +5,7 @@ import { BsCalendar, BsClipboard, BsXOctagon } from 'react-icons/bs';
 import { AuthGuard, ConfirmDialog, ErrorMessage } from '../components';
 import { UserSelfForm } from '../components/form';
 import { PublicLayout } from '../components/layout/public';
-import { displaySessionName,
+import { displayCourseName,
   USER_TYPE_ADMIN,
   USER_TYPE_REGULAR,
   formatDayRange,
@@ -16,7 +16,7 @@ import { getSelfRegistrations, postSelfCancelRegistration } from '../lib/client/
 import { useNotificationsContext, useRefreshContext } from '../state';
 
 function ButtonICSLink({ session }) {
-  const url = `${window.location.origin}/api/calendar.ics?id=${session.user.db_id}&token=${session.user.public_access_token}`;
+  const url = `${window.location.origin}/api/calendar.ics?id=${session.userId}&token=${session.publicAccessToken}`;
   const inputId = 'input-popover-copy-link';
   const selectInput = () => {
     const input = document.getElementById(inputId);
@@ -65,11 +65,11 @@ function MesCoursLayout() {
   const [registrationsFuture, registrationsPast, registrationsCanceled] = useMemo(() => {
     if (data) {
       const now = new Date();
-      const notCanceled = data.filter(({ is_user_canceled: isUserCanceled, session: { is_canceled: isCanceled } }) => !isCanceled && !isUserCanceled);
+      const notCanceled = data.filter(({ isUserCanceled, course: { isCanceled } }) => !isCanceled && !isUserCanceled);
       return [
-        notCanceled.filter(({ session: { date_end: dateEnd } }) => now.getTime() <= new Date(dateEnd).getTime()),
-        notCanceled.filter(({ session: { date_end: dateEnd } }) => now.getTime() > new Date(dateEnd).getTime()),
-        data.filter(({ is_user_canceled: isUserCanceled, session: { is_canceled: isCanceled } }) => isCanceled || isUserCanceled),
+        notCanceled.filter(({ course: { dateEnd } }) => now.getTime() <= new Date(dateEnd).getTime()),
+        notCanceled.filter(({ course: { dateEnd } }) => now.getTime() > new Date(dateEnd).getTime()),
+        data.filter(({ isUserCanceled, course: { isCanceled } }) => isCanceled || isUserCanceled),
       ];
     }
     return [];
@@ -90,8 +90,8 @@ function MesCoursLayout() {
           </thead>
           <tbody className="align-middle">
             {rows.map(registration => {
-              const { id, created_at: registeredAt, is_user_canceled: isUserCanceled, canceled_at: userCanceledAt, session } = registration;
-              const { type, date_start: dateStart, date_end: dateEnd } = session;
+              const { id, createdAt: registeredAt, isUserCanceled, canceledAt: userCanceledAt, course } = registration;
+              const { type, dateStart, dateEnd } = course;
               return (
                 <tr key={id}>
                   <td>{SESSIONS_NAMES[type]}</td>
@@ -105,7 +105,7 @@ function MesCoursLayout() {
                         <>
                           Vous êtes sur le point d'annuler votre inscription à la séance suivante :
                           <ul>
-                            <li>{displaySessionName(session)}</li>
+                            <li>{displayCourseName(course)}</li>
                           </ul>
                           Vous pourrez à tout moment vous y réinscrire, s'il reste de la place.
                         </>
@@ -123,7 +123,7 @@ function MesCoursLayout() {
                       onSuccess={() => {
                         notify({
                           title: 'Désinscription confirmée',
-                          body: `Vous vous êtes désinscrit de la ${displaySessionName(session, false)}.`,
+                          body: `Vous vous êtes désinscrit de la ${displayCourseName(course, false)}.`,
                         });
 
                         refresh();
@@ -177,7 +177,7 @@ function MesCoursLayout() {
       {renderTable({ rows: registrationsPast, emptyMessage: 'Pas de séances passées.' })}
 
       <h2 className="h3">Annulations</h2>
-      {renderTable({ rows: registrationsCanceled, cancellation: true, emptyMessage: "Pas d'annulations." })}
+      {renderTable({ rows: registrationsCanceled, cancellation: true, emptyMessage: `Pas d'annulations.` })}
 
       <h2 className="h3">Données personnelles</h2>
       <p>Votre adresse email nous permet notamment de vous informer en cas d'annulation de séance.</p>

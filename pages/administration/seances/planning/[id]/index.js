@@ -3,43 +3,43 @@ import { useMemo } from 'react';
 import { Badge, Button } from 'react-bootstrap';
 import { BsCalendarEvent, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
-import { CancelSessionConfirmDialog, SessionStatusBadge } from '../../../../../components';
+import { CancelCourseConfirmDialog, CourseStatusBadge } from '../../../../../components';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
 import { adaptColumn, cancelRegistrationColumn, StaticPaginatedTable, userLinkColumn } from '../../../../../components/table';
-import { displayDatetime, displaySessionName } from '../../../../../lib/common';
+import { displayDatetime, displayCourseName } from '../../../../../lib/common';
 import { usePromiseEffect } from '../../../../../hooks';
-import { breadcrumbForSessionPlanning } from '../../../../../lib/client';
-import { getSession } from '../../../../../lib/client/api';
+import { breadcrumbForCoursePlanning } from '../../../../../lib/client';
+import { getCourse } from '../../../../../lib/client/api';
 
-function SessionViewLayout({ id }) {
-  const { isLoading, isError, data, error } = usePromiseEffect(() => getSession(id, { include: ['registrations.user'] }), []);
+function CourseViewLayout({ id }) {
+  const { isLoading, isError, data, error } = usePromiseEffect(() => getCourse(id, { include: ['registrations.user'] }), []);
 
   const registrationDateColumn = {
-    title: 'Date d\'inscription',
-    render: ({ created_at: createdAt }) => displayDatetime(createdAt),
+    title: `Date d'inscription`,
+    render: ({ createdAt }) => displayDatetime(createdAt),
   };
 
-  const sortedRegistrations = useMemo(() => data && data.registrations.slice().sort(({ created_at: t1 }, { created_at: t2 }) => new Date(t2).getTime() - new Date(t1).getTime()), [data]);
+  const sortedRegistrations = useMemo(() => data && data.registrations.slice().sort(({ createdAt: t1 }, { createdAt: t2 }) => new Date(t2).getTime() - new Date(t1).getTime()), [data]);
   const [notCanceledRegistrations, canceledRegistrations] = useMemo(
-    () => (sortedRegistrations ? [sortedRegistrations.filter(({ is_user_canceled: isCanceled }) => !isCanceled), sortedRegistrations.filter(({ is_user_canceled: isCanceled }) => isCanceled)] : []),
+    () => (sortedRegistrations ? [sortedRegistrations.filter(({ isUserCanceled }) => !isUserCanceled), sortedRegistrations.filter(({ isUserCanceled }) => isUserCanceled)] : []),
     [sortedRegistrations],
   );
 
-  const isFuture = data && !data.is_canceled && new Date().getTime() < new Date(data.date_end).getTime();
+  const isFuture = data && !data.isCanceled && new Date().getTime() < new Date(data.dateEnd).getTime();
 
   return (
     <ContentLayout
       title={
         data && (
           <>
-            {displaySessionName(data)}
-            <SessionStatusBadge session={data} className="ms-2" />
+            {displayCourseName(data)}
+            <CourseStatusBadge course={data} className="ms-2" />
           </>
         )
       }
       icon={BsCalendarEvent}
-      headTitle={data && displaySessionName(data)}
-      breadcrumb={data && breadcrumbForSessionPlanning(data)}
+      headTitle={data && displayCourseName(data)}
+      breadcrumb={data && breadcrumbForCoursePlanning(data)}
       isLoading={isLoading}
       isError={isError}
       error={error}
@@ -52,8 +52,8 @@ function SessionViewLayout({ id }) {
           </Button>
         </Link>
         {isFuture && (
-          <CancelSessionConfirmDialog
-            session={data}
+          <CancelCourseConfirmDialog
+            course={data}
             triggerer={clickHandler => ( // eslint-disable-line react/no-unstable-nested-components
               <Button variant="danger" onClick={clickHandler}>
                 <BsXOctagon className="icon me-2" />
@@ -64,10 +64,10 @@ function SessionViewLayout({ id }) {
         )}
       </div>
 
-      {data && data.cancelation_reason && (
+      {data && data.cancelationReason && (
         <>
           <h2 className="h5">Motif de l'annulation</h2>
-          <p>{data.cancelation_reason}</p>
+          <p>{data.cancelationReason}</p>
         </>
       )}
 
@@ -93,13 +93,13 @@ function SessionViewLayout({ id }) {
 
       <StaticPaginatedTable
         rows={data && notCanceledRegistrations}
-        columns={[userLinkColumn, registrationDateColumn, adaptColumn(registration => ({ ...registration, session: data }))(cancelRegistrationColumn)]}
+        columns={[userLinkColumn, registrationDateColumn, adaptColumn(registration => ({ ...registration, course: data }))(cancelRegistrationColumn)]}
         renderEmpty={() => 'Personne ne participe pour le moment.'}
       />
 
       {isFuture && (
         <div className="text-center">
-          <Link href={{ pathname: '/administration/inscriptions/creation', query: { session_id: data && data.id } }} passHref>
+          <Link href={{ pathname: '/administration/inscriptions/creation', query: { courseId: data && data.id } }} passHref>
             <Button variant="success">
               <BsPlusLg className="icon me-2" />
               Inscrire un utilisateur
@@ -118,23 +118,23 @@ function SessionViewLayout({ id }) {
           userLinkColumn,
           registrationDateColumn,
           {
-            title: 'Date d\'annulation',
-            render: ({ canceled_at: canceledAt }) => displayDatetime(canceledAt),
+            title: `Date d'annulation`,
+            render: ({ canceledAt }) => displayDatetime(canceledAt),
           },
         ]}
-        renderEmpty={() => 'Aucun utilisateur n\'a annulé.'}
+        renderEmpty={() => `Aucun utilisateur n'a annulé.`}
       />
     </ContentLayout>
   );
 }
 
-export default function SessionView() {
+export default function CourseView() {
   const router = useRouter();
   const { id } = router.query;
 
   return (
     <PrivateLayout>
-      <SessionViewLayout id={id} />
+      <CourseViewLayout id={id} />
     </PrivateLayout>
   );
 }

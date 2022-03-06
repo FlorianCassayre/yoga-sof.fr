@@ -1,21 +1,21 @@
 import { Form } from 'react-bootstrap';
 import { Field } from 'react-final-form';
 import { usePromiseEffect } from '../../../hooks';
-import { getSessions } from '../../../lib/client/api';
+import { getCourses } from '../../../lib/client/api';
 import { ErrorMessage } from '../../ErrorMessage';
-import { displaySessionName } from '../../../lib/common';
+import { displayCourseName } from '../../../lib/common';
 
-export function SessionSelectField({ name, fieldProps = {}, disabled, ...props }) {
+export function CourseSelectField({ name, fieldProps = {}, disabled, ...props }) {
   const { isLoading, isError, data, error } = usePromiseEffect(
-    () => getSessions({
+    () => getCourses({
       where: {
-        is_canceled: false,
-        date_end: {
+        isCanceled: false,
+        dateEnd: {
           $gt: new Date().toISOString(),
         },
       },
-      orderBy: { date_start: '$asc' },
-      select: ['id', 'type', 'date_start', 'date_end'],
+      orderBy: { dateStart: '$asc' },
+      select: ['id', 'type', 'dateStart', 'dateEnd'],
     }),
     [],
   );
@@ -34,7 +34,7 @@ export function SessionSelectField({ name, fieldProps = {}, disabled, ...props }
               && !isError
               && data.map(obj => (
                 <option key={obj.id} value={obj.id}>
-                  {displaySessionName(obj)}
+                  {displayCourseName(obj)}
                 </option>
               ))}
           </Form.Select>

@@ -6,22 +6,22 @@ export default async function handler(req, res) {
     GET: {
       permissions: ALL_USER_TYPES,
       action: async ({ userId, accept }) => {
-        const result = await prisma.registrations.findMany({
-          where: { user_id: userId },
+        const result = await prisma.courseRegistration.findMany({
+          where: { userId },
           select: {
             id: true,
-            is_user_canceled: true,
-            created_at: true,
-            canceled_at: true,
-            session: {
+            isUserCanceled: true,
+            createdAt: true,
+            canceledAt: true,
+            course: {
               select: {
                 id: true,
                 type: true,
                 slots: true,
                 price: true,
-                date_start: true,
-                date_end: true,
-                is_canceled: true,
+                dateStart: true,
+                dateEnd: true,
+                isCanceled: true,
               },
             },
           },

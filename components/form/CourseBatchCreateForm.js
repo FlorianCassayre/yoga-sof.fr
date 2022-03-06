@@ -4,20 +4,20 @@ import { Field } from 'react-final-form';
 import { OnChange } from 'react-final-form-listeners';
 import { addDays, format, getDay } from 'date-fns';
 import { usePromiseEffect } from '../../hooks';
-import { getSessionModels } from '../../lib/client/api';
+import { getCourseModels } from '../../lib/client/api';
 import {
   dateFormat,
   parseTime,
   WEEKDAYS,
   SESSIONS_TYPES,
-  displaySessionModelName,
+  displayCourseModelName,
 } from '../../lib/common';
 import { ErrorMessage } from '../ErrorMessage';
 import { CreateEditForm } from './CreateEditForm';
-import { TimePickerRangeFields, SessionTypeSelectField, SlotsNumberField, WeekdaySelectField, PriceNumberField } from './fields';
+import { TimePickerRangeFields, CourseTypeSelectField, SlotsNumberField, WeekdaySelectField, PriceNumberField } from './fields';
 
-export function SessionBatchCreateForm() {
-  const { isLoading, isError, data, error } = usePromiseEffect(getSessionModels, []);
+export function CourseBatchCreateForm() {
+  const { isLoading, isError, data, error } = usePromiseEffect(getCourseModels, []);
 
   const prefillValues = (id, setValue) => {
     const modelData = data.filter(({ id: thatId }) => thatId === id)[0];
@@ -25,8 +25,8 @@ export function SessionBatchCreateForm() {
       setValue('type', modelData.type);
       setValue('weekday', modelData.weekday);
       setValue('slots', modelData.slots);
-      setValue('time_start', modelData.time_start);
-      setValue('time_end', modelData.time_end);
+      setValue('timeStart', modelData.timeStart);
+      setValue('timeEnd', modelData.timeEnd);
       setValue('price', modelData.price);
     }
   };
@@ -59,8 +59,8 @@ export function SessionBatchCreateForm() {
   };
 
   const renderRecap = values => {
-    if (values.time_start !== null && values.time_end !== null && values.datesRange !== null && values.datesRange[0] !== null && values.datesRange[1] !== null) {
-      const dates = computeDatesFromRange(values.datesRange, values.time_start, values.time_end, values.weekday);
+    if (values.timeStart !== null && values.timeEnd !== null && values.datesRange !== null && values.datesRange[0] !== null && values.datesRange[1] !== null) {
+      const dates = computeDatesFromRange(values.datesRange, values.timeStart, values.timeEnd, values.weekday);
 
       return (
         <>
@@ -96,18 +96,18 @@ export function SessionBatchCreateForm() {
   return !isError ? (
     !isLoading ? (
       <CreateEditForm
-        modelId="session_batch"
+        modelId="courseBatch"
         initialValues={{
-          model_id: MODEL_NONE,
+          modelId: MODEL_NONE,
           type: null,
           weekday: null,
-          time_start: null,
-          time_end: null,
+          timeStart: null,
+          timeEnd: null,
           slots: null,
           price: null,
           datesRange: null,
           ...Object.fromEntries(
-            Object.entries((data ?? []).filter(({ id }) => id === SESSIONS_TYPES[0].id)[0] ?? {}).filter(([key]) => ['type', 'weekday', 'time_start', 'time_end', 'slots', 'price'].includes(key)),
+            Object.entries((data ?? []).filter(({ id }) => id === SESSIONS_TYPES[0].id)[0] ?? {}).filter(([key]) => ['type', 'weekday', 'timeStart', 'timeEnd', 'slots', 'price'].includes(key)),
           ),
         }}
         numberFields={['weekday', 'slots', 'price']}
@@ -115,7 +115,7 @@ export function SessionBatchCreateForm() {
         deletable
         loading={isLoading}
         submitCallback={submittedData => {
-          const { weekday, time_start: timeStart, time_end: timeEnd, datesRange, ...rest } = submittedData;
+          const { weekday, timeStart, timeEnd, datesRange, ...rest } = submittedData;
           rest.dates = computeDatesFromRange(datesRange, timeStart, timeEnd, weekday).map(two => two.map(date => date.getTime()));
           return rest;
         }}
@@ -134,13 +134,13 @@ export function SessionBatchCreateForm() {
             <Form.Group className="mb-4">
               <Form.Label>Modèle de séance :</Form.Label>
               <Field
-                name="model_id"
+                name="modelId"
                 render={({ input }) => (
                   <Form.Select {...input} required>
                     <option value={MODEL_NONE}>Aucun modèle</option>
                     {data.map(model => (
                       <option key={model.id} value={model.id}>
-                        {displaySessionModelName(model)}
+                        {displayCourseModelName(model)}
                       </option>
                     ))}
                   </Form.Select>
@@ -149,19 +149,19 @@ export function SessionBatchCreateForm() {
               <Form.Text className="text-muted">Facultatif, sert à pré-remplir les données ci-dessous</Form.Text>
             </Form.Group>
 
-            <OnChange name="model_id">{modelId => modelId !== MODEL_NONE && prefillValues(parseInt(modelId), setValue)}</OnChange>
+            <OnChange name="modelId">{modelId => modelId !== MODEL_NONE && prefillValues(parseInt(modelId), setValue)}</OnChange>
 
-            <SessionTypeSelectField name="type" className="mb-2" fieldProps={{ disabled: values.model_id !== MODEL_NONE }} />
+            <CourseTypeSelectField name="type" className="mb-2" fieldProps={{ disabled: values.modelId !== MODEL_NONE }} />
 
-            <WeekdaySelectField name="weekday" className="mb-2" fieldProps={{ disabled: values.model_id !== MODEL_NONE }} />
+            <WeekdaySelectField name="weekday" className="mb-2" fieldProps={{ disabled: values.modelId !== MODEL_NONE }} />
 
             <OnChange name="weekday">{() => setValue('datesRange', null)}</OnChange>
 
-            <TimePickerRangeFields disabled={values.model_id !== MODEL_NONE} className="mb-2" />
+            <TimePickerRangeFields disabled={values.modelId !== MODEL_NONE} className="mb-2" />
 
-            <SlotsNumberField name="slots" className="mb-2" fieldProps={{ disabled: values.model_id !== MODEL_NONE }} />
+            <SlotsNumberField name="slots" className="mb-2" fieldProps={{ disabled: values.modelId !== MODEL_NONE }} />
 
-            <PriceNumberField name="price" className="mb-4" fieldProps={{ disabled: values.model_id !== MODEL_NONE }} />
+            <PriceNumberField name="price" className="mb-4" fieldProps={{ disabled: values.modelId !== MODEL_NONE }} />
 
             <div className="text-center">
               <div className="mb-2">Sélection des séances à planifier (intervalle) :</div>

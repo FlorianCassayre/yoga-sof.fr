@@ -1,7 +1,7 @@
 export { CreateEditForm } from './CreateEditForm';
-export { SessionModelForm } from './SessionModelForm';
-export { SessionForm } from './SessionForm';
-export { SessionBatchCreateForm } from './SessionBatchCreateForm';
-export { RegistrationCreateForm } from './RegistrationCreateForm';
+export { CourseModelForm } from './CourseModelForm';
+export { CourseForm } from './CourseForm';
+export { CourseBatchCreateForm } from './CourseBatchCreateForm';
+export { CourseRegistrationCreateForm } from './CourseRegistrationCreateForm';
 export { UserForm } from './UserForm';
 export { UserSelfForm } from './UserSelfForm';

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert } from 'react-bootstrap';
 import { BsExclamationTriangleFill } from 'react-icons/bs';
 
-export function ErrorMessage({ children = 'Une erreur est survenue.', error }) {
+export function ErrorMessage({ children = 'Une erreur est survenue.', error, noMargin = false }) {
   const [isCollapsed, setCollapsed] = useState(true);
 
   const handleClick = e => {
@@ -11,7 +11,7 @@ export function ErrorMessage({ children = 'Une erreur est survenue.', error }) {
   };
 
   return (
-    <Alert variant="danger">
+    <Alert variant="danger" className={noMargin ? 'mb-0' : null}>
       <BsExclamationTriangleFill className="icon me-2" />
       {children}
       {error
