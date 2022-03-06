@@ -64,7 +64,7 @@ export function NavigationLayout() {
                 title={(
                   <>
                     <BsPerson className="icon me-2" />
-                    {session.displayName}
+                    {session.displayName || 'Mon compte'}
                   </>
                 )}
                 id="nav-dropdown"

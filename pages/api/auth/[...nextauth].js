@@ -3,9 +3,10 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook';
+import EmailProvider from 'next-auth/providers/email';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../../../lib/common';
-import { prisma } from '../../../lib/server';
+import { NODEMAILER_CONFIGURATION, prisma, sendVerificationRequest } from '../../../lib/server';
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -20,6 +21,11 @@ export default NextAuth({
     FacebookProvider({
       clientId: process.env.FACEBOOK_ID,
       clientSecret: process.env.FACEBOOK_SECRET,
+    }),
+    EmailProvider({
+      server: NODEMAILER_CONFIGURATION,
+      from: process.env.EMAIL_FROM,
+      sendVerificationRequest,
     }),
   ],
   // This option is not strictly required since next-auth will look for the variable `NEXTAUTH_SECRET` anyway
@@ -43,20 +49,22 @@ export default NextAuth({
     signIn: '/connexion',
     // signOut: '/auth/signout', // Displays form with sign out button
     // error: '/auth/error', // Error code passed in query string as ?error=
-    // verifyRequest: '/auth/verify-request', // Used for check email page
+    verifyRequest: '/verification',
     // newUser: null // If set, new users will be directed here on first sign in
   },
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) { // eslint-disable-line no-unused-vars
-      await prisma.account.updateMany({
-        where: {
-          provider: account.provider,
-          providerAccountId: account.providerAccountId,
-        },
-        data: {
-          updatedAt: new Date().toISOString(), // Force set current timestamp
-        },
-      });
+      if (account.providerAccountId !== null) { // Can be null in case of email
+        await prisma.account.updateMany({
+          where: {
+            provider: account.provider,
+            providerAccountId: account.providerAccountId,
+          },
+          data: {
+            updatedAt: new Date().toISOString(), // Force set current timestamp
+          },
+        });
+      }
 
       const isAllowedToSignIn = true; // TODO
       if (isAllowedToSignIn) {
