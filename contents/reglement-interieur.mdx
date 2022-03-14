@@ -1,0 +1,45 @@
+import { PublicContainer } from '../components/contents';
+
+export const meta = {
+  title: 'Règlement intérieur',
+  padNavbar: true,
+};
+
+export const Section = ({ id, title, children }) => <><h2 className="h4">{id} – {title}</h2>{children}</>;
+
+# Règlement intérieur
+
+Règlement Intérieur Yoga Sof pour les cours de Yoga adulte.
+
+<Section id="1" title="Objet">
+  L'objet est de faire connaître et transmettre l'esprit du yoga lors de séances en petits groupes, dans une atmosphère
+  agréable et bienveillante.
+</Section>
+
+<Section id="2" title="Éthique">
+  Les pratiquants s'engagent à respecter une éthique basée sur la non-violence et la bienveillance.
+</Section>
+
+<Section id="3" title="Organisation des cours">
+  Les cours se déroulent sur l'année scolaire et n'ont pas lieu durant les vacances scolaires.
+
+  Il est possible de choisir ses cours à la carte, cependant si vous souhaiter intégrer un groupe, il est recommandé de venir pratiquer le même jour et sur le même créneau. Il est également recommandé de suivre une séance par semaine pour en tirer des bénéfices et progresser.
+
+  Il est demandé d'être ponctuel.
+
+  Veuillez ôter vos chaussures à l'entrée, ne pas amener de nourriture, mettre votre téléphone en mode avion.
+</Section>
+
+<Section id="4" title="Absence de l'enseignante">
+  En cas d'évènement indépendant de sa volonté nécessitant l'annulation de la séance, les adhérents seront prévenus dans les meilleurs délais.
+</Section>
+
+<Section id="5" title="Crise sanitaire">
+  La salle étant privée, elle n'est pas concernée par les fermetures officielles des salles de sport. Cependant en cas de doute sur votre état de santé ou bien si vous êtes cas contact, merci de vous désinscrire de la séance à venir dans les meilleurs délais, il ne vous sera pas facturé.
+</Section>
+
+<Section id="6" title="Droit à l'image">
+  Afin d'illustrer les activités Yoga pour le site internet, vous êtes susceptibles d'être photographiés ou filmés lors d'un cours. Merci de vous signaler en cas de refus, la signature de ce document engageant votre accord.
+</Section>
+
+export default ({ children }) => <PublicContainer {...meta}>{children}</PublicContainer>

@@ -3,17 +3,30 @@ import './globals.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import '@fontsource/nunito';
 import { SessionProvider } from 'next-auth/react';
+import { MDXProvider } from '@mdx-js/react';
 import { NotificationsProvider, RefreshProvider } from '../state';
+
+function Paragraph({ children }) {
+  return (
+    <p className="text-justify">{children}</p>
+  );
+}
+
+const components = {
+  p: Paragraph,
+};
 
 function MyApp({ Component, pageProps }) {
   return (
-    <SessionProvider>
-      <NotificationsProvider>
-        <RefreshProvider>
-          <Component {...pageProps} />
-        </RefreshProvider>
-      </NotificationsProvider>
-    </SessionProvider>
+    <MDXProvider components={components}>
+      <SessionProvider>
+        <NotificationsProvider>
+          <RefreshProvider>
+            <Component {...pageProps} />
+          </RefreshProvider>
+        </NotificationsProvider>
+      </SessionProvider>
+    </MDXProvider>
   );
 }
 

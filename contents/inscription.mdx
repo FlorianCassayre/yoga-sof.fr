@@ -1,0 +1,19 @@
+import { RegistrationPanel } from '../components';
+import { PublicContainer } from '../components/contents';
+import { EMAIL_CONTACT } from '../lib/common';
+
+export const meta = {
+  title: 'Inscription Yoga',
+  padNavbar: true,
+};
+
+# Inscription à une ou plusieurs séance(s) de Yoga adulte
+
+* Les inscriptions aux séances de Yoga adulte se font via le formulaire ci-dessous.<br />
+  Pour une inscription à des séances de Yoga enfant et Yoga parent-enfant,
+  <a href={`mailto:${EMAIL_CONTACT}`}>veuillez nous envoyer un e-mail</a>.
+* La première séance vous est offerte, à la date de votre choix.
+
+<RegistrationPanel />
+
+export default ({ children }) => <PublicContainer {...meta}>{children}</PublicContainer>

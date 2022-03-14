@@ -1,2 +1,25 @@
 [yoga-sof.fr](https://yoga-sof.fr)
 ===
+
+Website for the **Yoga Sof** organization.
+
+_Site pour l'organisation **Yoga Sof**._
+
+## Tasks
+
+**[Access the board](https://github.com/FlorianCassayre/yoga-sof.fr/projects/1)**
+
+## Deployment
+
+The following steps should be followed (in that order) to deploy or upgrade in production:
+
+* `git pull` or `git clone git@github.com:FlorianCassayre/yoga-sof.fr.git` to fetch the source code
+* Update or define `.env.production` according to the template `.env`
+* `npm ci` to install the dependencies
+* `npm run backup-production` to backup the current database, if there is any
+* `prisma-migrate-production` to run the database migration scripts
+* `npm run build` to generate the production build (this operation consumes some memory, make sure the machine has enough)
+* `npm run start-production` to start the production server
+
+For a fresh install, you can additionally run `npx dotenv -e .env.production -- npx prisma db seed` to populate the
+database with the initial whitelisted email addresses, as defined in `SEED_EMAILS_ADMIN`.

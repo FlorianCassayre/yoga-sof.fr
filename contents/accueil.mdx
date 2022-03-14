@@ -1,0 +1,71 @@
+import { BsFillCalendarWeekFill, BsFillPeopleFill, BsStars } from 'react-icons/bs';
+import {
+  HeaderImage,
+  HomeBlockFirst,
+  HomeBlockSecond,
+  HomeBlockThird,
+  HomeQuote,
+  HomeSpecifications,
+} from '../components/contents';
+import { PublicLayout } from '../components/layout/public';
+import {
+  practicalInformationsAdult,
+  practicalInformationsChildren,
+  practicalInformationsParentChildren,
+} from '../components/PracticalInformations';
+
+export const meta = {
+  title: 'Accueil',
+};
+
+<HeaderImage title="Yoga Sof" subtitle="Pratique du Yoga à Hésingue" />
+
+<HomeBlockFirst
+  title="Séances de Yoga adulte"
+  imageSrc="/images/arbre-ocean.jpg"
+  data={practicalInformationsAdult}
+>
+  J'enseigne un hatha Yoga respectueux de la physiologie de votre corps, en petit groupe convivial de 4 personnes, à
+  Hésingue. Dès que nécessaire durant la séance, je vous proposerai des adaptations individuelles des postures à l'aide
+  d'accessoires ou de variantes pour vous aider à développer votre force et votre souplesse sans inconfort, ni risque de
+  blessure car selon moi, les postures doivent s'adapter à la personne, à sa morphologie et non l'inverse.<br />
+  Mes séances sont progressives et incluent tous les outils du Yoga ; postures, pranayamas, relaxations ainsi qu'un
+  travail mental pour vous amener à vous détendre et ressentir les bienfaits de votre pratique, ainsi progresser sur le
+  chemin de la connaissance de votre moi.<br />
+  La première séance est offerte.
+</HomeBlockFirst>
+
+<HomeBlockSecond
+  title="Séances de Yoga enfant"
+  imageSrc="/images/yoga-enfants-plage.jpg"
+  data={practicalInformationsChildren}
+>
+  J'anime des pratiques de Yoga ludiques et adaptées pour les enfants de 6-11 ans en petit groupe, à Hésingue. Elles
+  sont une voie d'exploration, d'expression et de sagesse, un moyen bienveillant pour les enfants d'identifier leurs et
+  étendre leurs frontières, d'améliorer la conscience d'eux-mêmes et des autres, développer leurs capacités à
+  reconnaître et accueillir leurs pensées et leurs émotions. Les postures sont nommées sur la thématique de la nature
+  pour renforcer les liens de l'enfant et la nature.
+</HomeBlockSecond>
+
+<HomeBlockThird
+  title="Séances de yoga parent-enfant"
+  imageSrc="/images/yoga-enfants-collaboration.jpg"
+  data={practicalInformationsParentChildren}
+>
+  J'anime des ateliers de Yoga en tandem parent-enfant de 3-6 ans, en petits groupes à Hésingue. Je les propose comme un
+  moment de partage et de complicité où l'adulte (le parent ou grand-parent) se laisse guider dans sa pratique avec
+  l'enfant, une pause privilégiée à vivre loin de la dispersion et l'agitation du monde actuel. Il s'agit d'une approche
+  ludique du yoga intégrant des petites histoires, contes ou chansons amusantes qui sollicite l'imaginaire et va
+  renforcer le lien de l'adulte avec l'enfant.
+</HomeBlockThird>
+
+<HomeQuote author="Sri B.K.S Iyengar">C'est à travers l'alignement de mon corps que j'ai découvert l'alignement de mon
+  esprit, de mon Être et de mon intelligence</HomeQuote>
+
+<HomeSpecifications>
+  <HomeSpecifications.Item title="Effectifs réduits" icon={BsFillPeopleFill}>Les séances se déroulent en petit nombre.</HomeSpecifications.Item>
+  <HomeSpecifications.Item title="Personnalisation" icon={BsStars}>Adaptation des postures par rapport à vos possibilités et votre morphologie.</HomeSpecifications.Item>
+  <HomeSpecifications.Item title="Flexibilité" icon={BsFillCalendarWeekFill}>Les séances adultes peuvent être choisies "à la carte".</HomeSpecifications.Item>
+</HomeSpecifications>
+
+export default ({ children }) => <PublicLayout {...meta}>{children}</PublicLayout>

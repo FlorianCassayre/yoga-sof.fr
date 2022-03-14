@@ -1,0 +1,38 @@
+import { Button } from 'react-bootstrap'; import { BsPencilSquare } from 'react-icons/bs';
+import { PracticalInformations } from '../components';
+import { PublicContainer } from '../components/contents';
+import {
+  practicalInformationsAdult, practicalInformationsChildren, practicalInformationsParentChildren,
+} from '../components/PracticalInformations';
+import Link from 'next/link';
+
+export const meta = {
+  title: 'Les séances',
+  padNavbar: true,
+};
+
+# Les séances
+
+<h2 id="adulte">Yoga adulte</h2>
+
+<PracticalInformations data={practicalInformationsAdult} />
+
+<div className="text-center">
+  <Link href="/inscription" passHref>
+    <Button variant="success" className="mt-3"><BsPencilSquare className="icon me-2 mx-2" />Inscription à une séance de Yoga adulte</Button>
+  </Link>
+</div>
+
+<hr />
+
+<h2 id="enfant" className="mt-4">Yoga enfant</h2>
+
+<PracticalInformations data={practicalInformationsChildren} />
+
+<hr />
+
+<h2 id="parent-enfant" className="mt-4">Yoga parent-enfant</h2>
+
+<PracticalInformations data={practicalInformationsParentChildren} />
+
+export default ({ children }) => <PublicContainer {...meta}>{children}</PublicContainer>
