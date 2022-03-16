@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "generate-favicons": "node scripts/favicons.js",
     "lint": "next lint",
     "lint-fix": "eslint --fix 'components/**/*.js' 'hooks/**/*.js' 'lib/**/*.js' 'pages/**/*.js' 'state/**/*.js' '*.js'",
     "prisma-migrate-dev": "npx dotenv -e .env.development -- npx prisma migrate dev; npx prisma generate",
@@ -50,6 +51,7 @@
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "favicons": "^7.0.0-beta.3",
     "prisma": "^3.8.0"
   }
 }

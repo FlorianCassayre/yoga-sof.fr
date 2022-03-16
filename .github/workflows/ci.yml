@@ -12,4 +12,5 @@ jobs:
           node-version: 12
       - run: npm ci
       - run: npm run lint
+      - run: npm run generate-favicons
       - run: npm run build

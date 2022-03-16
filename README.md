@@ -18,6 +18,7 @@ The following steps should be followed (in that order) to deploy or upgrade in p
 * `npm ci` to install the dependencies
 * `npm run backup-production` to backup the current database, if there is any
 * `prisma-migrate-production` to run the database migration scripts
+* `npm run generate-favicons` to generate the favicons
 * `npm run build` to generate the production build (this operation consumes some memory, make sure the machine has enough)
 * `npm run start-production` to start the production server
 

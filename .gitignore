@@ -34,3 +34,9 @@ yarn-error.log*
 *.iml
 
 backups
+
+# Favicons (dynamically generated)
+public/android-chrome-*.png
+public/apple-touch-icon.png
+public/favicon.ico
+public/manifest.webmanifest
