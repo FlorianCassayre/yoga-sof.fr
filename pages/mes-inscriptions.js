@@ -1,8 +1,8 @@
 import { useSession } from 'next-auth/react';
 import React, { useMemo } from 'react';
-import { Button, Container, Form, InputGroup, OverlayTrigger, Popover, Spinner, Table } from 'react-bootstrap';
-import { BsCalendar, BsClipboard, BsXOctagon } from 'react-icons/bs';
-import { AuthGuard, ConfirmDialog, ErrorMessage } from '../components';
+import { Button, Container, Spinner, Table } from 'react-bootstrap';
+import { BsXOctagon } from 'react-icons/bs';
+import { AuthGuard, ButtonICSLink, ConfirmDialog, ErrorMessage } from '../components';
 import { UserSelfForm } from '../components/form';
 import { PublicLayout } from '../components/layout/public';
 import { displayCourseName,
@@ -10,51 +10,10 @@ import { displayCourseName,
   USER_TYPE_REGULAR,
   formatDayRange,
   formatTimestamp,
-  SESSIONS_NAMES } from '../lib/common';
+  COURSE_NAMES } from '../lib/common';
 import { usePromiseEffect } from '../hooks';
 import { getSelfRegistrations, postSelfCancelRegistration } from '../lib/client/api';
 import { useNotificationsContext, useRefreshContext } from '../state';
-
-function ButtonICSLink({ session }) {
-  const url = `${window.location.origin}/api/calendar.ics?id=${session.userId}&token=${session.publicAccessToken}`;
-  const inputId = 'input-popover-copy-link';
-  const selectInput = () => {
-    const input = document.getElementById(inputId);
-    input.select();
-  };
-  const buttonClickHandler = () => {
-    selectInput();
-    document.execCommand('copy');
-  };
-  const inputClickHandler = () => selectInput();
-  return (
-    <OverlayTrigger
-      trigger="click"
-      placement="top"
-      rootClose
-      overlay={(
-        <Popover id="popover-copy-link">
-          <Popover.Header as="h3">Lien vers mon calendrier</Popover.Header>
-          <Popover.Body>
-            <Form.Group>
-              <InputGroup>
-                <Form.Control id={inputId} value={url} readOnly onClick={inputClickHandler} />
-                <Button variant="outline-secondary" onClick={buttonClickHandler}>
-                  <BsClipboard className="icon" />
-                </Button>
-              </InputGroup>
-            </Form.Group>
-          </Popover.Body>
-        </Popover>
-      )}
-    >
-      <Button variant="secondary" className="mb-2">
-        <BsCalendar className="icon me-2" />
-        Exporter le calendrier
-      </Button>
-    </OverlayTrigger>
-  );
-}
 
 function MesCoursLayout() {
   const refresh = useRefreshContext();
@@ -94,7 +53,7 @@ function MesCoursLayout() {
               const { type, dateStart, dateEnd } = course;
               return (
                 <tr key={id}>
-                  <td>{SESSIONS_NAMES[type]}</td>
+                  <td>{COURSE_NAMES[type]}</td>
                   <td>{formatDayRange(dateStart, dateEnd)}</td>
                   <td>{formatTimestamp(registeredAt)}</td>
                   {cancellable && (

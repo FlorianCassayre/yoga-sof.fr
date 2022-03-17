@@ -3,10 +3,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Button, Col, Container, Row } from 'react-bootstrap';
 import { BsArrowLeft, BsEnvelopeFill, BsFacebook, BsFillGeoAltFill, BsZoomIn } from 'react-icons/bs';
-import { EMAIL_CONTACT, FACEBOOK_PAGE_URL } from '../../../lib/common';
-
-const MAP_COORDINATES_HOME = { latitude: 47.576129, longitude: 7.514619 };
-const MAP_COORDINATES_COMETE = { latitude: 47.580615, longitude: 7.520265 };
+import { EMAIL_CONTACT, FACEBOOK_PAGE_URL, LOCATION_COMETE, LOCATION_HOME } from '../../../lib/common';
 
 function FooterLink({ href, children }) {
   return (
@@ -23,7 +20,7 @@ export function FooterLayout() {
   const [mapLocation, setMapLocation] = useState(null);
 
   const handleMapClick = () => {
-    const url = `https://www.google.com/maps/place/${mapLocation.latitude},${mapLocation.longitude}`;
+    const url = `https://www.google.com/maps/place/${mapLocation.coordinates.latitude},${mapLocation.coordinates.longitude}`;
     window.open(url, '_blank').focus();
   };
 
@@ -63,7 +60,7 @@ export function FooterLayout() {
           <Col xs={12} sm={12} lg={4} className="py-4 px-5">
             {isMapToggled && mapLocation ? (
               <>
-                <MapsComponent id="maps" zoomSettings={{ zoomFactor: 14 }} centerPosition={mapLocation} height="250px" click={handleMapClick} style={{ cursor: 'pointer' }}>
+                <MapsComponent id="maps" zoomSettings={{ zoomFactor: 14 }} centerPosition={mapLocation.coordinates} height="250px" click={handleMapClick} style={{ cursor: 'pointer' }}>
                   <Inject services={[Marker, Zoom]} />
                   <LayersDirective>
                     <LayerDirective layerType="OSM">
@@ -74,8 +71,8 @@ export function FooterLayout() {
                           width={50}
                           dataSource={[
                             {
-                              ...mapLocation,
-                              name: 'Hésingue',
+                              ...mapLocation.coordinates,
+                              name: mapLocation.name,
                             },
                           ]}
                         />
@@ -93,11 +90,11 @@ export function FooterLayout() {
             ) : isMapToggled ? (
               <div className="text-center" key={1}>
                 <div>Les séances ne se déroulent pas toutes au même endroit :</div>
-                <Button variant="secondary" onClick={() => setMapLocation(MAP_COORDINATES_HOME)} className="m-2">
+                <Button variant="secondary" onClick={() => setMapLocation(LOCATION_HOME)} className="m-2">
                   <BsZoomIn className="icon me-2" />
                   Yoga adulte
                 </Button>
-                <Button variant="secondary" onClick={() => setMapLocation(MAP_COORDINATES_COMETE)} className="m-2">
+                <Button variant="secondary" onClick={() => setMapLocation(LOCATION_COMETE)} className="m-2">
                   <BsZoomIn className="icon me-2" />
                   Yoga enfant & parent-enfant
                 </Button>

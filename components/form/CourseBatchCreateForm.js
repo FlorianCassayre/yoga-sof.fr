@@ -9,7 +9,7 @@ import {
   dateFormat,
   parseTime,
   WEEKDAYS,
-  SESSIONS_TYPES,
+  COURSE_TYPES,
   displayCourseModelName,
 } from '../../lib/common';
 import { ErrorMessage } from '../ErrorMessage';
@@ -107,7 +107,7 @@ export function CourseBatchCreateForm() {
           price: null,
           datesRange: null,
           ...Object.fromEntries(
-            Object.entries((data ?? []).filter(({ id }) => id === SESSIONS_TYPES[0].id)[0] ?? {}).filter(([key]) => ['type', 'weekday', 'timeStart', 'timeEnd', 'slots', 'price'].includes(key)),
+            Object.entries((data ?? []).filter(({ id }) => id === COURSE_TYPES[0].id)[0] ?? {}).filter(([key]) => ['type', 'weekday', 'timeStart', 'timeEnd', 'slots', 'price'].includes(key)),
           ),
         }}
         numberFields={['weekday', 'slots', 'price']}

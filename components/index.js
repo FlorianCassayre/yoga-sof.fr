@@ -10,3 +10,4 @@ export { CancelRegistrationConfirmDialog } from './CancelRegistrationConfirmDial
 export { PracticalInformations } from './PracticalInformations';
 export { NotificationsOverlay } from './NotificationsOverlay';
 export { RegistrationPanel } from './RegistrationPanel';
+export { ButtonICSLink } from './ButtonICSLink';

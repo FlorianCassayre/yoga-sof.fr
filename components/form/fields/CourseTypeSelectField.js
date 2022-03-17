@@ -1,6 +1,6 @@
 import { Form } from 'react-bootstrap';
 import { Field } from 'react-final-form';
-import { SESSIONS_TYPES } from '../../../lib/common';
+import { COURSE_TYPES } from '../../../lib/common';
 
 export function CourseTypeSelectField({ name, fieldProps = {}, ...props }) {
   return (
@@ -11,7 +11,7 @@ export function CourseTypeSelectField({ name, fieldProps = {}, ...props }) {
         render={({ input }) => (
           <Form.Select {...input} required {...fieldProps}>
             <option value={null} disabled />
-            {SESSIONS_TYPES.map(({ id, title }) => (
+            {COURSE_TYPES.map(({ id, title }) => (
               <option key={id} value={id}>
                 {title}
               </option>

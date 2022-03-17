@@ -10,7 +10,7 @@ import { StaticPaginatedTable } from './table';
 import {
   EMAIL_CONTACT, formatDayRange,
   IS_REGISTRATION_DISABLED,
-  SESSIONS_NAMES,
+  COURSE_NAMES,
   YOGA_ADULT,
 } from '../lib/common';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
@@ -72,7 +72,7 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
               columns={[
                 {
                   title: 'Type de séance',
-                  render: ({ type }) => SESSIONS_NAMES[type],
+                  render: ({ type }) => COURSE_NAMES[type],
                   props: {
                     className: 'text-center',
                   },
@@ -204,7 +204,7 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                       <tr key={id}>
                         {i === 0 && (
                         <td rowSpan={values.courses.length} className="align-middle text-center">
-                          {SESSIONS_NAMES[REGISTRATION_SESSION_TYPE]}
+                          {COURSE_NAMES[REGISTRATION_SESSION_TYPE]}
                         </td>
                         )}
                         <td>

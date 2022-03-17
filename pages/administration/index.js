@@ -1,12 +1,16 @@
 import { format } from 'date-fns';
+import { useSession } from 'next-auth/react';
+import React from 'react';
 import { BsKanban } from 'react-icons/bs';
-import { CourseCards } from '../../components';
+import { ButtonICSLink, CourseCards } from '../../components';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 import { detailsColumnFor, DynamicPaginatedTable } from '../../components/table';
 import { displayCourseType, displayTimePeriod, dateFormat } from '../../lib/common';
 import { BREADCRUMB_OVERVIEW } from '../../lib/client';
 
 function AdminHomeLayout() {
+  const { data: session } = useSession();
+
   return (
     <ContentLayout title="Aperçu" icon={BsKanban} breadcrumb={BREADCRUMB_OVERVIEW}>
       <h2 className="h5">Planning</h2>
@@ -61,6 +65,10 @@ function AdminHomeLayout() {
         ]}
         renderEmpty={() => 'Aucune séance planifiée à venir.'}
       />
+
+      <div className="text-end">
+        <ButtonICSLink session={session} coach />
+      </div>
     </ContentLayout>
   );
 }
