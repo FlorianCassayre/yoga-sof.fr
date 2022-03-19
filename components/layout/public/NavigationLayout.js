@@ -28,12 +28,11 @@ function NavBarToggler(props) {
 }
 
 export function NavigationLayout() {
-  const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
   const sessionLoading = sessionStatus === 'loading';
 
   const handleSignOut = () => {
-    signOut({ redirect: false, callbackUrl: '/' }).then(data => router.push(data.url));
+    signOut({ redirect: true, callbackUrl: '/' });
   };
 
   return (

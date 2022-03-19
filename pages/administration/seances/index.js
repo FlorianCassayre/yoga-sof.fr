@@ -1,16 +1,13 @@
-import { format } from 'date-fns';
 import { Button } from 'react-bootstrap';
 import { BsCalendarWeek, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
 import { CancelCourseConfirmDialog, CourseCards, CourseStatusBadge } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import { detailsColumnFor, DynamicPaginatedTable } from '../../../components/table';
-import { displayCourseType, displayTimePeriod, dateFormat } from '../../../lib/common';
+import { displayCourseType, displayTimePeriod, formatDateLiteral } from '../../../lib/common';
 import { BREADCRUMB_COURSES } from '../../../lib/client';
 
 function AdminSeancesLayout() {
-  const renderDate = ({ dateStart: date }) => format(new Date(date), dateFormat);
-
   const courseColumns = hasPassed => [
     detailsColumnFor(id => `/administration/seances/planning/${id}`),
     {
@@ -20,7 +17,7 @@ function AdminSeancesLayout() {
     },
     {
       title: 'Date',
-      render: renderDate,
+      render: ({ dateStart: date }) => formatDateLiteral(date),
     },
     {
       title: 'Horaire',
@@ -70,7 +67,7 @@ function AdminSeancesLayout() {
             <CancelCourseConfirmDialog
               course={obj}
               triggerer={clickHandler => ( // eslint-disable-line react/no-unstable-nested-components
-                <Button size="sm" variant="danger" onClick={clickHandler}>
+                <Button size="sm" variant="outline-danger" onClick={clickHandler}>
                   <BsXOctagon className="icon" />
                 </Button>
               )}
@@ -87,7 +84,7 @@ function AdminSeancesLayout() {
       <h2 className="h5">Modèles de séances</h2>
 
       <p>
-        Il s'agit des horaires hebdomadaires de déroulement des séances qui seront affichées sur le site. Ces modèles servent ensuite à efficacement planifier un lot de séances (ci-dessous). Il reste
+        Il s'agit des horaires hebdomadaires de déroulement des séances. Ces modèles servent ensuite à efficacement planifier un lot de séances (ci-dessous). Il reste
         possible de planifier des séances à d'autres dates et horaires que celles indiquées par les modèles.
       </p>
 

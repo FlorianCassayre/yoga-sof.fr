@@ -35,11 +35,11 @@ function NavItemTitle({ title }) {
 }
 
 export function NavigationLayout({ children }) {
-  const router = useRouter();
   const { data: sessionData } = useSession();
 
   const handleSignOut = () => {
-    signOut({ redirect: false, callbackUrl: '/' }).then(data => router.push(data.url));
+    // `redirect` is necessary unfortunately, otherwise we get redirected to the login form
+    signOut({ redirect: true, callbackUrl: '/' });
   };
 
   return (

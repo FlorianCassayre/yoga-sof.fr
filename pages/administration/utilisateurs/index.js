@@ -1,19 +1,15 @@
-import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { BsPeople, BsPlusLg } from 'react-icons/bs';
-import { StarIndicator } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import { detailsColumnFor, DynamicPaginatedTable } from '../../../components/table';
+import { detailsColumnFor, DynamicPaginatedTable, renderEmail } from '../../../components/table';
 
 import { BREADCRUMB_USERS, providersData } from '../../../lib/client';
 import { displayDatetime } from '../../../lib/common';
 
 function AdminUsersLayout() {
   const [total, setTotal] = useState(null);
-
-  const { data: sessionData } = useSession();
 
   return (
     <ContentLayout title="Utilisateurs" icon={BsPeople} count={total} breadcrumb={BREADCRUMB_USERS}>
@@ -42,12 +38,7 @@ function AdminUsersLayout() {
           detailsColumnFor(id => `/administration/utilisateurs/${id}`),
           {
             title: 'Adresse email',
-            render: ({ email }) => (
-              <>
-                <span className="font-monospace">{email}</span>
-                {sessionData.email === email && <StarIndicator text="Il s'agit de votre compte" />}
-              </>
-            ),
+            render: ({ email }) => renderEmail(email),
           },
           {
             title: 'Nom',

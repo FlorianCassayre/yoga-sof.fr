@@ -2,6 +2,7 @@ import { useSession } from 'next-auth/react';
 import React, { useMemo } from 'react';
 import { Button, Container, Spinner, Table } from 'react-bootstrap';
 import { BsXOctagon } from 'react-icons/bs';
+import Link from 'next/link';
 import { AuthGuard, ButtonICSLink, ConfirmDialog, ErrorMessage } from '../components';
 import { UserSelfForm } from '../components/form';
 import { PublicLayout } from '../components/layout/public';
@@ -73,7 +74,7 @@ function MesCoursLayout() {
                       icon={BsXOctagon}
                       action="Confirmer ma désinscription"
                       triggerer={clickHandler => ( // eslint-disable-line react/no-unstable-nested-components
-                        <Button variant="danger" size="sm" onClick={clickHandler}>
+                        <Button variant="outline-danger" size="sm" onClick={clickHandler}>
                           <BsXOctagon className="icon me-2" />
                           Désinscription
                         </Button>
@@ -123,6 +124,15 @@ function MesCoursLayout() {
   return (
     <Container>
       <h1 className="mt-4">Mes inscriptions</h1>
+
+      <p>
+        Cette page liste l'ensemble de vos inscriptions aux séances de Yoga.
+        {' '}
+        Ces inscriptions se font au moyen de
+        {' '}
+        <Link href="/inscription">ce formulaire</Link>
+        .
+      </p>
 
       <h2 className="h3">Séances à venir</h2>
 

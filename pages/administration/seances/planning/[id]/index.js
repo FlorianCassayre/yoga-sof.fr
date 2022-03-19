@@ -55,7 +55,7 @@ function CourseViewLayout({ id }) {
           <CancelCourseConfirmDialog
             course={data}
             triggerer={clickHandler => ( // eslint-disable-line react/no-unstable-nested-components
-              <Button variant="danger" onClick={clickHandler}>
+              <Button variant="outline-danger" onClick={clickHandler}>
                 <BsXOctagon className="icon me-2" />
                 Annuler cette séance
               </Button>

@@ -12,6 +12,7 @@ export function LoginCard({ providers }) {
   const { error } = router.query;
 
   const errorMessages = {
+    Verification: 'Le lien que vous avez suivi est probablement périmé.',
     OAuthAccountNotLinked: 'Il semble que vous vous vous soyez déjà connecté depuis un autre service. Merci de réutiliser ce service pour vous connecter.',
   };
 
@@ -19,11 +20,15 @@ export function LoginCard({ providers }) {
     signIn(providerId, { callbackUrl: `${window.location.origin}/redirection`, ...data });
   };
 
+  const handleClearErrors = () => {
+    router.replace('/connexion', undefined, { shallow: true });
+  };
+
   return (
     <Row className="justify-content-center">
       <Col xs={12} sm={8} md={6} lg={5} xl={4}>
         {!!error && (
-          <ErrorMessage>
+          <ErrorMessage dismissible show onClose={handleClearErrors}>
             Une erreur est survenue lors de la connexion.
             {' '}
             {errorMessages[error] ? errorMessages[error] : 'Si le problème persiste, merci de nous le faire savoir.'}

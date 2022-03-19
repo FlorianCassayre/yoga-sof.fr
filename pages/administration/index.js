@@ -1,11 +1,10 @@
-import { format } from 'date-fns';
 import { useSession } from 'next-auth/react';
 import React from 'react';
 import { BsKanban } from 'react-icons/bs';
 import { ButtonICSLink, CourseCards } from '../../components';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 import { detailsColumnFor, DynamicPaginatedTable } from '../../components/table';
-import { displayCourseType, displayTimePeriod, dateFormat } from '../../lib/common';
+import { displayCourseType, displayTimePeriod, formatDateLiteral } from '../../lib/common';
 import { BREADCRUMB_OVERVIEW } from '../../lib/client';
 
 function AdminHomeLayout() {
@@ -35,7 +34,7 @@ function AdminHomeLayout() {
           detailsColumnFor(id => `/administration/seances/planning/${id}`),
           {
             title: 'Date',
-            render: ({ dateStart: date }) => format(new Date(date), dateFormat),
+            render: ({ dateStart: date }) => formatDateLiteral(date),
           },
           {
             title: 'Horaire',

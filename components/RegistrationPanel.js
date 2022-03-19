@@ -16,6 +16,7 @@ import {
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
 import { getSelfRegistrations, getCoursesSchedule, postSelfRegistrationBatch } from '../lib/client/api';
 import { useNotificationsContext, useRefreshContext } from '../state';
+import { RegistrationNoticeRecap, RegistrationNoticeInformations } from '../contents/inscription.mdx';
 
 const REGISTRATION_SESSION_TYPE = YOGA_ADULT;
 
@@ -234,9 +235,8 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                     </tr>
                   </tbody>
                 </Table>
-                <p className="mt-2">
-                  Le règlement d'une séance s'effectue le jour-même sur place.
-                  Il est également possible de régler toutes les séances en une fois.
+                <p>
+                  <RegistrationNoticeRecap />
                 </p>
               </Col>
               <Col>
@@ -254,8 +254,7 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                   </tbody>
                 </Table>
                 <p>
-                  Vous pouvez modifier ces informations depuis votre page personnelle.
-                  Votre adresse e-mail nous permet notamment de vous informer en cas d'annulation de séance.
+                  <RegistrationNoticeInformations />
                 </p>
               </Col>
             </Row>

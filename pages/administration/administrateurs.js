@@ -1,14 +1,11 @@
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { BsShieldLock } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
-import { DynamicPaginatedTable, renderEmailCompare } from '../../components/table';
+import { DynamicPaginatedTable, renderEmail } from '../../components/table';
 import { BREADCRUMB_ADMINS } from '../../lib/client';
 
 function AdminAdminsLayout() {
-  const { data: session } = useSession();
   const [total, setTotal] = useState(null);
-  const sessionEmail = session.email;
 
   return (
     <ContentLayout title="Administrateurs" icon={BsShieldLock} count={total} breadcrumb={BREADCRUMB_ADMINS}>
@@ -22,7 +19,7 @@ function AdminAdminsLayout() {
         columns={[
           {
             title: 'Adresse e-mail',
-            render: ({ email }) => renderEmailCompare(sessionEmail)(email),
+            render: ({ email }) => renderEmail(email),
           },
         ]}
         totalCallback={newTotal => setTotal(newTotal)}

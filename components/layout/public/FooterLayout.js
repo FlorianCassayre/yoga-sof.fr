@@ -1,9 +1,8 @@
-import { Inject, LayerDirective, LayersDirective, MapsComponent, Marker, MarkerDirective, MarkersDirective, Zoom } from '@syncfusion/ej2-react-maps';
 import Link from 'next/link';
-import { useState } from 'react';
-import { Button, Col, Container, Row } from 'react-bootstrap';
-import { BsArrowLeft, BsEnvelopeFill, BsFacebook, BsFillGeoAltFill, BsZoomIn } from 'react-icons/bs';
-import { EMAIL_CONTACT, FACEBOOK_PAGE_URL, LOCATION_COMETE, LOCATION_HOME } from '../../../lib/common';
+import { Col, Container, Row } from 'react-bootstrap';
+import { BsEnvelopeFill, BsFacebook } from 'react-icons/bs';
+import { EMAIL_CONTACT, FACEBOOK_PAGE_URL } from '../../../lib/common';
+import { MapWidget } from '../../MapWidget';
 
 function FooterLink({ href, children }) {
   return (
@@ -16,14 +15,6 @@ function FooterLink({ href, children }) {
 }
 
 export function FooterLayout() {
-  const [isMapToggled, setMapToggled] = useState(false);
-  const [mapLocation, setMapLocation] = useState(null);
-
-  const handleMapClick = () => {
-    const url = `https://www.google.com/maps/place/${mapLocation.coordinates.latitude},${mapLocation.coordinates.longitude}`;
-    window.open(url, '_blank').focus();
-  };
-
   return (
     <footer className="mt-auto" style={{ backgroundColor: '#323232', zIndex: 10 }}>
       <Container>
@@ -58,55 +49,7 @@ export function FooterLayout() {
             </div>
           </Col>
           <Col xs={12} sm={12} lg={4} className="py-4 px-5">
-            {isMapToggled && mapLocation ? (
-              <>
-                <MapsComponent id="maps" zoomSettings={{ zoomFactor: 14 }} centerPosition={mapLocation.coordinates} height="250px" click={handleMapClick} style={{ cursor: 'pointer' }}>
-                  <Inject services={[Marker, Zoom]} />
-                  <LayersDirective>
-                    <LayerDirective layerType="OSM">
-                      <MarkersDirective>
-                        <MarkerDirective
-                          visible
-                          height={50}
-                          width={50}
-                          dataSource={[
-                            {
-                              ...mapLocation.coordinates,
-                              name: mapLocation.name,
-                            },
-                          ]}
-                        />
-                      </MarkersDirective>
-                    </LayerDirective>
-                  </LayersDirective>
-                </MapsComponent>
-                <div className="text-center">
-                  <Button variant="secondary" onClick={() => setMapLocation(null)} className="mt-2">
-                    <BsArrowLeft className="icon me-2" />
-                    Retour
-                  </Button>
-                </div>
-              </>
-            ) : isMapToggled ? (
-              <div className="text-center" key={1}>
-                <div>Les séances ne se déroulent pas toutes au même endroit :</div>
-                <Button variant="secondary" onClick={() => setMapLocation(LOCATION_HOME)} className="m-2">
-                  <BsZoomIn className="icon me-2" />
-                  Yoga adulte
-                </Button>
-                <Button variant="secondary" onClick={() => setMapLocation(LOCATION_COMETE)} className="m-2">
-                  <BsZoomIn className="icon me-2" />
-                  Yoga enfant & parent-enfant
-                </Button>
-              </div>
-            ) : (
-              <div className="text-center">
-                <Button variant="secondary" onClick={() => setMapToggled(true)}>
-                  <BsFillGeoAltFill className="icon me-2" />
-                  Voir sur la carte
-                </Button>
-              </div>
-            )}
+            <MapWidget />
           </Col>
         </Row>
       </Container>

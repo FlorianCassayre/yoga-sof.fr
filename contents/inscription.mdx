@@ -1,6 +1,7 @@
 import { RegistrationPanel } from '../components';
 import { PublicContainer } from '../components/contents';
 import { EMAIL_CONTACT } from '../lib/common';
+import Link from 'next/link';
 
 export const meta = {
   title: 'Inscription Yoga',
@@ -13,7 +14,24 @@ export const meta = {
   Pour une inscription à des séances de Yoga enfant et Yoga parent-enfant,
   <a href={`mailto:${EMAIL_CONTACT}`}>veuillez nous envoyer un e-mail</a>.
 * La première séance vous est offerte, à la date de votre choix.
+* Dès que vous aurez validé le formulaire, vos inscriptions apparaîtront sur
+  <Link href="/mes-inscriptions">votre page personnelle</Link>.
+* Vous reconnaissez avoir pris connaissance du <Link href="/reglement-interieur">règlement intérieur</Link>.
 
 <RegistrationPanel />
+
+export const RegistrationNoticeRecap = () => (
+  <>
+    Le règlement d'une séance s'effectue le jour-même sur place.
+    Il est également possible de régler toutes les séances en une fois.
+  </>
+);
+
+export const RegistrationNoticeInformations = () => (
+  <>
+    Vous pouvez modifier ces informations depuis votre page personnelle.
+    Votre adresse e-mail nous permet notamment de vous informer en cas d'annulation de séance.
+  </>
+);
 
 export default ({ children }) => <PublicContainer {...meta}>{children}</PublicContainer>
