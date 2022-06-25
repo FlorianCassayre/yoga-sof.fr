@@ -53,6 +53,7 @@ export function NavigationLayout() {
             <NavLink pathname="/">Accueil</NavLink>
             <NavLink pathname="/yoga">Le Yoga</NavLink>
             <NavLink pathname="/seances">Les séances</NavLink>
+            <NavLink pathname="/inscription">Inscription</NavLink>
             <NavLink pathname="/a-propos">À propos</NavLink>
           </Nav>
           <Nav className="text-center">

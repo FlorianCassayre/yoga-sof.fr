@@ -2,6 +2,7 @@ import { Button } from 'react-bootstrap'; import { BsPencilSquare } from 'react-
 import { PracticalInformations } from '../components';
 import { PublicContainer } from '../components/contents';
 import Link from 'next/link';
+import { YOGA_ADULT, YOGA_ADULT_CHILD, YOGA_CHILD } from '../lib/common';
 
 export const meta = {
   title: `Les séances`,
@@ -55,7 +56,7 @@ export const practicalInformationsParentChildren = {
 
 <h2 id="adulte">Yoga adulte</h2>
 
-<PracticalInformations data={practicalInformationsAdult}>
+<PracticalInformations type={YOGA_ADULT} courseModels={props.courseModels} data={practicalInformationsAdult}>
   J'enseigne un hatha Yoga respectueux de la physiologie de votre corps, en petit groupe convivial de 4-5 personnes, à
   Hésingue. Dès que nécessaire durant la séance, je vous proposerai des adaptations individuelles des postures à l'aide
   d'accessoires ou de variantes pour vous aider à développer votre force et votre souplesse sans inconfort, ni risque de
@@ -82,7 +83,7 @@ export const practicalInformationsParentChildren = {
 
 <h2 id="enfant" className="mt-4">Yoga enfant</h2>
 
-<PracticalInformations data={practicalInformationsChildren}>
+<PracticalInformations type={YOGA_CHILD} courseModels={props.courseModels} data={practicalInformationsChildren}>
   J'inviterai à entrer en contact avec le monde à travers leurs corps, en jouant et en créant. Par la symbolique des
   postures, sa conscience du corps va augmenter : il jouera à être un animal, un élément de la nature, un héros. Ce jeu
   le conduit vers la méditation, car ses pensées sont parfaitement concentrées sur ce qu'il “est” dans l'instant sans
@@ -121,7 +122,7 @@ export const practicalInformationsParentChildren = {
 
 <h2 id="parent-enfant" className="mt-4">Yoga parent-enfant</h2>
 
-<PracticalInformations data={practicalInformationsParentChildren}>
+<PracticalInformations type={YOGA_ADULT_CHILD} courseModels={props.courseModels} data={practicalInformationsParentChildren}>
   Le Yoga parent-enfant permet à un duo composé d'un parent, grand-parent ou autre adulte référent accompagné d'un ou
   deux enfants entre 3 et 6 ans de partager un moment de complicité. La parent trouvera du plaisir à mettre son corps en
   mouvement ou bien se détendre, se laisser guider dans sa pratique de yoga. Il pourra en même temps offrir à son enfant

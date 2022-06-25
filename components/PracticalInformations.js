@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button, Col, Image, Row } from 'react-bootstrap';
 import { BsClockFill, BsFillInfoCircleFill, BsFillPeopleFill, BsGiftFill, BsMoonStarsFill, BsPencilSquare } from 'react-icons/bs';
+import { WEEKDAYS } from '../lib/common';
 
 function AttributeIcon({ icon: Icon, title, value }) {
   return (
@@ -13,7 +14,20 @@ function AttributeIcon({ icon: Icon, title, value }) {
   );
 }
 
-export function PracticalInformations({ data: { section, age, level, group, duration, place, material, registration, image2, registrable, dates }, condensed, children }) {
+export function PracticalInformations({ type, courseModels, data: { section, age, level, group, duration, place, material, registration, image2, registrable, dates }, condensed, children }) {
+  const modelsByDaySorted = {};
+  const courseModelsFiltered = (courseModels || []).filter(({ type: modelType }) => modelType === type);
+  courseModelsFiltered.forEach(model => {
+    if (!modelsByDaySorted[model.weekday]) {
+      modelsByDaySorted[model.weekday] = [];
+    }
+    modelsByDaySorted[model.weekday].push(model);
+  });
+  const daysTimesSorted = Object.entries(modelsByDaySorted)
+    .map(([key, value]) => [parseInt(key), value.sort(({ timeStart: a }, { timeStart: b }) => a - b)])
+    .sort(([a], [b]) => a - b)
+    .map(([key, value]) => ({ weekday: WEEKDAYS[key], times: value.map(({ timeStart, timeEnd }) => ({ timeStart, timeEnd })) }));
+  const uniquePrices = [...new Set(courseModelsFiltered.map(({ price }) => price))];
   return (
     <Row className="mt-4 text-center">
       <Col xs={6} sm={3}>
@@ -49,11 +63,19 @@ export function PracticalInformations({ data: { section, age, level, group, dura
         <>
           <Col xs={12} sm={8} className="mt-4 text-start">
             <ul>
-              {dates && (
+              <li>
+                <strong>Dates :</strong>
+                {' '}
+                {daysTimesSorted.length > 0 ? (
+                  // eslint-disable-next-line
+                  daysTimesSorted.map(({ weekday, times }) => [weekday.toLowerCase(), times.map(({ timeStart, timeEnd }) => ['de', timeStart.replace(':', 'h'), 'à', timeEnd.replace(':', 'h')].join(' ')).join(' et ')].join(' ')).join(' ; ')
+                ) : dates}
+              </li>
+              {courseModelsFiltered.length > 0 && (
                 <li>
-                  <strong>Dates :</strong>
+                  <strong>Tarif :</strong>
                   {' '}
-                  {dates}
+                  {uniquePrices.length > 1 ? `${Math.min(...uniquePrices)} € à ${Math.max(...uniquePrices)} €` : `${uniquePrices[0]} €`}
                 </li>
               )}
               <li>
