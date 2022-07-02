@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from 'react-bootstrap';
 import { BsCalendarDate, BsEyeFill, BsPerson, BsXOctagon } from 'react-icons/bs';
-import { displayCourseName } from '../../lib/common';
+import { displayCourseName, userDisplayName } from '../../lib/common';
 import { CancelRegistrationConfirmDialog } from '../CancelRegistrationConfirmDialog';
 import { CourseStatusBadge } from '../CourseStatusBadge';
 import { StarIndicator } from '../StarIndicator';
@@ -20,11 +20,11 @@ export const idColumn = {
 
 export const userLinkColumn = {
   title: 'Utilisateur',
-  render: ({ userId, user: { name } }) => (
+  render: ({ userId, user }) => (
     <Link href={`/administration/utilisateurs/${userId}`} passHref>
       <a>
         <BsPerson className="icon me-2" />
-        {name}
+        {userDisplayName(user)}
       </a>
     </Link>
   ),

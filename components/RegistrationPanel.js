@@ -11,14 +11,11 @@ import {
   EMAIL_CONTACT, formatDayRange,
   IS_REGISTRATION_DISABLED,
   COURSE_NAMES,
-  YOGA_ADULT,
 } from '../lib/common';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
 import { getSelfRegistrations, getCoursesSchedule, postSelfRegistrationBatch } from '../lib/client/api';
 import { useNotificationsContext, useRefreshContext } from '../state';
 import { RegistrationNoticeRecap, RegistrationNoticeInformations } from '../contents/inscription.mdx';
-
-const REGISTRATION_SESSION_TYPE = YOGA_ADULT;
 
 function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }) {
   const [{ isLoading: isSubmitting, isError: isSubmitError, data: submitResult }, submitDispatch] = usePromiseCallback(data => postSelfRegistrationBatch(data), []);
@@ -58,7 +55,19 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
       setValue('courses', newCourses);
     };
 
-    const courseOrdinal = id => new Date(scheduleData.courses.filter(({ id: thatId }) => thatId === id)[0].dateStart).getTime();
+    const groupCourses = coursesIds => {
+      const set = new Set(coursesIds);
+      const byType = {};
+      scheduleData.courses.forEach(course => {
+        if (set.has(course.id)) {
+          if (!byType[course.type]) {
+            byType[course.type] = [];
+          }
+          byType[course.type].push(course);
+        }
+      });
+      return Object.entries(byType).sort(([a], [b]) => a.localeCompare(b)).map(([key, courses]) => [key, courses.sort((a, b) => new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime())]);
+    };
 
     return !isSubmitting ? (
       <Form onSubmit={handleSubmit}>
@@ -201,21 +210,21 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                     </tr>
                   </thead>
                   <tbody>
-                    {values.courses.slice().sort((a, b) => courseOrdinal(a) - courseOrdinal(b)).map((id, i) => (
-                      <tr key={id}>
-                        {i === 0 && (
-                        <td rowSpan={values.courses.length} className="align-middle text-center">
-                          {COURSE_NAMES[REGISTRATION_SESSION_TYPE]}
+                    {groupCourses(values.courses).map(([courseType, courses]) => courses.map((course, j) => (
+                      <tr key={`${courseType}-${j}`}>
+                        {j === 0 && (
+                        <td rowSpan={courses.length} className="align-middle text-center">
+                          {COURSE_NAMES[courseType]}
                         </td>
                         )}
                         <td>
-                          {scheduleData.courses.filter(({ id: idOther }) => idOther === id).map(({ dateStart, dateEnd }) => formatDayRange(dateStart, dateEnd))[0]}
+                          {formatDayRange(course.dateStart, course.dateEnd)}
                         </td>
                         <td className="text-center">
-                          {scheduleData.courses.filter(({ id: idOther }) => idOther === id).map(({ price }) => `${price} €`)[0]}
+                          {`${course.price} €`}
                         </td>
                       </tr>
-                    ))}
+                    )))}
                     <tr style={{ borderTop: 'solid black 2px' }} className="table-secondary">
                       <td colSpan={2} className="text-center">
                         <strong>{values.courses.length}</strong>

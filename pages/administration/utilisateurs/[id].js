@@ -7,13 +7,13 @@ import { cancelRegistrationColumn, DynamicPaginatedTable, plannedCourseLinkColum
 import { usePromiseEffect } from '../../../hooks';
 import { breadcrumbForUser, providersData } from '../../../lib/client';
 import { getUser } from '../../../lib/client/api';
-import { displayDatetime, formatTimestamp } from '../../../lib/common';
+import { displayDatetime, formatTimestamp, userDisplayName } from '../../../lib/common';
 
 function AdminUserLayout({ id }) {
   const { isLoading, isError, data, error } = usePromiseEffect(() => getUser(id, { include: ['courseRegistrations', 'accounts'] }), []);
 
   return (
-    <ContentLayout title={`Utilisateur ${data && data.name}`} icon={BsPerson} breadcrumb={data && breadcrumbForUser(data)} isLoading={isLoading} isError={isError} error={error}>
+    <ContentLayout title={`Utilisateur ${data && userDisplayName(data)}`} icon={BsPerson} breadcrumb={data && breadcrumbForUser(data)} isLoading={isLoading} isError={isError} error={error}>
       <h2 className="h5">Inscriptions</h2>
       <p>Les inscriptions (et désinscriptions) de cet utilisateur.</p>
 
@@ -57,6 +57,19 @@ function AdminUserLayout({ id }) {
       </div>
 
       <h2 className="h5">Informations de connexion</h2>
+
+      {data && data.customEmail && (
+        <div>
+          Adresse email préférée (non vérifiée) :
+          {' '}
+          <Badge bg="secondary">{data.customEmail}</Badge>
+        </div>
+      )}
+      <div className="mb-2">
+        Adresse email :
+        {' '}
+        <Badge bg="secondary">{data && (data.email || '(aucune)')}</Badge>
+      </div>
 
       <StaticPaginatedTable
         rows={data && data.accounts}
