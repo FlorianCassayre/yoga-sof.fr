@@ -14,6 +14,7 @@ export function LoginCard({ providers }) {
   const errorMessages = {
     Verification: 'Le lien que vous avez suivi est probablement périmé.',
     OAuthAccountNotLinked: 'Il semble que vous vous vous soyez déjà connecté depuis un autre service. Merci de réutiliser ce service pour vous connecter.',
+    AccessDenied: `Votre compte a été désactivé par un administrateur, si vous pensez qu'il s'agit d'une erreur merci de nous écrire.`,
   };
 
   const handleSubmitFor = providerId => data => {

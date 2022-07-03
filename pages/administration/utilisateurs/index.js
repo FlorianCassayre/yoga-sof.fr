@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Badge, Button } from 'react-bootstrap';
 import { BsPeople, BsPlusLg } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
 import { detailsColumnFor, DynamicPaginatedTable, renderEmail } from '../../../components/table';
@@ -29,16 +29,27 @@ function AdminUsersLayout() {
 
       <DynamicPaginatedTable
         url="/api/users"
-        params={(page, limit) => ({
+        params={(page, limit, { noDisabled }) => ({
           page,
           limit,
           include: ['accounts'],
+          where: {
+            ...(noDisabled ? { disabled: false } : {}),
+          },
         })}
+        filters={[{ name: 'noDisabled', display: 'Masquer les comptes désactivés', initial: true }]}
         columns={[
           detailsColumnFor(id => `/administration/utilisateurs/${id}`),
           {
             title: 'Adresse email',
-            render: ({ email }) => renderEmail(email),
+            render: ({ email, disabled }) => (
+              <>
+                {renderEmail(email)}
+                {disabled && (
+                  <Badge bg="danger" className="ms-2">Désactivé</Badge>
+                )}
+              </>
+            ),
           },
           {
             title: 'Nom',

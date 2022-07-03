@@ -69,6 +69,8 @@ model User {
   emailsReceived      EmailMessage[]
   courseRegistrations CourseRegistration[]
 
+  disabled            Boolean              @default(false)
+
   // End user custom fields
 
   @@map("user")

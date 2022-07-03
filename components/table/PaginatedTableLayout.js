@@ -1,5 +1,6 @@
 import React from 'react';
-import { Pagination, Spinner, Table } from 'react-bootstrap';
+import { Dropdown, Pagination, Spinner, Table } from 'react-bootstrap';
+import { BsCheckSquare, BsFunnelFill, BsSquare } from 'react-icons/bs';
 import { ErrorMessage } from '../ErrorMessage';
 
 export function PaginatedTableLayout({
@@ -16,10 +17,44 @@ export function PaginatedTableLayout({
   pageCount,
   columns,
   collapsePagination = true,
+  filters = [],
+  filtersValues = {},
+  onFilterValueChange,
   renderEmpty,
   rowProps = () => {},
   ...rest
 }) {
+  const renderFilters = () => {
+    if (!filters.length) {
+      return null;
+    }
+
+    return (
+      <div className="mb-2 text-end">
+        <Dropdown>
+          <Dropdown.Toggle variant="secondary">
+            <BsFunnelFill className="icon me-2" />
+            Filtres
+          </Dropdown.Toggle>
+
+          <Dropdown.Menu>
+            {filters.map(({ name, display }) => {
+              // TODO this only works for boolean filters, adapt it for more types
+              const value = filtersValues[name];
+              const Icon = value ? BsCheckSquare : BsSquare;
+              return (
+                <Dropdown.Item href="#" key={name} onClick={() => onFilterValueChange(name, !value)} disabled={isDisabled || isLoading}>
+                  <Icon className="icon me-2" />
+                  {display}
+                </Dropdown.Item>
+              );
+            })}
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
+    );
+  };
+
   const renderPagination = () => {
     if (pageCount <= 1 && collapsePagination) {
       return null;
@@ -66,6 +101,8 @@ export function PaginatedTableLayout({
     <ErrorMessage error={error} />
   ) : totalRows > 0 || !renderEmpty ? (
     <>
+      {renderFilters()}
+
       <Table striped bordered responsive {...rest}>
         <thead>
           <tr className="text-center">

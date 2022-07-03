@@ -67,7 +67,7 @@ export default NextAuth({
         });
       }
 
-      const isAllowedToSignIn = true; // TODO
+      const isAllowedToSignIn = !user.disabled;
       if (isAllowedToSignIn) {
         return true;
       }
@@ -80,6 +80,11 @@ export default NextAuth({
     async session({ session, user }) {
       // `session` is the shared object between the client and the server (client can read it but only the server can modify it)
       // `user` exactly corresponds to the data stored in the database under the model `User`
+
+      const isAllowedToSignIn = !user.disabled;
+      if (!isAllowedToSignIn) {
+        return null;
+      }
 
       await prisma.user.update({
         where: {
