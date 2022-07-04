@@ -4,9 +4,9 @@ import { Button } from 'react-bootstrap';
 import { BsCollection, BsPencil } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
 import {
+  StaticPaginatedTable,
   adaptColumn,
   plannedCourseLinkColumn,
-  StaticPaginatedTable,
 } from '../../../../../components/table';
 import { usePromiseEffect } from '../../../../../hooks';
 import { breadcrumbForBundle } from '../../../../../lib/client';

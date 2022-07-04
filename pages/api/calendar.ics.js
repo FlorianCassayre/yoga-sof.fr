@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { createEvents } from 'ics';
-import { schemaCalendarQuery, COURSE_NAMES, COURSE_TYPE_LOCATION, EMAIL_CONTACT, dateFormat, formatTimeRange } from '../../lib/common';
+import { COURSE_NAMES, COURSE_TYPE_LOCATION, EMAIL_CONTACT, dateFormat, formatTimeRange, schemaCalendarQuery } from '../../lib/common';
 import { apiHandler, prisma } from '../../lib/server';
 
 const uidFor = (type, id) => `${type}#${id}@yoga-sof.fr`;

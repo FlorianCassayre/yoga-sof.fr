@@ -6,12 +6,12 @@ import Link from 'next/link';
 import { AuthGuard, ButtonICSLink, ConfirmDialog, ErrorMessage } from '../components';
 import { UserSelfForm } from '../components/form';
 import { PublicLayout } from '../components/layout/public';
-import { displayCourseName,
+import { COURSE_NAMES,
   USER_TYPE_ADMIN,
   USER_TYPE_REGULAR,
+  displayCourseName,
   formatDayRange,
-  formatTimestamp,
-  COURSE_NAMES } from '../lib/common';
+  formatTimestamp } from '../lib/common';
 import { usePromiseEffect } from '../hooks';
 import { getSelfRegistrations, postSelfCancelRegistration } from '../lib/client/api';
 import { useNotificationsContext, useRefreshContext } from '../state';

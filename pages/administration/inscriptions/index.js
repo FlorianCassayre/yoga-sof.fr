@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Badge, Button } from 'react-bootstrap';
 import { BsJournalText, BsPlusLg } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import { cancelRegistrationColumn, DynamicPaginatedTable, plannedCourseLinkColumn, userLinkColumn } from '../../../components/table';
+import { DynamicPaginatedTable, cancelRegistrationColumn, plannedCourseLinkColumn, userLinkColumn } from '../../../components/table';
 import { BREADCRUMB_REGISTRATIONS } from '../../../lib/client';
 import { displayDatetime, formatTimestamp } from '../../../lib/common';
 

@@ -6,13 +6,13 @@ import Link from 'next/link';
 import { CancelCourseConfirmDialog, CourseStatusBadge } from '../../../../../components';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
 import {
+  StaticPaginatedTable,
   adaptColumn,
   bundleLinkColumn,
   cancelRegistrationColumn,
-  StaticPaginatedTable,
   userLinkColumn,
 } from '../../../../../components/table';
-import { displayDatetime, displayCourseName } from '../../../../../lib/common';
+import { displayCourseName, displayDatetime } from '../../../../../lib/common';
 import { usePromiseEffect } from '../../../../../hooks';
 import { breadcrumbForCoursePlanning } from '../../../../../lib/client';
 import { getCourse } from '../../../../../lib/client/api';

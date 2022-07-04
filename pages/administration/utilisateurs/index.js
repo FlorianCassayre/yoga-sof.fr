@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Badge, Button } from 'react-bootstrap';
 import { BsPeople, BsPlusLg } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import { detailsColumnFor, DynamicPaginatedTable, renderEmail } from '../../../components/table';
+import { DynamicPaginatedTable, detailsColumnFor, renderEmail } from '../../../components/table';
 
 import { BREADCRUMB_USERS, providersData } from '../../../lib/client';
 import { displayDatetime } from '../../../lib/common';

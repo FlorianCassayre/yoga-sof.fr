@@ -1,7 +1,7 @@
-import { useSession, signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Container, Nav, Navbar, NavDropdown, Spinner } from 'react-bootstrap';
+import { Container, Nav, NavDropdown, Navbar, Spinner } from 'react-bootstrap';
 import { BsBoxArrowRight, BsCalendarWeek, BsPencilSquare, BsPerson, BsSpeedometer2 } from 'react-icons/bs';
 // import { GrYoga } from 'react-icons/gr';
 import { IconYoga } from '../../icons';

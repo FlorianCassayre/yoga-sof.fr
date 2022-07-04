@@ -3,7 +3,7 @@ import React from 'react';
 import { BsKanban } from 'react-icons/bs';
 import { ButtonICSLink, CourseCards } from '../../components';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
-import { detailsColumnFor, DynamicPaginatedTable } from '../../components/table';
+import { DynamicPaginatedTable, detailsColumnFor } from '../../components/table';
 import { displayCourseType, displayTimePeriod, formatDateLiteral } from '../../lib/common';
 import { BREADCRUMB_OVERVIEW } from '../../lib/client';
 

@@ -3,7 +3,7 @@ import { BsCalendarWeek, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
 import { CancelCourseConfirmDialog, CourseCards, CourseStatusBadge } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import { bundleLinkColumn, detailsColumnFor, DynamicPaginatedTable } from '../../../components/table';
+import { DynamicPaginatedTable, bundleLinkColumn, detailsColumnFor } from '../../../components/table';
 import { displayCourseType, displayTimePeriod, formatDateLiteral } from '../../../lib/common';
 import { BREADCRUMB_COURSES } from '../../../lib/client';
 

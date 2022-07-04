@@ -1,11 +1,11 @@
 import { CreateEditForm } from './CreateEditForm';
 import {
-  TimePickerRangeFields,
-  CourseTypeSelectField,
-  SlotsNumberField,
-  WeekdaySelectField,
-  PriceNumberField,
   BundleSwitchField,
+  CourseTypeSelectField,
+  PriceNumberField,
+  SlotsNumberField,
+  TimePickerRangeFields,
+  WeekdaySelectField,
 } from './fields';
 
 export function CourseModelForm({ editRecordId, container }) {

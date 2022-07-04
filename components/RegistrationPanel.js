@@ -8,14 +8,14 @@ import { Form as FinalForm } from 'react-final-form';
 import { ErrorMessage } from './ErrorMessage';
 import { StaticPaginatedTable } from './table';
 import {
-  EMAIL_CONTACT, formatDayRange,
+  COURSE_NAMES, EMAIL_CONTACT,
   IS_REGISTRATION_DISABLED,
-  COURSE_NAMES,
+  formatDayRange,
 } from '../lib/common';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
-import { getSelfRegistrations, getCoursesSchedule, postSelfRegistrationBatch } from '../lib/client/api';
+import { getCoursesSchedule, getSelfRegistrations, postSelfRegistrationBatch } from '../lib/client/api';
 import { useNotificationsContext, useRefreshContext } from '../state';
-import { RegistrationNoticeRecap, RegistrationNoticeInformations } from '../contents/inscription.mdx';
+import { RegistrationNoticeInformations, RegistrationNoticeRecap } from '../contents/inscription.mdx';
 
 function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }) {
   const [{ isLoading: isSubmitting, isError: isSubmitError, data: submitResult }, submitDispatch] = usePromiseCallback(data => postSelfRegistrationBatch(data), []);

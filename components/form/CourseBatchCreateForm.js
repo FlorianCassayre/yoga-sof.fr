@@ -5,21 +5,21 @@ import { addDays, format, getDay } from 'date-fns';
 import { usePromiseEffect } from '../../hooks';
 import { getCourseModels } from '../../lib/client/api';
 import {
-  dateFormat,
-  parseTime,
-  WEEKDAYS,
   COURSE_TYPES,
+  WEEKDAYS,
+  dateFormat,
   displayCourseModelName,
+  parseTime,
 } from '../../lib/common';
 import { ErrorMessage } from '../ErrorMessage';
 import { CreateEditForm } from './CreateEditForm';
 import {
-  TimePickerRangeFields,
+  BundleSwitchField,
   CourseTypeSelectField,
-  SlotsNumberField,
-  WeekdaySelectField,
   PriceNumberField,
-  SimpleInputField, BundleSwitchField,
+  SimpleInputField,
+  SlotsNumberField,
+  TimePickerRangeFields, WeekdaySelectField,
 } from './fields';
 
 export function CourseBatchCreateForm() {

@@ -1,4 +1,4 @@
-export * from './usePromiseReducer';
-export * from './usePromiseEffect';
-export * from './usePromisesEffect';
 export * from './usePromiseCallback';
+export * from './usePromiseEffect';
+export * from './usePromiseReducer';
+export * from './usePromisesEffect';

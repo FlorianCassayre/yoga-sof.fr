@@ -3,7 +3,7 @@ import { Badge, Button, Card, Col, Row, Spinner } from 'react-bootstrap';
 import { BsCalendar, BsCollection, BsPencil, BsPlusLg } from 'react-icons/bs';
 import { usePromiseEffect } from '../hooks';
 import { getCourseModels } from '../lib/client/api';
-import { formatTime, parsedTimeToMinutes, parseTime, WEEKDAYS, COURSE_NAMES } from '../lib/common';
+import { COURSE_NAMES, WEEKDAYS, formatTime, parseTime, parsedTimeToMinutes } from '../lib/common';
 import { ErrorMessage } from './ErrorMessage';
 
 export function CourseCards({ readonly }) {

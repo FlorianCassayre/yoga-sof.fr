@@ -5,7 +5,7 @@ import { Alert, Badge, Button } from 'react-bootstrap';
 import { BsCheckLg, BsPerson, BsPlusLg, BsShieldFillExclamation } from 'react-icons/bs';
 import { ConfirmDialog } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import { cancelRegistrationColumn, DynamicPaginatedTable, plannedCourseLinkColumn, StaticPaginatedTable } from '../../../components/table';
+import { DynamicPaginatedTable, StaticPaginatedTable, cancelRegistrationColumn, plannedCourseLinkColumn } from '../../../components/table';
 import { usePromiseEffect } from '../../../hooks';
 import { breadcrumbForUser, providersData } from '../../../lib/client';
 import { getUser, postUserDisabled } from '../../../lib/client/api';

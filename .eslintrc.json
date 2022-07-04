@@ -1,5 +1,6 @@
 {
   "extends": ["next/core-web-vitals", "airbnb"],
+  "plugins": ["unused-imports"],
   "rules": {
     "max-len": ["error", 200],
     "react/react-in-jsx-scope": "off",
@@ -21,8 +22,8 @@
     "one-var-declaration-per-line": "off",
     "jsx-a11y/anchor-is-valid": "off",
     "quotes": ["error", "single", { "allowTemplateLiterals": true }],
-
-
+    "sort-imports": ["error", { "ignoreDeclarationSort": true }],
+    "unused-imports/no-unused-imports": "error",
 
     "jsx-a11y/control-has-associated-label": "off"
   }

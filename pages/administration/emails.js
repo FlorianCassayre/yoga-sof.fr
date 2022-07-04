@@ -3,7 +3,7 @@ import { BsMailbox } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 import { DynamicPaginatedTable, renderEmail, userLinkColumn } from '../../components/table';
 import { BREADCRUMB_EMAILS } from '../../lib/client';
-import { displayDatetime, EMAIL_TYPES } from '../../lib/common';
+import { EMAIL_TYPES, displayDatetime } from '../../lib/common';
 
 function AdminEmailsLayout() {
   return (

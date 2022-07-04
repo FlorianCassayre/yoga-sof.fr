@@ -4,7 +4,7 @@ import { Button, Form, Modal, Spinner } from 'react-bootstrap';
 import { Form as FinalForm } from 'react-final-form';
 import { BsCheckLg, BsPlusLg, BsTrash, BsXLg } from 'react-icons/bs';
 import { usePromiseCallback, usePromiseEffect } from '../../hooks';
-import { DELETE, jsonFetch, POST, PUT } from '../../lib/client/api';
+import { DELETE, POST, PUT, jsonFetch } from '../../lib/client/api';
 import { useNotificationsContext } from '../../state';
 import { ErrorMessage } from '../ErrorMessage';
 

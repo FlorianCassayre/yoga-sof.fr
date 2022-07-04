@@ -1,7 +1,7 @@
 import {
+  USER_TYPE_ADMIN,
   schemaUserDisabledBody,
   schemaUserDisabledQuery,
-  USER_TYPE_ADMIN,
 } from '../../../../lib/common';
 import { apiHandler, prisma } from '../../../../lib/server';
 
