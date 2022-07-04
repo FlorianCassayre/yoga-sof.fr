@@ -57,14 +57,18 @@ function AdminUsersLayout() {
           },
           {
             title: 'Services reliés',
-            render: ({ accounts }) => (accounts.length > 0 ? (
-              accounts.map(({ provider }) => {
-                const { icon: Icon, name: providerName } = providersData[provider];
-                return <Icon key={provider} className="icon mx-1" title={providerName} />;
-              })
-            ) : (
-              <>(aucun)</>
-            )),
+            render: ({ accounts, emailVerified }) => {
+              const allAccounts = [...(emailVerified ? [{ provider: 'email' }] : []), ...accounts];
+
+              return (allAccounts.length > 0 ? (
+                allAccounts.map(({ provider }) => {
+                  const { icon: Icon, name: providerName } = providersData[provider];
+                  return <Icon key={provider} className="icon mx-1" title={providerName} />;
+                })
+              ) : (
+                <>(aucun)</>
+              ));
+            },
             props: { className: 'text-center' },
           },
           {

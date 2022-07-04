@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button } from 'react-bootstrap';
-import { BsCalendarDate, BsEyeFill, BsPerson, BsXOctagon } from 'react-icons/bs';
-import { displayCourseName, userDisplayName } from '../../lib/common';
+import { BsCalendarDate, BsCollection, BsEyeFill, BsPerson, BsXOctagon } from 'react-icons/bs';
+import { displayCourseName, displayUserName } from '../../lib/common';
 import { CancelRegistrationConfirmDialog } from '../CancelRegistrationConfirmDialog';
 import { CourseStatusBadge } from '../CourseStatusBadge';
 import { StarIndicator } from '../StarIndicator';
@@ -24,7 +24,7 @@ export const userLinkColumn = {
     <Link href={`/administration/utilisateurs/${userId}`} passHref>
       <a>
         <BsPerson className="icon me-2" />
-        {userDisplayName(user)}
+        {displayUserName(user)}
       </a>
     </Link>
   ),
@@ -41,6 +41,19 @@ export const plannedCourseLinkColumn = {
       </a>
     </Link>
   ),
+};
+
+export const bundleLinkColumn = {
+  title: 'Lot',
+  render: ({ bundleId, bundle }) => (bundleId !== null ? (
+    <Link href={`/administration/seances/lots/${bundleId}`} passHref>
+      <a>
+        <BsCollection className="icon me-2" />
+        {bundle.name}
+      </a>
+    </Link>
+  )
+    : '(aucun)'),
 };
 
 export const cancelRegistrationColumn = {

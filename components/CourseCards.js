@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { Button, Card, Col, Row, Spinner } from 'react-bootstrap';
-import { BsCalendar, BsPencil, BsPlusLg } from 'react-icons/bs';
+import { Badge, Button, Card, Col, Row, Spinner } from 'react-bootstrap';
+import { BsCalendar, BsCollection, BsPencil, BsPlusLg } from 'react-icons/bs';
 import { usePromiseEffect } from '../hooks';
 import { getCourseModels } from '../lib/client/api';
 import { formatTime, parsedTimeToMinutes, parseTime, WEEKDAYS, COURSE_NAMES } from '../lib/common';
@@ -21,13 +21,19 @@ export function CourseCards({ readonly }) {
       {!isError ? (
         !isLoading ? (
           <>
-            {data.sort(compareModels).map(({ id, type, weekday, timeStart, timeEnd, slots, price }) => (
+            {data.sort(compareModels).map(({ id, type, weekday, timeStart, timeEnd, slots, price, bundle }) => (
               <Col key={id} xs={12} lg={4} className="mb-4">
                 <Card>
                   <Card.Body>
                     <Card.Title>
                       <BsCalendar className="icon me-2" />
                       {COURSE_NAMES[type]}
+                      {bundle && (
+                        <Badge pill bg="secondary" className="ms-2">
+                          <BsCollection className="icon me-2" />
+                          Lot
+                        </Badge>
+                      )}
                     </Card.Title>
                     <Card.Subtitle className="mb-2 text-muted">
                       Le
@@ -59,6 +65,7 @@ export function CourseCards({ readonly }) {
                           </strong>
                           {' '}
                           par personne
+                          {bundle ? ` pour le lot de cours` : ` et par cours`}
                         </>
                       ) : (
                         <strong>Gratuit</strong>

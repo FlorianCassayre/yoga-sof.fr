@@ -23,6 +23,7 @@ export default async function handler(req, res) {
                   id = ${courseId} AND
                   NOT is_canceled AND
                   ${now} < date_start AND
+                  bundle_id IS NULL AND
                   NOT EXISTS(SELECT * FROM course_registration AS tmp2 WHERE user_id = ${userId} AND course_id = ${courseId} AND NOT is_user_canceled) AND
                   (SELECT COUNT(*) FROM course_registration AS tmp3 WHERE course_id = ${courseId} AND NOT is_user_canceled) < slots),
                 ${userId}, ${new Date()}

@@ -67,7 +67,7 @@ export function UserSelfForm() {
           <FloatingInputField name="customEmail" label="Adresse email" placeholder="Adresse email" type="email" parse={v => v || null} fieldProps={{ disabled: isSubmitLoading }} />
         </Col>
         <Col xs={12} md={6} xl={3} className="mb-3 my-xl-auto">
-          <SwitchField name="receiveEmails" label="Recevoir les notifications par email" fieldProps={{ disabled: isSubmitLoading }} />
+          <SwitchField name="receiveEmails" label="Recevoir la newsletter par email" fieldProps={{ disabled: isSubmitLoading }} />
         </Col>
         <Col xs={12} xl={3} className="mb-2 my-xl-auto">
           <Button type="submit" disabled={isSubmitLoading || Object.keys(errors).length > 0} className="w-100">

@@ -1,18 +1,24 @@
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 import { Badge, Button } from 'react-bootstrap';
-import { BsCalendarEvent, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
+import { BsCalendarEvent, BsInfoCircle, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
 import { CancelCourseConfirmDialog, CourseStatusBadge } from '../../../../../components';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
-import { adaptColumn, cancelRegistrationColumn, StaticPaginatedTable, userLinkColumn } from '../../../../../components/table';
+import {
+  adaptColumn,
+  bundleLinkColumn,
+  cancelRegistrationColumn,
+  StaticPaginatedTable,
+  userLinkColumn,
+} from '../../../../../components/table';
 import { displayDatetime, displayCourseName } from '../../../../../lib/common';
 import { usePromiseEffect } from '../../../../../hooks';
 import { breadcrumbForCoursePlanning } from '../../../../../lib/client';
 import { getCourse } from '../../../../../lib/client/api';
 
 function CourseViewLayout({ id }) {
-  const { isLoading, isError, data, error } = usePromiseEffect(() => getCourse(id, { include: ['registrations.user'] }), []);
+  const { isLoading, isError, data, error } = usePromiseEffect(() => getCourse(id, { include: ['registrations.user', 'bundle'] }), []);
 
   const registrationDateColumn = {
     title: `Date d'inscription`,
@@ -44,7 +50,7 @@ function CourseViewLayout({ id }) {
       isError={isError}
       error={error}
     >
-      <div className="mb-4">
+      <div className="mb-3">
         <Link href={`/administration/seances/planning/${id}/edition`} passHref>
           <Button className="me-2">
             <BsPencil className="icon me-2" />
@@ -61,6 +67,21 @@ function CourseViewLayout({ id }) {
               </Button>
             )}
           />
+        )}
+      </div>
+
+      <div className="mb-4">
+        <BsInfoCircle className="icon me-2" />
+        {data && data.bundleId !== null ? (
+          <>
+            Cette séance fait partie du lot suivant :
+            <span className="me-2" />
+            {bundleLinkColumn.render(data)}
+          </>
+        ) : (
+          <>
+            Cette séance ne fait partie d'aucun lot, les utilisateurs peuvent s'y inscrire librement.
+          </>
         )}
       </div>
 

@@ -24,6 +24,7 @@ export default async function handler(req, res) {
               AND: [
                 { isCanceled: false },
                 { dateStart: { gt: new Date() } },
+                { bundle: null },
               ],
             },
           }),

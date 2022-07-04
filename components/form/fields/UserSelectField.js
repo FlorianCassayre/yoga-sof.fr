@@ -2,7 +2,7 @@ import { Form } from 'react-bootstrap';
 import { Field } from 'react-final-form';
 import { usePromiseEffect } from '../../../hooks';
 import { getUsers } from '../../../lib/client/api';
-import { userDisplayName } from '../../../lib/common';
+import { displayUserName } from '../../../lib/common';
 import { ErrorMessage } from '../../ErrorMessage';
 
 export function UserSelectField({ name, fieldProps = {}, disabled, ...props }) {
@@ -20,7 +20,7 @@ export function UserSelectField({ name, fieldProps = {}, disabled, ...props }) {
             <option value={null} disabled />
             {!isLoading && !isError && data.map(user => (
               <option key={user.id} value={user.id}>
-                {userDisplayName(user)}
+                {displayUserName(user)}
               </option>
             ))}
           </Form.Select>

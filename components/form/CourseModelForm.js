@@ -1,5 +1,12 @@
 import { CreateEditForm } from './CreateEditForm';
-import { TimePickerRangeFields, CourseTypeSelectField, SlotsNumberField, WeekdaySelectField, PriceNumberField } from './fields';
+import {
+  TimePickerRangeFields,
+  CourseTypeSelectField,
+  SlotsNumberField,
+  WeekdaySelectField,
+  PriceNumberField,
+  BundleSwitchField,
+} from './fields';
 
 export function CourseModelForm({ editRecordId, container }) {
   return (
@@ -12,6 +19,7 @@ export function CourseModelForm({ editRecordId, container }) {
         timeEnd: null,
         slots: null,
         price: null,
+        bundle: false,
       }}
       numberFields={['weekday', 'slots', 'price']}
       redirect={() => '/administration/seances'}
@@ -19,15 +27,21 @@ export function CourseModelForm({ editRecordId, container }) {
       deletable
       container={container}
     >
-      <CourseTypeSelectField name="type" className="mb-2" />
+      {({ values }) => (
+        <>
+          <CourseTypeSelectField name="type" className="mb-2" />
 
-      <WeekdaySelectField name="weekday" className="mb-2" />
+          <WeekdaySelectField name="weekday" className="mb-2" />
 
-      <TimePickerRangeFields className="mb-2" />
+          <TimePickerRangeFields className="mb-2" />
 
-      <SlotsNumberField name="slots" className="mb-2" />
+          <SlotsNumberField name="slots" className="mb-2" />
 
-      <PriceNumberField name="price" className="mb-2" />
+          <PriceNumberField name="price" className="mb-2" />
+
+          <BundleSwitchField name="bundle" value={values.bundle} className="mb-2" />
+        </>
+      )}
     </CreateEditForm>
   );
 }

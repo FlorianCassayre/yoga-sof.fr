@@ -9,7 +9,7 @@ import { cancelRegistrationColumn, DynamicPaginatedTable, plannedCourseLinkColum
 import { usePromiseEffect } from '../../../hooks';
 import { breadcrumbForUser, providersData } from '../../../lib/client';
 import { getUser, postUserDisabled } from '../../../lib/client/api';
-import { displayDatetime, formatTimestamp, userDisplayName } from '../../../lib/common';
+import { displayDatetime, displayUserName, formatTimestamp } from '../../../lib/common';
 import { useNotificationsContext, useRefreshContext } from '../../../state';
 
 function AdminUserLayout({ id }) {
@@ -19,7 +19,7 @@ function AdminUserLayout({ id }) {
   const { isLoading, isError, data, error } = usePromiseEffect(() => getUser(id, { include: ['courseRegistrations', 'accounts'] }), []);
 
   return (
-    <ContentLayout title={`Utilisateur ${data && userDisplayName(data)}`} icon={BsPerson} breadcrumb={data && breadcrumbForUser(data)} isLoading={isLoading} isError={isError} error={error}>
+    <ContentLayout title={`Utilisateur ${data && displayUserName(data)}`} icon={BsPerson} breadcrumb={data && breadcrumbForUser(data)} isLoading={isLoading} isError={isError} error={error}>
       {data && data.disabled && (
         <Alert variant="danger">
           <BsShieldFillExclamation className="icon me-2" />
@@ -31,7 +31,7 @@ function AdminUserLayout({ id }) {
               <>
                 Souhaitez-vous réactiver le compte de l'utilisateur
                 {' '}
-                {userDisplayName(data)}
+                {displayUserName(data)}
                 {' '}
                 ? Cet utilisateur pourra à nouveau se servir de son compte.
               </>
@@ -48,7 +48,7 @@ function AdminUserLayout({ id }) {
             onSuccess={() => {
               notify({
                 title: 'Réactivation utilisateur',
-                body: `L'utilisateur ${userDisplayName(data)} a été réactivé.`,
+                body: `L'utilisateur ${displayUserName(data)} a été réactivé.`,
               });
 
               refresh();
@@ -114,7 +114,7 @@ function AdminUserLayout({ id }) {
       </div>
 
       <StaticPaginatedTable
-        rows={data && data.accounts}
+        rows={data && [...(data.emailVerified ? [{ provider: 'email', providerAccountId: data.email }] : []), ...data.accounts]}
         columns={[
           {
             title: 'Service',
@@ -131,11 +131,11 @@ function AdminUserLayout({ id }) {
           },
           {
             title: 'Dernière connexion',
-            render: ({ updatedAt }) => displayDatetime(updatedAt),
+            render: ({ updatedAt }) => updatedAt && displayDatetime(updatedAt),
           },
           {
             title: 'Première connexion',
-            render: ({ createdAt }) => displayDatetime(createdAt),
+            render: ({ createdAt }) => createdAt && displayDatetime(createdAt),
           },
         ]}
         renderEmpty={() => `Aucun service de connexion enregistré. Cet utilisateur n'a donc pas la possibilité de se connecter à ce compte pour le moment.`}
@@ -147,7 +147,7 @@ function AdminUserLayout({ id }) {
           <>
             Souhaitez-vous désactiver le compte de l'utilisateur
             {' '}
-            {data && userDisplayName(data)}
+            {data && displayUserName(data)}
             {' '}
             ? Cet utilisateur ne sera plus en mesure de se servir de son compte.
           </>
@@ -167,7 +167,7 @@ function AdminUserLayout({ id }) {
         onSuccess={() => {
           notify({
             title: 'Désactivation utilisateur',
-            body: `L'utilisateur ${userDisplayName(data)} a été désactivé.`,
+            body: `L'utilisateur ${displayUserName(data)} a été désactivé.`,
           });
 
           refresh();

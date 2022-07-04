@@ -6,15 +6,27 @@ export default async function handler(req, res) {
     POST: {
       permissions: [USER_TYPE_ADMIN],
       schemaBody: schemaCourseBatchBody,
-      action: async ({ accept, body: { type, slots, price, dates } }) => {
+      action: async ({ accept, body: { type, slots, price, dates, bundle, bundleName } }) => {
         const records = dates.map(([start, end]) => ({
           type,
           slots,
-          price,
+          price: bundle ? 0 : price, // Price is 0 here if it is a bundle
           dateStart: new Date(start),
           dateEnd: new Date(end),
         }));
-        await prisma.course.createMany({ data: records });
+        if (!bundle) {
+          await prisma.course.createMany({ data: records });
+        } else {
+          await prisma.courseBundle.create({
+            data: {
+              name: bundleName,
+              price,
+              courses: {
+                create: records,
+              },
+            },
+          });
+        }
 
         accept({});
       },

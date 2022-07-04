@@ -9,3 +9,4 @@ export { CourseSelectField } from './CourseSelectField';
 export { SimpleInputField } from './SimpleInputField';
 export { SwitchField } from './SwitchField';
 export { FloatingInputField } from './FloatingInputField';
+export { BundleSwitchField } from './BundleSwitchField';

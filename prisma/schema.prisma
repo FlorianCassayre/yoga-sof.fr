@@ -112,6 +112,7 @@ model CourseModel {
   weekday     Int        @db.UnsignedTinyInt
   timeStart  String      @db.VarChar(5) @map("time_start")
   timeEnd    String      @db.VarChar(5) @map("time_end")
+  bundle      Boolean
 
   @@map("course_model")
 }
@@ -126,9 +127,11 @@ model Course {
   isCanceled        Boolean              @default(false) @map("is_canceled")
   cancelationReason String?              @db.Text @map("cancelation_reason")
   notes             String?              @db.Text
+  bundleId          Int?                 @map("bundle_id")
   createdAt         DateTime             @default(now()) @map("created_at")
   updatedAt         DateTime             @updatedAt @map("updated_at")
   registrations     CourseRegistration[]
+  bundle            CourseBundle?        @relation(fields: [bundleId], references: [id])
 
   @@map("course")
 }
@@ -145,6 +148,16 @@ model CourseRegistration {
   canceledAt     DateTime? @map("canceled_at")
 
   @@map("course_registration")
+}
+
+model CourseBundle {
+  id        Int      @id @default(autoincrement())
+  name      String
+  price     Int      @db.UnsignedInt
+  courses   Course[]
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("course_bundle")
 }
 
 enum EmailMessageType {

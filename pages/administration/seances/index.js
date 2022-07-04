@@ -3,7 +3,7 @@ import { BsCalendarWeek, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
 import { CancelCourseConfirmDialog, CourseCards, CourseStatusBadge } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import { detailsColumnFor, DynamicPaginatedTable } from '../../../components/table';
+import { bundleLinkColumn, detailsColumnFor, DynamicPaginatedTable } from '../../../components/table';
 import { displayCourseType, displayTimePeriod, formatDateLiteral } from '../../../lib/common';
 import { BREADCRUMB_COURSES } from '../../../lib/client';
 
@@ -27,9 +27,10 @@ function AdminSeancesLayout() {
       title: 'Type de séance',
       render: ({ type }) => displayCourseType(type),
     },
+    bundleLinkColumn,
     {
       title: 'Prix',
-      render: ({ price }) => (price > 0 ? `${price} €` : 'Gratuit'),
+      render: ({ price, bundleId, bundle }) => (bundleId !== null ? `Lot : ${bundle.price} €` : price > 0 ? `${price} €` : 'Gratuit'),
     },
     {
       title: 'Inscriptions / Places disponibles',
@@ -111,7 +112,7 @@ function AdminSeancesLayout() {
         params={(page, limit) => ({
           page,
           limit,
-          include: ['registrations'],
+          include: ['registrations', 'bundle'],
           where: JSON.stringify({
             isCanceled: false,
             dateEnd: { $gt: new Date().toISOString() },
@@ -131,7 +132,7 @@ function AdminSeancesLayout() {
         params={(page, limit) => ({
           page,
           limit,
-          include: ['registrations'],
+          include: ['registrations', 'bundle'],
           where: JSON.stringify({
             $not: {
               isCanceled: false,
@@ -142,6 +143,56 @@ function AdminSeancesLayout() {
         })}
         columns={courseColumns(true)}
         renderEmpty={() => <>Il n'y a pas encore de séances passées ou annulées.</>}
+      />
+
+      <h2 className="h5">Lots de séances</h2>
+
+      <p>
+        Les utilisateurs ne peuvent pas s'inscrire librement aux séances faisant partie d'un lot : ils doivent s'inscrire à toutes les séances en même temps.
+      </p>
+
+      <DynamicPaginatedTable
+        url="/api/courseBundles"
+        params={(page, limit) => ({
+          page,
+          limit,
+          include: ['courses'],
+          /* where: JSON.stringify({
+            $not: {
+              isCanceled: false,
+              dateEnd: { $gt: new Date().toISOString() },
+            },
+          }), */
+          // orderBy: JSON.stringify({ dateStart: '$desc' }),
+        })}
+        columns={[
+          detailsColumnFor(id => `/administration/seances/lots/${id}`),
+          {
+            title: 'Nom',
+            render: ({ name }) => name,
+          },
+          {
+            title: 'Prix',
+            render: ({ price }) => `${price} €`,
+          },
+          {
+            title: 'Séances',
+            render: ({ courses }) => {
+              const now = new Date();
+              const future = courses.filter(({ dateEnd }) => now <= new Date(dateEnd)).length;
+              const passed = courses.length - future;
+              const details = [];
+              if (future !== 0) {
+                details.push(`${future} à venir`);
+              }
+              if (passed !== 0) {
+                details.push(`${passed} passée${passed > 1 ? 's' : ''}`);
+              }
+              return details.length === 1 ? details[0] : `${courses.length} au total (${details.join(', ')})`;
+            },
+          },
+        ]}
+        renderEmpty={() => <>Il n'y a pas encore de lots.</>}
       />
     </ContentLayout>
   );

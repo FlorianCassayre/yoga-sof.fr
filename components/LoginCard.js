@@ -1,5 +1,6 @@
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 import { Button, Card, Col, Form, Row } from 'react-bootstrap';
 import { Form as FinalForm } from 'react-final-form';
 import { joiValidator, providersData } from '../lib/client';
@@ -17,8 +18,13 @@ export function LoginCard({ providers }) {
     AccessDenied: `Votre compte a été désactivé par un administrateur, si vous pensez qu'il s'agit d'une erreur merci de nous écrire.`,
   };
 
+  const [isLoading, setLoading] = useState(false);
+
   const handleSubmitFor = providerId => data => {
-    signIn(providerId, { callbackUrl: `${window.location.origin}/redirection`, ...data });
+    setLoading(true);
+    signIn(providerId, { callbackUrl: `${window.location.origin}/redirection`, ...data })
+      .catch(() => setLoading(false));
+    // By assumption, any successful promise resolution will redirect (so we stay in the loading state)
   };
 
   const handleClearErrors = () => {
@@ -61,11 +67,12 @@ export function LoginCard({ providers }) {
                               required
                               fieldProps={{
                                 className: 'mb-2',
+                                disabled: isLoading,
                               }}
                             />
                           </>
                         )}
-                        <Button type="submit" variant={format.variant} size="lg" className="w-100">
+                        <Button type="submit" disabled={isLoading} variant={format.variant} size="lg" className="w-100">
                           <Icon className="icon me-2" />
                           {!isEmail ? (
                             <>

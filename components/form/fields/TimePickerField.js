@@ -1,38 +1,30 @@
-import { format, isValid, parse } from 'date-fns';
 import { Form } from 'react-bootstrap';
-import DatePicker from 'react-datepicker';
 import { Field } from 'react-final-form';
+import { minutesToParsedTime, parsedTimeToTime } from '../../../lib/common';
 
-export function TimePickerField({ name, label, fieldProps = {}, ...props }) {
-  const getEpoch = () => new Date(0);
-
-  const timeFormatDb = 'HH:mm';
-  const timeFormatDisplay = 'HH\'h\'mm';
+export function TimePickerField({ name, label, interval = 15, fieldProps = {}, ...props }) {
+  const maxTimeMinutes = 24 * 60;
+  const options = [];
+  for (let minutes = 0; minutes < maxTimeMinutes; minutes += interval) {
+    const time = parsedTimeToTime(minutesToParsedTime(minutes));
+    options.push({ value: time, display: time.replace(':', 'h') });
+  }
 
   return (
     <Form.Group {...props}>
       <Form.Label>{label}</Form.Label>
       <Field
         name={name}
-        render={({ input: { value, onChange } }) => {
-          const parsed = parse(value, timeFormatDb, getEpoch());
-          return (
-            <DatePicker
-              /* locale="fr" */
-              required
-              selected={value && isValid(parsed) ? parsed : null}
-              onChange={date => onChange(isValid(date) ? format(new Date(date), timeFormatDb) : null)}
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={15}
-              timeCaption="Heure"
-              dateFormat={timeFormatDisplay}
-              timeFormat={timeFormatDisplay}
-              customInput={<Form.Control />}
-              {...fieldProps}
-            />
-          );
-        }}
+        render={({ input }) => (
+          <Form.Select {...input} required {...fieldProps}>
+            <option value={null} disabled />
+            {options.map(({ value, display }) => (
+              <option key={value} value={value}>
+                {display}
+              </option>
+            ))}
+          </Form.Select>
+        )}
       />
     </Form.Group>
   );

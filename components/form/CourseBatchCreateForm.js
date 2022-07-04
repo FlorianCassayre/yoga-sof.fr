@@ -1,5 +1,4 @@
-import { Form, Spinner } from 'react-bootstrap';
-import DatePicker from 'react-datepicker';
+import { Col, Form, Row, Spinner } from 'react-bootstrap';
 import { Field } from 'react-final-form';
 import { OnChange } from 'react-final-form-listeners';
 import { addDays, format, getDay } from 'date-fns';
@@ -14,7 +13,14 @@ import {
 } from '../../lib/common';
 import { ErrorMessage } from '../ErrorMessage';
 import { CreateEditForm } from './CreateEditForm';
-import { TimePickerRangeFields, CourseTypeSelectField, SlotsNumberField, WeekdaySelectField, PriceNumberField } from './fields';
+import {
+  TimePickerRangeFields,
+  CourseTypeSelectField,
+  SlotsNumberField,
+  WeekdaySelectField,
+  PriceNumberField,
+  SimpleInputField, BundleSwitchField,
+} from './fields';
 
 export function CourseBatchCreateForm() {
   const { isLoading, isError, data, error } = usePromiseEffect(getCourseModels, []);
@@ -28,12 +34,13 @@ export function CourseBatchCreateForm() {
       setValue('timeStart', modelData.timeStart);
       setValue('timeEnd', modelData.timeEnd);
       setValue('price', modelData.price);
+      setValue('bundle', modelData.bundle);
     }
   };
 
   const isSameWeekday = (date, weekday) => (getDay(date) + 6) % WEEKDAYS.length === parseInt(weekday);
 
-  const computeDatesFromRange = (range, timeStart, timeEnd, weekday) => {
+  const computeDatesFromRange = (dateStart, dateEnd, timeStart, timeEnd, weekday) => {
     const setTime = (date, time) => {
       const [hours, minutes] = parseTime(time);
       date.setHours(hours);
@@ -44,10 +51,10 @@ export function CourseBatchCreateForm() {
     };
 
     // TODO time
-    let date = range[0];
+    let date = dateStart;
     const dates = [];
 
-    while (date <= range[1]) {
+    while (date <= dateEnd) {
       if (isSameWeekday(date, weekday)) {
         dates.push([setTime(new Date(date), timeStart), setTime(new Date(date), timeEnd)]);
       }
@@ -59,31 +66,35 @@ export function CourseBatchCreateForm() {
   };
 
   const renderRecap = values => {
-    if (values.timeStart !== null && values.timeEnd !== null && values.datesRange !== null && values.datesRange[0] !== null && values.datesRange[1] !== null) {
-      const dates = computeDatesFromRange(values.datesRange, values.timeStart, values.timeEnd, values.weekday);
+    if (values.timeStart !== null && values.timeEnd !== null && values.dateStart !== null && values.dateEnd !== null) {
+      const dates = computeDatesFromRange(new Date(values.dateStart), new Date(values.dateEnd), values.timeStart, values.timeEnd, values.weekday);
+      const plural = dates.length > 1;
 
       return (
         <>
           <h2 className="h5">Récapitulatif</h2>
-          Période sélectionnée :
-          {' '}
-          <strong>
-            {format(values.datesRange[0], dateFormat)}
-            {' '}
-            au
-            {format(values.datesRange[1], dateFormat)}
-          </strong>
-          <br />
-          Cela correspond aux
-          {' '}
-          <strong>{dates.length}</strong>
-          {' '}
-          dates suivantes :
-          <ul>
-            {dates.map(([start]) => (
-              <li key={start.getTime()}>{format(start, dateFormat)}</li>
-            ))}
-          </ul>
+          {dates.length > 0 ? (
+            <>
+              La période sélectionnée correspond au
+              {plural && 'x'}
+              {' '}
+              <strong>{dates.length}</strong>
+              {' '}
+              {WEEKDAYS[values.weekday].toLowerCase()}
+              {plural && 's'}
+              {' '}
+              suivant
+              {plural && 's'}
+              {' '}
+              :
+              <ul>
+                {dates.map(([start]) => (
+                  <li key={start.getTime()}>{format(start, dateFormat)}</li>
+                ))}
+              </ul>
+            </>
+          ) : `Aucune date ne se situe dans l'intervalle sélectionné`}
+
         </>
       );
     } else {
@@ -105,9 +116,13 @@ export function CourseBatchCreateForm() {
           timeEnd: null,
           slots: null,
           price: null,
-          datesRange: null,
+          bundle: false,
+          bundleName: null,
+          dateStart: null,
+          dateEnd: null,
           ...Object.fromEntries(
-            Object.entries((data ?? []).filter(({ id }) => id === COURSE_TYPES[0].id)[0] ?? {}).filter(([key]) => ['type', 'weekday', 'timeStart', 'timeEnd', 'slots', 'price'].includes(key)),
+            // eslint-disable-next-line
+            Object.entries((data ?? []).filter(({ id }) => id === COURSE_TYPES[0].id)[0] ?? {}).filter(([key]) => ['type', 'weekday', 'timeStart', 'timeEnd', 'slots', 'price', 'bundle'].includes(key)),
           ),
         }}
         numberFields={['weekday', 'slots', 'price']}
@@ -115,9 +130,9 @@ export function CourseBatchCreateForm() {
         deletable
         loading={isLoading}
         submitCallback={submittedData => {
-          const { weekday, timeStart, timeEnd, datesRange, ...rest } = submittedData;
-          rest.dates = computeDatesFromRange(datesRange, timeStart, timeEnd, weekday).map(two => two.map(date => date.getTime()));
-          return rest;
+          const { weekday, timeStart, timeEnd, dateStart, dateEnd, bundle, bundleName, ...rest } = submittedData;
+          rest.dates = computeDatesFromRange(new Date(dateStart), new Date(dateEnd), timeStart, timeEnd, weekday).map(two => two.map(date => date.getTime()));
+          return { bundle, ...(bundle ? { bundleName } : {}), ...rest };
         }}
         successMessages={{
           create: {
@@ -155,33 +170,29 @@ export function CourseBatchCreateForm() {
 
             <WeekdaySelectField name="weekday" className="mb-2" fieldProps={{ disabled: values.modelId !== MODEL_NONE }} />
 
-            <OnChange name="weekday">{() => setValue('datesRange', null)}</OnChange>
+            {/* <OnChange name="weekday">{() => {
+              setValue('dateStart', null);
+              setValue('dateEnd', null);
+            }}</OnChange> */}
 
             <TimePickerRangeFields disabled={values.modelId !== MODEL_NONE} className="mb-2" />
 
             <SlotsNumberField name="slots" className="mb-2" fieldProps={{ disabled: values.modelId !== MODEL_NONE }} />
 
-            <PriceNumberField name="price" className="mb-4" fieldProps={{ disabled: values.modelId !== MODEL_NONE }} />
+            <PriceNumberField name="price" className="mb-2" fieldProps={{ disabled: values.modelId !== MODEL_NONE }} />
+
+            <BundleSwitchField name="bundle" value={values.bundle} className="mb-2" fieldProps={{ disabled: values.modelId !== MODEL_NONE }} />
+
+            {values.bundle && (
+              <SimpleInputField name="bundleName" required label="Nom du lot :" className="mb-2" />
+            )}
+
+            <Row className="mb-2">
+              <SimpleInputField name="dateStart" type="date" required label="Date de début :" as={Col} />
+              <SimpleInputField name="dateEnd" type="date" required label="Date de fin :" as={Col} />
+            </Row>
 
             <div className="text-center">
-              <div className="mb-2">Sélection des séances à planifier (intervalle) :</div>
-
-              <Field
-                name="datesRange"
-                render={({ input: { value, onChange } }) => (
-                  <DatePicker
-                    selected={value && value[0]}
-                    onChange={onChange}
-                    startDate={value && value[0]}
-                    endDate={value && value[1]}
-                    filterDate={date => isSameWeekday(date, values.weekday)}
-                    selectsRange
-                    selectsDisabledDaysInRange
-                    inline
-                  />
-                )}
-              />
-
               <small>
                 Il n'est pas possible d'exclure des dates de l'intervalle sélectionné.
                 <br />
