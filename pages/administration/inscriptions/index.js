@@ -30,7 +30,7 @@ function AdminRegistrationsLayout() {
             title: 'Statut',
             render: ({ isUserCanceled, canceledAt }) => (!isUserCanceled ? <Badge bg="success">Inscrit</Badge> : (
               <Badge bg="danger">
-                Annulé à
+                Désinscrit à
                 {' '}
                 {formatTimestamp(canceledAt)}
               </Badge>

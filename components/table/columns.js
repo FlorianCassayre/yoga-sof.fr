@@ -63,7 +63,7 @@ export const cancelRegistrationColumn = {
       <CancelRegistrationConfirmDialog
         registration={registration}
         triggerer={clickHandler => ( // eslint-disable-line react/no-unstable-nested-components
-          <Button size="sm" variant="danger" onClick={clickHandler}>
+          <Button size="sm" variant="outline-danger" onClick={clickHandler}>
             <BsXOctagon className="icon" />
           </Button>
         )}

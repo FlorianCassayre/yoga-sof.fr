@@ -12,6 +12,7 @@ const BasicContainer = props => props.children;
 
 export function CreateEditForm({
   modelId,
+  safe,
   editRecordId,
   deletable,
   initialValues = {},
@@ -31,10 +32,11 @@ export function CreateEditForm({
 
   const urlBase = `/api/${modelId}`;
   const url = isEdit ? `${urlBase}/${editRecordId}` : urlBase;
+  const urlSubmit = `${url}${safe ? '/safe' : ''}`;
 
   const [lastAction, setLastAction] = useState(null);
 
-  const [{ isLoading: isSubmitLoading, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatcher] = usePromiseCallback(options => jsonFetch(url, options), []);
+  const [{ isLoading: isSubmitLoading, isError: isSubmitError, data: submitResult, error: submitError }, submitDispatcher] = usePromiseCallback(options => jsonFetch(urlSubmit, options), []);
   const { isLoading: isInitialDataLoading, isError: isInitialDataError, data: initialData, error: initialDataError } = usePromiseEffect(isEdit ? () => jsonFetch(url) : null, []);
 
   const initialFormData = isEdit ? initialData : initialValues;
@@ -99,7 +101,7 @@ export function CreateEditForm({
   };
 
   const onCancel = () => {
-    router.push(redirect(isEdit ? initialValues : null));
+    router.push(redirect(isEdit ? initialData : null));
   };
 
   const onPreDelete = () => {

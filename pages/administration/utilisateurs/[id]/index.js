@@ -2,15 +2,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React from 'react';
 import { Alert, Badge, Button } from 'react-bootstrap';
-import { BsCheckLg, BsPerson, BsPlusLg, BsShieldFillExclamation } from 'react-icons/bs';
-import { ConfirmDialog } from '../../../components';
-import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
-import { DynamicPaginatedTable, StaticPaginatedTable, cancelRegistrationColumn, plannedCourseLinkColumn } from '../../../components/table';
-import { usePromiseEffect } from '../../../hooks';
-import { breadcrumbForUser, providersData } from '../../../lib/client';
-import { getUser, postUserDisabled } from '../../../lib/client/api';
-import { displayDatetime, displayUserName, formatTimestamp } from '../../../lib/common';
-import { useNotificationsContext, useRefreshContext } from '../../../state';
+import { BsCheckLg, BsPencil, BsPerson, BsPlusLg, BsShieldFillExclamation } from 'react-icons/bs';
+import { ConfirmDialog } from '../../../../components';
+import { ContentLayout, PrivateLayout } from '../../../../components/layout/admin';
+import { DynamicPaginatedTable, StaticPaginatedTable, cancelRegistrationColumn, plannedCourseLinkColumn } from '../../../../components/table';
+import { usePromiseEffect } from '../../../../hooks';
+import { breadcrumbForUser, providersData } from '../../../../lib/client';
+import { getUser, postUserDisabled } from '../../../../lib/client/api';
+import { displayDatetime, displayUserName, formatTimestamp } from '../../../../lib/common';
+import { useNotificationsContext, useRefreshContext } from '../../../../state';
 
 function AdminUserLayout({ id }) {
   const refresh = useRefreshContext();
@@ -56,6 +56,16 @@ function AdminUserLayout({ id }) {
           />
         </Alert>
       )}
+
+      <div className="mb-3">
+        <Link href={`/administration/utilisateurs/${id}/edition`} passHref>
+          <Button className="me-2">
+            <BsPencil className="icon me-2" />
+            Modifier
+          </Button>
+        </Link>
+      </div>
+
       <h2 className="h5">Inscriptions</h2>
       <p>Les inscriptions (et désinscriptions) de cet utilisateur.</p>
 
@@ -78,7 +88,7 @@ function AdminUserLayout({ id }) {
             title: 'Statut',
             render: ({ isUserCanceled, canceledAt }) => (!isUserCanceled ? <Badge bg="success">Inscrit</Badge> : (
               <Badge bg="danger">
-                Annulé à
+                Désinscrit à
                 {formatTimestamp(canceledAt)}
               </Badge>
             )),

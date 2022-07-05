@@ -16,13 +16,15 @@ export function CourseCards({ readonly }) {
     return parsedTimeToMinutes(parseTime(t1)) - parsedTimeToMinutes(parseTime(t2));
   };
 
+  const sizes = { sm: 12, md: 6, xxl: 3 };
+
   return (
     <Row>
       {!isError ? (
         !isLoading ? (
           <>
             {data.sort(compareModels).map(({ id, type, weekday, timeStart, timeEnd, slots, price, bundle }) => (
-              <Col key={id} xs={12} lg={4} className="mb-4">
+              <Col key={id} {...sizes} className="mb-4">
                 <Card>
                   <Card.Body>
                     <Card.Title>
@@ -90,19 +92,21 @@ export function CourseCards({ readonly }) {
             ))}
 
             {(!readonly || data.length === 0) && (
-              <Col xs={12} lg={4} className="mb-4">
-                <Card className="py-3 text-center">
-                  <Card.Text>
-                    <span className="d-block h1 mb-3">
-                      <BsCalendar className="icon" />
-                    </span>
-                    <Link href="/administration/seances/modeles/creation" passHref>
-                      <Button variant="success">
-                        <BsPlusLg className="icon me-2" />
-                        Créer un nouveau modèle
-                      </Button>
-                    </Link>
-                  </Card.Text>
+              <Col {...sizes} className="mb-4">
+                <Card className="text-center">
+                  <Card.Body>
+                    <Card.Text>
+                      <span className="d-block h1 mb-3">
+                        <BsCalendar className="icon" />
+                      </span>
+                      <Link href="/administration/seances/modeles/creation" passHref>
+                        <Button variant="success">
+                          <BsPlusLg className="icon me-2" />
+                          Créer un nouveau modèle
+                        </Button>
+                      </Link>
+                    </Card.Text>
+                  </Card.Body>
                 </Card>
               </Col>
             )}
