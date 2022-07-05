@@ -59,7 +59,7 @@ export const bundleLinkColumn = {
 export const cancelRegistrationColumn = {
   title: 'Désinscription',
   render: registration => !registration.course.isCanceled
-    && !registration.isUserCanceled && (
+    && !registration.isUserCanceled && registration.attended === null && (
       <CancelRegistrationConfirmDialog
         registration={registration}
         triggerer={clickHandler => ( // eslint-disable-line react/no-unstable-nested-components

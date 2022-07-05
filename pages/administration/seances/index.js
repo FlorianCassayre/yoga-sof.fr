@@ -1,5 +1,5 @@
-import { Button } from 'react-bootstrap';
-import { BsCalendarWeek, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
+import { Badge, Button } from 'react-bootstrap';
+import { BsCalendarWeek, BsExclamationTriangleFill, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
 import { CancelCourseConfirmDialog, CourseCards, CourseStatusBadge } from '../../../components';
 import { ContentLayout, PrivateLayout } from '../../../components/layout/admin';
@@ -8,6 +8,28 @@ import { displayCourseType, displayTimePeriod, formatDateLiteral } from '../../.
 import { BREADCRUMB_COURSES } from '../../../lib/client';
 
 function AdminSeancesLayout() {
+  const renderAttendance = registrations => {
+    const nonCanceledRegistrations = registrations.filter(({ isUserCanceled }) => !isUserCanceled);
+    const registered = nonCanceledRegistrations.length;
+    const attending = nonCanceledRegistrations.filter(({ attended }) => attended === true).length;
+    const isIncomplete = nonCanceledRegistrations.filter(({ attended }) => attended === null).length > 0;
+    return (
+      <>
+        <span className={isIncomplete ? '' : registered === attending ? 'text-success' : 'text-danger'}>
+          {attending}
+        </span>
+        {' / '}
+        {registered}
+        {isIncomplete && (
+          <Badge bg="warning" className="ms-2">
+            <BsExclamationTriangleFill className="icon me-2" />
+            Appel incomplet
+          </Badge>
+        )}
+      </>
+    );
+  };
+
   const courseColumns = hasPassed => [
     detailsColumnFor(id => `/administration/seances/planning/${id}`),
     {
@@ -44,6 +66,14 @@ function AdminSeancesLayout() {
         </>
       ),
     },
+    ...(hasPassed ? [
+      {
+        title: 'Présence',
+        render: ({ isCanceled, registrations }) => (isCanceled ? (
+          '(annulée)'
+        ) : renderAttendance(registrations)),
+      },
+    ] : []),
     {
       title: 'Notes',
       render: ({ notes }) => notes,

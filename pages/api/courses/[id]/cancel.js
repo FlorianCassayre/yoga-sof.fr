@@ -1,11 +1,12 @@
-import { USER_TYPE_ADMIN, schemaCourseCancelBody, schemaCourseCancelQuery } from '../../../../lib/common';
+import { USER_TYPE_ADMIN, schemaCourseCancelBody, schemaCourseQuery } from '../../../../lib/common';
 import { apiHandler, notifyCourseCanceled, prisma } from '../../../../lib/server';
 
 export default async function handler(req, res) {
+  // TODO we also need to set `attended` to `null` for consistency
   await apiHandler({
     POST: {
       permissions: [USER_TYPE_ADMIN],
-      schemaQuery: schemaCourseCancelQuery,
+      schemaQuery: schemaCourseQuery,
       schemaBody: schemaCourseCancelBody,
       action: async ({ accept, reject, query: { id: courseId }, body: { cancelationReason } }) => {
         const result = await prisma.course.updateMany({

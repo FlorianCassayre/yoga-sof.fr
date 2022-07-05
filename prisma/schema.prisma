@@ -144,6 +144,7 @@ model CourseRegistration {
   course         Course    @relation(fields: [courseId], references: [id])
   isUserCanceled Boolean   @default(false) @map("is_user_canceled")
   reminderSent   Boolean   @default(false) @map("reminder_sent")
+  attended       Boolean?
   createdAt      DateTime  @default(now()) @map("created_at")
   canceledAt     DateTime? @map("canceled_at")
 

@@ -50,7 +50,7 @@ function MesCoursLayout() {
           </thead>
           <tbody className="align-middle">
             {rows.map(registration => {
-              const { id, createdAt: registeredAt, isUserCanceled, canceledAt: userCanceledAt, course } = registration;
+              const { id, createdAt: registeredAt, isUserCanceled, attended, canceledAt: userCanceledAt, course } = registration;
               const { type, dateStart, dateEnd } = course;
               return (
                 <tr key={id}>
@@ -59,36 +59,38 @@ function MesCoursLayout() {
                   <td>{formatTimestamp(registeredAt)}</td>
                   {cancellable && (
                   <td className="text-center">
-                    <ConfirmDialog
-                      title="Annuler l'inscription à une séance"
-                      description={(
-                        <>
-                          Vous êtes sur le point d'annuler votre inscription à la séance suivante :
-                          <ul>
-                            <li>{displayCourseName(course)}</li>
-                          </ul>
-                          Vous pourrez à tout moment vous y réinscrire, s'il reste de la place.
-                        </>
-                          )}
-                      variant="danger"
-                      icon={BsXOctagon}
-                      action="Confirmer ma désinscription"
-                      triggerer={clickHandler => ( // eslint-disable-line react/no-unstable-nested-components
-                        <Button variant="outline-danger" size="sm" onClick={clickHandler}>
-                          <BsXOctagon className="icon me-2" />
-                          Désinscription
-                        </Button>
-                      )}
-                      confirmPromise={() => postSelfCancelRegistration(id)}
-                      onSuccess={() => {
-                        notify({
-                          title: 'Désinscription confirmée',
-                          body: `Vous vous êtes désinscrit de la ${displayCourseName(course, false)}.`,
-                        });
+                    {attended === null && (
+                      <ConfirmDialog
+                        title="Annuler l'inscription à une séance"
+                        description={(
+                          <>
+                            Vous êtes sur le point d'annuler votre inscription à la séance suivante :
+                            <ul>
+                              <li>{displayCourseName(course)}</li>
+                            </ul>
+                            Vous pourrez à tout moment vous y réinscrire, s'il reste de la place.
+                          </>
+                        )}
+                        variant="danger"
+                        icon={BsXOctagon}
+                        action="Confirmer ma désinscription"
+                        triggerer={clickHandler => ( // eslint-disable-line react/no-unstable-nested-components
+                          <Button variant="outline-danger" size="sm" onClick={clickHandler}>
+                            <BsXOctagon className="icon me-2" />
+                            Désinscription
+                          </Button>
+                        )}
+                        confirmPromise={() => postSelfCancelRegistration(id)}
+                        onSuccess={() => {
+                          notify({
+                            title: 'Désinscription confirmée',
+                            body: `Vous vous êtes désinscrit de la ${displayCourseName(course, false)}.`,
+                          });
 
-                        refresh();
-                      }}
-                    />
+                          refresh();
+                        }}
+                      />
+                    )}
                   </td>
                   )}
                   {cancellation && (

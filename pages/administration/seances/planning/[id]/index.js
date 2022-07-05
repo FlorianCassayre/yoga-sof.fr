@@ -1,7 +1,16 @@
 import { useRouter } from 'next/router';
-import { useMemo } from 'react';
-import { Badge, Button } from 'react-bootstrap';
-import { BsCalendarEvent, BsInfoCircle, BsPencil, BsPlusLg, BsXOctagon } from 'react-icons/bs';
+import { useEffect, useMemo, useState } from 'react';
+import { Badge, Button, ButtonGroup } from 'react-bootstrap';
+import {
+  BsCalendarEvent,
+  BsCheck2Square, BsCheckSquare,
+  BsInfoCircle,
+  BsPencil,
+  BsPlusLg, BsQuestionSquare,
+  BsXLg,
+  BsXOctagon,
+  BsXSquare,
+} from 'react-icons/bs';
 import Link from 'next/link';
 import { CancelCourseConfirmDialog, CourseStatusBadge } from '../../../../../components';
 import { ContentLayout, PrivateLayout } from '../../../../../components/layout/admin';
@@ -13,9 +22,9 @@ import {
   userLinkColumn,
 } from '../../../../../components/table';
 import { displayCourseName, displayDatetime } from '../../../../../lib/common';
-import { usePromiseEffect } from '../../../../../hooks';
+import { usePromiseCallback, usePromiseEffect } from '../../../../../hooks';
 import { breadcrumbForCoursePlanning } from '../../../../../lib/client';
-import { getCourse } from '../../../../../lib/client/api';
+import { getCourse, postCourseRegistrationAttended } from '../../../../../lib/client/api';
 
 function CourseViewLayout({ id }) {
   const { isLoading, isError, data, error } = usePromiseEffect(() => getCourse(id, { include: ['registrations.user', 'bundle'] }), []);
@@ -32,6 +41,38 @@ function CourseViewLayout({ id }) {
   );
 
   const isFuture = data && !data.isCanceled && new Date().getTime() < new Date(data.dateEnd).getTime();
+
+  const [isCheckingAttendance, setCheckingAttendance] = useState(false);
+  const [attendanceKey, setAttendanceKey] = useState(0);
+  const [{
+    isLoading: isSubmitAttendanceLoading,
+    data: submitAttendanceResult,
+  }, submitAttendanceDispatcher] = usePromiseCallback((registrationId, attendanceData) => postCourseRegistrationAttended(registrationId, attendanceData), []);
+  useEffect(() => {
+    // Manual update of local data, generally unsafe but should be fine in this case
+    if (submitAttendanceResult) {
+      data.registrations.forEach(obj => {
+        if (obj.id === submitAttendanceResult.id) {
+          // eslint-disable-next-line
+          obj.attended = submitAttendanceResult.attended;
+        }
+      });
+    }
+    setAttendanceKey(attendanceKey + 1);
+    // eslint-disable-next-line
+  }, [submitAttendanceResult]);
+
+  const attendanceStates = [
+    { value: true, variant: 'success', icon: BsCheckSquare, name: 'Présent' },
+    { value: null, variant: 'secondary', icon: BsQuestionSquare, name: 'Non renseigné' },
+    { value: false, variant: 'danger', icon: BsXSquare, name: 'Absent' },
+  ];
+
+  const todayMidnight = () => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    return date;
+  };
 
   return (
     <ContentLayout
@@ -51,6 +92,18 @@ function CourseViewLayout({ id }) {
       error={error}
     >
       <div className="mb-3">
+        {data && !data.isCanceled && data.registrations.filter(({ isUserCanceled }) => !isUserCanceled).length > 0 && (!isCheckingAttendance ? (
+          <Button variant="info" className="me-2" onClick={() => setCheckingAttendance(true)}>
+            <BsCheck2Square className="icon me-2" />
+            Faire l'appel
+          </Button>
+        ) : (
+          <Button variant="secondary" className="me-2" onClick={() => setCheckingAttendance(false)}>
+            <BsXLg className="icon me-2" />
+            Ne plus faire l'appel
+          </Button>
+        ))}
+
         <Link href={`/administration/seances/planning/${id}/edition`} passHref>
           <Button className="me-2">
             <BsPencil className="icon me-2" />
@@ -110,11 +163,53 @@ function CourseViewLayout({ id }) {
         </Badge>
       </h2>
 
-      <p>Liste des utilisateurs inscrits à cette séance et n'ayant pas annulé.</p>
+      <p>Liste des utilisateurs actuellement inscrits à cette séance (n'ayant pas annulé).</p>
 
       <StaticPaginatedTable
         rows={data && notCanceledRegistrations}
-        columns={[userLinkColumn, registrationDateColumn, adaptColumn(registration => ({ ...registration, course: data }))(cancelRegistrationColumn)]}
+        columns={[
+          userLinkColumn,
+          ...(isCheckingAttendance ? [{
+            title: 'Présence',
+            render: obj => {
+              const { id: registrationId, attended } = obj;
+
+              const onChange = value => {
+                submitAttendanceDispatcher(registrationId, { attended: value });
+              };
+              return (
+                <ButtonGroup key={attendanceKey}>
+                  {attendanceStates.map(({ value, variant, icon: Icon }) => (
+                    <Button
+                      key={`${value}`}
+                      variant={attended === value && !isSubmitAttendanceLoading ? variant : `outline-${variant}`}
+                      size="sm"
+                      onClick={() => onChange(value)}
+                      disabled={isSubmitAttendanceLoading}
+                    >
+                      <Icon className="icon" />
+                    </Button>
+                  ))}
+                </ButtonGroup>
+              );
+            },
+            props: { className: 'text-center' },
+          }] : data && new Date(data.dateStart) >= todayMidnight() ? [{
+            title: 'Présence',
+            render: ({ attended }) => {
+              const { variant, icon: Icon, name } = attendanceStates.filter(({ value }) => value === attended)[0];
+              return (
+                <Badge bg={variant}>
+                  <Icon className="icon me-2" />
+                  {name}
+                </Badge>
+              );
+            },
+            props: { className: 'text-center' },
+          }] : []),
+          registrationDateColumn,
+          adaptColumn(registration => ({ ...registration, course: data }))(cancelRegistrationColumn),
+        ]}
         renderEmpty={() => 'Personne ne participe pour le moment.'}
       />
 

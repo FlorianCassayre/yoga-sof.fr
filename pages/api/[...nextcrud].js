@@ -25,13 +25,11 @@ const handler = NextCrud({
 
     // Else: OK
   },
-  // TODO
-  onError: (req, res, error) => {
-    if (error instanceof HttpError) {
-      res.status(error.statusCode).json({ error: error.message });
-    } else {
-      res.status(500).json({ status: error.statusCode, error: error.message });
-    }
+  onError: async (req, res, error) => {
+    // eslint-disable-next-line
+    error.message = { // JSON response
+      error: error.message,
+    };
   },
 });
 

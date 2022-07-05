@@ -12,6 +12,7 @@ export default async function handler(req, res) {
             id: registrationId,
             userId,
             isUserCanceled: false,
+            attended: null,
             course: {
               dateStart: { gt: new Date() },
               isCanceled: false,

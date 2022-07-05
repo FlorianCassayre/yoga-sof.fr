@@ -11,6 +11,7 @@ export default async function handler(req, res) {
           select: {
             id: true,
             isUserCanceled: true,
+            attended: true,
             createdAt: true,
             canceledAt: true,
             course: {

@@ -88,6 +88,12 @@ export function NavigationLayout({ children }) {
                   <span className="ms-2 d-none d-sm-inline">{sessionData.displayName}</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
+                  <Link href="/mes-inscriptions" passHref>
+                    <Dropdown.Item>
+                      <BsPerson className="icon me-2" />
+                      Profil utilisateur
+                    </Dropdown.Item>
+                  </Link>
                   <Dropdown.Item onClick={handleSignOut}>
                     <BsBoxArrowRight className="icon me-2" />
                     Déconnexion
