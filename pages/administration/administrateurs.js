@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useRef } from 'react';
 import { BsShieldLock } from 'react-icons/bs';
 import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
 import { DynamicPaginatedTable, renderEmail } from '../../components/table';
 import { BREADCRUMB_ADMINS } from '../../lib/client';
 
 function AdminAdminsLayout() {
-  const [total, setTotal] = useState(null);
+  const totalRef = useRef(null);
 
   return (
-    <ContentLayout title="Administrateurs" icon={BsShieldLock} count={total} breadcrumb={BREADCRUMB_ADMINS}>
+    <ContentLayout title="Administrateurs" icon={BsShieldLock} countRef={totalRef} breadcrumb={BREADCRUMB_ADMINS}>
       <p>Liste blanche des adresses emails autorisées à se connecter en tant qu'administrateur. Pour des raisons de sécurité, cette liste n'est pas directement modifiable depuis l'interface.</p>
 
       <DynamicPaginatedTable
@@ -22,7 +22,7 @@ function AdminAdminsLayout() {
             render: ({ email }) => renderEmail(email),
           },
         ]}
-        totalCallback={newTotal => setTotal(newTotal)}
+        totalCallback={newTotal => totalRef.current && totalRef.current(newTotal)}
       />
     </ContentLayout>
   );

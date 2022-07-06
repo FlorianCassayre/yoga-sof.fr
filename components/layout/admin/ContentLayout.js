@@ -1,11 +1,20 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { Badge, Breadcrumb, Spinner } from 'react-bootstrap';
 import { ErrorMessage } from '../../ErrorMessage';
 
-export function ContentLayout({ children, title, icon: Icon, headTitle, count, breadcrumb, isLoading, isError, error }) {
+export function ContentLayout({ children, title, icon: Icon, headTitle, countRef, breadcrumb, isLoading, isError, error }) {
   const { pathname } = useRouter();
+  const [count, setCount] = useState(null);
+
+  useEffect(() => {
+    if (countRef != null) {
+      // eslint-disable-next-line
+      countRef.current = setCount;
+    }
+  }, [countRef, setCount]);
 
   const renderHeadTitle = titleValue => (
     <Head>

@@ -8,9 +8,9 @@ import { Form as FinalForm } from 'react-final-form';
 import { ErrorMessage } from './ErrorMessage';
 import { StaticPaginatedTable } from './table';
 import {
-  COURSE_NAMES, EMAIL_CONTACT,
-  IS_REGISTRATION_DISABLED,
-  formatDayRange,
+  COURSE_NAMES, COURSE_TYPES,
+  EMAIL_CONTACT,
+  IS_REGISTRATION_DISABLED, WEEKDAYS, formatDayRange,
 } from '../lib/common';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
 import { getCoursesSchedule, getSelfRegistrations, postSelfRegistrationBatch } from '../lib/client/api';
@@ -69,16 +69,41 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
       return Object.entries(byType).sort(([a], [b]) => a.localeCompare(b)).map(([key, courses]) => [key, courses.sort((a, b) => new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime())]);
     };
 
+    const dateToWeekday = date => (new Date(date).getDay() + 6) % WEEKDAYS.length;
+
     return !isSubmitting ? (
       <Form onSubmit={handleSubmit}>
         {!values.isStateConfirm ? (
           <>
-            <p>
+            <p className="mb-0">
               Sélectionnez les séances pour lesquelles vous souhaitez vous inscrire :
             </p>
 
             <StaticPaginatedTable
               rows={scheduleData.courses}
+              filters={[
+                {
+                  title: 'Type de cours',
+                  children:
+                    COURSE_TYPES
+                      .filter(({ id }) => scheduleData.courses.filter(({ type }) => type === id).length > 0)
+                      .map(({ id, title }) => ({
+                        name: id,
+                        display: title,
+                        initial: true,
+                      })),
+                },
+                {
+                  title: 'Jour',
+                  children:
+                    WEEKDAYS.filter((_, i) => scheduleData.courses.filter(({ dateStart }) => dateToWeekday(dateStart) === i).length > 0).map((title, id) => ({
+                      name: id,
+                      display: title,
+                      initial: true,
+                    })),
+                },
+              ]}
+              filter={({ dateStart, type }, filtersValues) => filtersValues[dateToWeekday(dateStart)] !== false && filtersValues[type] !== false}
               columns={[
                 {
                   title: 'Type de séance',

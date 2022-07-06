@@ -12,3 +12,4 @@ export { NotificationsOverlay } from './NotificationsOverlay';
 export { PracticalInformations } from './PracticalInformations';
 export { RegistrationPanel } from './RegistrationPanel';
 export { StarIndicator } from './StarIndicator';
+export { SimplePagination } from './SimplePagination';

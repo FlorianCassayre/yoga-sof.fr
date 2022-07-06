@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { usePromiseCallback } from '../../hooks';
 import { jsonFetch } from '../../lib/client/api';
 import { PaginatedTableLayout } from './PaginatedTableLayout';
@@ -17,15 +17,18 @@ export function DynamicPaginatedTable({
   renderEmpty,
   ...rest
 }) {
-  const [page, setPage] = useState(initialPage);
-  const [{ isLoading, isError, data, error }, dispatcher] = usePromiseCallback((urlParameter, query) => jsonFetch(urlParameter, { query }), []);
-  const [filtersValues, setFiltersValues] = useState(Object.fromEntries(filters.map(({ name, initial }) => [name, initial !== undefined ? initial : false])));
+  const [state, setState] = useState({
+    page: initialPage,
+    resultsPerPage: initialResultsPerPage,
+    filtersValues: Object.fromEntries(filters.flatMap(({ children }) => children).map(({ name, initial }) => [name, initial !== undefined ? initial : false])),
+  });
+  const setPartialState = useCallback(values => setState({ ...state, ...values }), [state, setState]);
 
-  const [resultsPerPage, setResultsPerPage] = useState(initialResultsPerPage);
+  const [{ isLoading, isError, data, error }, dispatcher] = usePromiseCallback((urlParameter, query) => jsonFetch(urlParameter, { query }), []);
 
   useEffect(() => {
-    dispatcher(url, params && params(page, resultsPerPage, filtersValues));
-  }, [dispatcher, url, params, page, resultsPerPage, filtersValues]);
+    dispatcher(url, params && params(state.page, state.resultsPerPage, state.filtersValues));
+  }, [dispatcher, url, params, state]);
 
   useEffect(() => {
     if (totalCallback) {
@@ -38,16 +41,16 @@ export function DynamicPaginatedTable({
       isLoading={isLoading || (!data && !isError)}
       isError={isError}
       error={error}
-      resultsPerPage={resultsPerPage}
-      onResultsPerPageChange={setResultsPerPage}
-      onPageChange={setPage}
+      resultsPerPage={state.resultsPerPage}
+      onResultsPerPageChange={newResultsPerPage => setPartialState({ page: initialPage, resultsPerPage: newResultsPerPage })}
+      onPageChange={newPage => setPartialState({ page: newPage })}
       rows={data && rowsFrom(data)}
       totalRows={data && totalFrom(data)}
       page={data && (paginationFrom ? paginationFrom(data).page : 1)}
       pageCount={data && (paginationFrom ? paginationFrom(data).pageCount : 1)}
       filters={filters}
-      filtersValues={filtersValues}
-      onFilterValueChange={(filter, value) => setFiltersValues({ ...filtersValues, [filter]: value })}
+      filtersValues={state.filtersValues}
+      onFilterValueChange={(filter, value) => setPartialState({ page: initialPage, filtersValues: { ...state.filtersValues, [filter]: value } })}
       columns={columns}
       renderEmpty={renderEmpty}
       {...rest}
