@@ -85,22 +85,25 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                 {
                   title: 'Type de cours',
                   children:
-                    COURSE_TYPES
-                      .filter(({ id }) => scheduleData.courses.filter(({ type }) => type === id).length > 0)
-                      .map(({ id, title }) => ({
-                        name: id,
-                        display: title,
-                        initial: true,
-                      })),
+                COURSE_TYPES
+                  .filter(({ id }) => scheduleData.courses.filter(({ type }) => type === id).length > 0)
+                  .map(({ id, title }) => ({
+                    name: id,
+                    display: title,
+                    initial: true,
+                  })),
                 },
                 {
                   title: 'Jour',
                   children:
-                    WEEKDAYS.filter((_, i) => scheduleData.courses.filter(({ dateStart }) => dateToWeekday(dateStart) === i).length > 0).map((title, id) => ({
-                      name: id,
-                      display: title,
-                      initial: true,
-                    })),
+                WEEKDAYS
+                  .map((title, id) => ({ title, id }))
+                  .filter(({ id }) => scheduleData.courses.filter(({ dateStart }) => dateToWeekday(dateStart) === id).length > 0)
+                  .map(({ title, id }) => ({
+                    name: id,
+                    display: title,
+                    initial: true,
+                  })),
                 },
               ]}
               filter={({ dateStart, type }, filtersValues) => filtersValues[dateToWeekday(dateStart)] !== false && filtersValues[type] !== false}
@@ -124,7 +127,7 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                   },
                 },
                 {
-                  title: 'Places restantes',
+                  title: 'Places restantes / disponibles',
                   render: ({ slots, registrations }) => (
                     <>
                       <span className={slots >= registrations ? 'text-success' : 'text-danger'}>{slots - registrations}</span>

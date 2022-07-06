@@ -6,7 +6,12 @@ export default async function handler(req, res) {
       action: async ({ accept }) => {
         // Not atomic, but it does not really matter since both tables are independent
         const [courseModels, futureCourses] = await Promise.all([
-          prisma.courseModel.findMany(),
+          prisma.courseModel.findMany({
+            orderBy: [
+              { weekday: 'asc' },
+              { timeStart: 'asc' },
+            ],
+          }),
           prisma.course.findMany({
             select: {
               id: true,
@@ -26,6 +31,9 @@ export default async function handler(req, res) {
                 { dateStart: { gt: new Date() } },
                 { bundle: null },
               ],
+            },
+            orderBy: {
+              dateStart: 'asc',
             },
           }),
         ]);
