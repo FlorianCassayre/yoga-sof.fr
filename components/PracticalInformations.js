@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Button, Col, Image, Row } from 'react-bootstrap';
 import { BsClockFill, BsFillInfoCircleFill, BsFillPeopleFill, BsGiftFill, BsMoonStarsFill, BsPencilSquare } from 'react-icons/bs';
-import { WEEKDAYS } from '../lib/common';
+import { WEEKDAYS, parseTime, parsedTimeToMinutes } from '../lib/common';
 
 function AttributeIcon({ icon: Icon, title, value }) {
   return (
@@ -14,7 +14,7 @@ function AttributeIcon({ icon: Icon, title, value }) {
   );
 }
 
-export function PracticalInformations({ type, courseModels, data: { section, age, level, group, duration, place, material, registration, image2, registrable, dates }, condensed, children }) {
+export function PracticalInformations({ type, courseModels, data: { section, age, level, group, duration, place, material, registration, image2, price, registrable, dates }, condensed, children }) {
   const modelsByDaySorted = {};
   const courseModelsFiltered = (courseModels || []).filter(({ type: modelType }) => modelType === type);
   courseModelsFiltered.forEach(model => {
@@ -24,10 +24,10 @@ export function PracticalInformations({ type, courseModels, data: { section, age
     modelsByDaySorted[model.weekday].push(model);
   });
   const daysTimesSorted = Object.entries(modelsByDaySorted)
-    .map(([key, value]) => [parseInt(key), value.sort(({ timeStart: a }, { timeStart: b }) => a - b)])
+    .map(([key, value]) => [parseInt(key), value.sort(({ timeStart: a }, { timeStart: b }) => parsedTimeToMinutes(parseTime(a)) - parsedTimeToMinutes(parseTime(b)))])
     .sort(([a], [b]) => a - b)
     .map(([key, value]) => ({ weekday: WEEKDAYS[key], times: value.map(({ timeStart, timeEnd }) => ({ timeStart, timeEnd })) }));
-  const uniquePrices = [...new Set(courseModelsFiltered.map(({ price }) => price))];
+  const uniquePrices = [...new Set(courseModelsFiltered.map(({ price: thisPrice }) => thisPrice))];
   return (
     <Row className="mt-4 text-center">
       <Col xs={6} sm={3}>
@@ -71,11 +71,13 @@ export function PracticalInformations({ type, courseModels, data: { section, age
                   daysTimesSorted.map(({ weekday, times }) => [weekday.toLowerCase(), times.map(({ timeStart, timeEnd }) => ['de', timeStart.replace(':', 'h'), 'à', timeEnd.replace(':', 'h')].join(' ')).join(' et ')].join(' ')).join(' ; ')
                 ) : dates}
               </li>
-              {courseModelsFiltered.length > 0 && (
+              {(price || courseModelsFiltered.length > 0) && (
                 <li>
                   <strong>Tarif :</strong>
                   {' '}
-                  {uniquePrices.length > 1 ? `${Math.min(...uniquePrices)} € à ${Math.max(...uniquePrices)} €` : `${uniquePrices[0]} €`}
+                  {price || (
+                    uniquePrices.length > 1 ? `${Math.min(...uniquePrices)} € à ${Math.max(...uniquePrices)} €` : `${uniquePrices[0]} €`
+                  )}
                 </li>
               )}
               <li>

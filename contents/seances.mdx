@@ -1,8 +1,8 @@
 import { Button } from 'react-bootstrap'; import { BsPencilSquare } from 'react-icons/bs';
 import { PracticalInformations } from '../components';
-import { PublicContainer } from '../components/contents';
+import { LocationUrl, PublicContainer } from '../components/contents';
 import Link from 'next/link';
-import { YOGA_ADULT, YOGA_ADULT_CHILD, YOGA_CHILD } from '../lib/common';
+import { LOCATION_COMETE, LOCATION_HOME, YOGA_ADULT, YOGA_ADULT_CHILD, YOGA_CHILD } from '../lib/common';
 
 export const meta = {
   title: `Les séances`,
@@ -15,9 +15,15 @@ export const practicalInformationsAdult = {
   level: `Tous`,
   group: `4-5 personnes`,
   duration: `1h15`,
-  place: `À mon domicile au 8 rue des moissonneurs à Hésingue. Je peux également venir chez vous si vous constituez un petit groupe, n'hésitez pas à me contacter pour cela.`,
+  place: (
+    <>
+      À mon domicile au <LocationUrl location={LOCATION_HOME}>8 rue des moissonneurs, 68220 Hésingue</LocationUrl>.
+      Je peux également venir chez vous si vous constituez un petit groupe, n'hésitez pas à me contacter pour cela.
+    </>
+  ),
   material: `Tapis de Yoga et une couverture, portez une tenue confortable. Vous pourrez emprunter sur place des blocs, sangles, coussins, balles et ballons.`,
   image2: `/images/bras-ocean.jpg`,
+  price: `13 € / scéance ou 120 € les 10 séances + cotisation association 10 € / personne ou 15 € / famille`,
   characteristic: `Respect de votre morphologie`,
   registrable: true,
 };
@@ -29,11 +35,11 @@ export const practicalInformationsChildren = {
   group: `6-8 enfants`,
   duration: `1h`,
   dates: `Lundi ou mardi de 16h15 à 17h15, à partir du 5 septembre 2022`,
-  place: `La Comète 16 Rue du 20 Novembre, 68220 Hésingue`,
+  place: <LocationUrl location={LOCATION_COMETE}>La Comète 16 rue du 20 Novembre, 68220 Hésingue</LocationUrl>,
   material: `Venir directement après la classe en tenue souple et confortable qui ne serre pas au niveau de l'abdomen ; tapis, couverture et accessoires fournis`,
   registration: `Informations ou inscriptions me contacter pour une première séance d'essai offerte`,
   image2: `/images/bouda-tailleur.jpg`,
-  price: `90€/ trimestre et cotisation 10€/an pour l'association Yoga-Sof`,
+  price: `90 € / trimestre + cotisation association 10 € / enfant ou 15 € / famille`,
   registrable: false,
 };
 
@@ -44,11 +50,11 @@ export const practicalInformationsParentChildren = {
   group: `5 duos`,
   duration: `1h`,
   dates: `Pas encore commencé, liste d'attente en cours`,
-  place: `La Comète 16 Rue du 20 Novembre, 68220 Hésingue`,
+  place: `À définir`,
   material: `Venir en tenue souple et confortable qui ne sert pas au niveau de l'abdomen, apporter un tapis de yoga et une couverture.`,
   registration: `Informations ou inscriptions sur liste d'attente me contacter`,
   image2: `/images/yoga-enfant-arbre-plage.jpg`,
-  price: `à définir, maximum 5 duos par cours`,
+  price: `À définir`,
   registrable: false,
 };
 
@@ -60,9 +66,9 @@ export const practicalInformationsParentChildren = {
   J'enseigne un hatha Yoga respectueux de la physiologie de votre corps, en petit groupe convivial de 4-5 personnes, à
   Hésingue. Dès que nécessaire durant la séance, je vous proposerai des adaptations individuelles des postures à l'aide
   d'accessoires ou de variantes pour vous aider à développer votre force et votre souplesse sans inconfort, ni risque de
-  blessure car selon moi, les postures doivent s'adapter à la personne, à sa morphologie et non l'inverse. 
-  
-  Certifiée en "Yoga sans dégâts" selon la méthode De Gasquet, je vous ferai découvrir les principes de cette méthode à la fois 
+  blessure car selon moi, les postures doivent s'adapter à la personne, à sa morphologie et non l'inverse.
+
+  Certifiée en "Yoga sans dégâts" selon la méthode De Gasquet, je vous ferai découvrir les principes de cette méthode à la fois
   pour votre pratique et votre vie quotidienne.
 
   Mes séances sont progressives et incluent tous les outils du Yoga ; postures, pranayamas, relaxations ainsi qu'un
@@ -70,7 +76,6 @@ export const practicalInformationsParentChildren = {
   chemin de la connaissance de votre moi.
 
   La première séance est offerte.
-  Nouveaux tarifs valables pour toute l'année scolaire : 13€/scéance ou 120€ les 10 séances + cotisation association 10€ / personne ou 15€ / famille 
 </PracticalInformations>
 
 <div className="text-center">
@@ -114,8 +119,6 @@ export const practicalInformationsParentChildren = {
   * Postures à 2, collaboration
   * Retour au calme, relaxation
   * Rituel de fin, partage, échanges
-  
-  Tarif : 90€/trimestre + cotisation association 10€ / enfant ou 15€ / famille 
 </PracticalInformations>
 
 <hr />

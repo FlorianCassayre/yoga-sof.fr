@@ -5,5 +5,6 @@ export * from './HomeBlock';
 export * from './HomeQuote';
 export * from './HomeSpecifications';
 export * from './ImageRow';
+export * from './LocationUrl';
 export * from './PublicContainer';
 export * from './Quoted';

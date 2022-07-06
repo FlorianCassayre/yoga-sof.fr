@@ -2,7 +2,7 @@ import { Inject, LayerDirective, LayersDirective, MapsComponent, Marker, MarkerD
 import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { BsFillGeoAltFill } from 'react-icons/bs';
-import { LOCATION_COMETE, LOCATION_HOME } from '../lib/common';
+import { LOCATION_COMETE, LOCATION_HOME, urlForLocation } from '../lib/common';
 
 function CustomMarkerDirective({ location, fill }) {
   return (
@@ -37,12 +37,10 @@ export function MapWidget() {
     };
   })();
 
-  const urlFor = ({ coordinates: { latitude, longitude } }) => `https://www.google.com/maps/place/${latitude},${longitude}`;
-
   const handleMapClick = ({ target }) => {
     const location = locations.find((ignored, i) => target === `maps_LayerIndex_0_MarkerIndex_0_dataIndex_${i}`);
     if (location) {
-      window.open(urlFor(location), '_blank').focus();
+      window.open(urlForLocation(location), '_blank').focus();
     }
   };
 
@@ -71,11 +69,11 @@ export function MapWidget() {
       <p className="mt-2 mb-0 text-center">
         Les séances Yoga adulte se déroulent
         {' '}
-        <a style={{ color: fillHome }} href={urlFor(LOCATION_HOME)} target="_blank" rel="noreferrer">rue des moissonneurs</a>
+        <a style={{ color: fillHome }} href={urlForLocation(LOCATION_HOME)} target="_blank" rel="noreferrer">rue des moissonneurs</a>
         {' '}
         ; les autres séances sont à
         {' '}
-        <a style={{ color: fillComete }} href={urlFor(LOCATION_COMETE)} target="_blank" rel="noreferrer">la Comète</a>
+        <a style={{ color: fillComete }} href={urlForLocation(LOCATION_COMETE)} target="_blank" rel="noreferrer">la Comète</a>
         .
       </p>
     </>

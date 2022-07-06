@@ -1,4 +1,6 @@
 import { Col, Image, Row } from 'react-bootstrap';
+import { BsEnvelopeFill, BsFacebook } from 'react-icons/bs';
+import { EMAIL_CONTACT, FACEBOOK_PAGE_URL } from '../../lib/common';
 
 function CertificationLogos({ certifications }) {
   const isString = s => typeof s === 'string' || s instanceof String;
@@ -29,6 +31,18 @@ export function AboutPerson({ personImageSrc, personName, personTitle, certifica
         <div className="text-center">
           <strong>{personName}</strong>
           <span className="d-block text-muted">{personTitle}</span>
+          <div className="mt-3">
+            <a href={FACEBOOK_PAGE_URL} target="_blank" rel="noopener noreferrer">
+              <BsFacebook className="icon me-2" />
+              Yoga-Sof
+            </a>
+          </div>
+          <div>
+            <a href={`mailto:${EMAIL_CONTACT}`} target="_blank" rel="noreferrer">
+              <BsEnvelopeFill className="icon me-2" />
+              {EMAIL_CONTACT}
+            </a>
+          </div>
         </div>
       </Col>
       <Col xs={12} sm={12} md={7} lg={8} xl={9} className="text-justify">
