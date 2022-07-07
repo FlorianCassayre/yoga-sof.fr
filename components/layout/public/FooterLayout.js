@@ -26,6 +26,7 @@ export function FooterLayout() {
             <FooterLink href="/inscription">Inscription</FooterLink>
             <FooterLink href="/a-propos">À propos</FooterLink>
             <FooterLink href="/reglement-interieur">Règlement intérieur</FooterLink>
+            <FooterLink href="/confidentialite">Politique de confidentialité</FooterLink>
             {/* <FooterLink href="#">Contact</FooterLink> */}
             {/* <FooterLink href="/cgu">Conditions générales d'utilisation</FooterLink>
             <FooterLink href="/cgv">Conditions générales de vente</FooterLink> */}
