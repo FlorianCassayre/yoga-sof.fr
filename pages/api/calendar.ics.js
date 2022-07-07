@@ -49,7 +49,7 @@ const generateCoachICS = courses => {
         description: `${gauge} participant(s) inscrit(s). Prix unitaire de ${price} €.${notes ? `\n${notes}` : ''}\n\n${url}`,
         url,
         attendees: nonCanceledRegistrations.map(({ user: { id: userId, /* customEmail, */ customName, /* email, */ name } }) => ({
-          name: customName || name,
+          name: customName || name || '?',
           // email: customEmail || email, // We don't include the email to avoid sending them a message by accident!
           dir: `${process.env.NEXTAUTH_URL}/administration/utilisateurs/${userId}`,
           rsvp: false,

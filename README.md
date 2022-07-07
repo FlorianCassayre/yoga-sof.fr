@@ -25,4 +25,4 @@ The following steps should be followed (in that order) to deploy or upgrade in p
 For a fresh install, you can additionally run `npx dotenv -e .env.production -- npx prisma db seed` to populate the
 database with the initial whitelisted email addresses, as defined in `SEED_EMAILS_ADMIN`.
 
-For a normal update, you may use the command `npm run update`. This command assumes that both the favicon and the environment did not change.
+For a normal update, you may use the command `npm run update-production`. This command assumes that both the favicon and the environment did not change.

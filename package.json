@@ -12,8 +12,9 @@
     "prisma-migrate-dev": "npx dotenv -e .env.development -- npx prisma migrate dev; npx prisma generate",
     "start-production": "npx next start -p 8085 -H localhost",
     "prisma-migrate-production": "npx dotenv -e .env.production -- npx prisma migrate deploy; npx prisma generate",
-    "backup-production": "(export $(cat .env.production | xargs) && mysqldump $DATABASE_NAME -u $DATABASE_USER -p$DATABASE_PASSWORD > \"backups/$(date +\"%Y%m%d%H%M%S\").sql\")",
-    "update": "git pull --ff-only && npm ci && npm run backup-production && npm run prisma-migrate-production && npm run build && echo 'Done. Start with: npm run start-production'"
+    "backup-production": "bash scripts/backup-production.sh",
+    "update-production": "bash scripts/update-production.sh",
+    "run-production": "bash scripts/run-production.sh"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
