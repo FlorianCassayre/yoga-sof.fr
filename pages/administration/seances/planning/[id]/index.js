@@ -68,9 +68,9 @@ function CourseViewLayout({ id }) {
     { value: false, variant: 'danger', icon: BsXSquare, name: 'Absent' },
   ];
 
-  const todayMidnight = () => {
+  const tomorrowMidnight = () => {
     const date = new Date();
-    date.setHours(0, 0, 0, 0);
+    date.setHours(24, 0, 0, 0);
     return date;
   };
 
@@ -194,7 +194,7 @@ function CourseViewLayout({ id }) {
               );
             },
             props: { className: 'text-center' },
-          }] : data && new Date(data.dateStart) >= todayMidnight() ? [{
+          }] : data && new Date(data.dateStart) <= tomorrowMidnight() ? [{
             title: 'Présence',
             render: ({ attended }) => {
               const { variant, icon: Icon, name } = attendanceStates.filter(({ value }) => value === attended)[0];

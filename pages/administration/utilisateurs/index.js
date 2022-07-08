@@ -42,9 +42,9 @@ function AdminUsersLayout() {
           detailsColumnFor(id => `/administration/utilisateurs/${id}`),
           {
             title: 'Adresse email',
-            render: ({ email, disabled }) => (
+            render: ({ email, customEmail, disabled }) => (
               <>
-                {renderEmail(email)}
+                {renderEmail(customEmail || email)}
                 {disabled && (
                   <Badge bg="danger" className="ms-2">Désactivé</Badge>
                 )}
@@ -53,7 +53,7 @@ function AdminUsersLayout() {
           },
           {
             title: 'Nom',
-            render: ({ name }) => name,
+            render: ({ name, customName }) => customName || name,
           },
           {
             title: 'Services reliés',

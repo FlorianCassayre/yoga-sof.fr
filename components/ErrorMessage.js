@@ -28,6 +28,11 @@ export function ErrorMessage({ children = 'Une erreur est survenue.', error, noM
             <div className="font-monospace" style={{ whiteSpace: 'pre-wrap' }}>
               {error.message}
               {' '}
+              {process.env.NODE_ENV === 'development' && (
+                <pre>
+                  {JSON.stringify(error, null, 2)}
+                </pre>
+              )}
               {/* .stack might be useful too */}
             </div>
           </>

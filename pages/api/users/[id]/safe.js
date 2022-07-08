@@ -15,7 +15,7 @@ export default async function handler(req, res) {
           where: { id },
           data: {
             customName: name,
-            customEmail: email !== null ? email.toLowerCase() : email,
+            customEmail: email ? email.toLowerCase() : null,
           },
         });
 

@@ -6,8 +6,13 @@ export default async function handler(req, res) {
     POST: {
       permissions: [USER_TYPE_ADMIN],
       schemaBody: schemaUserBody,
-      action: async ({ accept, body }) => {
-        const result = await prisma.user.create({ data: body });
+      action: async ({ accept, body: { name, email } }) => {
+        const result = await prisma.user.create({
+          data: {
+            customName: name,
+            customEmail: email ? email.toLowerCase() : null,
+          },
+        });
 
         accept(result);
       },

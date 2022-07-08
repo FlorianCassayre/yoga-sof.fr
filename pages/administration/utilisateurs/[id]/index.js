@@ -74,8 +74,8 @@ function AdminUserLayout({ id }) {
         params={(page, limit) => ({
           page,
           limit,
-          where: JSON.stringify({ userId: parseInt(id) }),
-          orderBy: JSON.stringify({ createdAt: '$desc' }),
+          where: { userId: parseInt(id) },
+          orderBy: { createdAt: '$desc' },
           include: ['course', 'user'],
         })}
         columns={[
@@ -89,6 +89,7 @@ function AdminUserLayout({ id }) {
             render: ({ isUserCanceled, canceledAt }) => (!isUserCanceled ? <Badge bg="success">Inscrit</Badge> : (
               <Badge bg="danger">
                 Désinscrit à
+                {' '}
                 {formatTimestamp(canceledAt)}
               </Badge>
             )),
@@ -107,6 +108,35 @@ function AdminUserLayout({ id }) {
           </Button>
         </Link>
       </div>
+
+      <h2 className="h5">Absences</h2>
+      <p>Les absences de cet utilisateur. Cela correspond aux séances pour lesquelles l'utilisateur était inscrit mais a été marqué comme absent.</p>
+
+      <DynamicPaginatedTable
+        url="/api/courseRegistrations"
+        params={(page, limit) => ({
+          page,
+          limit,
+          where: {
+            userId: parseInt(id),
+            isUserCanceled: false,
+            course: {
+              isCanceled: false,
+            },
+            attended: false,
+          },
+          orderBy: { createdAt: '$desc' },
+          include: ['course', 'user'],
+        })}
+        columns={[
+          plannedCourseLinkColumn,
+          {
+            title: `Date d'inscription`,
+            render: ({ createdAt }) => displayDatetime(createdAt),
+          },
+        ]}
+        renderEmpty={() => `Cet utilisateur n'a aucune absence enregistrée.`}
+      />
 
       <h2 className="h5">Informations de connexion</h2>
 
