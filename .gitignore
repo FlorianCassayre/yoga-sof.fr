@@ -40,3 +40,6 @@ public/android-chrome-*.png
 public/apple-touch-icon.png
 public/favicon.ico
 public/manifest.webmanifest
+
+# ERD
+prisma/schema.md
