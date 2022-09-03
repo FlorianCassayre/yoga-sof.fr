@@ -8,5 +8,5 @@ git pull --ff-only
 npm ci
 npm run backup-production
 npm run prisma-migrate-production
-npm run generate-favicon
+npm run generate-favicons
 npm run build
