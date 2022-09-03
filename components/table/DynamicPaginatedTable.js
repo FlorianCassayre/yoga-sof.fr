@@ -21,13 +21,14 @@ export function DynamicPaginatedTable({
     page: initialPage,
     resultsPerPage: initialResultsPerPage,
     filtersValues: Object.fromEntries(filters.flatMap(({ children }) => children).map(({ name, initial }) => [name, initial !== undefined ? initial : false])),
+    sortValue: columns.filter(({ initialSortValue }) => initialSortValue != null).map(({ name, initialSortValue }) => ({ column: name, order: initialSortValue }))[0] ?? null,
   });
   const setPartialState = useCallback(values => setState({ ...state, ...values }), [state, setState]);
 
   const [{ isLoading, isError, data, error }, dispatcher] = usePromiseCallback((urlParameter, query) => jsonFetch(urlParameter, { query }), []);
 
   useEffect(() => {
-    dispatcher(url, params && params(state.page, state.resultsPerPage, state.filtersValues));
+    dispatcher(url, params && params(state.page, state.resultsPerPage, { filters: state.filtersValues, sort: state.sortValue }));
   }, [dispatcher, url, params, state]);
 
   useEffect(() => {
@@ -51,6 +52,8 @@ export function DynamicPaginatedTable({
       filters={filters}
       filtersValues={state.filtersValues}
       onFilterValueChange={(filter, value) => setPartialState({ page: initialPage, filtersValues: { ...state.filtersValues, [filter]: value } })}
+      sortValue={state.sortValue}
+      onSortByChange={sortValue => setPartialState({ sortValue })}
       columns={columns}
       renderEmpty={renderEmpty}
       {...rest}

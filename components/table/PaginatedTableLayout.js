@@ -1,6 +1,12 @@
 import React, { Fragment } from 'react';
 import { ButtonGroup, ButtonToolbar, Dropdown, Spinner, Table } from 'react-bootstrap';
-import { BsCheckSquare, BsFunnelFill, BsSquare } from 'react-icons/bs';
+import {
+  BsArrowDown,
+  BsArrowUp,
+  BsCheckSquare,
+  BsFunnelFill,
+  BsSquare,
+} from 'react-icons/bs';
 import { ErrorMessage } from '../ErrorMessage';
 import { SimplePagination } from '../SimplePagination';
 
@@ -21,6 +27,8 @@ export function PaginatedTableLayout({
   filters = [],
   filtersValues = {},
   onFilterValueChange,
+  sortValue,
+  onSortByChange,
   renderEmpty,
   rowProps = () => {},
   ...rest
@@ -65,6 +73,23 @@ export function PaginatedTableLayout({
     );
   };
 
+  const handleColumnHeaderClick = (name, i) => {
+    if (onSortByChange) {
+      const column = name ?? i;
+      if (sortValue && sortValue.column === column) {
+        if (sortValue.order) {
+          onSortByChange({ column, order: false });
+        } else if (sortValue.order === false) {
+          onSortByChange(null);
+        } else {
+          onSortByChange({ column, order: true });
+        }
+      } else {
+        onSortByChange({ column, order: true });
+      }
+    }
+  };
+
   return isLoading && !rows ? (
     <div className="d-flex justify-content-center">
       <Spinner animation="border" className="m-4" />
@@ -78,8 +103,17 @@ export function PaginatedTableLayout({
       <Table striped bordered responsive {...rest}>
         <thead>
           <tr className="text-center">
-            {columns.map(({ title }, i) => (
-              <th key={i}>{title}</th>
+            {columns.map(({ title, sortable, name }, i) => (
+              <th
+                key={name ?? i}
+                style={{ cursor: sortable && 'pointer' }}
+                onClick={() => sortable && handleColumnHeaderClick(name, i)}
+              >
+                {title}
+                {sortValue && sortValue.column === (name ?? i) && (
+                  sortValue.order ? <BsArrowDown className="ms-2" /> : <BsArrowUp className="ms-2" />
+                )}
+              </th>
             ))}
           </tr>
         </thead>

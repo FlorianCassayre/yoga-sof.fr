@@ -13,21 +13,26 @@ function AdminRegistrationsLayout() {
 
       <DynamicPaginatedTable
         url="/api/courseRegistrations"
-        params={(page, limit) => ({
+        params={(page, limit, { sort }) => ({
           page,
           limit,
-          orderBy: JSON.stringify({ createdAt: '$desc' }),
+          orderBy: sort ? { [sort.column]: sort.order ? '$asc' : '$desc' } : undefined,
           include: ['course', 'user'],
         })}
         columns={[
           userLinkColumn,
-          plannedCourseLinkColumn,
+          { ...plannedCourseLinkColumn, name: 'course.dateStart', sortable: true },
           {
             title: `Date d'inscription`,
+            name: 'createdAt',
+            sortable: true,
+            initialSortValue: false,
             render: ({ createdAt }) => displayDatetime(createdAt),
           },
           {
             title: 'Statut',
+            name: 'canceledAt',
+            sortable: true,
             render: ({ isUserCanceled, canceledAt }) => (!isUserCanceled ? <Badge bg="success">Inscrit</Badge> : (
               <Badge bg="danger">
                 Désinscrit à

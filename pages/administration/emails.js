@@ -12,14 +12,17 @@ function AdminEmailsLayout() {
 
       <DynamicPaginatedTable
         url="/api/emailMessages"
-        params={(page, limit) => ({
+        params={(page, limit, { sort }) => ({
           page,
           limit,
           include: 'user',
+          orderBy: sort ? { [sort.column]: sort.order ? '$asc' : '$desc' } : undefined,
         })}
         columns={[
           {
             title: `Type d'e-mail`,
+            name: 'type',
+            sortable: true,
             render: ({ type }) => EMAIL_TYPES[type].title,
           },
           userLinkColumn,
@@ -38,10 +41,15 @@ function AdminEmailsLayout() {
           },
           {
             title: 'Date',
+            name: 'createdAt',
+            sortable: true,
+            initialSortValue: false,
             render: ({ createdAt }) => displayDatetime(createdAt),
           },
           {
             title: `Date d'envoi`,
+            name: 'sentAt',
+            sortable: true,
             render: ({ sentAt }) => (sentAt ? displayDatetime(sentAt) : <Badge bg="danger">Non envoyé</Badge>),
             props: { className: 'text-center' },
           },

@@ -29,13 +29,14 @@ function AdminUsersLayout() {
 
       <DynamicPaginatedTable
         url="/api/users"
-        params={(page, limit, { noDisabled }) => ({
+        params={(page, limit, { filters: { noDisabled }, sort }) => ({
           page,
           limit,
           include: ['accounts'],
           where: {
             ...(noDisabled ? { disabled: false } : {}),
           },
+          orderBy: sort ? { [sort.column]: sort.order ? '$asc' : '$desc' } : undefined,
         })}
         filters={[{ children: [{ name: 'noDisabled', display: 'Masquer les comptes désactivés', initial: true }] }]}
         columns={[
@@ -73,7 +74,16 @@ function AdminUsersLayout() {
           },
           {
             title: 'Date de création',
+            name: 'createdAt',
+            sortable: true,
+            initialSortValue: false,
             render: ({ createdAt }) => displayDatetime(createdAt),
+          },
+          {
+            title: 'Dernière activité',
+            name: 'lastActivity',
+            sortable: true,
+            render: ({ lastActivity }) => (lastActivity !== null ? displayDatetime(lastActivity) : '(jamais)'),
           },
         ]}
         totalCallback={newTotal => totalRef.current && totalRef.current(newTotal)}

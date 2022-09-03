@@ -39,6 +39,9 @@ function AdminSeancesLayout() {
     },
     {
       title: 'Date',
+      name: 'dateStart',
+      sortable: true,
+      initialSortValue: true,
       render: ({ dateStart: date }) => formatDateLiteral(date),
     },
     {
@@ -47,15 +50,21 @@ function AdminSeancesLayout() {
     },
     {
       title: 'Type de séance',
+      name: 'type',
+      sortable: true,
       render: ({ type }) => displayCourseType(type),
     },
     bundleLinkColumn,
     {
       title: 'Prix',
+      name: 'price',
+      sortable: true,
       render: ({ price, bundleId, bundle }) => (bundleId !== null ? `Lot : ${bundle.price} €` : price > 0 ? `${price} €` : 'Gratuit'),
     },
     {
       title: 'Inscriptions / Places disponibles',
+      name: 'registrations._count',
+      sortable: true,
       render: ({ slots, registrations }) => (
         <>
           {registrations.filter(({ isUserCanceled }) => !isUserCanceled).length}
@@ -139,7 +148,7 @@ function AdminSeancesLayout() {
 
       <DynamicPaginatedTable
         url="/api/courses"
-        params={(page, limit) => ({
+        params={(page, limit, { sort }) => ({
           page,
           limit,
           include: ['registrations', 'bundle'],
@@ -147,7 +156,7 @@ function AdminSeancesLayout() {
             isCanceled: false,
             dateEnd: { $gt: new Date().toISOString() },
           }),
-          orderBy: JSON.stringify({ dateStart: '$asc' }),
+          orderBy: sort ? { [sort.column]: sort.order ? '$asc' : '$desc' } : undefined,
         })}
         columns={courseColumns(false)}
         renderEmpty={() => <>Il n'y a pas de séances à venir pour le moment.</>}
@@ -159,7 +168,7 @@ function AdminSeancesLayout() {
 
       <DynamicPaginatedTable
         url="/api/courses"
-        params={(page, limit) => ({
+        params={(page, limit, { sort }) => ({
           page,
           limit,
           include: ['registrations', 'bundle'],
@@ -169,7 +178,7 @@ function AdminSeancesLayout() {
               dateEnd: { $gt: new Date().toISOString() },
             },
           }),
-          orderBy: JSON.stringify({ dateStart: '$desc' }),
+          orderBy: sort ? { [sort.column]: sort.order ? '$asc' : '$desc' } : undefined,
         })}
         columns={courseColumns(true)}
         renderEmpty={() => <>Il n'y a pas encore de séances passées ou annulées.</>}

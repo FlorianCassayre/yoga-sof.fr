@@ -71,21 +71,26 @@ function AdminUserLayout({ id }) {
 
       <DynamicPaginatedTable
         url="/api/courseRegistrations"
-        params={(page, limit) => ({
+        params={(page, limit, { sort }) => ({
           page,
           limit,
           where: { userId: parseInt(id) },
-          orderBy: { createdAt: '$desc' },
+          orderBy: sort ? { [sort.column]: sort.order ? '$asc' : '$desc' } : undefined,
           include: ['course', 'user'],
         })}
         columns={[
-          plannedCourseLinkColumn,
+          { ...plannedCourseLinkColumn, name: 'course.dateStart', sortable: true },
           {
             title: `Date d'inscription`,
+            name: 'createdAt',
+            sortable: true,
+            initialSortValue: false,
             render: ({ createdAt }) => displayDatetime(createdAt),
           },
           {
             title: 'Statut',
+            name: 'canceledAt',
+            sortable: true,
             render: ({ isUserCanceled, canceledAt }) => (!isUserCanceled ? <Badge bg="success">Inscrit</Badge> : (
               <Badge bg="danger">
                 Désinscrit à
@@ -114,7 +119,7 @@ function AdminUserLayout({ id }) {
 
       <DynamicPaginatedTable
         url="/api/courseRegistrations"
-        params={(page, limit) => ({
+        params={(page, limit, { sort }) => ({
           page,
           limit,
           where: {
@@ -125,13 +130,15 @@ function AdminUserLayout({ id }) {
             },
             attended: false,
           },
-          orderBy: { createdAt: '$desc' },
+          orderBy: sort ? { [sort.column]: sort.order ? '$asc' : '$desc' } : undefined,
           include: ['course', 'user'],
         })}
         columns={[
-          plannedCourseLinkColumn,
+          { ...plannedCourseLinkColumn, name: 'course.dateStart', sortable: true, initialSortValue: false },
           {
             title: `Date d'inscription`,
+            name: 'createdAt',
+            sortable: true,
             render: ({ createdAt }) => displayDatetime(createdAt),
           },
         ]}

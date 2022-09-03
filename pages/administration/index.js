@@ -20,7 +20,7 @@ function AdminHomeLayout() {
 
       <DynamicPaginatedTable
         url="/api/courses"
-        params={(page, limit) => ({
+        params={(page, limit, { sort }) => ({
           page,
           limit,
           include: ['registrations'],
@@ -28,12 +28,15 @@ function AdminHomeLayout() {
             isCanceled: false,
             dateEnd: { $gt: new Date().toISOString() },
           }),
-          orderBy: JSON.stringify({ dateStart: '$asc' }),
+          orderBy: sort ? { [sort.column]: sort.order ? '$asc' : '$desc' } : undefined,
         })}
         columns={[
           detailsColumnFor(id => `/administration/seances/planning/${id}`),
           {
             title: 'Date',
+            name: 'dateStart',
+            sortable: true,
+            initialSortValue: true,
             render: ({ dateStart: date }) => formatDateLiteral(date),
           },
           {
@@ -42,10 +45,14 @@ function AdminHomeLayout() {
           },
           {
             title: 'Type de séance',
+            name: 'type',
+            sortable: true,
             render: ({ type }) => displayCourseType(type),
           },
           {
             title: 'Inscriptions / Places disponibles',
+            name: 'registrations._count',
+            sortable: true,
             render: ({ slots, registrations }) => (
               <>
                 {registrations.filter(({ isUserCanceled }) => !isUserCanceled).length}
