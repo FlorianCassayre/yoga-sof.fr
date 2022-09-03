@@ -107,7 +107,7 @@ function CourseViewLayout({ id }) {
         <Link href={`/administration/seances/planning/${id}/edition`} passHref>
           <Button className="me-2">
             <BsPencil className="icon me-2" />
-            Modifier mes notes
+            Modifier
           </Button>
         </Link>
         {isFuture && (
