@@ -16,6 +16,8 @@ export function HeadMeta({ title }) {
       <meta name="apple-mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       <meta name="apple-mobile-web-app-title" content="Yoga Sof" />
+
+      <meta name="keywords" content="yoga, hésingue, comète, hégenheim, saint-louis, alsace" />
     </Head>
   );
 }

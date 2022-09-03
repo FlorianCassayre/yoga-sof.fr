@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { Col, Container, Row } from 'react-bootstrap';
+import { Col, Container, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import { BsEnvelopeFill, BsFacebook } from 'react-icons/bs';
-import { EMAIL_CONTACT, FACEBOOK_PAGE_URL } from '../../../lib/common';
+import { COMETE_URL, EMAIL_CONTACT, FACEBOOK_PAGE_URL } from '../../../lib/common';
+import { IconLaComete } from '../../icons';
 import { MapWidget } from '../../MapWidget';
 
 function FooterLink({ href, children }) {
@@ -41,12 +42,36 @@ export function FooterLayout() {
             <br />
             <br />
             <div className="h3">
-              <a href={FACEBOOK_PAGE_URL} target="_blank" rel="noreferrer" className="footer-link">
-                <BsFacebook className="icon" />
-              </a>
-              <a href={`mailto:${EMAIL_CONTACT}`} target="_blank" rel="noreferrer" className="ms-3 footer-link">
-                <BsEnvelopeFill className="icon" />
-              </a>
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip id="tooltip-comete">Page association à la Comète de Hésingue</Tooltip>}
+              >
+                {({ ...triggerHandler }) => (
+                  <a href={COMETE_URL} target="_blank" rel="noreferrer" className="footer-link" {...triggerHandler}>
+                    <IconLaComete width="1em" style={{ filter: 'brightness(0) invert(1)' }} />
+                  </a>
+                )}
+              </OverlayTrigger>
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip id="tooltip-comete">Page Facebook</Tooltip>}
+              >
+                {({ ...triggerHandler }) => (
+                  <a href={FACEBOOK_PAGE_URL} target="_blank" rel="noreferrer" className="ms-3 footer-link" {...triggerHandler}>
+                    <BsFacebook className="icon" />
+                  </a>
+                )}
+              </OverlayTrigger>
+              <OverlayTrigger
+                placement="top"
+                overlay={<Tooltip id="tooltip-comete">Adresse e-mail</Tooltip>}
+              >
+                {({ ...triggerHandler }) => (
+                  <a href={`mailto:${EMAIL_CONTACT}`} target="_blank" rel="noreferrer" className="ms-3 footer-link" {...triggerHandler}>
+                    <BsEnvelopeFill className="icon" />
+                  </a>
+                )}
+              </OverlayTrigger>
             </div>
           </Col>
           <Col xs={12} sm={12} lg={4} className="py-4 px-5">

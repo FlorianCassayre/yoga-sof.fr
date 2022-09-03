@@ -8,14 +8,24 @@ import { Form as FinalForm } from 'react-final-form';
 import { ErrorMessage } from './ErrorMessage';
 import { StaticPaginatedTable } from './table';
 import {
-  COURSE_NAMES, COURSE_TYPES,
+  COURSE_NAMES,
+  COURSE_TYPES,
   EMAIL_CONTACT,
-  IS_REGISTRATION_DISABLED, WEEKDAYS, formatDayRange,
+  IS_REGISTRATION_DISABLED,
+  WEEKDAYS,
+  dateToParsedTime,
+  formatDayRange,
+  formatTime,
+  parsedTimeToMinutes,
+  parsedTimeToTime,
 } from '../lib/common';
 import { usePromiseCallback, usePromiseEffect } from '../hooks';
 import { getCoursesSchedule, getSelfRegistrations, postSelfRegistrationBatch } from '../lib/client/api';
 import { useNotificationsContext, useRefreshContext } from '../state';
-import { RegistrationNoticeInformations, RegistrationNoticeRecap } from '../contents/inscription.mdx';
+import {
+  RegistrationNoticePersonalInformations,
+  RegistrationNoticeRecap,
+} from '../contents/inscription.mdx';
 
 function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }) {
   const [{ isLoading: isSubmitting, isError: isSubmitError, data: submitResult }, submitDispatch] = usePromiseCallback(data => postSelfRegistrationBatch(data), []);
@@ -71,6 +81,8 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
 
     const dateToWeekday = date => (new Date(date).getDay() + 6) % WEEKDAYS.length;
 
+    const slotsWarningThreshold = 1;
+
     return !isSubmitting ? (
       <Form onSubmit={handleSubmit}>
         {!values.isStateConfirm ? (
@@ -105,8 +117,26 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                     initial: true,
                   })),
                 },
+                {
+                  title: 'Horaire',
+                  children: Object.entries(Object.fromEntries(
+                    scheduleData.courses.map(({ dateStart, dateEnd }) => {
+                      const timeStart = dateToParsedTime(dateStart), timeEnd = dateToParsedTime(dateEnd);
+                      return [`${parsedTimeToMinutes(timeStart)}-${parsedTimeToMinutes(timeEnd)}`, [timeStart, timeEnd]];
+                    }),
+                  ))
+                    .sort(([, [a]], [, [b]]) => parsedTimeToMinutes(a) - parsedTimeToMinutes(b))
+                    .map(([id, [timeStart, timeEnd]]) => ({
+                      name: id,
+                      value: [timeStart, timeEnd],
+                      display: `${formatTime(parsedTimeToTime(timeStart))} à ${formatTime(parsedTimeToTime(timeEnd))}`,
+                      initial: true,
+                    })),
+                },
               ]}
-              filter={({ dateStart, type }, filtersValues) => filtersValues[dateToWeekday(dateStart)] !== false && filtersValues[type] !== false}
+              filter={({ dateStart, dateEnd, type }, filtersValues) => filtersValues[dateToWeekday(dateStart)] !== false
+                && filtersValues[type] !== false
+                && filtersValues[`${parsedTimeToMinutes(dateToParsedTime(dateStart))}-${parsedTimeToMinutes(dateToParsedTime(dateEnd))}`] !== false}
               columns={[
                 {
                   title: 'Type de séance',
@@ -130,7 +160,15 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                   title: 'Places restantes / disponibles',
                   render: ({ slots, registrations }) => (
                     <>
-                      <span className={slots >= registrations ? 'text-success' : 'text-danger'}>{slots - registrations}</span>
+                      <span className={
+                        registrations >= slots
+                          ? 'text-danger'
+                          : slots > slotsWarningThreshold && slots - registrations === slotsWarningThreshold
+                            ? 'text-warning' : 'text-success'
+                      }
+                      >
+                        {slots - registrations}
+                      </span>
                       {' '}
                       /
                       {' '}
@@ -291,7 +329,7 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                   </tbody>
                 </Table>
                 <p>
-                  <RegistrationNoticeInformations />
+                  <RegistrationNoticePersonalInformations />
                 </p>
               </Col>
             </Row>

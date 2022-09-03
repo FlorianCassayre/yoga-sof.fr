@@ -1,5 +1,5 @@
 import { AboutPerson, Quoted, PublicContainer } from '../components/contents';
-import { IconEye, IconFidhy } from '../components/icons';
+import { IconEye, IconFidhy, IconLaComete } from '../components/icons'; import { COMETE_URL } from '../lib/common';
 
 export const meta = {
   title: 'À propos',
@@ -29,6 +29,11 @@ export const meta = {
       href: 'https://www.degasquet.com/',
       className: 'mx-4', // Fix margin
     },
+    {
+      src: IconLaComete,
+      alt: 'La Comète Hésingue',
+      href: COMETE_URL,
+    }
   ]}
 >
   {/* /!\ Please leave it such that: <Quoted>TEXT_HERE -- otherwise it will appear as a new paragraph */}
