@@ -19,9 +19,9 @@ const getCommonCourseFields = ({ type, dateStart, dateEnd }) => {
     start: timestampToDateArray(dateStart),
     end: timestampToDateArray(dateEnd),
     startInputType: 'local',
-    startOutputType: 'local',
+    startOutputType: 'utc',
     endInputType: 'local',
-    endOutputType: 'local',
+    endOutputType: 'utc',
     organizer: {
       name: 'Sophie Richaud-Cassayre',
       email: EMAIL_CONTACT,
