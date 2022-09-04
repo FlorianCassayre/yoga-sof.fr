@@ -216,7 +216,7 @@ function CourseViewLayout({ id }) {
       {isFuture && (
         <div className="text-center">
           <Link href={{ pathname: '/administration/inscriptions/creation', query: { courseId: data && data.id } }} passHref>
-            <Button variant="success">
+            <Button variant="success" disabled={data.registrations.length >= data.slots}>
               <BsPlusLg className="icon me-2" />
               Inscrire un utilisateur
             </Button>

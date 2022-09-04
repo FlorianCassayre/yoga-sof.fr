@@ -22,6 +22,15 @@ export default async function handler(req, res) {
               throw new Error('user is already registered');
             }
 
+            const course = await prisma.course.findUnique({
+              where: { id: courseId },
+              include: { registrations: true },
+            });
+
+            if (course.registrations.length >= course.slots) {
+              throw new Error('course is full');
+            }
+
             return prisma.courseRegistration.create({
               data: {
                 courseId,
