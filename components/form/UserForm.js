@@ -6,6 +6,7 @@ export function UserForm({ editRecordId, container }) {
     <CreateEditForm
       modelId="users"
       safe
+      safeFetch
       initialValues={{
         name: null,
         email: null,

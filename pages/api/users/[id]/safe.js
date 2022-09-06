@@ -22,5 +22,16 @@ export default async function handler(req, res) {
         accept(result);
       },
     },
+    GET: {
+      permissions: [USER_TYPE_ADMIN],
+      schemaQuery: schemaUserQuery,
+      action: async ({ accept, query: { id } }) => {
+        const { name, email, customName, customEmail, ...rest } = await prisma.user.findUnique({
+          where: { id },
+        });
+
+        accept({ name: customName || name, email: customEmail || email, ...rest });
+      },
+    },
   })(req, res);
 }
