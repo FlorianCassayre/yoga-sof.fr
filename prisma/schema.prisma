@@ -3,6 +3,11 @@ generator client {
   previewFeatures = ["interactiveTransactions"]
 }
 
+generator erd {
+  provider = "prisma-erd-generator"
+  output   = "schema.md"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -67,7 +72,7 @@ model User {
   lastActivity        DateTime?            @map("last_activity")
 
   emailsReceived      EmailMessage[]
-  courseRegistrations CourseRegistration[]
+  courseRegistrations CourseBundleRegistration[]
 
   disabled            Boolean              @default(false)
 
@@ -110,8 +115,8 @@ model CourseModel {
   slots       Int        @db.UnsignedInt
   price       Int        @db.UnsignedInt
   weekday     Int        @db.UnsignedTinyInt
-  timeStart  String      @db.VarChar(5) @map("time_start")
-  timeEnd    String      @db.VarChar(5) @map("time_end")
+  timeStart   String     @db.VarChar(5) @map("time_start")
+  timeEnd     String     @db.VarChar(5) @map("time_end")
   bundle      Boolean
 
   @@map("course_model")
@@ -119,46 +124,85 @@ model CourseModel {
 
 model Course {
   id                Int                  @id @default(autoincrement())
-  type              CourseType
-  slots             Int                  @db.UnsignedInt
-  price             Int                  @db.UnsignedInt
   dateStart         DateTime             @db.Timestamp(0) @map("date_start")
   dateEnd           DateTime             @db.Timestamp(0) @map("date_end")
   isCanceled        Boolean              @default(false) @map("is_canceled")
   cancelationReason String?              @db.Text @map("cancelation_reason")
+  canceledAt        DateTime?            @map("canceled_at")
   notes             String?              @db.Text
-  bundleId          Int?                 @map("bundle_id")
+  bundleId          Int                  @map("bundle_id")
+  bundle            CourseBundle         @relation(fields: [bundleId], references: [id])
   createdAt         DateTime             @default(now()) @map("created_at")
   updatedAt         DateTime             @updatedAt @map("updated_at")
-  registrations     CourseRegistration[]
-  bundle            CourseBundle?        @relation(fields: [bundleId], references: [id])
+  observedAttendances CourseObservedAttendance[]
+  declaredAbsences CourseDeclaredAbsence[]
+  remindersSent CourseReminderSent[]
 
   @@map("course")
 }
 
-model CourseRegistration {
+model CourseBundleRegistration {
   id             Int       @id @default(autoincrement())
   userId         Int       @map("user_id")
   user           User      @relation(fields: [userId], references: [id])
-  courseId       Int       @map("course_id")
-  course         Course    @relation(fields: [courseId], references: [id])
+  courseBundleId Int       @map("course_bundle_id")
+  courseBundle   CourseBundle @relation(fields: [courseBundleId], references: [id])
   isUserCanceled Boolean   @default(false) @map("is_user_canceled")
-  reminderSent   Boolean   @default(false) @map("reminder_sent")
-  attended       Boolean?
   createdAt      DateTime  @default(now()) @map("created_at")
   canceledAt     DateTime? @map("canceled_at")
+  observedAttendances CourseObservedAttendance[]
+  declaredAbsences CourseDeclaredAbsence[]
+  remindersSent CourseReminderSent[]
 
-  @@map("course_registration")
+  @@map("course_bundle_registration")
 }
 
 model CourseBundle {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String?
+  type      CourseType
   price     Int      @db.UnsignedInt
-  courses   Course[]
+  slots     Int      @db.UnsignedInt
   createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  courses   Course[]
+  registrations CourseBundleRegistration[]
 
   @@map("course_bundle")
+}
+
+model CourseObservedAttendance {
+  courseId                   Int     @map("course_id")
+  courseBundleRegistrationId Int     @map("course_bundle_registration_id")
+  course                     Course  @relation(fields: [courseId], references: [id])
+  registration               CourseBundleRegistration @relation(fields: [courseBundleRegistrationId], references: [id])
+  attended                   Boolean
+  updatedAt                  DateTime @updatedAt @map("updated_at")
+
+  @@id([courseId, courseBundleRegistrationId])
+  @@map("course_observed_attendance")
+}
+
+model CourseDeclaredAbsence {
+  courseId                   Int      @map("course_id")
+  courseBundleRegistrationId Int      @map("course_bundle_registration_id")
+  course                     Course   @relation(fields: [courseId], references: [id])
+  registration               CourseBundleRegistration @relation(fields: [courseBundleRegistrationId], references: [id])
+  createdAt                  DateTime @default(now()) @map("created_at")
+
+  @@id([courseId, courseBundleRegistrationId])
+  @@map("course_declared_absence")
+}
+
+model CourseReminderSent {
+  courseId                   Int      @map("course_id")
+  courseBundleRegistrationId Int      @map("course_bundle_registration_id")
+  course                     Course   @relation(fields: [courseId], references: [id])
+  registration               CourseBundleRegistration @relation(fields: [courseBundleRegistrationId], references: [id])
+  createdAt                  DateTime @default(now()) @map("created_at")
+
+  @@id([courseId, courseBundleRegistrationId])
+  @@map("course_reminder_sent")
 }
 
 enum EmailMessageType {
