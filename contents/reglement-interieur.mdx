@@ -1,13 +1,10 @@
-import { PublicContainer } from '../components/contents';
+import { FrontsiteContent } from '../components/layout/public/FrontsiteContent';
 
 export const meta = {
   title: 'Règlement intérieur',
-  padNavbar: true,
 };
 
-export const Section = ({ id, title, children }) => <><h2 className="h4">{id} – {title}</h2>{children}</>;
-
-# Règlement intérieur
+export const Section = ({ id, title, children }) => <><h2>{id} – {title}</h2>{children}</>;
 
 Règlement Intérieur Yoga Sof pour les cours de Yoga adulte.
 
@@ -42,4 +39,4 @@ Règlement Intérieur Yoga Sof pour les cours de Yoga adulte.
   Afin d'illustrer les activités Yoga pour le site internet, vous êtes susceptibles d'être photographiés ou filmés lors d'un cours. Merci de vous signaler en cas de refus, la signature de ce document engageant votre accord.
 </Section>
 
-export default ({ children }) => <PublicContainer {...meta}>{children}</PublicContainer>
+export default ({ children }) => <FrontsiteContent {...meta}>{children}</FrontsiteContent>

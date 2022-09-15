@@ -7,7 +7,10 @@ const withMDX = require('@next/mdx')({
   },
 });
 
-module.exports = withMDX({
+const nextTypeSafePages = require("next-type-safe-routes/plugin");
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   options: {
     providerImportSource: '@mdx-js/react',
@@ -26,4 +29,18 @@ module.exports = withMDX({
       },
     ];
   },
-});
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    // FIXME
+    ignoreDuringBuilds: true,
+  },
+};
+
+module.exports = () => {
+  const plugins = [withMDX, nextTypeSafePages];
+  const config = plugins.reduce((acc, next) => next(acc), {
+    ...nextConfig,
+  });
+  return config;
+};

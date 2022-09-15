@@ -1,12 +1,10 @@
-import { PublicContainer } from '../components/contents';
-import { EMAIL_CONTACT } from '../lib/common';
+import { FrontsiteContent } from '../components/layout/public/FrontsiteContent';
+import { EMAIL_CONTACT } from '../lib/common/config';
+import { Link as MuiLink } from '@mui/material';
 
 export const meta = { // https://www.documentslegaux.fr/commerce/politique-de-confidentialite-d-un-site-web/
   title: 'Politique de confidentialité',
-  padNavbar: true,
 };
-
-# Politique de confidentialité
 
 ### Le but de cette politique de confidentialité
 
@@ -149,7 +147,7 @@ Vous trouverez de plus amples informations sur ces droits au chapitre 3 (art 12-
 ### Comment modifier, supprimer ou contester les données recueillies
 
 Si vous souhaitez que vos renseignements soient supprimés ou modifiés d'une façon ou d'une autre, nous vous prions de
-nous écrire à l'adresse suivante : {EMAIL_CONTACT}
+nous écrire à l'adresse suivante : <MuiLink href={`mailto:${EMAIL_CONTACT}`}>{EMAIL_CONTACT}</MuiLink>
 
 ### Modifications
 
@@ -160,6 +158,6 @@ pouvons informer les utilisateurs par courriel des changements apportés à cett
 
 ### Contact
 
-Si vous avez des questions à nous poser, n'hésitez pas à communiquer avec nous en utilisant ce qui suit : {EMAIL_CONTACT}
+Si vous avez des questions à nous poser, n'hésitez pas à communiquer avec nous en utilisant ce qui suit : <MuiLink href={`mailto:${EMAIL_CONTACT}`}>{EMAIL_CONTACT}</MuiLink>
 
-export default ({ children }) => <PublicContainer {...meta}>{children}</PublicContainer>
+export default ({ children }) => <FrontsiteContent {...meta}>{children}</FrontsiteContent>
