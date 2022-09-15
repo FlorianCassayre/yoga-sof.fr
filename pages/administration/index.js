@@ -53,15 +53,19 @@ function AdminHomeLayout() {
             title: 'Inscriptions / Places disponibles',
             name: 'registrations._count',
             sortable: true,
-            render: ({ slots, registrations }) => (
-              <>
-                {registrations.filter(({ isUserCanceled }) => !isUserCanceled).length}
-                {' '}
-                /
-                {' '}
-                {slots}
-              </>
-            ),
+            render: ({ slots, registrations }) => {
+              const registered = registrations.filter(({ isUserCanceled }) => !isUserCanceled).length;
+              return (
+                <>
+                  <span className={registered > 0 ? 'text-success' : ''}>{registered}</span>
+                  {' '}
+                  /
+                  {' '}
+                  {slots}
+                </>
+              );
+            },
+            props: { className: 'text-center' },
           },
           {
             title: 'Notes',

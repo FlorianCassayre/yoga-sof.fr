@@ -199,9 +199,10 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
               rowProps={({ id }) => ({
                 onClick: () => handleCourseSelect(id),
                 style: {
-                  opacity: isUserAlreadyRegisteredToCourse(id) ? 0.3 : null,
+                  opacity: isUserAlreadyRegisteredToCourse(id) ? 0.2 : null,
                   cursor: isUserAlreadyRegisteredToCourse(id) ? null : 'pointer',
                 },
+                className: values.courses.includes(id) ? 'table-success' : null,
               })}
               striped={false}
             />
