@@ -1,12 +1,12 @@
 import { USER_TYPE_ADMIN, schemaRegisterBody } from '../../lib/common';
-import { apiHandler, prisma } from '../../lib/server';
+import { apiHandler, notifyCourseRegistration, prisma } from '../../lib/server';
 
 export default async function handler(req, res) {
   await apiHandler({
     POST: {
       permissions: [USER_TYPE_ADMIN],
       schemaBody: schemaRegisterBody,
-      action: async ({ accept, reject, body: { userId, courseId } }) => {
+      action: async ({ accept, reject, body: { userId, courseId, notify } }) => {
         try {
           const result = await prisma.$transaction(async () => {
             const existsRegistration = !!(await prisma.courseRegistration.count({
@@ -38,6 +38,10 @@ export default async function handler(req, res) {
               },
             });
           });
+
+          if (notify) {
+            await notifyCourseRegistration(userId, [courseId]);
+          }
 
           accept(result);
         } catch (error) {

@@ -25,6 +25,7 @@ export default function AdminRegistrationCreate() {
           initialValues={{
             userId: Number.isNaN(userId) ? undefined : userId,
             courseId: Number.isNaN(courseId) ? undefined : courseId,
+            notify: false,
           }}
         />
       </ContentLayout>

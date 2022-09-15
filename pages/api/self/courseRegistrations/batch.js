@@ -1,5 +1,5 @@
 import { ALL_USER_TYPES, IS_REGISTRATION_DISABLED, schemaSelfRegistrationBatchBody } from '../../../../lib/common';
-import { apiHandler, prisma } from '../../../../lib/server';
+import { apiHandler, notifyCourseRegistration, prisma } from '../../../../lib/server';
 
 export default async function handler(req, res) {
   await apiHandler({
@@ -32,8 +32,11 @@ export default async function handler(req, res) {
             ),
           );
 
+          await notifyCourseRegistration(userId, courses);
+
           accept({});
         } catch (e) {
+          console.error(e);
           reject('Bad Request');
         }
       },

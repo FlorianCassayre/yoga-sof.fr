@@ -164,6 +164,7 @@ model CourseBundle {
 enum EmailMessageType {
   SESSION_CANCELED
   SESSION_REMINDER_NEWCOMER
+  SESSION_REGISTRATION
   OTHER
 }
 
