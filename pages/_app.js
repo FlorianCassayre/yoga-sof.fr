@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './globals.css';
 import 'react-datepicker/dist/react-datepicker.css';
 import '@fontsource/nunito';
+import { withTRPC } from '@trpc/next';
 import { SessionProvider } from 'next-auth/react';
 import { MDXProvider } from '@mdx-js/react';
 import { NotificationsProvider, RefreshProvider } from '../state';
@@ -30,4 +31,4 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-export default MyApp;
+export default withTRPC(MyApp);
