@@ -27,7 +27,7 @@ export default async function handler(req, res) {
               include: { registrations: true },
             });
 
-            if (course.registrations.length >= course.slots) {
+            if (course.registrations.filter(({ isUserCanceled }) => !isUserCanceled).length >= course.slots) {
               throw new Error('course is full');
             }
 
