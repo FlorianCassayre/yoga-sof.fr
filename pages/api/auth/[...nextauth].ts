@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import NextAuth from 'next-auth';
+import NextAuth, { Session } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 // import FacebookProvider from 'next-auth/providers/facebook';
 import EmailProvider from 'next-auth/providers/email';
@@ -15,8 +15,8 @@ export default NextAuth({
   // https://next-auth.js.org/configuration/providers
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
+      clientId: process.env.GOOGLE_ID as string,
+      clientSecret: process.env.GOOGLE_SECRET as string,
     }),
     // Facebook is disabled temporarily until the app is reactivated
     /* FacebookProvider({
@@ -26,13 +26,13 @@ export default NextAuth({
     EmailProvider({
       server: NODEMAILER_CONFIGURATION,
       from: process.env.EMAIL_FROM,
-      sendVerificationRequest,
+      sendVerificationRequest: sendVerificationRequest as any,
     }),
   ],
   // This option is not strictly required since next-auth will look for the variable `NEXTAUTH_SECRET` anyway
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    jwt: true,
+    // jwt: true, // FIXME
     // maxAge: 30 * 24 * 60 * 60, // 30 days
     // updateAge: 24 * 60 * 60, // 24 hours
   },
@@ -83,7 +83,7 @@ export default NextAuth({
 
       const isAllowedToSignIn = !user.disabled;
       if (!isAllowedToSignIn) {
-        return null;
+        throw new Error(); // Shouldn't happen?
       }
 
       await prisma.user.update({
@@ -99,7 +99,7 @@ export default NextAuth({
         where: {
           // This email must have necessarily come from one of the registered providers,
           // and cannot be changed manually. Thus it should be safe to trust.
-          email: user.email,
+          email: user.email ?? undefined,
         },
       }));
 

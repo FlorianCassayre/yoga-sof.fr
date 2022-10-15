@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Form } from 'react-bootstrap';
 import { BsXOctagon } from 'react-icons/bs';
 import { postCancelCourse } from '../lib/client/api';
-import { useNotificationsContext, useRefreshContext } from '../state';
+import { useNotificationsContext, useRefreshContext } from './state';
 import { ConfirmDialog } from './ConfirmDialog';
 import { displayCourseName } from '../lib/common';
 
