@@ -1,16 +1,14 @@
 /* eslint-disable no-param-reassign */
 
-import NextAuth, { Session } from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 // import FacebookProvider from 'next-auth/providers/facebook';
 import EmailProvider from 'next-auth/providers/email';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../../../lib/common';
 import { NODEMAILER_CONFIGURATION, prisma, sendVerificationRequest } from '../../../lib/server';
+import { UserType } from '../../../lib/common/all';
 
-// For more information on each option (and a full list of options) go to
-// https://next-auth.js.org/configuration/options
-export default NextAuth({
+export const nextAuthOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   // https://next-auth.js.org/configuration/providers
   providers: [
@@ -105,7 +103,7 @@ export default NextAuth({
 
       // We extend the `session` object to contain information about the permissions of the user
       session.userId = user.id;
-      session.userType = isEmailAdminWhitelisted ? USER_TYPE_ADMIN : USER_TYPE_REGULAR;
+      session.userType = isEmailAdminWhitelisted ? UserType.Admin : UserType.Regular;
       session.displayName = user.customName ? user.customName : user.name;
       session.displayEmail = user.customEmail ? user.customEmail : user.email;
       session.publicAccessToken = user.publicAccessToken;
@@ -115,4 +113,8 @@ export default NextAuth({
   },
   events: {},
   debug: false,
-});
+};
+
+// For more information on each option (and a full list of options) go to
+// https://next-auth.js.org/configuration/options
+export default NextAuth(nextAuthOptions);

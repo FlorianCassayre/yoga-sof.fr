@@ -25,6 +25,7 @@ interface MenuItem {
   title: string;
   icon: React.ReactNode;
   url?: string;
+  disabled?: boolean;
 }
 
 interface MenuCategory {
@@ -80,9 +81,9 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
           {menu.map(({ title: categoryTitle, children }, i) => (
               <Fragment key={i}>
                 <List subheader={categoryTitle ? <ListSubheader>{categoryTitle}</ListSubheader> : undefined}>
-                  {children.map(({ title: itemTitle, icon, url }, j) => (
+                  {children.map(({ title: itemTitle, icon, url, disabled }, j) => (
                     <ListItem key={j} disablePadding>
-                      <ListItemButton selected={url !== undefined ? isUrlSelected(url) : false}>
+                      <ListItemButton selected={url !== undefined ? isUrlSelected(url) : false} disabled={disabled}>
                         <ListItemIcon>
                           {icon}
                         </ListItemIcon>

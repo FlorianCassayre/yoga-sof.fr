@@ -6,8 +6,9 @@ import { SessionProvider } from 'next-auth/react';
 import { MDXProvider } from '@mdx-js/react';
 import { NotificationsProvider, RefreshProvider } from '../components/state';
 import { grey } from '@mui/material/colors';
+import React from 'react';
 
-function Paragraph({ children }) {
+function Paragraph({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-justify">{children}</p>
   );
@@ -37,10 +38,15 @@ const theme = createTheme({
   },
 });
 
-function MyApp({ Component, pageProps }) {
+interface MyAppProps {
+  Component: React.Component & ((props: object) => JSX.Element);
+  pageProps: Record<string, any>;
+}
+
+function MyApp({ Component, pageProps }: MyAppProps) {
   return (
     <ThemeProvider theme={theme}>
-      <MDXProvider components={components}>
+      <MDXProvider components={components as any}>
         <SessionProvider>
           <NotificationsProvider>
             <RefreshProvider>
@@ -61,6 +67,7 @@ export default withTRPC({
      */
     const url = 'http://localhost:3000/api/trpc';
     return {
+      retries: 1,
       url,
       /**
        * @link https://react-query.tanstack.com/reference/QueryClient

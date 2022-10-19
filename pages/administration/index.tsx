@@ -1,13 +1,12 @@
-import { useSession } from 'next-auth/react';
 import React from 'react';
-import { BsKanban } from 'react-icons/bs';
-import { ButtonICSLink, CourseCards } from '../../components';
-import { ContentLayout, PrivateLayout } from '../../components/layout/admin';
-import { DynamicPaginatedTable, detailsColumnFor } from '../../components/table';
-import { displayCourseType, displayTimePeriod, formatDateLiteral } from '../../lib/common';
-import { BREADCRUMB_OVERVIEW } from '../../lib/client';
+import { GuardedBackofficeContainer } from '../../components/layout/admin/GuardedBackofficeContainer';
+import { BackofficeContent } from '../../components/layout/admin/BackofficeContent';
+import { Dashboard, Edit } from '@mui/icons-material';
+import { Grid } from '@mui/material';
+import { CourseModelCards } from '../../components/CourseModelCards';
+import { BasicSpeedDial } from '../../components/BasicSpeedDial';
 
-function AdminHomeLayout() {
+/*function AdminHomeLayout() {
   const { data: session } = useSession();
 
   return (
@@ -81,12 +80,27 @@ function AdminHomeLayout() {
       </div>
     </ContentLayout>
   );
-}
+}*/
+
+const AdminHomeContent: React.FC = () => {
+  return (
+    <BackofficeContent
+      title="Aperçu"
+      icon={<Dashboard />}
+    >
+      <CourseModelCards />
+
+      <BasicSpeedDial actions={[
+        { icon: <Edit />, name: 'bla' }
+      ]} />
+    </BackofficeContent>
+  );
+};
 
 export default function AdminHome() {
   return (
-    <PrivateLayout>
-      <AdminHomeLayout />
-    </PrivateLayout>
+    <GuardedBackofficeContainer>
+      <AdminHomeContent />
+    </GuardedBackofficeContainer>
   );
 }

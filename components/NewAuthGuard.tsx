@@ -4,7 +4,7 @@ import React, { useEffect, useMemo } from 'react';
 import { UserType } from '../lib/common/all';
 
 interface NewAuthGuardProps {
-  allowedUserTypes: UserType;
+  allowedUserTypes: UserType[];
   children: React.ReactNode;
 }
 
@@ -32,7 +32,7 @@ export const NewAuthGuard: React.FC<NewAuthGuardProps> = ({ allowedUserTypes, ch
 
   return (
     <>
-      children
+      {children}
     </>
   );
 }

@@ -1,23 +1,23 @@
+import { Box, Container } from '@mui/material';
 import { getProviders } from 'next-auth/react';
-import { Container } from 'react-bootstrap';
 import Link from 'next/link';
-import { LoginCard } from '../components';
 import { HeadMeta } from '../components/layout/HeadMeta';
+import { NewLoginCard } from '../components/NewLoginCard';
 
 export default function Connexion({ providers }) {
   return (
-    <div>
+    <>
       <HeadMeta title="Connexion - Yoga Sof" />
 
       <Container className="my-5 px-3">
-        <LoginCard providers={providers} />
-        <div className="text-center mt-3">
+        <NewLoginCard providers={providers} />
+        <Box sx={{ mt: 3, textAlign: 'center' }}>
           <Link href="/">
             Retourner à l'accueil
           </Link>
-        </div>
+        </Box>
       </Container>
-    </div>
+    </>
   );
 }
 

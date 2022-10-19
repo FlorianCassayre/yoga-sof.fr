@@ -8,6 +8,7 @@ import { joiValidator, providersData } from '../lib/client';
 import { EMAIL_CONTACT, schemaSignInEmail, schemaSignInExternal } from '../lib/common';
 import { BuiltInProviderType } from 'next-auth/providers';
 import { LiteralUnion } from 'next-auth/react/types';
+import { Button } from '@mui/material';
 
 const ErrorMessages = {
   Verification: 'Le lien que vous avez suivi est probablement périmé.',
@@ -25,7 +26,7 @@ export const NewLoginCard: React.FC<NewLoginCardProps> = ({ providers }) => {
 
   const [isLoading, setLoading] = useState(false);
 
-  const handleSubmitFor = (providerId: LiteralUnion<BuiltInProviderType>) => data => {
+  const handleSubmitFor = (providerId: LiteralUnion<BuiltInProviderType>) => (data: any) => {
     setLoading(true);
     signIn(providerId, { callbackUrl: `${window.location.origin}/redirection`, ...data })
       .catch(() => setLoading(false));
@@ -37,13 +38,41 @@ export const NewLoginCard: React.FC<NewLoginCardProps> = ({ providers }) => {
   };
 
   return (
+    <>
+      {Object.values(providers ?? {}).map(provider => {
+        const isEmail = provider.id === 'email';
+        const format = (providersData as any)[provider.id];
+        const Icon = format.icon;
+        return (
+          <div key={provider.id} className="mt-2">
+            <Button disabled={isLoading} onClick={() => handleSubmitFor(provider.id)({})}>
+              <Icon className="icon me-2" />
+              {!isEmail ? (
+                <>
+                  Se connecter avec
+                  {' '}
+                  <strong>{provider.name}</strong>
+                </>
+              ) : (
+                <>
+                  Recevoir un lien de connexion
+                </>
+              )}
+            </Button>
+          </div>
+        );
+      })}
+    </>
+  );
+
+  /*return (
     <Row className="justify-content-center">
       <Col xs={12} sm={8} md={6} lg={5} xl={4}>
-        {/*<ErrorMessage dismissible show onClose={handleClearErrors}>
+        <ErrorMessage dismissible show onClose={handleClearErrors}>
             Une erreur est survenue lors de la connexion.
             {' '}
             {ErrorMessages[error] ? ErrorMessages[error] : 'Si le problème persiste, merci de nous le faire savoir.'}
-          </ErrorMessage>*/}
+          </ErrorMessage>
         {!!error && (
           <div>erreur</div>
         )}
@@ -108,5 +137,5 @@ export const NewLoginCard: React.FC<NewLoginCardProps> = ({ providers }) => {
         </Card>
       </Col>
     </Row>
-  );
+  );*/
 }

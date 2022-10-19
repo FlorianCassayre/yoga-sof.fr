@@ -71,7 +71,7 @@ export function NavigationLayout() {
               >
                 {session.userType === USER_TYPE_ADMIN && (
                   <>
-                    <Link href="/administration" passHref>
+                    <Link href="/index" passHref>
                       <NavDropdown.Item>
                         <BsSpeedometer2 className="icon me-2" />
                         Administration

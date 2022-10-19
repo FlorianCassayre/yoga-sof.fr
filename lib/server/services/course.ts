@@ -1,12 +1,28 @@
 import { Course, Prisma } from '@prisma/client';
 import { prisma } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
+import { Pagination } from './helpers/types';
+import { createPaginated, createPrismaPagination } from './helpers/pagination';
 
 export const findCourse = async (args: { where: Prisma.CourseWhereUniqueInput, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude }) =>
   prisma.course.findUniqueOrThrow(args);
 
-export const findCourses = async (args: { where?: Prisma.CourseWhereInput, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude }) =>
+export const findCourses = async (args: { where?: Prisma.CourseWhereInput, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude, orderBy?: Prisma.Enumerable<Prisma.CourseOrderByWithRelationInput> } = {}) =>
   prisma.course.findMany(args);
+
+export const findCoursesPaginated = async (args: { pagination: Pagination, where?: Prisma.CourseWhereInput, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude, orderBy?: Prisma.Enumerable<Prisma.CourseOrderByWithRelationInput> }) => {
+  const { pagination: { page, elementsPerPage }, ...rest } = args;
+  const [totalElements, data] = await prisma.$transaction([
+    prisma.course.count({ where: args.where }),
+    prisma.course.findMany({ ...rest, ...createPrismaPagination(args.pagination) })
+  ])
+  return createPaginated({
+    page,
+    elementsPerPage,
+    totalElements,
+    data,
+  });
+}
 
 export const updateCourse = async (args: { where: Prisma.CourseWhereUniqueInput, data: Partial<Pick<Course, 'slots' | 'notes'>>, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude }) => {
   const { where: { id }, data: { slots } } = args;

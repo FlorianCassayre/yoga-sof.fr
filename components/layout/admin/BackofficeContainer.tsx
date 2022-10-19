@@ -13,7 +13,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
       menu={[
         {
           children: [
-            { title: 'Aperçu', icon: <Dashboard />, url: '#' }
+            { title: 'Aperçu', icon: <Dashboard />, url: '/administration' }
           ]
         },
         {
@@ -21,7 +21,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
           children: [
             { title: 'Séances et horaires', icon: <DateRange /> },
             { title: 'Inscriptions', icon: <Assignment /> },
-            { title: 'Factures et paiements', icon: <Euro /> },
+            { title: 'Factures et paiements', icon: <Euro />, disabled: true },
           ]
         },
         {

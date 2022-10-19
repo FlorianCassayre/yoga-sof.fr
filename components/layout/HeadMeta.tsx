@@ -1,6 +1,11 @@
 import Head from 'next/head';
+import React from 'react';
 
-export function HeadMeta({ title }) {
+interface HeadMetaProps {
+  title?: string;
+}
+
+export const HeadMeta: React.FC<HeadMetaProps> = ({ title }) => {
   return (
     <Head>
       {title && <title>{title}</title>}

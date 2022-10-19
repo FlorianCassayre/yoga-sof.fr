@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { USER_TYPE_ADMIN, USER_TYPE_REGULAR } from '../lib/common';
+import { UserType } from '../lib/common/all';
 
 export default function Redirection() {
   const router = useRouter();
@@ -14,11 +14,11 @@ export default function Redirection() {
     // }
 
     if (!loading) {
-      if (status === 'unauthenticated') {
+      if (session === null) {
         router.push('/connexion');
-      } else if (session.userType === USER_TYPE_REGULAR) {
+      } else if (session.userType === UserType.Regular) {
         router.push('/inscription');
-      } else if (session.userType === USER_TYPE_ADMIN) {
+      } else if (session.userType === UserType.Admin) {
         router.push('/administration');
       } else {
         throw new Error();
