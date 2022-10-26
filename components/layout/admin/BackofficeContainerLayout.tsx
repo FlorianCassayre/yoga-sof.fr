@@ -11,38 +11,53 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import { useLocation, useMedia } from 'react-use';
 import { Fragment, useCallback, useState } from 'react';
-import { IconButton, ListSubheader } from '@mui/material';
-import { Menu } from '@mui/icons-material';
+import { Avatar, IconButton, ListSubheader, Menu, MenuItem } from '@mui/material';
+import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material';
 import Link from 'next/link';
 
 const drawerWidth = 240;
 
-interface MenuItem {
+interface ProfileMenuItem {
+  title: string;
+  icon: React.ReactNode;
+  onClick?: () => void;
+}
+
+interface ProfileMenu {
+  pictureUrl?: string;
+  children: ProfileMenuItem[];
+}
+
+interface SideMenuItem {
   title: string;
   icon: React.ReactNode;
   url?: string;
   disabled?: boolean;
 }
 
-interface MenuCategory {
+interface SideMenuCategory {
   title?: string;
-  children: MenuItem[];
+  children: SideMenuItem[];
 }
 
 interface BackofficeContainerLayoutProps {
   title: string;
-  menu: MenuCategory[];
+  menu: SideMenuCategory[];
+  profileMenu: ProfileMenu;
   children: React.ReactNode;
 }
 
 export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps> =
-  ({ title, menu, children }) => {
+  ({ title, menu, profileMenu, children }) => {
   const isWide = useMedia('(min-width: 768px)');
-  const [isOpen, setOpen] = useState(false);
+  const [isDrawerOpen, setDrawerOpen] = useState(false);
+  const [profileAnchorEl, setProfileProfileAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setProfileProfileAnchorEl(event.currentTarget);
+  };
 
   const state = useLocation();
   const isUrlSelected = useCallback((url: string) => state.pathname?.startsWith(url), []);
@@ -55,21 +70,65 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
           <IconButton
             color="inherit"
             aria-label="Ouvrir"
-            onClick={() => setOpen(!isOpen)}
+            onClick={() => setDrawerOpen(!isDrawerOpen)}
             edge="start"
             sx={{ mr: 2, ...(isWide && { display: 'none' }) }}
           >
-            <Menu />
+            <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {title}
           </Typography>
+          {!!profileMenu && (
+            <>
+              <IconButton
+                size="large"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="inherit"
+              >
+                {profileMenu.pictureUrl ? (
+                  <Avatar alt="Avatar" src={profileMenu.pictureUrl} />
+                ) : (
+                  <AccountCircle />
+                )}
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={profileAnchorEl}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(profileAnchorEl)}
+                onClose={() => setProfileProfileAnchorEl(null)}
+              >
+                {profileMenu.children.map(({ title, icon, onClick }, i) => (
+                  <MenuItem key={i} onClick={() => {
+                    setProfileProfileAnchorEl(null);
+                    onClick && onClick();
+                  }}>
+                    <ListItemIcon>
+                      {icon}
+                    </ListItemIcon>
+                    <ListItemText primary={title} />
+                  </MenuItem>
+                ))}
+              </Menu>
+            </>
+          )}
         </Toolbar>
       </AppBar>
       <Drawer
         variant={isWide ? "permanent" : undefined}
-        open={isWide || isOpen}
-        onClose={() => !isWide && setOpen(false)}
+        open={isWide || isDrawerOpen}
+        onClose={() => !isWide && setDrawerOpen(false)}
         sx={{
           width: drawerWidth,
           flexShrink: 0,

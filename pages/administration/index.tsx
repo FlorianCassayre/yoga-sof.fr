@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { GuardedBackofficeContainer } from '../../components/layout/admin/GuardedBackofficeContainer';
 import { BackofficeContent } from '../../components/layout/admin/BackofficeContent';
 import { Dashboard, Edit } from '@mui/icons-material';
-import { Grid } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import { CourseModelCards } from '../../components/CourseModelCards';
 import { BasicSpeedDial } from '../../components/BasicSpeedDial';
+import { AsyncGrid, QueryParameters } from '../../components/grid';
+import { trpc } from '../../lib/common/trpc';
+import { UseQueryResult } from 'react-query';
+import { Paginated } from '../../lib/server/services/helpers/types';
+import { TRPCClientErrorLike } from '@trpc/client';
+import { AppRouter } from '../../lib/server/controllers';
+import { Course } from '@prisma/client';
+import { GridColDef } from '@mui/x-data-grid';
 
 /*function AdminHomeLayout() {
   const { data: session } = useSession();
@@ -82,16 +90,36 @@ import { BasicSpeedDial } from '../../components/BasicSpeedDial';
   );
 }*/
 
+const LatestCoursesGrid: React.FC = () => {
+  const useCoursesQuery = useCallback(({ pagination }: QueryParameters) => trpc.useQuery(['course.getAllPaginated', { pagination }]), []);
+
+  const columns: GridColDef[] = [
+    { field: 'id', headerName: '#' },
+  ];
+
+  return (
+    <AsyncGrid columns={columns} useQuery={useCoursesQuery} />
+  );
+};
+
 const AdminHomeContent: React.FC = () => {
   return (
     <BackofficeContent
       title="Aperçu"
       icon={<Dashboard />}
     >
-      <CourseModelCards />
+      <Typography variant="h6" component="div" sx={{ mb: 2 }}>
+        Planning ordinaire
+      </Typography>
+      <CourseModelCards readOnly />
+
+      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
+        Prochaines séances
+      </Typography>
+      <LatestCoursesGrid />
 
       <BasicSpeedDial actions={[
-        { icon: <Edit />, name: 'bla' }
+        { icon: <Edit />, name: 'Nouveau modèle de séance', url: '/administration/seances/modeles/creation' }
       ]} />
     </BackofficeContent>
   );

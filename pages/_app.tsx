@@ -7,6 +7,8 @@ import { MDXProvider } from '@mdx-js/react';
 import { NotificationsProvider, RefreshProvider } from '../components/state';
 import { grey } from '@mui/material/colors';
 import React from 'react';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import DateFnsUtils from '@date-io/date-fns';
 
 function Paragraph({ children }: { children: React.ReactNode }) {
   return (
@@ -25,7 +27,7 @@ const theme = createTheme({
   palette: {
     background: {
       default: "#fcfcfc"
-    }
+    },
   },
   components: {
     MuiAppBar: {
@@ -45,17 +47,19 @@ interface MyAppProps {
 
 function MyApp({ Component, pageProps }: MyAppProps) {
   return (
-    <ThemeProvider theme={theme}>
-      <MDXProvider components={components as any}>
-        <SessionProvider>
-          <NotificationsProvider>
-            <RefreshProvider>
-              <Component {...pageProps} />
-            </RefreshProvider>
-          </NotificationsProvider>
-        </SessionProvider>
-      </MDXProvider>
-    </ThemeProvider>
+    <LocalizationProvider dateAdapter={DateFnsUtils}>
+      <ThemeProvider theme={theme}>
+        <MDXProvider components={components as any}>
+          <SessionProvider>
+            <NotificationsProvider>
+              <RefreshProvider>
+                <Component {...pageProps} />
+              </RefreshProvider>
+            </NotificationsProvider>
+          </SessionProvider>
+        </MDXProvider>
+      </ThemeProvider>
+    </LocalizationProvider>
   );
 }
 

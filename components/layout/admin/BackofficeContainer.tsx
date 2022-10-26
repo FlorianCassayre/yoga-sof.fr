@@ -1,12 +1,15 @@
 import React from 'react';
 import { BackofficeContainerLayout } from './BackofficeContainerLayout';
 import { AdminPanelSettings, Assignment, Dashboard, DateRange, Email, Euro, People } from '@mui/icons-material';
+import { useSession } from 'next-auth/react';
 
 interface BackofficeContainerProps {
   children: React.ReactNode;
 }
 
 export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ children }) => {
+  const session = useSession();
+
   return (
     <BackofficeContainerLayout
       title="Yoga Sof"
@@ -19,9 +22,9 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
         {
           title: 'Yoga',
           children: [
-            { title: 'Séances et horaires', icon: <DateRange /> },
+            { title: 'Séances', icon: <DateRange /> },
             { title: 'Inscriptions', icon: <Assignment /> },
-            { title: 'Factures et paiements', icon: <Euro />, disabled: true },
+            { title: 'Comptabilité', icon: <Euro />, disabled: true },
           ]
         },
         {
@@ -33,6 +36,11 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
           ]
         }
       ]}
+      profileMenu={{
+        children: [
+          { title: 'Profil', icon: <People /> },
+        ]
+      }}
     >
       {children}
     </BackofficeContainerLayout>
