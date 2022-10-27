@@ -6,7 +6,7 @@ import { schemaWithPagination } from '../schemas';
 
 export const courseRouter = trpc
   .router<ContextProtected>()
-  .query('getOne', {
+  .query('get', {
     input: z.strictObject({
       id: z.number().int().min(0),
     }),
