@@ -1,11 +1,11 @@
 import { GuardedBackofficeContainer } from '../../../../components/layout/admin/GuardedBackofficeContainer';
 import React from 'react';
-import { CourseModelForm } from '../../../../components/form/forms/CourseModelForm';
+import { CourseModelCreateForm } from '../../../../components/form/forms/course';
 
 export default function CourseModelCreate() {
   return (
     <GuardedBackofficeContainer>
-      <CourseModelForm urlCancel="/administration/seances/modeles" />
+      <CourseModelCreateForm />
     </GuardedBackofficeContainer>
   );
 }

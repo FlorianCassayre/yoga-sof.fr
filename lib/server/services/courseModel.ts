@@ -1,6 +1,9 @@
 import { CourseModel, Prisma } from '@prisma/client';
 import { prisma } from '../prisma';
 
+export const findCourseModel = async (args: { where: Prisma.CourseModelWhereUniqueInput, select?: Prisma.CourseModelSelect }) =>
+  prisma.courseModel.findUniqueOrThrow(args);
+
 export const findCourseModels = async (args: { where?: Prisma.CourseModelWhereInput, select?: Prisma.CourseModelSelect } = {}) =>
   prisma.courseModel.findMany(args);
 

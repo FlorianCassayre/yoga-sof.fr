@@ -4,6 +4,7 @@ import {Control, Controller, ControllerProps, FieldError, Path} from 'react-hook
 import {TextField, TextFieldProps} from '@mui/material'
 import {FieldValues} from 'react-hook-form/dist/types/fields'
 import { TimePicker, TimePickerProps } from '@mui/x-date-pickers';
+import { colonTimeToParts, formatTimeHHhMM } from '../../../lib/common/newDate';
 
 // Most of this file was adapted from
 // https://github.com/dohomi/react-hook-form-mui/blob/master/packages/rhf-mui/src/DateTimePickerElement.tsx
@@ -38,6 +39,19 @@ export function TimePickerElement<TFieldValues extends FieldValues>({
     validation.required = 'This field is required'
   }
 
+  const colonTimeToDate = (time: string | undefined): Date | undefined => {
+    if (!time) {
+      return undefined;
+    }
+    const [hours, minutes] = colonTimeToParts(time);
+    const date = new Date();
+    date.setHours(hours);
+    date.setMinutes(minutes);
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+  }
+
   return (
     <Controller
       name={name}
@@ -49,7 +63,7 @@ export function TimePickerElement<TFieldValues extends FieldValues>({
       }) => (
         <TimePicker
           {...rest}
-          value={value || ''}
+          value={colonTimeToDate(value) || ''}
           onChange={(value, keyboardInputValue) => {
             let newValue: string | undefined = undefined
             if (keyboardInputValue) {
@@ -65,8 +79,8 @@ export function TimePickerElement<TFieldValues extends FieldValues>({
                 newValue = value
               }
             }
-            //const newValueString = newValue ? formatTimeHHhMM(newValue as any as Date) : undefined;
-            onChange(newValue, keyboardInputValue)
+            const newValueString = newValue ? formatTimeHHhMM(newValue as any as Date) : undefined;
+            onChange(newValueString, keyboardInputValue)
             if (typeof rest.onChange === 'function') {
               rest.onChange(newValue, keyboardInputValue)
             }

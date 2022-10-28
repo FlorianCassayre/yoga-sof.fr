@@ -9,32 +9,36 @@ import {
   SelectWeekday,
   TimePickerElement
 } from '../newFields';
-import * as z from 'zod';
+import { z } from 'zod';
 import { NewCreateEditForm } from '../NewCreateEditForm';
 import { DeepPartial, SwitchElement } from 'react-hook-form-mui';
-import { courseModelSchema } from '../../../lib/server/controllers/routers/courseModel';
+import { courseModelCreateSchema, courseModelUpdateSchema } from '../../../lib/common/newSchemas';
 
-const courseModelSchemaDefaultValues: DeepPartial<z.infer<typeof courseModelSchema>> = {
+const courseModelSchemaDefaultValues: DeepPartial<z.infer<typeof courseModelCreateSchema>> = {
   slots: 1,
   price: 0,
   bundle: false,
 };
 
 interface CourseModelFormProps {
-  urlCancel: string;
+  edit: boolean;
 }
 
-export const CourseModelForm: React.FC<CourseModelFormProps> = ({ urlCancel }) => {
+export const CourseModelForm: React.FC<CourseModelFormProps> = ({ edit }) => {
   return (
     <BackofficeContent
-      title="Création d'un modèle de séance"
+      title={`${edit ? `Modification` : `Création`} d'un modèle de séance`}
       icon={<Dashboard />}
     >
       <NewCreateEditForm
-        schema={courseModelSchema}
+        schema={courseModelUpdateSchema}
         defaultValues={courseModelSchemaDefaultValues}
+        query="courseModel.get"
         mutation="courseModel.create"
-        urlCancel={urlCancel}
+        urlSuccessFor={() => `/administration/seances`}
+        urlCancel={`/administration/seances`}
+        edit={edit}
+        editData={undefined}
       >
         <Grid container spacing={2}>
           <Grid item xs={12}>
