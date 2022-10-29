@@ -1,17 +1,12 @@
-import React, { useCallback, useMemo } from 'react';
-import { GuardedBackofficeContainer } from '../../components/layout/admin/GuardedBackofficeContainer';
-import { BackofficeContent } from '../../components/layout/admin/BackofficeContent';
-import { Dashboard, Edit } from '@mui/icons-material';
+import React, { useCallback } from 'react';
+import { GuardedBackofficeContainer } from '../../../components/layout/admin/GuardedBackofficeContainer';
+import { BackofficeContent } from '../../../components/layout/admin/BackofficeContent';
+import { DateRange, Event } from '@mui/icons-material';
 import { Grid, Typography } from '@mui/material';
-import { CourseModelCards } from '../../components/CourseModelCards';
-import { BasicSpeedDial } from '../../components/BasicSpeedDial';
-import { AsyncGrid, QueryParameters } from '../../components/grid';
-import { trpc } from '../../lib/common/trpc';
-import { UseQueryResult } from 'react-query';
-import { Paginated } from '../../lib/server/services/helpers/types';
-import { TRPCClientErrorLike } from '@trpc/client';
-import { AppRouter } from '../../lib/server/controllers';
-import { Course } from '@prisma/client';
+import { CourseModelCards } from '../../../components/CourseModelCards';
+import { BasicSpeedDial } from '../../../components/BasicSpeedDial';
+import { AsyncGrid, QueryParameters } from '../../../components/grid';
+import { trpc } from '../../../lib/common/trpc';
 import { GridColDef } from '@mui/x-data-grid';
 
 /*function AdminHomeLayout() {
@@ -105,18 +100,37 @@ const LatestCoursesGrid: React.FC = () => {
 const AdminHomeContent: React.FC = () => {
   return (
     <BackofficeContent
-      title="Aperçu"
-      icon={<Dashboard />}
+      title="Séances"
+      icon={<DateRange />}
+      actions={[
+        { icon: <Event />, name: 'Nouveau modèle de séance', url: '/administration/seances/modeles/creation' }
+      ]}
     >
-      <Typography variant="h6" component="div" sx={{ mb: 2 }}>
-        Planning ordinaire
+      <Typography variant="h6" component="div">
+        Modèles de séances
       </Typography>
-      <CourseModelCards readOnly />
+      <Typography paragraph>
+        Il s'agit des horaires hebdomadaires de déroulement des séances. Ces modèles servent ensuite à efficacement planifier un lot de séances (ci-dessous). Il reste
+        possible de planifier des séances à d'autres dates et horaires que celles indiquées par les modèles.
+      </Typography>
+      <CourseModelCards />
 
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
-        Prochaines séances
+        Séances à venir
+      </Typography>
+      <Typography paragraph>
+        Les utilisateurs ne peuvent seulement s'inscrire à des séances qui ont été planifiées.
+        Ce tableau contient la liste des séances passées, présentes et futures. Le bouton permet de planifier de
+        nouvelles séances. Il n'est pas possible de supprimer de séances, en revanche il est possible d'en annuler.
       </Typography>
       <LatestCoursesGrid />
+
+      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
+        Séances passées ou annulées
+      </Typography>
+      <Typography paragraph>
+        Les séances passées ou ayant été annulées.
+      </Typography>
     </BackofficeContent>
   );
 };

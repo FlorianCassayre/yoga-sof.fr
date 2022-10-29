@@ -35,3 +35,10 @@ export const courseModelGetSchema = z.object({
 export const courseModelUpdateSchema = courseModelSchemaBase.merge(courseModelGetSchema).superRefine(refineTimeRange);
 
 export const courseModelCreateSchema = courseModelSchemaBase.superRefine(refineTimeRange);
+
+export const courseModelGetTransformSchema = z.object({
+  id: z.preprocess(
+    (a) => parseInt(z.string().parse(a), 10),
+    z.number().int().min(0)
+  ),
+});

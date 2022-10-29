@@ -19,7 +19,7 @@ export const BasicSpeedDial: React.FC<BasicSpeedDialProps> = ({ actions }) => {
   return (
     <SpeedDial
       ariaLabel="SpeedDial basic example"
-      sx={{ position: 'absolute', bottom: margin, right: margin }}
+      sx={{ position: 'fixed', bottom: margin, right: margin }}
       icon={<SpeedDialIcon />}
     >
       {actions.map((action) => (

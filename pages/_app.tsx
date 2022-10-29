@@ -1,14 +1,21 @@
-import '@fontsource/nunito';
+import '@fontsource/nunito/300.css';
+import '@fontsource/nunito/400.css';
+import '@fontsource/nunito/500.css';
+import '@fontsource/nunito/700.css';
 import '@fontsource/roboto';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { withTRPC } from '@trpc/next';
 import { SessionProvider } from 'next-auth/react';
 import { MDXProvider } from '@mdx-js/react';
-import { NotificationsProvider, RefreshProvider } from '../components/state';
 import { grey } from '@mui/material/colors';
 import React from 'react';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import DateFnsUtils from '@date-io/date-fns';
+import { AppProps } from 'next/app';
+import { Router } from 'next/router';
+import { GuardedBackofficeContainer } from '../components/layout/admin/GuardedBackofficeContainer';
+import { AppRouter } from '../lib/server/controllers';
+import { WithTRPCConfig } from '@trpc/next/src/withTRPC';
 
 function Paragraph({ children }: { children: React.ReactNode }) {
   return (
@@ -40,22 +47,38 @@ const theme = createTheme({
   },
 });
 
-interface MyAppProps {
-  Component: React.Component & ((props: object) => JSX.Element);
-  pageProps: Record<string, any>;
+interface LayoutProviderProps {
+  router: Router;
+  children: React.ReactNode;
 }
 
-function MyApp({ Component, pageProps }: MyAppProps) {
+const LayoutProvider = ({ router, children }: LayoutProviderProps): JSX.Element => {
+  if (router.pathname.startsWith('/administration')) { // TODO
+    return (
+      <GuardedBackofficeContainer>
+        {children}
+      </GuardedBackofficeContainer>
+    );
+  } else {
+    return <>{children}</>;
+  }
+}
+
+function MyApp({ Component, pageProps, router }: AppProps) {
+
+
   return (
     <LocalizationProvider dateAdapter={DateFnsUtils}>
       <ThemeProvider theme={theme}>
         <MDXProvider components={components as any}>
           <SessionProvider>
-            <NotificationsProvider>
-              <RefreshProvider>
-                <Component {...pageProps} />
-              </RefreshProvider>
-            </NotificationsProvider>
+            {/*<NotificationsProvider>
+              <RefreshProvider>*/}
+                <LayoutProvider router={router}>
+                  <Component {...pageProps} />
+                </LayoutProvider>
+            {/*}</RefreshProvider>
+            </NotificationsProvider>*/}
           </SessionProvider>
         </MDXProvider>
       </ThemeProvider>
@@ -63,15 +86,26 @@ function MyApp({ Component, pageProps }: MyAppProps) {
   );
 }
 
-export default withTRPC({
-  config({ ctx }) {
+export default withTRPC<AppRouter>({
+  config: ({ ctx }): WithTRPCConfig<AppRouter> => {
     /**
      * If you want to use SSR, you need to use the server's full URL
      * @link https://trpc.io/docs/ssr
      */
     const url = 'http://localhost:3000/api/trpc';
     return {
-      retries: 1,
+      queryClientConfig: {
+        defaultOptions: {
+          queries: {
+            retry: false,
+            keepPreviousData: false,
+            optimisticResults: false,
+          },
+          mutations: {
+            retry: false,
+          },
+        },
+      },
       url,
       /**
        * @link https://react-query.tanstack.com/reference/QueryClient

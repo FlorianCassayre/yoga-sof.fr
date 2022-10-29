@@ -1,12 +1,19 @@
 import React from 'react';
 import { DeepPartial, SwitchElement } from 'react-hook-form-mui';
 import { z } from 'zod';
-import { courseModelCreateSchema, courseModelGetSchema, courseModelUpdateSchema } from '../../../lib/common/newSchemas';
+import {
+  courseModelCreateSchema,
+  courseModelGetSchema,
+  courseModelGetTransformSchema,
+  courseModelUpdateSchema
+} from '../../../lib/common/newSchemas';
 import { Grid } from '@mui/material';
 import { InputPrice, InputSlots, SelectCourseType, SelectWeekday, TimePickerElement } from '../newFields';
 import { Dashboard } from '@mui/icons-material';
 import { CreateFormContent, UpdateFormContent } from '../form';
 import { CourseModel } from '@prisma/client';
+import { ParsedUrlQuery } from 'querystring';
+import { QueryKey } from '../../../lib/server/controllers';
 
 const CourseModelFields = () => (
   <Grid container spacing={2}>
@@ -51,6 +58,7 @@ const commonProps = {
   defaultValues: courseModelDefaultValues,
   urlSuccessFor: (data: CourseModel) => `/administration/seances`,
   urlCancel: `/administration/seances`,
+  invalidate: ['courseModel.get', 'courseModel.getAll'] as QueryKey[],
 };
 
 export const CourseModelCreateForm = () => {
@@ -66,7 +74,7 @@ export const CourseModelCreateForm = () => {
   );
 };
 
-export const CourseModelUpdateForm = (props: z.infer<typeof courseModelGetSchema>) => {
+export const CourseModelUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) => { // z.infer<typeof courseModelGetSchema>
   return (
     <UpdateFormContent
       {...commonProps}
@@ -74,7 +82,8 @@ export const CourseModelUpdateForm = (props: z.infer<typeof courseModelGetSchema
       schema={courseModelUpdateSchema}
       mutation="courseModel.update"
       query="courseModel.get"
-      queryData={[props]}
+      querySchema={courseModelGetTransformSchema}
+      queryData={queryData}
     >
       <CourseModelFields />
     </UpdateFormContent>

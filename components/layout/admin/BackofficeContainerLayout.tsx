@@ -12,10 +12,11 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { useLocation, useMedia } from 'react-use';
-import { Fragment, useCallback, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { Avatar, IconButton, ListSubheader, Menu, MenuItem } from '@mui/material';
 import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material';
 import Link from 'next/link';
+import { LinkProps } from 'next/dist/client/link';
 
 const drawerWidth = 240;
 
@@ -49,6 +50,9 @@ interface BackofficeContainerLayoutProps {
   children: React.ReactNode;
 }
 
+const OptionalLink = ({ href, ...props }: Omit<LinkProps, 'href'> & { href?: LinkProps["href"], children: React.ReactNode }): JSX.Element =>
+  href ? <Link href={href} {...props}>{props.children}</Link> : <>{props.children}</>;
+
 export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps> =
   ({ title, menu, profileMenu, children }) => {
   const isWide = useMedia('(min-width: 768px)');
@@ -60,7 +64,12 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
   };
 
   const state = useLocation();
-  const isUrlSelected = useCallback((url: string) => state.pathname?.startsWith(url), []);
+  const longestMatchingUrl = useMemo(() => {
+    const matches = menu.flatMap(category => category.children.map(({ url }) => url).filter(url => url && state.pathname?.startsWith(url))) as string[];
+    matches.sort((a, b) => b.length - a.length);
+    return matches.length > 0 ? matches[0] : null;
+  }, [state, menu]);
+  const isUrlSelected = useCallback((url: string) => longestMatchingUrl !== null && url === longestMatchingUrl, [longestMatchingUrl]);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -141,20 +150,16 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
               <Fragment key={i}>
                 <List subheader={categoryTitle ? <ListSubheader>{categoryTitle}</ListSubheader> : undefined}>
                   {children.map(({ title: itemTitle, icon, url, disabled }, j) => (
-                    <ListItem key={j} disablePadding>
-                      <ListItemButton selected={url !== undefined ? isUrlSelected(url) : false} disabled={disabled}>
-                        <ListItemIcon>
-                          {icon}
-                        </ListItemIcon>
-                        {url ? (
-                          <Link href={url}>
-                            <ListItemText primary={itemTitle} />
-                          </Link>
-                        ) : (
+                    <OptionalLink key={j} href={url} passHref>
+                      <ListItem disablePadding>
+                        <ListItemButton selected={url !== undefined ? isUrlSelected(url) : false} disabled={disabled}>
+                          <ListItemIcon>
+                            {icon}
+                          </ListItemIcon>
                           <ListItemText primary={itemTitle} />
-                        )}
-                      </ListItemButton>
-                    </ListItem>
+                        </ListItemButton>
+                      </ListItem>
+                    </OptionalLink>
                   ))}
                 </List>
                 {i < menu.length - 1 && (

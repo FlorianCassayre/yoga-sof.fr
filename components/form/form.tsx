@@ -1,27 +1,15 @@
 import React, { useCallback } from 'react';
 import { z } from 'zod';
 import { DeepPartial, FormContainer } from 'react-hook-form-mui';
-import { inferHandlerInput, inferProcedureInput, inferProcedureOutput, ProcedureRecord } from '@trpc/server';
-import { AppRouter } from '../../lib/server/controllers';
+import { MutationKey, Mutations, QueryKey, Queries } from '../../lib/server/controllers';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Alert, Button, Grid } from '@mui/material';
+import { Alert, Box, Button, CircularProgress, Grid } from '@mui/material';
 import { AddBox, Cancel, Save } from '@mui/icons-material';
 import { trpc } from '../../lib/common/trpc';
 import { useRouter } from 'next/router';
 import { BackofficeContent } from '../layout/admin/BackofficeContent';
-
-type inferProcedures<TObj extends ProcedureRecord> = {
-  [TPath in keyof TObj]: {
-    input: inferProcedureInput<TObj[TPath]>;
-    output: inferProcedureOutput<TObj[TPath]>;
-  };
-};
-
-type Mutations = inferProcedures<AppRouter["_def"]["mutations"]>;
-type MutationKey = keyof Mutations;
-
-type Queries = inferProcedures<AppRouter["_def"]["queries"]>;
-type QueryKey = keyof Queries;
+import { ParsedUrlQuery } from 'querystring';
+import { ZodTypeDef } from 'zod/lib/types';
 
 interface FormContentProps<TMutationPath extends MutationKey, TData> {
   children: React.ReactNode;
@@ -32,15 +20,17 @@ interface FormContentProps<TMutationPath extends MutationKey, TData> {
   urlCancel: string;
   mutation: TMutationPath;
   defaultValues: DeepPartial<Mutations[TMutationPath]['input']>;
+  invalidate?: QueryKey[];
 }
 
 interface CreateFormContentProps<TMutationPath extends MutationKey> extends FormContentProps<TMutationPath, Mutations[TMutationPath]['output']> {
 
 }
 
-interface UpdateFormContentProps<TQueryPath extends QueryKey, TMutationPath extends MutationKey> extends FormContentProps<TMutationPath, Queries[TQueryPath]['output'] | Mutations[TMutationPath]['output']> {
+interface UpdateFormContentProps<TQueryPath extends QueryKey, TMutationPath extends MutationKey, TQueryInputSchema extends z.ZodType<Queries[TQueryPath]['input'], ZodTypeDef, any>> extends FormContentProps<TMutationPath, Queries[TQueryPath]['output'] | Mutations[TMutationPath]['output']> {
   query: TQueryPath;
-  queryData: inferHandlerInput<AppRouter["_def"]["queries"][TQueryPath]>;
+  querySchema: TQueryInputSchema;
+  queryData: ParsedUrlQuery;
 }
 
 interface InternalFormContentProps<TMutationPath extends MutationKey, TData> extends FormContentProps<TMutationPath, TData> {
@@ -57,15 +47,17 @@ const InternalFormContent = <TMutationPath extends MutationKey>({
   urlCancel,
   mutation,
   defaultValues,
+  invalidate,
   edit,
   isLoading: isQueryLoading,
 }: InternalFormContentProps<TMutationPath, Mutations[TMutationPath]['output']>) => {
   const router = useRouter();
+  const { queryClient } = trpc.useContext();
 
   const { mutate, isLoading, isError } = trpc.useMutation(mutation, {
     onSuccess: (data) => {
-      // TODO: once it succeeds, fallback to forever loading state
-      return router.push(urlSuccessFor(data));
+      const invalidations = invalidate ? invalidate.map(query => queryClient.resetQueries(query)) : [];
+      return Promise.all([router.push(urlSuccessFor(data)), ...invalidations]);
     },
   });
 
@@ -105,14 +97,16 @@ const InternalFormContent = <TMutationPath extends MutationKey>({
             </Grid>
           </Grid>
         ) : (
-          'mutation loading...'
+          <Box display="flex" alignItems="center" justifyContent="center">
+            <CircularProgress sx={{ mt: 5 }} />
+          </Box>
         )}
       </FormContainer>
     </BackofficeContent>
-  ) : (
-    <>
-      query loading
-    </>
+  ) : ( // TODO skeleton here
+    <Box display="flex" alignItems="center" justifyContent="center">
+      <CircularProgress sx={{ mt: 10 }} />
+    </Box>
   );
 }
 
@@ -128,21 +122,23 @@ export const CreateFormContent = <TMutationPath extends MutationKey>({ children,
   );
 };
 
-export const UpdateFormContent = <TQueryPath extends QueryKey, TMutationPath extends MutationKey>({
+export const UpdateFormContent = <TQueryPath extends QueryKey, TMutationPath extends MutationKey, TQueryInputSchema extends z.ZodType<Queries[TQueryPath]['input'], ZodTypeDef, any>>({
   children,
   defaultValues,
   query,
+  querySchema,
   queryData,
   ...props
-}: UpdateFormContentProps<TQueryPath, TMutationPath>): JSX.Element => {
-  const { data, isLoading, isError } = trpc.useQuery([query, ...queryData]);
+}: UpdateFormContentProps<TQueryPath, TMutationPath, TQueryInputSchema>): JSX.Element => {
+  const parsed = querySchema.parse(queryData); // TODO error handling
+  const { data, isLoading, isError } = trpc.useQuery([query, parsed] as any); // Sadly...
   // TODO error
   return (
     <InternalFormContent
       {...props}
       edit={true}
       isLoading={isLoading}
-      defaultValues={{ ...defaultValues, data }}
+      defaultValues={{ ...defaultValues, ...data }}
     >
       {children}
     </InternalFormContent>

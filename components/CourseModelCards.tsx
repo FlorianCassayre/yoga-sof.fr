@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
   Card,
   CardActions,
-  CardContent, Chip,
+  CardContent, Chip, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
   Grid,
   IconButton,
   Skeleton,
@@ -12,25 +12,55 @@ import {
   Typography
 } from '@mui/material';
 import { trpc } from '../lib/common/trpc';
-import { useSession } from 'next-auth/react';
 import { CourseModel } from '@prisma/client';
 import { CourseTypeNames } from '../lib/common/newCourse';
-import { AutoAwesomeMotion, Create, Delete, Edit, Event } from '@mui/icons-material';
-import { formatColonTimeHHhMM, formatTimeHHhMM, WeekdayNames } from '../lib/common/newDate';
+import { AddBox, AutoAwesomeMotion, Create, Delete, Edit, Event } from '@mui/icons-material';
+import { formatColonTimeHHhMM, WeekdayNames } from '../lib/common/newDate';
+import Link from 'next/link';
+
+interface ConfirmDeleteDialogProps {
+  open: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}
+
+const ConfirmDeleteDialog: React.FunctionComponent<ConfirmDeleteDialogProps> = ({ open, onCancel, onConfirm }) => (
+  <Dialog
+    open={open}
+    onClose={onCancel}
+  >
+    <DialogTitle>
+      Confirmer la suppression
+    </DialogTitle>
+    <DialogContent>
+      <DialogContentText>
+        Souhaitez-vous vraiment supprimer ce modèle ?
+      </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={onCancel} color="inherit">Annuler</Button>
+      <Button onClick={onConfirm}>
+        Supprimer
+      </Button>
+    </DialogActions>
+  </Dialog>
+);
 
 interface CourseModelCard {
   courseModel: CourseModel;
   readOnly?: boolean;
 }
 
-const CourseModelCard: React.FC<CourseModelCard> = ({ courseModel: { type, weekday, timeStart, timeEnd, slots, price, bundle }, readOnly }) => {
-  const handleDelete = () => {
+const CourseModelCard: React.FC<CourseModelCard> = ({ courseModel: { id, type, weekday, timeStart, timeEnd, slots, price, bundle }, readOnly }) => {
+  const { invalidateQueries } = trpc.useContext();
 
-  };
+  const { mutate: mutateDelete, isLoading: isDeleting } = trpc.useMutation('courseModel.delete', {
+    onSuccess: async () => {
+      await Promise.all([invalidateQueries('courseModel.get'), invalidateQueries('courseModel.getAll')]);
+    },
+  }); // TODO onError
 
-  const handleEdit = () => {
-
-  };
+  const [isDeleteOpen, setDeleteOpen] = useState(false);
 
   return (
     <Card variant="outlined">
@@ -54,10 +84,21 @@ const CourseModelCard: React.FC<CourseModelCard> = ({ courseModel: { type, weekd
       </CardContent>
       {!readOnly && (
         <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <IconButton size="small" aria-label="Supprimer" onClick={() => handleDelete()}><Delete /></IconButton>
-          <IconButton size="small" aria-label="Modifier" onClick={() => handleEdit()}><Edit /></IconButton>
+          <IconButton size="small" aria-label="Supprimer" onClick={() => setDeleteOpen(true)} disabled={isDeleting}><Delete /></IconButton>
+          <Link href={`/administration/seances/modeles/${id}/edition`} passHref>
+            <IconButton size="small" aria-label="Modifier" disabled={isDeleting}><Edit /></IconButton>
+          </Link>
         </CardActions>
       )}
+
+      <ConfirmDeleteDialog
+        open={isDeleteOpen}
+        onCancel={() => setDeleteOpen(false)}
+        onConfirm={() => {
+          setDeleteOpen(false);
+          mutateDelete({ id });
+      }}
+      />
     </Card>
   );
 }
@@ -75,8 +116,6 @@ interface NewCourseModelCardsProps {
 export const CourseModelCards: React.FC<NewCourseModelCardsProps> = ({ readOnly }) => {
   const { data, isError, isLoading } = trpc.useQuery(['courseModel.getAll']);
 
-  const session = useSession();
-
   const defaultHeight = 150;
 
   return (
@@ -91,7 +130,9 @@ export const CourseModelCards: React.FC<NewCourseModelCardsProps> = ({ readOnly 
             {!readOnly && (
               <GridItem>
                 <Box display="flex" justifyContent="center" alignItems="center" sx={{ height: defaultHeight, p: 2, border: '1px dashed lightgrey', borderRadius: 1 }}>
-                  <Button startIcon={<Create />}>Nouveau modèle</Button>
+                  <Link href="/administration/seances/modeles/creation" passHref>
+                    <Button startIcon={<AddBox />}>Nouveau modèle</Button>
+                  </Link>
                 </Box>
               </GridItem>
             )}

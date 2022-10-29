@@ -3,7 +3,6 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { inferHandlerInput, ProcedureRecord } from '@trpc/server';
 import { TRPCClientErrorLike } from '@trpc/client';
 import { UseQueryResult } from 'react-query';
-import { createReactQueryHooks, UseTRPCQueryOptions } from '@trpc/react/dist/declarations/src/createReactQueryHooks';
 import { AppRouter } from '../../lib/server/controllers';
 import { trpc } from '../../lib/common/trpc';
 import type { inferProcedureOutput, inferProcedureInput } from '@trpc/server'

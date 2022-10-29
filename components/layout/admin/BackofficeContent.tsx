@@ -1,14 +1,16 @@
 import React from 'react';
 import { Divider, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
+import { BasicSpeedDial } from '../../BasicSpeedDial';
 
 interface BackofficeContentProps {
   title: string;
   icon: React.ReactNode;
+  actions?: Parameters<typeof BasicSpeedDial>[0]['actions'];
   children: React.ReactNode;
 }
 
-export const BackofficeContent: React.FC<BackofficeContentProps> = ({ title, icon, children }) => {
+export const BackofficeContent: React.FC<BackofficeContentProps> = ({ title, icon, actions, children }) => {
   return (
     <>
       <Stack direction="row" alignItems="center" gap={1} component={'div'}>
@@ -19,6 +21,9 @@ export const BackofficeContent: React.FC<BackofficeContentProps> = ({ title, ico
       <main>
         {children}
       </main>
+      {actions && (
+        <BasicSpeedDial actions={actions} />
+      )}
     </>
   );
 }
