@@ -56,7 +56,7 @@ const CourseModelCard: React.FC<CourseModelCard> = ({ courseModel: { id, type, w
 
   const { mutate: mutateDelete, isLoading: isDeleting } = trpc.useMutation('courseModel.delete', {
     onSuccess: async () => {
-      await Promise.all([invalidateQueries('courseModel.get'), invalidateQueries('courseModel.getAll')]);
+      await Promise.all([invalidateQueries('courseModel.get'), invalidateQueries('courseModel.findAll')]);
     },
   }); // TODO onError
 
@@ -104,7 +104,7 @@ const CourseModelCard: React.FC<CourseModelCard> = ({ courseModel: { id, type, w
 }
 
 const GridItem: React.FC = ({ children }) => (
-  <Grid item xs={12} sm={6} lg={4} xl={3}>
+  <Grid item xs={12} sm={6} lg={4} xl={3} alignItems="stretch">
     {children}
   </Grid>
 );
@@ -114,7 +114,7 @@ interface NewCourseModelCardsProps {
 }
 
 export const CourseModelCards: React.FC<NewCourseModelCardsProps> = ({ readOnly }) => {
-  const { data, isError, isLoading } = trpc.useQuery(['courseModel.getAll']);
+  const { data, isError, isLoading } = trpc.useQuery(['courseModel.findAll']);
 
   const defaultHeight = 150;
 
@@ -129,7 +129,7 @@ export const CourseModelCards: React.FC<NewCourseModelCardsProps> = ({ readOnly 
             )}
             {!readOnly && (
               <GridItem>
-                <Box display="flex" justifyContent="center" alignItems="center" sx={{ height: defaultHeight, p: 2, border: '1px dashed lightgrey', borderRadius: 1 }}>
+                <Box display="flex" justifyContent="center" alignItems="center" sx={{ minHeight: defaultHeight, height: '100%', p: 2, border: '1px dashed lightgrey', borderRadius: 1 }}>
                   <Link href="/administration/seances/modeles/creation" passHref>
                     <Button startIcon={<AddBox />}>Nouveau modèle</Button>
                   </Link>

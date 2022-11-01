@@ -2,6 +2,8 @@ import React from 'react';
 import { BackofficeContainerLayout } from './BackofficeContainerLayout';
 import { AdminPanelSettings, Assignment, Dashboard, DateRange, Email, Euro, People } from '@mui/icons-material';
 import { useSession } from 'next-auth/react';
+import { Typography } from '@mui/material';
+import pkg from '../../../package.json';
 
 interface BackofficeContainerProps {
   children: React.ReactNode;
@@ -30,9 +32,9 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
         {
           title: 'Administration',
           children: [
-            { title: 'Administrateurs', icon: <AdminPanelSettings /> },
-            { title: 'Utilisateurs', icon: <People /> },
-            { title: 'Emails', icon: <Email /> },
+            { title: 'Administrateurs', icon: <AdminPanelSettings />, url: '/administration/administrateurs' },
+            { title: 'Utilisateurs', icon: <People />, url: '/administration/utilisateurs' },
+            { title: 'Emails', icon: <Email />, url: '/administration/emails' },
           ]
         }
       ]}
@@ -41,6 +43,11 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
           { title: 'Profil', icon: <People /> },
         ]
       }}
+      footer={(
+        <Typography align="center">
+          Version {pkg.version}
+        </Typography>
+      )}
     >
       {children}
     </BackofficeContainerLayout>

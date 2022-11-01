@@ -1,18 +1,23 @@
 import React, { useCallback, useMemo } from 'react';
 import { GuardedBackofficeContainer } from '../../components/layout/admin/GuardedBackofficeContainer';
 import { BackofficeContent } from '../../components/layout/admin/BackofficeContent';
-import { Dashboard, Edit } from '@mui/icons-material';
-import { Grid, Typography } from '@mui/material';
+import { Cancel, Dashboard, Edit, Visibility } from '@mui/icons-material';
+import { Button, Grid, IconButton, Typography } from '@mui/material';
 import { CourseModelCards } from '../../components/CourseModelCards';
 import { BasicSpeedDial } from '../../components/BasicSpeedDial';
-import { AsyncGrid, QueryParameters } from '../../components/grid';
+import { AsyncGrid } from '../../components/grid';
 import { trpc } from '../../lib/common/trpc';
 import { UseQueryResult } from 'react-query';
 import { Paginated } from '../../lib/server/services/helpers/types';
 import { TRPCClientErrorLike } from '@trpc/client';
 import { AppRouter } from '../../lib/server/controllers';
-import { Course } from '@prisma/client';
-import { GridColDef } from '@mui/x-data-grid';
+import { Course, CourseType } from '@prisma/client';
+import { GridActionsCellItem, GridColDef, GridRowParams } from '@mui/x-data-grid';
+import Link from 'next/link';
+import { formatDateDDsMMsYYYY } from '../../lib/common/newDate';
+import { CourseTypeNames } from '../../lib/common/newCourse';
+import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
+import { CourseGrid } from '../../components/grid/grids/CourseGrid';
 
 /*function AdminHomeLayout() {
   const { data: session } = useSession();
@@ -90,17 +95,7 @@ import { GridColDef } from '@mui/x-data-grid';
   );
 }*/
 
-const LatestCoursesGrid: React.FC = () => {
-  const useCoursesQuery = useCallback(({ pagination }: QueryParameters) => trpc.useQuery(['course.getAllPaginated', { pagination }]), []);
 
-  const columns: GridColDef[] = [
-    { field: 'id', headerName: '#' },
-  ];
-
-  return (
-    <AsyncGrid columns={columns} useQuery={useCoursesQuery} />
-  );
-};
 
 const AdminHomeContent: React.FC = () => {
   return (
@@ -116,7 +111,7 @@ const AdminHomeContent: React.FC = () => {
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
         Prochaines séances
       </Typography>
-      <LatestCoursesGrid />
+      <CourseGrid readOnly />
     </BackofficeContent>
   );
 };

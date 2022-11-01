@@ -1,11 +1,15 @@
 import * as trpc from '@trpc/server';
+import { inferProcedureInput, inferProcedureOutput, ProcedureRecord } from '@trpc/server';
 import { createSessionRouter } from './middlewares/createSessionRouter';
 import { courseRouter } from './routers/course';
 import { createProtectedRouter } from './middlewares/createProtectedRouter';
 import { UserType } from '../../common/all';
 import { Context } from './context';
 import { courseModelRouter } from './routers/courseModel';
-import { inferProcedureInput, inferProcedureOutput, ProcedureRecord } from '@trpc/server';
+import { adminWhitelistRouter } from './routers/adminWhitelist';
+import { userRouter } from './routers/user';
+import { emailMessageRouter } from './routers/emailMessage';
+import { courseRegistrationRouter } from './routers';
 
 export const appRouter = trpc
   .router<Context>()
@@ -16,11 +20,27 @@ export const appRouter = trpc
   .merge(
     createSessionRouter()
       .merge('courseModel.', createProtectedRouter([UserType.Admin]).merge(courseModelRouter))
+  )
+  .merge(
+    createSessionRouter()
+      .merge('adminWhitelist.', createProtectedRouter([UserType.Admin]).merge(adminWhitelistRouter))
+  )
+  .merge(
+    createSessionRouter()
+      .merge('user.', createProtectedRouter([UserType.Admin]).merge(userRouter))
+  )
+  .merge(
+    createSessionRouter()
+      .merge('emailMessage.', createProtectedRouter([UserType.Admin]).merge(emailMessageRouter))
+  )
+  .merge(
+    createSessionRouter()
+      .merge('courseRegistration.', createProtectedRouter([UserType.Admin]).merge(courseRegistrationRouter))
   );
 
 export type AppRouter = typeof appRouter;
 
-type inferProcedures<TObj extends ProcedureRecord> = {
+export type inferProcedures<TObj extends ProcedureRecord> = {
   [TPath in keyof TObj]: {
     input: inferProcedureInput<TObj[TPath]>;
     output: inferProcedureOutput<TObj[TPath]>;

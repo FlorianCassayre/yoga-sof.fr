@@ -1,7 +1,7 @@
 import * as trpc from '@trpc/server';
 import { ContextProtected } from '../context';
 import { z } from 'zod';
-import { cancelCourse, findCourse, findCoursesPaginated, updateCourse } from '../../services';
+import { cancelCourse, findCourse, findCourses, findCoursesPaginated, updateCourse } from '../../services';
 import { schemaWithPagination } from '../schemas';
 
 export const courseRouter = trpc
@@ -14,7 +14,10 @@ export const courseRouter = trpc
       return findCourse({ where: { id } });
     },
   })
-  .query('getAllPaginated', {
+  .query('findAll', {
+    resolve: async () => findCourses(),
+  })
+  .query('findAllPaginated', {
     input: schemaWithPagination,
     resolve: async ({ input: { pagination } }) => findCoursesPaginated({ pagination }),
   })

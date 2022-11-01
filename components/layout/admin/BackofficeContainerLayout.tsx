@@ -12,11 +12,12 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { useLocation, useMedia } from 'react-use';
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useMemo, useState } from 'react';
 import { Avatar, IconButton, ListSubheader, Menu, MenuItem } from '@mui/material';
 import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material';
 import Link from 'next/link';
 import { LinkProps } from 'next/dist/client/link';
+import { TypeSafePage } from 'next-type-safe-routes';
 
 const drawerWidth = 240;
 
@@ -34,7 +35,7 @@ interface ProfileMenu {
 interface SideMenuItem {
   title: string;
   icon: React.ReactNode;
-  url?: string;
+  url?: string & TypeSafePage;
   disabled?: boolean;
 }
 
@@ -48,13 +49,14 @@ interface BackofficeContainerLayoutProps {
   menu: SideMenuCategory[];
   profileMenu: ProfileMenu;
   children: React.ReactNode;
+  footer: React.ReactNode;
 }
 
 const OptionalLink = ({ href, ...props }: Omit<LinkProps, 'href'> & { href?: LinkProps["href"], children: React.ReactNode }): JSX.Element =>
   href ? <Link href={href} {...props}>{props.children}</Link> : <>{props.children}</>;
 
 export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps> =
-  ({ title, menu, profileMenu, children }) => {
+  ({ title, menu, profileMenu, children, footer }) => {
   const isWide = useMedia('(min-width: 768px)');
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [profileAnchorEl, setProfileProfileAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -152,7 +154,7 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
                   {children.map(({ title: itemTitle, icon, url, disabled }, j) => (
                     <OptionalLink key={j} href={url} passHref>
                       <ListItem disablePadding>
-                        <ListItemButton selected={url !== undefined ? isUrlSelected(url) : false} disabled={disabled}>
+                        <ListItemButton selected={url !== undefined ? isUrlSelected(url) : false} disabled={disabled} onClick={() => setDrawerOpen(false)}>
                           <ListItemIcon>
                             {icon}
                           </ListItemIcon>
@@ -168,6 +170,11 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
               </Fragment>
             ))}
         </Box>
+        <List dense sx={{ mt: 'auto' }}>
+          <ListItem>
+            <ListItemText disableTypography>{footer}</ListItemText>
+          </ListItem>
+        </List>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <Toolbar />

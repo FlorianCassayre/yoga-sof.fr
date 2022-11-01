@@ -5,9 +5,10 @@ import { DateRange, Event } from '@mui/icons-material';
 import { Grid, Typography } from '@mui/material';
 import { CourseModelCards } from '../../../components/CourseModelCards';
 import { BasicSpeedDial } from '../../../components/BasicSpeedDial';
-import { AsyncGrid, QueryParameters } from '../../../components/grid';
+import { AsyncGrid } from '../../../components/grid';
 import { trpc } from '../../../lib/common/trpc';
 import { GridColDef } from '@mui/x-data-grid';
+import { CourseGrid } from '../../../components/grid/grids/CourseGrid';
 
 /*function AdminHomeLayout() {
   const { data: session } = useSession();
@@ -85,18 +86,6 @@ import { GridColDef } from '@mui/x-data-grid';
   );
 }*/
 
-const LatestCoursesGrid: React.FC = () => {
-  const useCoursesQuery = useCallback(({ pagination }: QueryParameters) => trpc.useQuery(['course.getAllPaginated', { pagination }]), []);
-
-  const columns: GridColDef[] = [
-    { field: 'id', headerName: '#' },
-  ];
-
-  return (
-    <AsyncGrid columns={columns} useQuery={useCoursesQuery} />
-  );
-};
-
 const AdminHomeContent: React.FC = () => {
   return (
     <BackofficeContent
@@ -123,11 +112,12 @@ const AdminHomeContent: React.FC = () => {
         Ce tableau contient la liste des séances passées, présentes et futures. Le bouton permet de planifier de
         nouvelles séances. Il n'est pas possible de supprimer de séances, en revanche il est possible d'en annuler.
       </Typography>
-      <LatestCoursesGrid />
+      <CourseGrid />
 
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
         Séances passées ou annulées
       </Typography>
+
       <Typography paragraph>
         Les séances passées ou ayant été annulées.
       </Typography>

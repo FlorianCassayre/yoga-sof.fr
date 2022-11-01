@@ -16,6 +16,9 @@ import { Router } from 'next/router';
 import { GuardedBackofficeContainer } from '../components/layout/admin/GuardedBackofficeContainer';
 import { AppRouter } from '../lib/server/controllers';
 import { WithTRPCConfig } from '@trpc/next/src/withTRPC';
+import { frFR } from '@mui/x-data-grid';
+import { frFR as pickersfrFR } from '@mui/x-date-pickers';
+import { frFR as corefrFR } from '@mui/material/locale';
 
 function Paragraph({ children }: { children: React.ReactNode }) {
   return (
@@ -28,24 +31,27 @@ const components = {
 };
 
 const theme = createTheme({
-  typography: {
-    fontFamily: 'Nunito',
-  },
-  palette: {
-    background: {
-      default: "#fcfcfc"
+    typography: {
+      fontFamily: 'Nunito',
     },
-  },
-  components: {
-    MuiAppBar: {
-      styleOverrides: {
-        colorPrimary: {
-          backgroundColor: grey[800],
+    palette: {
+      background: {
+        default: "#fcfcfc"
+      },
+    },
+    components: {
+      MuiAppBar: {
+        styleOverrides: {
+          colorPrimary: {
+            backgroundColor: grey[800],
+          },
         },
       },
     },
   },
-});
+  frFR,
+  pickersfrFR,
+  corefrFR);
 
 interface LayoutProviderProps {
   router: Router;

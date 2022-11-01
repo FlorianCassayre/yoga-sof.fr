@@ -1,52 +1,48 @@
 import React, { useState } from 'react';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, gridClasses, GridColDef, frFR } from '@mui/x-data-grid';
 import { inferHandlerInput, ProcedureRecord } from '@trpc/server';
 import { TRPCClientErrorLike } from '@trpc/client';
 import { UseQueryResult } from 'react-query';
-import { AppRouter } from '../../lib/server/controllers';
+import { AppRouter, inferProcedures, QueryKey } from '../../lib/server/controllers';
 import { trpc } from '../../lib/common/trpc';
 import type { inferProcedureOutput, inferProcedureInput } from '@trpc/server'
 import { Paginated, Pagination } from '../../lib/server/services/helpers/types';
-import { Box, Button } from '@mui/material';
+import { Box, Button, useTheme } from '@mui/material';
+import { GridRowIdGetter } from '@mui/x-data-grid/models/gridRows';
 
-export interface QueryParameters {
-  pagination: Pagination;
+interface AsyncGridProps<TQueryPath extends keyof AppRouter["_def"]["queries"] & string> {
+  columns: GridColDef[];
+  query: [path: TQueryPath, ...args: inferHandlerInput<AppRouter["_def"]["queries"][TQueryPath]>];
+  getRowId?: GridRowIdGetter;
 }
 
-type inferProcedures<TObj extends ProcedureRecord<any, any, any, any, any, any>> = {
-  [TPath in keyof TObj]: {
-    input: inferProcedureInput<TObj[TPath]>;
-    output: inferProcedureOutput<TObj[TPath]>;
-  };
-};
+const rowsPerPageOptions = [10];
 
-interface AsyncGridProps<T> {
-  columns: GridColDef[],
-  useQuery: (parameters: QueryParameters) => UseQueryResult<Paginated<T>, TRPCClientErrorLike<AppRouter>>;
-}
-
-export const AsyncGrid = <T,>({ columns, useQuery }: AsyncGridProps<T>): JSX.Element => {
-  const [state, setState] = useState({ page: 0, elementsPerPage: 3 });
-
-  const { data, isLoading, isError } = useQuery({ pagination: { page: state.page, elementsPerPage: state.elementsPerPage } });
-
-  const onFilterChange = () => {};
+export const AsyncGrid = <TQueryPath extends keyof AppRouter["_def"]["queries"] & string>({ columns, query, getRowId }: AsyncGridProps<TQueryPath>): JSX.Element => {
+  const theme = useTheme();
+  const { data, isLoading, isError } = trpc.useQuery(query);
 
   return (
-    <Box sx={{ height: 400, width: '100%' }}>
+    <Box sx={{ width: '100%', backgroundColor: theme.palette.background.paper }}>
       <DataGrid
-        rows={data?.data ?? []}
+        rows={(data as any[]) ?? []}
         columns={columns}
-        //paginationMode="client"
-        sortingMode="server"
-        filterMode="server"
-        pageSize={state.elementsPerPage}
-        rowsPerPageOptions={[state.elementsPerPage]}
-        rowCount={data?.totalElements}
-        page={state.page}
+        getRowId={getRowId}
+        autoHeight
+        pageSize={rowsPerPageOptions[0]}
+        rowsPerPageOptions={rowsPerPageOptions}
         loading={isLoading}
-        onFilterModelChange={onFilterChange}
-        onPageChange={(newPage) => setState({ ...state, page: newPage })}
+        disableColumnMenu
+        disableColumnSelector
+        disableSelectionOnClick
+        sx={{ // Disable the annoying focus outline
+          [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
+            outline: "none"
+          },
+          [`& .${gridClasses.columnHeader}:focus, & .${gridClasses.columnHeader}:focus-within`]: {
+            outline: "none"
+          }
+        }}
       />
     </Box>
   );

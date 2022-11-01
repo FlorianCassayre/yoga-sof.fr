@@ -17,7 +17,7 @@ export const courseModelRouter = trpc
       return findCourseModel({ where: { id } });
     },
   })
-  .query('getAll', {
+  .query('findAll', {
     resolve: async () => findCourseModels(),
   })
   .mutation('create', {

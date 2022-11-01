@@ -22,4 +22,12 @@ export const colonTimeToParts = (time: string): [number, number] => {
 export const timePartsToTotalMinutes = (parts: [number, number]): number => parts[0] * 60 + parts[1];
 
 export const formatColonTimeHHhMM = (time: string): string => colonTimeToParts(time).map(n => n.toString().padStart(2, '0')).join('h');
-export const formatTimeHHhMM = (date: Date) => timeFormatterHHhMM.format(date);
+export const formatTimeHHhMM = (date: Date | string) => timeFormatterHHhMM.format(new Date(date));
+
+const dateFormatter = new Intl.DateTimeFormat(locale, {
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+});
+
+export const formatDateDDsMMsYYYY = (date: Date | string) => dateFormatter.format(new Date(date));
