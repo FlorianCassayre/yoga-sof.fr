@@ -7,12 +7,12 @@ import {
   findCourseModels,
   updateCourseModel
 } from '../../services';
-import { courseModelCreateSchema, courseModelGetSchema, courseModelUpdateSchema } from '../../../common/newSchemas';
+import { courseModelCreateSchema, courseModelFindSchema, courseModelUpdateSchema } from '../../../common/newSchemas';
 
 export const courseModelRouter = trpc
   .router<ContextProtected>()
-  .query('get', {
-    input: courseModelGetSchema,
+  .query('find', {
+    input: courseModelFindSchema,
     resolve: async ({ input: { id } }) => {
       return findCourseModel({ where: { id } });
     },
@@ -29,7 +29,7 @@ export const courseModelRouter = trpc
     resolve: async ({ input: { id, ...data } }) => updateCourseModel({ where: { id }, data }),
   })
   .mutation('delete', {
-    input: courseModelGetSchema,
+    input: courseModelFindSchema,
     resolve: async ({ input: { id } }) => {
       await deleteCourseModel({ where: { id } });
     }

@@ -27,10 +27,10 @@ interface CreateFormContentProps<TMutationPath extends MutationKey> extends Form
 
 }
 
-interface UpdateFormContentProps<TQueryPath extends QueryKey, TMutationPath extends MutationKey, TQueryInputSchema extends z.ZodType<Queries[TQueryPath]['input'], ZodTypeDef, any>> extends FormContentProps<TMutationPath, Queries[TQueryPath]['output'] | Mutations[TMutationPath]['output']> {
+interface UpdateFormContentProps<TQueryPath extends QueryKey, TMutationPath extends MutationKey, TQueryInputSchema extends z.ZodType<Queries[TQueryPath]['input'], ZodTypeDef, any>> extends FormContentProps<TMutationPath, Mutations[TMutationPath]['output']> {
   query: TQueryPath;
   querySchema: TQueryInputSchema;
-  queryData: ParsedUrlQuery;
+  queryParams: ParsedUrlQuery;
 }
 
 interface InternalFormContentProps<TMutationPath extends MutationKey, TData> extends FormContentProps<TMutationPath, TData> {
@@ -127,10 +127,10 @@ export const UpdateFormContent = <TQueryPath extends QueryKey, TMutationPath ext
   defaultValues,
   query,
   querySchema,
-  queryData,
+  queryParams,
   ...props
 }: UpdateFormContentProps<TQueryPath, TMutationPath, TQueryInputSchema>): JSX.Element => {
-  const parsed = querySchema.parse(queryData); // TODO error handling
+  const parsed = querySchema.parse(queryParams); // TODO error handling
   const { data, isLoading, isError } = trpc.useQuery([query, parsed] as any); // Sadly...
   // TODO error
   return (

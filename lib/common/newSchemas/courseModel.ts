@@ -28,11 +28,11 @@ const courseModelSchemaBase = z.object({
   bundle: z.boolean(),
 });
 
-export const courseModelGetSchema = z.object({
+export const courseModelFindSchema = z.object({
   id: z.number().int().min(0),
 });
 
-export const courseModelUpdateSchema = courseModelSchemaBase.merge(courseModelGetSchema).superRefine(refineTimeRange);
+export const courseModelUpdateSchema = courseModelSchemaBase.merge(courseModelFindSchema).superRefine(refineTimeRange);
 
 export const courseModelCreateSchema = courseModelSchemaBase.superRefine(refineTimeRange);
 

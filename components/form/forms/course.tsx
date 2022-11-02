@@ -3,7 +3,7 @@ import { DeepPartial, SwitchElement } from 'react-hook-form-mui';
 import { z } from 'zod';
 import {
   courseModelCreateSchema,
-  courseModelGetSchema,
+  courseModelFindSchema,
   courseModelGetTransformSchema,
   courseModelUpdateSchema
 } from '../../../lib/common/newSchemas';
@@ -15,7 +15,7 @@ import { CourseModel } from '@prisma/client';
 import { ParsedUrlQuery } from 'querystring';
 import { QueryKey } from '../../../lib/server/controllers';
 
-const CourseModelFields = () => (
+const CourseModelFormFields = () => (
   <Grid container spacing={2}>
     <Grid item xs={12}>
       <SelectCourseType name="type" />
@@ -41,7 +41,7 @@ const CourseModelFields = () => (
   </Grid>
 );
 
-const courseModelDefaultValues: DeepPartial<z.infer<typeof courseModelCreateSchema>> = {
+const courseModelFormDefaultValues: DeepPartial<z.infer<typeof courseModelCreateSchema>> = {
   slots: 1,
   price: 0,
   bundle: false,
@@ -52,24 +52,24 @@ const courseModelDefaultValues: DeepPartial<z.infer<typeof courseModelCreateSche
   timeEnd: '02:30',
 };
 
-const commonProps = {
+const commonFormProps = {
   icon: <Dashboard />,
   //children: <CourseModelFields />,
-  defaultValues: courseModelDefaultValues,
+  defaultValues: courseModelFormDefaultValues,
   urlSuccessFor: (data: CourseModel) => `/administration/seances`,
   urlCancel: `/administration/seances`,
-  invalidate: ['courseModel.get', 'courseModel.findAll'] as QueryKey[],
+  invalidate: ['courseModel.find', 'courseModel.findAll'] as QueryKey[],
 };
 
 export const CourseModelCreateForm = () => {
   return (
     <CreateFormContent
-      {...commonProps}
+      {...commonFormProps}
       title="Création d'un modèle de séance"
       schema={courseModelCreateSchema}
       mutation="courseModel.create"
     >
-      <CourseModelFields />
+      <CourseModelFormFields />
     </CreateFormContent>
   );
 };
@@ -77,15 +77,15 @@ export const CourseModelCreateForm = () => {
 export const CourseModelUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) => { // z.infer<typeof courseModelGetSchema>
   return (
     <UpdateFormContent
-      {...commonProps}
-      title="Création d'un modèle de séance"
+      {...commonFormProps}
+      title="Modification d'un modèle de séance"
       schema={courseModelUpdateSchema}
       mutation="courseModel.update"
-      query="courseModel.get"
+      query="courseModel.find"
       querySchema={courseModelGetTransformSchema}
-      queryData={queryData}
+      queryParams={queryData}
     >
-      <CourseModelFields />
+      <CourseModelFormFields />
     </UpdateFormContent>
   );
 };

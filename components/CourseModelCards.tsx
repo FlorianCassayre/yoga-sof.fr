@@ -56,7 +56,7 @@ const CourseModelCard: React.FC<CourseModelCard> = ({ courseModel: { id, type, w
 
   const { mutate: mutateDelete, isLoading: isDeleting } = trpc.useMutation('courseModel.delete', {
     onSuccess: async () => {
-      await Promise.all([invalidateQueries('courseModel.get'), invalidateQueries('courseModel.findAll')]);
+      await Promise.all([invalidateQueries('courseModel.find'), invalidateQueries('courseModel.findAll')]);
     },
   }); // TODO onError
 
@@ -116,7 +116,7 @@ interface NewCourseModelCardsProps {
 export const CourseModelCards: React.FC<NewCourseModelCardsProps> = ({ readOnly }) => {
   const { data, isError, isLoading } = trpc.useQuery(['courseModel.findAll']);
 
-  const defaultHeight = 150;
+  const defaultHeight = 180;
 
   return (
     <Grid container spacing={2}>

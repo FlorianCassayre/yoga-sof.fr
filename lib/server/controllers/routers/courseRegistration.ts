@@ -5,5 +5,5 @@ import { findCourseRegistrations } from '../../services';
 export const courseRegistrationRouter = trpc
   .router<ContextProtected>()
   .query('findAll', {
-    resolve: async () => findCourseRegistrations(),
+    resolve: async () => findCourseRegistrations({ include: { user: true } }),
   });

@@ -6,7 +6,7 @@ import { schemaWithPagination } from '../schemas';
 
 export const courseRouter = trpc
   .router<ContextProtected>()
-  .query('get', {
+  .query('find', {
     input: z.strictObject({
       id: z.number().int().min(0),
     }),
@@ -25,7 +25,7 @@ export const courseRouter = trpc
     input: z.strictObject({
       id: z.number().int().min(0),
       slots: z.number().int().min(0),
-      notes: z.string().optional(),
+      notes: z.string().nullable(),
     }),
     resolve: async ({ input: { id, slots, notes } }) =>
       await updateCourse({ where: { id }, data: { slots, notes } }),
@@ -33,7 +33,7 @@ export const courseRouter = trpc
   .mutation('cancel', {
     input: z.strictObject({
       id: z.number().int().min(0),
-      cancelationReason: z.string().optional(),
+      cancelationReason: z.string().nullable(),
     }),
     resolve: async ({ input: { id, cancelationReason } }) =>
       await cancelCourse({ where: { id }, data: { cancelationReason } }),

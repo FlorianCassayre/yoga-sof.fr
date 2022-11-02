@@ -24,7 +24,7 @@ export const findCoursesPaginated = async (args: { pagination: Pagination, where
   });
 }
 
-export const updateCourse = async (args: { where: Prisma.CourseWhereUniqueInput, data: Partial<Pick<Course, 'slots' | 'notes'>>, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude }) => {
+export const updateCourse = async (args: { where: Prisma.CourseWhereUniqueInput, data: Pick<Course, 'slots' | 'notes'>, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude }) => {
   const { where: { id }, data: { slots } } = args;
   return await prisma.$transaction(async () => {
     if (slots !== undefined) {
@@ -42,7 +42,7 @@ export const updateCourse = async (args: { where: Prisma.CourseWhereUniqueInput,
   });
 };
 
-export const cancelCourse = async (args: { where: Prisma.CourseWhereUniqueInput, data: Partial<Pick<Course, 'cancelationReason'>>, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude }) => {
+export const cancelCourse = async (args: { where: Prisma.CourseWhereUniqueInput, data: Pick<Course, 'cancelationReason'>, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude }) => {
   const { where, data, ...rest } = args;
   return await prisma.$transaction(async () => {
     const course = await prisma.course.findUniqueOrThrow({ where });

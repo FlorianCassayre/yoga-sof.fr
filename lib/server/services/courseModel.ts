@@ -13,7 +13,7 @@ export const createCourseModel = async (args: { data: Prisma.CourseModelCreateIn
   return prisma.courseModel.create(args);
 }
 
-export const updateCourseModel = async (args: { where: Prisma.CourseModelWhereUniqueInput, data: Partial<CourseModel>, select?: Prisma.CourseModelSelect }) => {
+export const updateCourseModel = async (args: { where: Prisma.CourseModelWhereUniqueInput, data: Omit<CourseModel, 'id'>, select?: Prisma.CourseModelSelect }) => {
   courseModelUpdateSchema.parse({ ...args.data, id: args.where.id });
   return prisma.courseModel.update(args);
 }

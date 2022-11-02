@@ -105,6 +105,7 @@ export function TimePickerElement<TFieldValues extends FieldValues>({
                   : inputProps?.helperText || rest.helperText
               }
               // Custom
+              InputLabelProps={{ required }}
               sx={{ ...params?.sx as any, ...inputProps?.sx as any, width: '100%' }}
             />
           )}
