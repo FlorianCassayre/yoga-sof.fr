@@ -138,7 +138,7 @@ function AdminSeancesLayout() {
       </p>
 
       <div className="text-center mb-4">
-        <Link href="/administration/seances/planning/creation" passHref>
+        <Link href="/administration/seances/planning/oldCreation" passHref>
           <Button variant="success">
             <BsPlusLg className="icon me-2" />
             Planifier de nouvelles séances

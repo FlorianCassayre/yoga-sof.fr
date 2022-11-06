@@ -19,6 +19,8 @@ import { WithTRPCConfig } from '@trpc/next/src/withTRPC';
 import { frFR } from '@mui/x-data-grid';
 import { frFR as pickersfrFR } from '@mui/x-date-pickers';
 import { frFR as corefrFR } from '@mui/material/locale';
+import { FrontsiteContainer } from '../components/layout/public/FrontsiteContainer';
+import { SnackbarProvider } from 'notistack';
 
 function Paragraph({ children }: { children: React.ReactNode }) {
   return (
@@ -66,25 +68,29 @@ const LayoutProvider = ({ router, children }: LayoutProviderProps): JSX.Element 
       </GuardedBackofficeContainer>
     );
   } else {
-    return <>{children}</>;
+    return (
+      <FrontsiteContainer>
+        {children}
+      </FrontsiteContainer>
+    );
   }
-}
+};
 
 function MyApp({ Component, pageProps, router }: AppProps) {
-
-
   return (
     <LocalizationProvider dateAdapter={DateFnsUtils}>
       <ThemeProvider theme={theme}>
         <MDXProvider components={components as any}>
           <SessionProvider>
-            {/*<NotificationsProvider>
-              <RefreshProvider>*/}
-                <LayoutProvider router={router}>
-                  <Component {...pageProps} />
-                </LayoutProvider>
-            {/*}</RefreshProvider>
-            </NotificationsProvider>*/}
+            <SnackbarProvider maxSnack={3}>
+              {/*<NotificationsProvider>
+                <RefreshProvider>*/}
+                  <LayoutProvider router={router}>
+                    <Component {...pageProps} />
+                  </LayoutProvider>
+              {/*}</RefreshProvider>
+              </NotificationsProvider>*/}
+            </SnackbarProvider>
           </SessionProvider>
         </MDXProvider>
       </ThemeProvider>

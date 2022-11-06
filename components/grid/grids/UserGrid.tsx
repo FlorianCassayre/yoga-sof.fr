@@ -1,14 +1,12 @@
 import React from 'react';
-import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import Link from 'next/link';
-import { IconButton } from '@mui/material';
-import { Cancel, Edit, Visibility } from '@mui/icons-material';
-import { formatDateDDsMMsYYYY } from '../../../lib/common/newDate';
-import { CourseType } from '@prisma/client';
-import { CourseTypeNames } from '../../../lib/common/newCourse';
+import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
+import { Edit, Visibility } from '@mui/icons-material';
+import { User } from '@prisma/client';
 import { GridActionsCellItem, GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useRouter } from 'next/router';
+import { relativeTimestamp } from './common';
+import { displayUserEmail, displayUserName } from '../../../lib/common/newDisplay';
 
 export const UserGrid: React.FunctionComponent = () => {
   const router = useRouter();
@@ -22,6 +20,24 @@ export const UserGrid: React.FunctionComponent = () => {
         <GridActionsCellItem icon={<Visibility />} label="Consulter" onClick={() => router.push(`/administration/utilisateurs/${row.id}`)} />,
       ],
     },
+    {
+      field: 'name',
+      headerName: 'Nom',
+      renderCell: ({ row }: { row: User }) => displayUserName(row),
+    },
+    {
+      field: 'email',
+      headerName: 'Addresse e-mail',
+      renderCell: ({ row }: { row: User }) => displayUserEmail(row),
+    },
+    relativeTimestamp({
+      field: 'createdAt',
+      headerName: 'Date de création',
+    }),
+    relativeTimestamp({
+      field: 'lastActivity',
+      headerName: 'Dernière activité',
+    }),
     {
       field: 'actions',
       type: 'actions',

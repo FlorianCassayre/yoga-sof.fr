@@ -10,6 +10,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { QueryKey } from '../../../lib/server/controllers';
 import { User } from '@prisma/client';
 import { userCreateSchema, userFindTransformSchema, userUpdateSchema } from '../../../lib/common/newSchemas/user';
+import { displayUserName } from '../../../lib/common/newDisplay';
 
 const UserFormFields = () => (
   <Grid container spacing={2}>
@@ -30,7 +31,7 @@ const userFormDefaultValues: DeepPartial<z.infer<typeof userCreateSchema>> = {
 const commonFormProps = {
   icon: <Person />,
   defaultValues: userFormDefaultValues,
-  urlSuccessFor: (data: User) => `/administration/utilisateurs`,
+  urlSuccessFor: (data: User) => `/administration/utilisateurs/${data.id}`,
   urlCancel: `/administration/utilisateurs`,
   invalidate: ['user.find', 'user.findAll', 'user.findUpdate'] as QueryKey[],
 };
@@ -42,6 +43,7 @@ export const UserCreateForm = () => {
       title="Création d'un compte utilisateur"
       schema={userCreateSchema}
       mutation="user.create"
+      successMessage={(data) => `L'utilisateur ${displayUserName(data)} a été créé.`}
     >
       <UserFormFields />
     </CreateFormContent>
@@ -58,6 +60,7 @@ export const UserUpdateForm = ({ queryParams }: { queryParams: ParsedUrlQuery })
       query="user.findUpdate"
       querySchema={userFindTransformSchema}
       queryParams={queryParams}
+      successMessage={(data) => `L'utilisateur ${displayUserName(data)} a été mis à jour.`}
     >
       <UserFormFields />
     </UpdateFormContent>

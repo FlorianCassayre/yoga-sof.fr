@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { Dialog, DialogContent, DialogTitle, Grid, IconButton, TextField, Typography } from '@mui/material';
 import { Close, Visibility } from '@mui/icons-material';
-import { GridActionsCellItem, GridRowParams } from '@mui/x-data-grid';
+import { GridActionsCellItem, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
-import { EmailMessage } from '@prisma/client';
+import { EmailMessage, EmailMessageType, User } from '@prisma/client';
+import { UserLink } from '../../link/UserLink';
+import { relativeTimestamp, userColumn } from './common';
+import { EmailMessageTypeNames } from '../../../lib/common/newEmail';
+import { formatDateDDsMMsYYYsHHhMMmSSs } from '../../../lib/common/newDate';
 
 interface EmailDetailsDialogProps {
   open: boolean;
@@ -38,16 +42,16 @@ const EmailDetailsDialog: React.FunctionComponent<EmailDetailsDialogProps> = ({ 
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 0 }}>
             <Grid item xs={12} md={6}>
-              <TextField label="Destinataire" variant="outlined" value={data.destinationAddress} disabled fullWidth />
+              <TextField label="Destinataire" variant="outlined" value={data.destinationAddress} InputProps={{ readOnly: true }} fullWidth />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField label="Date d'envoi" variant="outlined" value={data.sentAt} disabled fullWidth />
+              <TextField label="Date d'envoi" variant="outlined" value={data.sentAt ? formatDateDDsMMsYYYsHHhMMmSSs(data.sentAt) : ''} InputProps={{ readOnly: true }} fullWidth />
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Objet" variant="outlined" value={data.subject} disabled fullWidth />
+              <TextField label="Objet" variant="outlined" value={data.subject} InputProps={{ readOnly: true }} fullWidth />
             </Grid>
             <Grid item xs={12}>
-              <TextField label="Message" variant="outlined" value={data.message} disabled fullWidth multiline />
+              <TextField label="Message" variant="outlined" value={data.message} InputProps={{ readOnly: true }} fullWidth multiline />
             </Grid>
           </Grid>
         </DialogContent>
@@ -76,13 +80,10 @@ export const EmailMessageGrid: React.FunctionComponent = () => {
     },
     {
       field: 'type',
-      headerName: `Type d'e-mail`
+      headerName: `Type d'e-mail`,
+      valueFormatter: ({ value }: { value: EmailMessageType }) => EmailMessageTypeNames[value],
     },
-    {
-      field: 'user',
-      headerName: 'Utilisateur',
-      renderCell: () => null,
-    },
+    userColumn({ field: 'user' }),
     {
       field: 'destinationAddress',
       headerName: 'Addresse de destination',
@@ -96,14 +97,8 @@ export const EmailMessageGrid: React.FunctionComponent = () => {
       headerName: 'Longueur du message',
       valueFormatter: ({ value }) => `${value.length} caractère${value.length > 1 ? 's' : ''}`,
     },
-    {
-      field: 'createdAt',
-      headerName: 'Date de création',
-    },
-    {
-      field: 'sentAt',
-      headerName: `Date d'envoi`,
-    },
+    relativeTimestamp({ field: 'createdAt', headerName: 'Date de création' }),
+    relativeTimestamp({ field: 'sentAt', headerName: `Date d'envoi` }),
   ];
 
   return (

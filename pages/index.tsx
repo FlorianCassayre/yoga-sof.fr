@@ -363,56 +363,46 @@ const sidebar = {
 const PageNew: React.FC = () => {
   return (
     <>
-      <CssBaseline />
-      <Container maxWidth="lg" style={{ fontFamily: 'nunito' }}>
-        <Header title="Yoga Sof" sections={sections} />
-        <main>
-          <MainFeaturedPost />
-          <Grid container spacing={4}>
-            {featuredPosts.map((post, i) => (
-              <FeaturedPost key={i} />
-            ))}
+      <MainFeaturedPost />
+      <Grid container spacing={4}>
+        {featuredPosts.map((post, i) => (
+          <FeaturedPost key={i} />
+        ))}
+      </Grid>
+      <Divider sx={{ my: 3 }} />
+      <Grid container justifyContent="center">
+        <Grid item xs={11} lg={8}>
+          <Paper elevation={0} sx={{ p: 2, bgcolor: 'grey.200' }}>
+            <Typography variant="h6" gutterBottom>
+              <FormatQuote sx={{ transform: 'rotate(180deg)' }} />
+              C'est à travers l'alignement de mon corps que j'ai découvert l'alignement de mon esprit, de mon Être et de mon intelligence.
+              <FormatQuote />
+            </Typography>
+            <Typography>
+              Sri B.K.S Iyengar
+            </Typography>
+          </Paper>
+        </Grid>
+      </Grid>
+      <Divider sx={{ my: 3 }} />
+      <Grid container spacing={5} sx={{ mb: 2 }}>
+        {[0, 1, 2].map(() => (
+          <Grid item xs={12} md={4} alignItems="stretch">
+            <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <Typography variant="h5" component="div">
+                Effectifs réduits
+              </Typography>
+              <Typography variant="h5" component="div" sx={{ mt: 1 }}>
+                <Group />
+              </Typography>
+              <Typography variant="body1" component="div">
+                Les séances se déroulent en petit nombre.
+              </Typography>
+            </Paper>
           </Grid>
-          <Divider sx={{ my: 3 }} />
-          <Grid container justifyContent="center">
-            <Grid item xs={11} lg={8}>
-              <Paper elevation={0} sx={{ p: 2, bgcolor: 'grey.200' }}>
-                <Typography variant="h6" gutterBottom>
-                  <FormatQuote sx={{ transform: 'rotate(180deg)' }} />
-                  C'est à travers l'alignement de mon corps que j'ai découvert l'alignement de mon esprit, de mon Être et de mon intelligence.
-                  <FormatQuote />
-                </Typography>
-                <Typography>
-                  Sri B.K.S Iyengar
-                </Typography>
-              </Paper>
-            </Grid>
-          </Grid>
-          <Divider sx={{ my: 3 }} />
-          <Grid container spacing={5} sx={{ mb: 2 }}>
-            {[0, 1, 2].map(() => (
-              <Grid item xs={12} md={4}>
-                <Paper sx={{ p: 2, textAlign: 'center' }}>
-                  <Typography variant="h5" component="div">
-                    Effectifs réduits
-                  </Typography>
-                  <Typography variant="h5" component="div" sx={{ mt: 1 }}>
-                    <Group />
-                  </Typography>
-                  <Typography variant="body1" component="div">
-                    Les séances se déroulent en petit nombre.
-                  </Typography>
-                </Paper>
-              </Grid>
-            ))}
-          </Grid>
-          <Alert severity="info" sx={{ mb: 3 }}>La première séance vous est offerte. Je m'inscris maintenant</Alert>
-        </main>
-      </Container>
-      <Footer
-        title="Footer"
-        description="Something here to give the footer a purpose!"
-      />
+        ))}
+      </Grid>
+      <Alert severity="info" sx={{ mb: 3 }}>La première séance vous est offerte. Je m'inscris maintenant</Alert>
     </>
   );
 }

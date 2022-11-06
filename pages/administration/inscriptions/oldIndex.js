@@ -48,7 +48,7 @@ function AdminRegistrationsLayout() {
       />
 
       <div className="text-center">
-        <Link href="/administration/inscriptions/creation" passHref>
+        <Link href="/administration/inscriptions/CourseRegistrationCreate" passHref>
           <Button variant="success">
             <BsPlusLg className="icon me-2" />
             Inscrire un utilisateur à une séance

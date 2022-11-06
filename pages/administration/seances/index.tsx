@@ -92,7 +92,8 @@ const AdminHomeContent: React.FC = () => {
       title="Séances"
       icon={<DateRange />}
       actions={[
-        { icon: <Event />, name: 'Nouveau modèle de séance', url: '/administration/seances/modeles/creation' }
+        { icon: <DateRange />, name: 'Planification de séances', url: '/administration/seances/planning/creation' },
+        { icon: <Event />, name: 'Nouveau modèle de séance', url: '/administration/seances/modeles/creation' },
       ]}
     >
       <Typography variant="h6" component="div">
@@ -112,15 +113,15 @@ const AdminHomeContent: React.FC = () => {
         Ce tableau contient la liste des séances passées, présentes et futures. Le bouton permet de planifier de
         nouvelles séances. Il n'est pas possible de supprimer de séances, en revanche il est possible d'en annuler.
       </Typography>
-      <CourseGrid />
+      <CourseGrid future />
 
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
         Séances passées ou annulées
       </Typography>
-
       <Typography paragraph>
         Les séances passées ou ayant été annulées.
       </Typography>
+      <CourseGrid future={false} />
     </BackofficeContent>
   );
 };

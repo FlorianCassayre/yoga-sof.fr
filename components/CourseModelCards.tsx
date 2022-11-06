@@ -14,7 +14,7 @@ import {
 import { trpc } from '../lib/common/trpc';
 import { CourseModel } from '@prisma/client';
 import { CourseTypeNames } from '../lib/common/newCourse';
-import { AddBox, AutoAwesomeMotion, Create, Delete, Edit, Event } from '@mui/icons-material';
+import { AddBox, AutoAwesomeMotion, Delete, Edit, Event } from '@mui/icons-material';
 import { formatColonTimeHHhMM, WeekdayNames } from '../lib/common/newDate';
 import Link from 'next/link';
 

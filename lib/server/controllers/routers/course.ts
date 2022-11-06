@@ -15,7 +15,21 @@ export const courseRouter = trpc
     },
   })
   .query('findAll', {
-    resolve: async () => findCourses(),
+    input: z.strictObject({
+      future: z.boolean(),
+    }),
+    resolve: async ({ input: { future } }) => {
+      const whereFuture = {
+        dateEnd: {
+          gt: new Date(),
+        },
+        isCanceled: false,
+      };
+
+      return findCourses({
+        where: future ? whereFuture : { NOT: whereFuture },
+      })
+    },
   })
   .query('findAllPaginated', {
     input: schemaWithPagination,

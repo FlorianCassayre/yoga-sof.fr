@@ -111,7 +111,7 @@ const AdminHomeContent: React.FC = () => {
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
         Prochaines séances
       </Typography>
-      <CourseGrid readOnly />
+      <CourseGrid future readOnly />
     </BackofficeContent>
   );
 };

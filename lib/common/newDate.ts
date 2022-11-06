@@ -1,3 +1,5 @@
+import { intervalToDuration } from "date-fns";
+
 export const WeekdayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 
 const locale = 'fr-FR';
@@ -28,6 +30,41 @@ const dateFormatter = new Intl.DateTimeFormat(locale, {
   year: 'numeric',
   month: 'numeric',
   day: 'numeric',
+  timeZone,
 });
 
-export const formatDateDDsMMsYYYY = (date: Date | string) => dateFormatter.format(new Date(date));
+const timeFormatterHHhMMmSSs = new Intl.DateTimeFormat(locale, {
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  timeZone,
+});
+
+export const formatDateDDsMMsYYYY = (date: Date | string): string => dateFormatter.format(new Date(date));
+
+export const formatDateDDsMMsYYYsHHhMMmSSs = (date: Date | string): string => {
+  return 'Le ' + [dateFormatter, timeFormatterHHhMMmSSs].map(formatter => formatter.format(new Date(date))).join(' à ');
+};
+
+export const formatTimestampRelative = (date: Date | string) => {
+  const duration = intervalToDuration({
+    start: new Date(date),
+    end: new Date(),
+  })
+
+  let suffix;
+  if (duration.years) {
+    suffix = `${duration.years} année${duration.years > 1 ? 's' : ''}`;
+  } else if (duration.months) {
+    suffix = `${duration.months} mois`;
+  } else if (duration.days) {
+    suffix = `${duration.days} jour${duration.days > 1 ? 's' : ''}`;
+  } else if (duration.hours) {
+    suffix = `${duration.hours} heure${duration.hours > 1 ? 's' : ''}`;
+  } else if (duration.minutes) {
+    suffix = `${duration.minutes} minute${duration.minutes > 1 ? 's' : ''}`;
+  } else {
+    suffix = `quelques instants`;
+  }
+  return `Il y a ${suffix}`;
+}

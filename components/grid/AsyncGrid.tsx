@@ -5,9 +5,7 @@ import { TRPCClientErrorLike } from '@trpc/client';
 import { UseQueryResult } from 'react-query';
 import { AppRouter, inferProcedures, QueryKey } from '../../lib/server/controllers';
 import { trpc } from '../../lib/common/trpc';
-import type { inferProcedureOutput, inferProcedureInput } from '@trpc/server'
-import { Paginated, Pagination } from '../../lib/server/services/helpers/types';
-import { Box, Button, useTheme } from '@mui/material';
+import { Card, useTheme } from '@mui/material';
 import { GridRowIdGetter } from '@mui/x-data-grid/models/gridRows';
 
 interface AsyncGridProps<TQueryPath extends keyof AppRouter["_def"]["queries"] & string> {
@@ -23,7 +21,7 @@ export const AsyncGrid = <TQueryPath extends keyof AppRouter["_def"]["queries"] 
   const { data, isLoading, isError } = trpc.useQuery(query);
 
   return (
-    <Box sx={{ width: '100%', backgroundColor: theme.palette.background.paper }}>
+    <Card elevation={0} sx={{ width: '100%' }}>
       <DataGrid
         rows={(data as any[]) ?? []}
         columns={columns}
@@ -44,6 +42,6 @@ export const AsyncGrid = <TQueryPath extends keyof AppRouter["_def"]["queries"] 
           }
         }}
       />
-    </Box>
+    </Card>
   );
 };

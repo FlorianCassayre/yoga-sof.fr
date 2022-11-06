@@ -6,5 +6,9 @@ import { findEmailMessages } from '../../services';
 export const emailMessageRouter = trpc
   .router<ContextProtected>()
   .query('findAll', {
-    resolve: async () => findEmailMessages(),
+    resolve: async () => findEmailMessages({
+      include: {
+        user: true,
+      },
+    }),
   });

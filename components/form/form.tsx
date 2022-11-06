@@ -10,6 +10,7 @@ import { useRouter } from 'next/router';
 import { BackofficeContent } from '../layout/admin/BackofficeContent';
 import { ParsedUrlQuery } from 'querystring';
 import { ZodTypeDef } from 'zod/lib/types';
+import { SnackbarMessage, useSnackbar } from 'notistack';
 
 interface FormContentProps<TMutationPath extends MutationKey, TData> {
   children: React.ReactNode;
@@ -21,6 +22,7 @@ interface FormContentProps<TMutationPath extends MutationKey, TData> {
   mutation: TMutationPath;
   defaultValues: DeepPartial<Mutations[TMutationPath]['input']>;
   invalidate?: QueryKey[];
+  successMessage: (data: TData) => SnackbarMessage;
 }
 
 interface CreateFormContentProps<TMutationPath extends MutationKey> extends FormContentProps<TMutationPath, Mutations[TMutationPath]['output']> {
@@ -48,16 +50,20 @@ const InternalFormContent = <TMutationPath extends MutationKey>({
   mutation,
   defaultValues,
   invalidate,
+  successMessage,
   edit,
   isLoading: isQueryLoading,
 }: InternalFormContentProps<TMutationPath, Mutations[TMutationPath]['output']>) => {
   const router = useRouter();
   const { queryClient } = trpc.useContext();
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const { mutate, isLoading, isError } = trpc.useMutation(mutation, {
     onSuccess: (data) => {
       const invalidations = invalidate ? invalidate.map(query => queryClient.resetQueries(query)) : [];
-      return Promise.all([router.push(urlSuccessFor(data)), ...invalidations]);
+      return Promise.all([router.push(urlSuccessFor(data)), ...invalidations])
+        .then(() => enqueueSnackbar(successMessage(data), { variant: 'success', autoHideDuration: 3000 }));
     },
   });
 

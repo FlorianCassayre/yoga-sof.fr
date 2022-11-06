@@ -16,13 +16,15 @@ interface BasicSpeedDialProps {
 export const BasicSpeedDial: React.FC<BasicSpeedDialProps> = ({ actions }) => {
   const margin = { xs: 16, md: 32 };
   const router = useRouter();
+  const height = 32;
   return (
-    <SpeedDial
-      ariaLabel="SpeedDial basic example"
-      sx={{ position: 'fixed', bottom: margin, right: margin }}
-      icon={<SpeedDialIcon />}
-    >
-      {actions.map((action) => (
+    <Box sx={{ height: { xs: height + 2 * margin.xs, md: height + 2 * margin.md } }}>
+      <SpeedDial
+        ariaLabel="Actions"
+        sx={{ position: 'fixed', bottom: margin, right: margin }}
+        icon={<SpeedDialIcon />}
+      >
+        {actions.map((action) => (
           <SpeedDialAction
             key={action.name}
             icon={action.icon}
@@ -33,6 +35,7 @@ export const BasicSpeedDial: React.FC<BasicSpeedDialProps> = ({ actions }) => {
             }}
           />
         ))}
-    </SpeedDial>
+      </SpeedDial>
+    </Box>
   );
 };

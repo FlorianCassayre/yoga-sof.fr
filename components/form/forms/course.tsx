@@ -11,11 +11,12 @@ import { Grid } from '@mui/material';
 import { InputPrice, InputSlots, SelectCourseType, SelectWeekday, TimePickerElement } from '../newFields';
 import { Dashboard } from '@mui/icons-material';
 import { CreateFormContent, UpdateFormContent } from '../form';
-import { CourseModel } from '@prisma/client';
+import { Course, CourseModel } from '@prisma/client';
 import { ParsedUrlQuery } from 'querystring';
 import { QueryKey } from '../../../lib/server/controllers';
+import { courseCreateSchema, courseUpdateSchema } from '../../../lib/common/newSchemas/course';
 
-const CourseModelFormFields = () => (
+const CourseFormFields = () => (
   <Grid container spacing={2}>
     <Grid item xs={12}>
       <SelectCourseType name="type" />
@@ -24,10 +25,8 @@ const CourseModelFormFields = () => (
       <SelectWeekday name="weekday" />
     </Grid>
     <Grid item xs={12} sm={6}>
-      <TimePickerElement name="timeStart" label="Heure de début" />
     </Grid>
     <Grid item xs={12} sm={6}>
-      <TimePickerElement name="timeEnd" label="Heure de fin" />
     </Grid>
     <Grid item xs={12}>
       <InputSlots name="slots" />
@@ -35,57 +34,51 @@ const CourseModelFormFields = () => (
     <Grid item xs={12}>
       <InputPrice name="price" />
     </Grid>
-    <Grid item xs={12}>
-      <SwitchElement name="bundle" label="Lot de séances" />
-    </Grid>
   </Grid>
 );
 
-const courseModelFormDefaultValues: DeepPartial<z.infer<typeof courseModelCreateSchema>> = {
+const courseFormDefaultValues: DeepPartial<z.infer<typeof courseCreateSchema>> = {
   slots: 1,
   price: 0,
-  bundle: false,
 
   type: 'YOGA_ADULT' as any,
   weekday: 0,
-  timeStart: '01:00',
-  timeEnd: '02:30',
 };
 
 const commonFormProps = {
   icon: <Dashboard />,
-  //children: <CourseModelFields />,
-  defaultValues: courseModelFormDefaultValues,
-  urlSuccessFor: (data: CourseModel) => `/administration/seances`,
+  defaultValues: courseFormDefaultValues,
+  urlSuccessFor: (data: Course) => `/administration/seances`,
   urlCancel: `/administration/seances`,
-  invalidate: ['courseModel.find', 'courseModel.findAll'] as QueryKey[],
+  invalidate: ['course.find', 'course.findAll'] as QueryKey[],
 };
 
-export const CourseModelCreateForm = () => {
+/*export const CourseCreateForm = () => {
   return (
     <CreateFormContent
       {...commonFormProps}
-      title="Création d'un modèle de séance"
-      schema={courseModelCreateSchema}
-      mutation="courseModel.create"
+      title="Planification de séances"
+      schema={courseCreateSchema}
+      mutation="course.create"
     >
-      <CourseModelFormFields />
+      <CourseFormFields />
     </CreateFormContent>
   );
 };
 
-export const CourseModelUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) => { // z.infer<typeof courseModelGetSchema>
+export const CourseUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) => {
   return (
     <UpdateFormContent
       {...commonFormProps}
-      title="Modification d'un modèle de séance"
-      schema={courseModelUpdateSchema}
-      mutation="courseModel.update"
-      query="courseModel.find"
-      querySchema={courseModelGetTransformSchema}
+      title="Modification d'une séance"
+      schema={courseUpdateSchema}
+      mutation="course.update"
+      query="course.find"
+      querySchema={courseGetTransformSchema}
       queryParams={queryData}
     >
-      <CourseModelFormFields />
+      <CourseFormFields />
     </UpdateFormContent>
   );
 };
+*/

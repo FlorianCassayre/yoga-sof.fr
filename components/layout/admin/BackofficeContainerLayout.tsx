@@ -46,6 +46,7 @@ interface SideMenuCategory {
 
 interface BackofficeContainerLayoutProps {
   title: string;
+  url: string;
   menu: SideMenuCategory[];
   profileMenu: ProfileMenu;
   children: React.ReactNode;
@@ -56,7 +57,7 @@ const OptionalLink = ({ href, ...props }: Omit<LinkProps, 'href'> & { href?: Lin
   href ? <Link href={href} {...props}>{props.children}</Link> : <>{props.children}</>;
 
 export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps> =
-  ({ title, menu, profileMenu, children, footer }) => {
+  ({ title, url: titleUrl, menu, profileMenu, children, footer }) => {
   const isWide = useMedia('(min-width: 768px)');
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [profileAnchorEl, setProfileProfileAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -87,9 +88,12 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {title}
-          </Typography>
+          <Link href={titleUrl} passHref>
+            <Typography variant="h6" noWrap component="a" sx={{ textDecoration: 'none', color: 'inherit' }}>
+              {title}
+            </Typography>
+          </Link>
+          <Box sx={{ flexGrow: 1 }} />
           {!!profileMenu && (
             <>
               <IconButton

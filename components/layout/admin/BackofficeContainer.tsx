@@ -1,6 +1,6 @@
 import React from 'react';
 import { BackofficeContainerLayout } from './BackofficeContainerLayout';
-import { AdminPanelSettings, Assignment, Dashboard, DateRange, Email, Euro, People } from '@mui/icons-material';
+import { AdminPanelSettings, Assignment, Dashboard, DateRange, Email, Euro, Logout, People } from '@mui/icons-material';
 import { useSession } from 'next-auth/react';
 import { Typography } from '@mui/material';
 import pkg from '../../../package.json';
@@ -15,6 +15,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
   return (
     <BackofficeContainerLayout
       title="Yoga Sof"
+      url="/"
       menu={[
         {
           children: [
@@ -41,6 +42,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
       profileMenu={{
         children: [
           { title: 'Profil', icon: <People /> },
+          { title: 'Se déconnecter', icon: <Logout /> },
         ]
       }}
       footer={(
