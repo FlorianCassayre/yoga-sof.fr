@@ -1,16 +1,16 @@
 import { format } from 'date-fns';
 import { Course, CourseModel, CourseType, User } from '@prisma/client';
 import { CourseTypeNames } from './newCourse';
-import { WeekdayNames } from './newDate';
+import { formatDayRange, WeekdayNames } from './newDate';
 
-/*export const displayCourseName = ({ type, dateStart, dateEnd }: Pick<Course, 'type' | 'dateStart' | 'dateEnd'>, capitalize = true) => [
+export const displayCourseName = ({ type, dateStart, dateEnd }: Pick<Course, 'type' | 'dateStart' | 'dateEnd'>, capitalize = true) => [
   capitalize ? 'Séance' : 'séance',
   CourseTypeNames[type].toLowerCase(),
   'du',
   formatDayRange(dateStart, dateEnd, false),
 ].join(' ');
 
-export const displayCourseModelName = ({ type, weekday, timeStart, timeEnd, bundle }: CourseModel, capitalize = true) => [
+/*export const displayCourseModelName = ({ type, weekday, timeStart, timeEnd, bundle }: CourseModel, capitalize = true) => [
   capitalize ? CourseTypeNames[type] : CourseTypeNames[type].toLowerCase(),
   'le',
   WeekdayNames[weekday].toLowerCase(),

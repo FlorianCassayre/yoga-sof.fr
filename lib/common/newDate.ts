@@ -68,3 +68,9 @@ export const formatTimestampRelative = (date: Date | string) => {
   }
   return `Il y a ${suffix}`;
 }
+
+export const formatDayRange = (start: Date | string, end: Date | string, capitalize = true): string => {
+  //const dateString = dateLiteralFormatter.format(new Date(start));
+  //return [capitalize ? capitalizeFirst(dateString) : dateString, 'de', formatTimeRange(start, end)].join(' ');
+  return '';
+};

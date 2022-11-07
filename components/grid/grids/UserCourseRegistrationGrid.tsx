@@ -7,11 +7,12 @@ import { AsyncGrid } from '../AsyncGrid';
 import { useRouter } from 'next/router';
 import { courseColumn, relativeTimestamp, userColumn } from './common';
 
-export const CourseRegistrationGrid: React.FunctionComponent = () => {
-  const router = useRouter();
+interface UserCourseRegistrationGridProps {
+  userId: number;
+}
 
+export const UserCourseRegistrationGrid: React.FunctionComponent<UserCourseRegistrationGridProps> = ({ userId }) => {
   const columns: GridColumns = [
-    userColumn({ field: 'user', flex: 1 }),
     courseColumn({ field: 'course', flex: 1 }),
     relativeTimestamp({ field: 'createdAt', headerName: `Date d'inscription`, flex: 1 }),
     {
@@ -24,6 +25,6 @@ export const CourseRegistrationGrid: React.FunctionComponent = () => {
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['courseRegistration.findAll']} />
+    <AsyncGrid columns={columns} query={['courseRegistration.findAllForUser', { userId }]} />
   );
 };

@@ -5,6 +5,8 @@ import { Course } from '@prisma/client';
 import { useRouter } from 'next/router';
 import { useSchemaQuery } from '../../../../../components/hooks/useSchemaQuery';
 import { courseFindTransformSchema } from '../../../../../lib/common/newSchemas/course';
+import { displayCourseName } from '../../../../../lib/common/newDisplay';
+import { CourseCourseRegistrationGrid } from '../../../../../components/grid/grids/CourseCourseRegistrationGrid';
 
 interface CourseContentProps {
   course: Course;
@@ -13,10 +15,11 @@ interface CourseContentProps {
 const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: CourseContentProps) => {
   return (
     <BackofficeContent
-      title={`Séance xxxxxxxxxxx`}
+      title={displayCourseName(course)}
       icon={<Event />}
     >
       {JSON.stringify(course)}
+      <CourseCourseRegistrationGrid courseId={course.id} />
     </BackofficeContent>
   );
 };

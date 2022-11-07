@@ -6,6 +6,7 @@ import { displayUserName } from '../../../../lib/common/newDisplay';
 import { userFindTransformSchema } from '../../../../lib/common/newSchemas/user';
 import { useSchemaQuery } from '../../../../components/hooks/useSchemaQuery';
 import { useRouter } from 'next/router';
+import { UserCourseRegistrationGrid } from '../../../../components/grid/grids/UserCourseRegistrationGrid';
 
 interface AdminUserContentProps {
   user: User;
@@ -21,6 +22,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       ]}
     >
       {JSON.stringify(user)}
+      <UserCourseRegistrationGrid userId={user.id} />
     </BackofficeContent>
   );
 };
