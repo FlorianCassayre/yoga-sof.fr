@@ -4,13 +4,13 @@ import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { Pagination } from './helpers/types';
 import { createPaginated, createPrismaPagination } from './helpers/pagination';
 
-export const findCourse = async (args: { where: Prisma.CourseWhereUniqueInput, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude }) =>
+export const findCourse = async <Where extends Prisma.CourseWhereUniqueInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, select?: Select, include?: Include }) =>
   prisma.course.findUniqueOrThrow(args);
 
-export const findCourses = async (args: { where?: Prisma.CourseWhereInput, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude, orderBy?: Prisma.Enumerable<Prisma.CourseOrderByWithRelationInput> } = {}) =>
+export const findCourses = async <Where extends Prisma.CourseWhereInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseOrderByWithRelationInput>>(args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
   prisma.course.findMany(args);
 
-export const findCoursesPaginated = async (args: { pagination: Pagination, where?: Prisma.CourseWhereInput, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude, orderBy?: Prisma.Enumerable<Prisma.CourseOrderByWithRelationInput> }) => {
+export const findCoursesPaginated = async <Where extends Prisma.CourseWhereInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseOrderByWithRelationInput>>(args: { pagination: Pagination, where?: Where, select?: Select, include?: Include, orderBy?: OrderBy }) => {
   const { pagination: { page, elementsPerPage }, ...rest } = args;
   const [totalElements, data] = await prisma.$transaction([
     prisma.course.count({ where: args.where }),
@@ -24,7 +24,7 @@ export const findCoursesPaginated = async (args: { pagination: Pagination, where
   });
 }
 
-export const updateCourse = async (args: { where: Prisma.CourseWhereUniqueInput, data: Pick<Course, 'slots' | 'notes'>, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude }) => {
+export const updateCourse = async <Where extends Prisma.CourseWhereUniqueInput, Data extends Pick<Course, 'slots' | 'notes'>, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, data: Data, select?: Select, include?: Include }) => {
   const { where: { id }, data: { slots } } = args;
   return await prisma.$transaction(async () => {
     if (slots !== undefined) {
@@ -42,7 +42,7 @@ export const updateCourse = async (args: { where: Prisma.CourseWhereUniqueInput,
   });
 };
 
-export const cancelCourse = async (args: { where: Prisma.CourseWhereUniqueInput, data: Pick<Course, 'cancelationReason'>, select?: Prisma.CourseSelect, include?: Prisma.CourseInclude }) => {
+export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, Data extends Pick<Course, 'cancelationReason'>, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, data: Data, select?: Select, include?: Include }) => {
   const { where, data, ...rest } = args;
   return await prisma.$transaction(async () => {
     const course = await prisma.course.findUniqueOrThrow({ where });
@@ -56,7 +56,7 @@ export const cancelCourse = async (args: { where: Prisma.CourseWhereUniqueInput,
       where,
       data: {
         isCanceled: true,
-        ...data,
+        ...(data as Pick<Course, 'cancelationReason'>),
       },
       ...rest
     });

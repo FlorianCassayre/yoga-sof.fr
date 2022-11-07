@@ -3,23 +3,23 @@ import { prisma } from '../prisma';
 import { userCreateSchema, userUpdateSchema } from '../../common/newSchemas/user';
 import { z } from 'zod';
 
-export const findUser = async (args: { where: Prisma.UserWhereUniqueInput, select?: Prisma.UserSelect, include?: Prisma.UserInclude }) =>
+export const findUser = async <Where extends Prisma.UserWhereUniqueInput, Select extends Prisma.UserSelect, Include extends Prisma.UserInclude>(args: { where: Where, select?: Select, include?: Include }) =>
   prisma.user.findUniqueOrThrow(args);
 
-export const findUsers = async (args: { where?: Prisma.UserWhereInput, select?: Prisma.UserSelect, include?: Prisma.UserInclude, orderBy?: Prisma.Enumerable<Prisma.UserOrderByWithRelationInput> } = {}) =>
+export const findUsers = async <Where extends Prisma.UserWhereInput, Select extends Prisma.UserSelect, Include extends Prisma.UserInclude, OrderBy extends Prisma.Enumerable<Prisma.UserOrderByWithRelationInput>>(args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
   prisma.user.findMany(args);
 
-export const findUserUpdate = async (args: { where: Prisma.UserWhereUniqueInput }) => {
+export const findUserUpdate = async <Where extends Prisma.UserWhereUniqueInput>(args: { where: Where }) => {
   const { id, name, email, customName, customEmail } = await findUser({ where: args.where, select: { id: true, name: true, email: true, customName: true, customEmail: true } });
   return { id, name: customName ?? name, email: customEmail ?? email };
 }
 
-export const createUser = async (args: { data: z.infer<typeof userCreateSchema>, select?: Prisma.UserSelect }) => {
+export const createUser = async <Select extends Prisma.UserSelect, Include extends Prisma.UserInclude>(args: { data: z.infer<typeof userCreateSchema>, select?: Select, include?: Include }) => {
   userCreateSchema.parse(args.data);
   return prisma.user.create(args);
 }
 
-export const updateUser = async (args: { where: Prisma.UserWhereUniqueInput, data: z.infer<typeof userCreateSchema>, select?: Prisma.UserSelect }) => {
+export const updateUser = async <Where extends Prisma.UserWhereUniqueInput, Select extends Prisma.UserSelect>(args: { where: Where, data: z.infer<typeof userCreateSchema>, select?: Select }) => {
   userUpdateSchema.parse({ ...args.data, id: args.where.id });
   return await prisma.$transaction(async () => {
     const user = await findUserUpdate({ where: args.where });
