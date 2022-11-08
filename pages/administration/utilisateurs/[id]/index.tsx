@@ -1,12 +1,13 @@
 import React from 'react';
 import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
-import { Edit, Person } from '@mui/icons-material';
+import { Assignment, Edit, Person } from '@mui/icons-material';
 import { User } from '@prisma/client';
 import { displayUserName } from '../../../../lib/common/newDisplay';
 import { userFindTransformSchema } from '../../../../lib/common/newSchemas/user';
 import { useSchemaQuery } from '../../../../components/hooks/useSchemaQuery';
 import { useRouter } from 'next/router';
-import { UserCourseRegistrationGrid } from '../../../../components/grid/grids/UserCourseRegistrationGrid';
+import { CourseRegistrationEventGrid } from '../../../../components/grid/grids/CourseRegistrationEventGrid';
+import { CourseRegistrationGrid } from '../../../../components/grid/grids/CourseRegistrationGrid';
 
 interface AdminUserContentProps {
   user: User;
@@ -18,11 +19,13 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       title={`Utilisateur ${displayUserName(user)}`}
       icon={<Person />}
       actions={[
-        { name: 'Modifier', icon: <Edit />, url: `/administration/utilisateurs/${user.id}/edition` }
+        { name: 'Modifier', icon: <Edit />, url: `/administration/utilisateurs/${user.id}/edition` },
+        { name: 'Inscrire à des séances', icon: <Assignment /> },
       ]}
     >
       {JSON.stringify(user)}
-      <UserCourseRegistrationGrid userId={user.id} />
+      <CourseRegistrationGrid userId={user.id} />
+      <CourseRegistrationEventGrid userId={user.id} />
     </BackofficeContent>
   );
 };

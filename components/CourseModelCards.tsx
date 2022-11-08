@@ -17,6 +17,7 @@ import { CourseTypeNames } from '../lib/common/newCourse';
 import { AddBox, AutoAwesomeMotion, Delete, Edit, Event } from '@mui/icons-material';
 import { formatColonTimeHHhMM, WeekdayNames } from '../lib/common/newDate';
 import Link from 'next/link';
+import { useSnackbar } from 'notistack';
 
 interface ConfirmDeleteDialogProps {
   open: boolean;
@@ -53,10 +54,12 @@ interface CourseModelCard {
 
 const CourseModelCard: React.FC<CourseModelCard> = ({ courseModel: { id, type, weekday, timeStart, timeEnd, slots, price, bundle }, readOnly }) => {
   const { invalidateQueries } = trpc.useContext();
+  const { enqueueSnackbar } = useSnackbar();
 
   const { mutate: mutateDelete, isLoading: isDeleting } = trpc.useMutation('courseModel.delete', {
     onSuccess: async () => {
       await Promise.all([invalidateQueries('courseModel.find'), invalidateQueries('courseModel.findAll')]);
+      enqueueSnackbar(`Le modèle a été supprimé.`, { variant: 'success', autoHideDuration: 3000 })
     },
   }); // TODO onError
 

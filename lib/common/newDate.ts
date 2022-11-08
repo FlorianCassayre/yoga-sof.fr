@@ -52,13 +52,19 @@ export const formatTimestampRelative = (date: Date | string) => {
     end: new Date(),
   })
 
-  let suffix;
+  let suffix: string;
   if (duration.years) {
     suffix = `${duration.years} année${duration.years > 1 ? 's' : ''}`;
   } else if (duration.months) {
     suffix = `${duration.months} mois`;
   } else if (duration.days) {
-    suffix = `${duration.days} jour${duration.days > 1 ? 's' : ''}`;
+    if (duration.days === 1) {
+      return 'Hier';
+    } else if (duration.days === 2) {
+      return 'Avant-hier';
+    } else {
+      suffix = `${duration.days} jour${duration.days > 1 ? 's' : ''}`;
+    }
   } else if (duration.hours) {
     suffix = `${duration.hours} heure${duration.hours > 1 ? 's' : ''}`;
   } else if (duration.minutes) {

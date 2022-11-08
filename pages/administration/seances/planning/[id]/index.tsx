@@ -1,12 +1,13 @@
 import React from 'react';
 import { BackofficeContent } from '../../../../../components/layout/admin/BackofficeContent';
-import { Event } from '@mui/icons-material';
+import { Assignment, Edit, EmojiPeople, Event, Notes } from '@mui/icons-material';
 import { Course } from '@prisma/client';
 import { useRouter } from 'next/router';
 import { useSchemaQuery } from '../../../../../components/hooks/useSchemaQuery';
 import { courseFindTransformSchema } from '../../../../../lib/common/newSchemas/course';
 import { displayCourseName } from '../../../../../lib/common/newDisplay';
-import { CourseCourseRegistrationGrid } from '../../../../../components/grid/grids/CourseCourseRegistrationGrid';
+import { CourseRegistrationEventGrid } from '../../../../../components/grid/grids/CourseRegistrationEventGrid';
+import { CourseRegistrationGrid } from '../../../../../components/grid/grids/CourseRegistrationGrid';
 
 interface CourseContentProps {
   course: Course;
@@ -17,9 +18,16 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
     <BackofficeContent
       title={displayCourseName(course)}
       icon={<Event />}
+      actions={[
+        { name: 'Modifier mes notes', icon: <Notes /> },
+        { name: `Faire l'appel`, icon: <EmojiPeople /> },
+        { name: 'Modifier la séance', icon: <Edit /> },
+        { name: 'Inscrire des utilisateurs', icon: <Assignment /> },
+      ]}
     >
       {JSON.stringify(course)}
-      <CourseCourseRegistrationGrid courseId={course.id} />
+      <CourseRegistrationGrid courseId={course.id} />
+      <CourseRegistrationEventGrid courseId={course.id} />
     </BackofficeContent>
   );
 };

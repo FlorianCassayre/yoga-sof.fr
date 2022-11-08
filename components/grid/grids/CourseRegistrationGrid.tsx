@@ -1,18 +1,21 @@
 import React from 'react';
 import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { Cancel } from '@mui/icons-material';
+import { Cancel, Login, Logout } from '@mui/icons-material';
 import { CourseRegistration } from '@prisma/client';
-import { GridActionsCellItem, GridRowParams } from '@mui/x-data-grid';
+import { GridActionsCellItem, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
-import { useRouter } from 'next/router';
 import { courseColumn, relativeTimestamp, userColumn } from './common';
+import { Tooltip } from '@mui/material';
 
-export const CourseRegistrationGrid: React.FunctionComponent = () => {
-  const router = useRouter();
+interface CourseRegistrationGridProps {
+  courseId?: number;
+  userId?: number;
+}
 
+export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationGridProps> = ({ courseId, userId }) => {
   const columns: GridColumns = [
-    userColumn({ field: 'user', flex: 1 }),
-    courseColumn({ field: 'course', flex: 1 }),
+    ...(userId !== undefined ? [] : [userColumn({ field: 'user', flex: 1 })]),
+    ...(courseId !== undefined ? [] : [courseColumn({ field: 'course', flex: 1 })]),
     relativeTimestamp({ field: 'createdAt', headerName: `Date d'inscription`, flex: 1 }),
     {
       field: 'actions',
@@ -24,6 +27,6 @@ export const CourseRegistrationGrid: React.FunctionComponent = () => {
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['courseRegistration.findAll']} />
+    <AsyncGrid columns={columns} query={['courseRegistration.findAllActive', { courseId, userId }]} />
   );
 };
