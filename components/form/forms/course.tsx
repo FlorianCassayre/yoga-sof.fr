@@ -2,22 +2,23 @@ import React from 'react';
 import { DeepPartial, SwitchElement } from 'react-hook-form-mui';
 import { z } from 'zod';
 import {
-  courseModelCreateSchema,
-  courseModelFindSchema,
   courseModelGetTransformSchema,
-  courseModelUpdateSchema
 } from '../../../lib/common/newSchemas';
 import { Grid } from '@mui/material';
 import { InputPrice, InputSlots, SelectCourseType, SelectWeekday, TimePickerElement } from '../newFields';
-import { Dashboard } from '@mui/icons-material';
+import { Event } from '@mui/icons-material';
 import { CreateFormContent, UpdateFormContent } from '../form';
-import { Course, CourseModel } from '@prisma/client';
+import { Course } from '@prisma/client';
 import { ParsedUrlQuery } from 'querystring';
 import { QueryKey } from '../../../lib/server/controllers';
 import { courseCreateSchema, courseUpdateSchema } from '../../../lib/common/newSchemas/course';
+import { SelectCourseModel } from '../newFields/SelectCourseModel';
 
 const CourseFormFields = () => (
   <Grid container spacing={2}>
+    <Grid item xs={12}>
+      <SelectCourseModel name="model" />
+    </Grid>
     <Grid item xs={12}>
       <SelectCourseType name="type" />
     </Grid>
@@ -46,39 +47,42 @@ const courseFormDefaultValues: DeepPartial<z.infer<typeof courseCreateSchema>> =
 };
 
 const commonFormProps = {
-  icon: <Dashboard />,
+  icon: <Event />,
   defaultValues: courseFormDefaultValues,
   urlSuccessFor: (data: Course) => `/administration/seances`,
   urlCancel: `/administration/seances`,
   invalidate: ['course.find', 'course.findAll'] as QueryKey[],
 };
 
-/*export const CourseCreateForm = () => {
+export const CourseCreateForm = () => {
   return (
     <CreateFormContent
       {...commonFormProps}
       title="Planification de séances"
-      schema={courseCreateSchema}
-      mutation="course.create"
+      schema={courseCreateSchema as any} // FIXME
+      mutation={"course.create" as any} // FIXME
+      successMessage={() => 'TODO'}
     >
       <CourseFormFields />
     </CreateFormContent>
   );
 };
 
-export const CourseUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) => {
+export const CourseUpdateNotesForm = ({ queryData }: { queryData: ParsedUrlQuery }) => {
   return (
     <UpdateFormContent
       {...commonFormProps}
       title="Modification d'une séance"
-      schema={courseUpdateSchema}
+      schema={courseUpdateSchema as any} // FIXME
       mutation="course.update"
       query="course.find"
-      querySchema={courseGetTransformSchema}
+      querySchema={courseModelGetTransformSchema /*courseGetTransformSchema*/} // FIXME
       queryParams={queryData}
+      successMessage={() => 'TODO'}
     >
       <CourseFormFields />
     </UpdateFormContent>
   );
 };
-*/
+
+export const CourseUpdateForm = CourseUpdateNotesForm; // FIXME

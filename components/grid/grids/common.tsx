@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Stack } from '@mui/material';
 import { Person } from '@mui/icons-material';
 import { UserLink } from '../../link/UserLink';
-import { formatDateDDsMMsYYYsHHhMMmSSs, formatTimestampRelative } from '../../../lib/common/newDate';
+import { formatDateDDsMMsYYYYsHHhMMmSSs, formatTimestampRelative } from '../../../lib/common/newDate';
 import { GridValidRowModel } from '@mui/x-data-grid/models/gridRows';
 import { CourseLink } from '../../link/CourseLink';
 
@@ -30,7 +30,7 @@ export const courseColumn = (params: PartialGridEnrichedColDef): GridEnrichedCol
 
 export const relativeTimestamp = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
   renderCell: ({ value }: GridRenderCellParams<string>) => value && (
-    <time dateTime={value} title={formatDateDDsMMsYYYsHHhMMmSSs(value)}>
+    <time dateTime={value} title={formatDateDDsMMsYYYYsHHhMMmSSs(value)}>
       {formatTimestampRelative(value).toLowerCase()}
     </time>
   ),

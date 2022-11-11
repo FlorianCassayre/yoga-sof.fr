@@ -1,5 +1,5 @@
 import React from 'react';
-import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
+import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { Cancel, ContentPaste, ContentPasteOff, Login, Logout } from '@mui/icons-material';
 import { CourseRegistration } from '@prisma/client';
 import { GridActionsCellItem, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
@@ -10,9 +10,10 @@ import { Tooltip } from '@mui/material';
 interface CourseRegistrationEventGridProps {
   courseId?: number;
   userId?: number;
+  readOnly?: boolean;
 }
 
-export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistrationEventGridProps> = ({ courseId, userId }) => {
+export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistrationEventGridProps> = ({ courseId, userId, readOnly }) => {
   const columns: GridColumns = [
     {
       field: 'isEventTypeUserCanceled',
@@ -31,13 +32,13 @@ export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistra
     ...(userId !== undefined ? [] : [userColumn({ field: 'registration.user', valueGetter: params => params.row.registration.user, flex: 1 })]),
     ...(courseId !== undefined ? [] : [courseColumn({ field: 'registration.course', valueGetter: params => params.row.registration.course, flex: 1 })]),
     relativeTimestamp({ field: 'date', headerName: `Date`, flex: 1 }),
-    {
+    ...(readOnly ? [] : [{
       field: 'actions',
       type: 'actions',
       getActions: ({ row }: GridRowParams<{ registration: CourseRegistration }>) => !row.registration.isUserCanceled ? [ // TODO
         <GridActionsCellItem icon={<Cancel />} onClick={() => null} label="Annuler" />,
       ] : [],
-    },
+    } as GridEnrichedColDef]),
   ];
 
   return (

@@ -1,8 +1,8 @@
 import React from 'react';
-import { CourseModelCreateForm } from '../../../components/form/forms/courseModel';
+import { CourseRegistrationCreateBatchForm } from '../../../components/form/forms/courseRegistration';
 
 export default function CourseRegistrationCreate() {
   return (
-    <CourseModelCreateForm />
+    <CourseRegistrationCreateBatchForm />
   );
 }

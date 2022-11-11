@@ -7,20 +7,22 @@ import {
   Container,
   Divider,
   Grid,
-  Link as MuiLink,
-  Paper,
+  Link as MuiLink, ListItemIcon, ListItemText, Menu, MenuItem,
+  Paper, Skeleton,
   Stack,
   Toolbar,
   Typography
 } from '@mui/material';
-import { Accessibility, AccessTime, DarkMode, FormatQuote, GitHub, Group, Groups } from '@mui/icons-material';
+import { Accessibility, AccessTime, DarkMode, FormatQuote, GitHub, Group, Groups, Person } from '@mui/icons-material';
 import CssBaseline from '@mui/material/CssBaseline';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 interface ProfileMenuItem {
   title: string;
   icon: JSX.Element;
-  url: string;
+  url?: string;
+  onClick?: () => void;
 }
 
 interface ProfileMenuCategory {
@@ -28,17 +30,28 @@ interface ProfileMenuCategory {
 }
 
 interface ProfileMenu {
-  name: string;
+  title: string;
   children: ProfileMenuCategory[];
 }
 
 interface HeaderProps {
   title: string;
   sections: Section[];
-  profile?: ProfileMenu;
+  profile?: ProfileMenu | null;
 }
 
 function Header({ title, sections, profile }: HeaderProps) {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = !!anchorEl;
+  const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const router = useRouter();
+
   return (
     <React.Fragment>
       <Toolbar sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}>
@@ -68,11 +81,53 @@ function Header({ title, sections, profile }: HeaderProps) {
           </Link>
         ))}
         <Grid container justifyContent="flex-end">
-          {!profile ? (
+          {profile === undefined ? (
+            <Skeleton variant="text" width={150} />
+          ) : profile === null ? (
             <Button variant="outlined" size="small" >
               Connexion
             </Button>
-          ) : null}
+          ) : (
+            <>
+              <Button
+                startIcon={<Person />}
+                onClick={handleOpen}
+              >
+                {profile.title}
+              </Button>
+              <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+              >
+                {profile.children.map(({ children: categoryChildren }, i) => (
+                  <Fragment key={i}>
+                    {categoryChildren.map(({ title, icon, url, onClick }, j) => (
+                      <MenuItem key={j} onClick={() => {
+                        onClick && onClick();
+                        url && router.push(url);
+                        handleClose();
+                      }}>
+                        <ListItemIcon>
+                          {icon}
+                        </ListItemIcon>
+                        <ListItemText>
+                          {title}
+                        </ListItemText>
+                      </MenuItem>
+                    ))}
+                    {i < profile.children.length - 1 && (
+                      <Divider />
+                    )}
+                  </Fragment>
+                ))}
+              </Menu>
+            </>
+          )}
         </Grid>
       </Toolbar>
     </React.Fragment>
@@ -130,7 +185,7 @@ interface Section {
 interface FrontsiteContainerLayoutProps {
   title: string;
   sections: Section[];
-  profile?: ProfileMenu;
+  profile?: ProfileMenu | null;
   footerSections: Section[];
   footerSubtitle: string[];
   children: React.ReactNode;

@@ -1,26 +1,31 @@
-import { format } from 'date-fns';
-import { Course, CourseModel, CourseType, User } from '@prisma/client';
+import { Course, CourseModel, User } from '@prisma/client';
 import { CourseTypeNames } from './newCourse';
-import { formatDayRange, WeekdayNames } from './newDate';
+import { formatColonTimeHHhMM, formatDateDDsmmYYYY, formatDayRange, formatTimeHHhMM, WeekdayNames } from './newDate';
 
 export const displayCourseName = ({ type, dateStart, dateEnd }: Pick<Course, 'type' | 'dateStart' | 'dateEnd'>, capitalize = true) => [
   capitalize ? 'Séance' : 'séance',
   CourseTypeNames[type].toLowerCase(),
   'du',
+  WeekdayNames[new Date(dateStart).getDay()].toLowerCase(),
+  formatDateDDsmmYYYY(dateStart),
   formatDayRange(dateStart, dateEnd, false),
+  'de',
+  formatTimeHHhMM(dateStart),
+  'à',
+  formatTimeHHhMM(dateStart),
 ].join(' ');
 
-/*export const displayCourseModelName = ({ type, weekday, timeStart, timeEnd, bundle }: CourseModel, capitalize = true) => [
+export const displayCourseModelName = ({ type, weekday, timeStart, timeEnd, bundle }: CourseModel, capitalize = true) => [
   capitalize ? CourseTypeNames[type] : CourseTypeNames[type].toLowerCase(),
   'le',
   WeekdayNames[weekday].toLowerCase(),
   'de',
-  formatTime(timeStart),
+  formatColonTimeHHhMM(timeStart),
   'à',
-  formatTime(timeEnd),
+  formatColonTimeHHhMM(timeEnd),
 ].concat(bundle ? ['(lot)'] : []).join(' ');
 
-export const displayDateOnly = date => format(new Date(date), dateFormat);
+/*export const displayDateOnly = date => format(new Date(date), dateFormat);
 
 export const displayDatetime = date => formatTimestamp(date);*/
 

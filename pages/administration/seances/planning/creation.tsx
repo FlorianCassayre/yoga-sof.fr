@@ -1,8 +1,8 @@
 import React from 'react';
-import { CourseModelCreateForm } from '../../../../components/form/forms/courseModel';
+import { CourseCreateForm } from '../../../../components/form/forms/course';
 
 export default function CourseCreate() {
   return (
-    <CourseModelCreateForm />
+    <CourseCreateForm />
   );
 }

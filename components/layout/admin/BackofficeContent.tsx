@@ -4,7 +4,7 @@ import { Stack } from '@mui/system';
 import { BasicSpeedDial } from '../../BasicSpeedDial';
 
 interface BackofficeContentProps {
-  title: string;
+  title: React.ReactElement | string;
   icon: React.ReactNode;
   actions?: Parameters<typeof BasicSpeedDial>[0]['actions'];
   children: React.ReactNode;

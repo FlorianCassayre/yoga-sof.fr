@@ -1,11 +1,12 @@
 import React from 'react';
 import { Box, SpeedDial, SpeedDialAction, SpeedDialIcon } from '@mui/material';
 import { useRouter } from 'next/router';
+import { UrlObject } from 'url';
 
 interface SpeedDialActionItem {
   icon: JSX.Element;
   name: string;
-  url?: string;
+  url?: UrlObject | string;
   onClick?: () => void;
 }
 

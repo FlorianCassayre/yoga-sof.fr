@@ -11,7 +11,7 @@ export default function AdminCourseRegistrations() {
       title="Inscriptions"
       icon={<Assignment />}
       actions={[
-        { icon: <Assignment />, name: 'Inscrire un utilisateur', url: '/administration/inscriptions/creation' }
+        { icon: <Assignment />, name: 'Inscrire des utilisateurs à des séances', url: '/administration/inscriptions/creation' }
       ]}
     >
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>

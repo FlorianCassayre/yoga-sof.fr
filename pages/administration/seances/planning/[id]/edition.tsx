@@ -1,11 +1,11 @@
 import React from 'react';
-import { CourseModelUpdateForm } from '../../../../../components/form/forms/courseModel';
 import { useRouter } from 'next/router';
+import { CourseUpdateForm } from '../../../../../components/form/forms/course';
 
 export default function CourseUpdate() {
   const router = useRouter();
 
   return (
-    <CourseModelUpdateForm queryData={router.query} />
+    <CourseUpdateForm queryData={router.query} />
   );
 }

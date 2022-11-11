@@ -8,7 +8,7 @@ import { EmailMessage, EmailMessageType, User } from '@prisma/client';
 import { UserLink } from '../../link/UserLink';
 import { relativeTimestamp, userColumn } from './common';
 import { EmailMessageTypeNames } from '../../../lib/common/newEmail';
-import { formatDateDDsMMsYYYsHHhMMmSSs } from '../../../lib/common/newDate';
+import { formatDateDDsMMsYYYYsHHhMMmSSs } from '../../../lib/common/newDate';
 
 interface EmailDetailsDialogProps {
   open: boolean;
@@ -45,7 +45,7 @@ const EmailDetailsDialog: React.FunctionComponent<EmailDetailsDialogProps> = ({ 
               <TextField label="Destinataire" variant="outlined" value={data.destinationAddress} InputProps={{ readOnly: true }} fullWidth />
             </Grid>
             <Grid item xs={12} md={6}>
-              <TextField label="Date d'envoi" variant="outlined" value={data.sentAt ? formatDateDDsMMsYYYsHHhMMmSSs(data.sentAt) : ''} InputProps={{ readOnly: true }} fullWidth />
+              <TextField label="Date d'envoi" variant="outlined" value={data.sentAt ? formatDateDDsMMsYYYYsHHhMMmSSs(data.sentAt) : ''} InputProps={{ readOnly: true }} fullWidth />
             </Grid>
             <Grid item xs={12}>
               <TextField label="Objet" variant="outlined" value={data.subject} InputProps={{ readOnly: true }} fullWidth />

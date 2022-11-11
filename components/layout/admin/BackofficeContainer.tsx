@@ -1,6 +1,16 @@
 import React from 'react';
 import { BackofficeContainerLayout } from './BackofficeContainerLayout';
-import { AdminPanelSettings, Assignment, Dashboard, DateRange, Email, Euro, Logout, People } from '@mui/icons-material';
+import {
+  AdminPanelSettings,
+  Assignment,
+  Dashboard,
+  DateRange,
+  Email,
+  Euro,
+  Home,
+  Logout,
+  People
+} from '@mui/icons-material';
 import { useSession } from 'next-auth/react';
 import { Typography } from '@mui/material';
 import pkg from '../../../package.json';
@@ -37,7 +47,12 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
             { title: 'Utilisateurs', icon: <People />, url: '/administration/utilisateurs' },
             { title: 'Emails', icon: <Email />, url: '/administration/emails' },
           ]
-        }
+        },
+        {
+          children: [
+            { title: 'Voir le site', icon: <Home />, url: '/' },
+          ],
+        },
       ]}
       profileMenu={{
         children: [

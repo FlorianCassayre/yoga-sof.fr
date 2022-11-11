@@ -24,7 +24,7 @@ export const colonTimeToParts = (time: string): [number, number] => {
 export const timePartsToTotalMinutes = (parts: [number, number]): number => parts[0] * 60 + parts[1];
 
 export const formatColonTimeHHhMM = (time: string): string => colonTimeToParts(time).map(n => n.toString().padStart(2, '0')).join('h');
-export const formatTimeHHhMM = (date: Date | string) => timeFormatterHHhMM.format(new Date(date));
+export const formatTimeHHhMM = (date: Date | string) => timeFormatterHHhMM.format(new Date(date)).replace(':', 'h');
 
 const dateFormatter = new Intl.DateTimeFormat(locale, {
   year: 'numeric',
@@ -42,9 +42,18 @@ const timeFormatterHHhMMmSSs = new Intl.DateTimeFormat(locale, {
 
 export const formatDateDDsMMsYYYY = (date: Date | string): string => dateFormatter.format(new Date(date));
 
-export const formatDateDDsMMsYYYsHHhMMmSSs = (date: Date | string): string => {
+export const formatDateDDsMMsYYYYsHHhMMmSSs = (date: Date | string): string => {
   return 'Le ' + [dateFormatter, timeFormatterHHhMMmSSs].map(formatter => formatter.format(new Date(date))).join(' à ');
 };
+
+const dateFormatterLong = new Intl.DateTimeFormat(locale, {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone,
+});
+
+export const formatDateDDsmmYYYY = (date: Date | string): string => dateFormatterLong.format(new Date(date));
 
 export const formatTimestampRelative = (date: Date | string) => {
   const duration = intervalToDuration({
