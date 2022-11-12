@@ -52,6 +52,7 @@ export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children
   return (
     <FrontsiteContainerLayout
       title="Yoga Sof"
+      url="/"
       sections={commonSections}
       profile={profile}
       footerSections={[

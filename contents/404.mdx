@@ -1,15 +1,11 @@
-import { PublicContainer } from '../components/contents';
-import Link from 'next/link';
+import Link from 'next/link'; import { FrontsiteContent } from '../components/layout/public/FrontsiteContent';
 
 export const meta = {
   title: 'Page introuvable',
-  padNavbar: true,
 };
-
-# Page introuvable
 
 Si vous pensez qu'il s'agit d'une erreur, merci de nous le faire savoir.
 
 <Link href="/">Retourner à l'accueil</Link>
 
-export default ({ children }) => <PublicContainer {...meta}>{children}</PublicContainer>
+export default ({ children }) => <FrontsiteContent {...meta}>{children}</FrontsiteContent>

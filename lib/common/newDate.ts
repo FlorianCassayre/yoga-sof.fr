@@ -42,8 +42,8 @@ const timeFormatterHHhMMmSSs = new Intl.DateTimeFormat(locale, {
 
 export const formatDateDDsMMsYYYY = (date: Date | string): string => dateFormatter.format(new Date(date));
 
-export const formatDateDDsMMsYYYYsHHhMMmSSs = (date: Date | string): string => {
-  return 'Le ' + [dateFormatter, timeFormatterHHhMMmSSs].map(formatter => formatter.format(new Date(date))).join(' à ');
+export const formatDateDDsMMsYYYYsHHhMMmSSs = (date: Date | string, article: boolean = false): string => {
+  return (article ? 'Le ' : '') + [dateFormatter, timeFormatterHHhMMmSSs].map(formatter => formatter.format(new Date(date))).join(' à ');
 };
 
 const dateFormatterLong = new Intl.DateTimeFormat(locale, {

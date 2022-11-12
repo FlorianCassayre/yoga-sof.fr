@@ -24,7 +24,7 @@ export const findCoursesPaginated = async <Where extends Prisma.CourseWhereInput
   });
 }
 
-export const updateCourse = async <Where extends Prisma.CourseWhereUniqueInput, Data extends Pick<Course, 'slots' | 'notes'>, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, data: Data, select?: Select, include?: Include }) => {
+export const updateCourse = async <Where extends Prisma.CourseWhereUniqueInput, Data extends Partial<Pick<Course, 'slots' | 'notes'>>, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, data: Data, select?: Select, include?: Include }) => {
   const { where: { id }, data: { slots } } = args;
   return await prisma.$transaction(async () => {
     if (slots !== undefined) {

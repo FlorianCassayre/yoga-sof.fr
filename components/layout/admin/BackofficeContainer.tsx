@@ -9,7 +9,7 @@ import {
   Euro,
   Home,
   Logout,
-  People
+  People, Settings
 } from '@mui/icons-material';
 import { useSession } from 'next-auth/react';
 import { Typography } from '@mui/material';
@@ -25,7 +25,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
   return (
     <BackofficeContainerLayout
       title="Yoga Sof"
-      url="/"
+      url="/administration"
       menu={[
         {
           children: [
@@ -33,10 +33,11 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
           ]
         },
         {
-          title: 'Yoga',
+          title: 'Organisation',
           children: [
             { title: 'Séances', icon: <DateRange />, url: '/administration/seances' },
             { title: 'Inscriptions', icon: <Assignment />, url: '/administration/inscriptions' },
+            { title: 'Utilisateurs', icon: <People />, url: '/administration/utilisateurs' },
             { title: 'Comptabilité', icon: <Euro />, disabled: true },
           ]
         },
@@ -44,9 +45,9 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
           title: 'Administration',
           children: [
             { title: 'Administrateurs', icon: <AdminPanelSettings />, url: '/administration/administrateurs' },
-            { title: 'Utilisateurs', icon: <People />, url: '/administration/utilisateurs' },
             { title: 'Emails', icon: <Email />, url: '/administration/emails' },
-          ]
+            { title: 'Paramètres', icon: <Settings />, url: '/administration/parametres' },
+          ],
         },
         {
           children: [

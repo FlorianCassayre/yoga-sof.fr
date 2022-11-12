@@ -36,11 +36,12 @@ interface ProfileMenu {
 
 interface HeaderProps {
   title: string;
+  url: string;
   sections: Section[];
   profile?: ProfileMenu | null;
 }
 
-function Header({ title, sections, profile }: HeaderProps) {
+function Header({ title, url: titleUrl, sections, profile }: HeaderProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = !!anchorEl;
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -55,15 +56,16 @@ function Header({ title, sections, profile }: HeaderProps) {
   return (
     <React.Fragment>
       <Toolbar sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}>
-        <Typography
-          component="h1"
-          variant="h5"
-          color="inherit"
-          noWrap
-          sx={{ pr: 2, flexShrink: 0 }}
-        >
-          {title}
-        </Typography>
+        <Link href={titleUrl} passHref>
+          <MuiLink
+            variant="h5"
+            color="inherit"
+            noWrap
+            sx={{ pr: 2, flexShrink: 0, textDecoration: 'none' }}
+          >
+            {title}
+          </MuiLink>
+        </Link>
         {sections.map(({ title, url }, i) => (
           <Link
             key={i}
@@ -96,17 +98,13 @@ function Header({ title, sections, profile }: HeaderProps) {
                 {profile.title}
               </Button>
               <Menu
-                id="basic-menu"
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
-                MenuListProps={{
-                  'aria-labelledby': 'basic-button',
-                }}
               >
-                {profile.children.map(({ children: categoryChildren }, i) => (
-                  <Fragment key={i}>
-                    {categoryChildren.map(({ title, icon, url, onClick }, j) => (
+                {profile.children.map(({ children: categoryChildren }, i) =>
+                  [
+                    categoryChildren.map(({ title, icon, url, onClick }, j) => (
                       <MenuItem key={j} onClick={() => {
                         onClick && onClick();
                         url && router.push(url);
@@ -119,12 +117,12 @@ function Header({ title, sections, profile }: HeaderProps) {
                           {title}
                         </ListItemText>
                       </MenuItem>
-                    ))}
-                    {i < profile.children.length - 1 && (
+                    )),
+                    i < profile.children.length - 1 && (
                       <Divider />
-                    )}
-                  </Fragment>
-                ))}
+                    )
+                  ]
+                )}
               </Menu>
             </>
           )}
@@ -142,7 +140,7 @@ interface FooterProps {
 
 function Footer({ sections, title, subtitle }: FooterProps) {
   return (
-    <Box component="footer" sx={{ bgcolor: 'grey.200', py: 6 }}>
+    <Box component="footer" sx={{ bgcolor: 'grey.200', py: 6, mt: 'auto' }}>
       <Container maxWidth="lg">
         <Grid container>
           <Grid item container xs={12} md={6} sx={{ textAlign: 'center' }}>
@@ -163,12 +161,12 @@ function Footer({ sections, title, subtitle }: FooterProps) {
             <strong>{title}</strong>
             <br /><br />
             {subtitle.map((sub, i) => (
-              <>
+              <Fragment key={i}>
                 {sub}
                 {i < subtitle.length - 1 && (
                   <br />
                 )}
-              </>
+              </Fragment>
             ))}
           </Grid>
         </Grid>
@@ -184,6 +182,7 @@ interface Section {
 
 interface FrontsiteContainerLayoutProps {
   title: string;
+  url: string;
   sections: Section[];
   profile?: ProfileMenu | null;
   footerSections: Section[];
@@ -193,6 +192,7 @@ interface FrontsiteContainerLayoutProps {
 
 export const FrontsiteContainerLayout: React.FC<FrontsiteContainerLayoutProps> = ({
   title,
+  url,
   sections,
   profile,
   footerSections,
@@ -200,15 +200,15 @@ export const FrontsiteContainerLayout: React.FC<FrontsiteContainerLayoutProps> =
   children
 }) => {
   return (
-    <>
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <CssBaseline />
       <Container maxWidth="lg">
-        <Header title={title} sections={sections} profile={profile} />
-        <main>
+        <Header title={title} url={url} sections={sections} profile={profile} />
+        <Box component="main" sx={{ mb: 2 }}>
           {children}
-        </main>
+        </Box>
       </Container>
       <Footer sections={footerSections} title={title} subtitle={footerSubtitle} />
-    </>
+    </Box>
   );
 };

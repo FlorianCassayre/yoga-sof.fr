@@ -12,17 +12,17 @@ const AdminHomeContent: React.FC = () => {
       title="Aperçu"
       icon={<Dashboard />}
     >
-      <Typography variant="h6" component="div" sx={{ mb: 2 }}>
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Planning ordinaire
       </Typography>
       <CourseModelCards readOnly />
 
-      <Typography variant="h6" component="div" sx={{ my: 2 }}>
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Prochaines séances
       </Typography>
       <CourseGrid future readOnly />
 
-      <Typography variant="h6" component="div" sx={{ my: 2 }}>
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Dernières inscriptions et désinscriptions
       </Typography>
       <CourseRegistrationEventGrid readOnly />

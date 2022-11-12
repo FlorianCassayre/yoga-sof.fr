@@ -8,7 +8,7 @@ interface HeadMetaProps {
 export const HeadMeta: React.FC<HeadMetaProps> = ({ title }) => {
   return (
     <Head>
-      {title && <title>{title}</title>}
+      <title>{title}</title>
 
       <link rel="icon" href="/favicon.ico" sizes="any" />
       <link rel="icon" type="image/svg+xml" href="/icon.svg" />

@@ -30,7 +30,7 @@ export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistra
       align: 'center',
     },
     ...(userId !== undefined ? [] : [userColumn({ field: 'registration.user', valueGetter: params => params.row.registration.user, flex: 1 })]),
-    ...(courseId !== undefined ? [] : [courseColumn({ field: 'registration.course', valueGetter: params => params.row.registration.course, flex: 1 })]),
+    ...(courseId !== undefined ? [] : [courseColumn({ field: 'registration.course', valueGetter: params => params.row.registration.course, flex: 2 })]),
     relativeTimestamp({ field: 'date', headerName: `Date`, flex: 1 }),
     ...(readOnly ? [] : [{
       field: 'actions',

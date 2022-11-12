@@ -18,3 +18,7 @@ export const courseFindTransformSchema = z.object({
     z.number().int().min(0)
   ),
 });
+
+export const courseUpdateNotesSchema = z.object({
+  notes: z.string().nullable(),
+}).merge(courseFindSchema);

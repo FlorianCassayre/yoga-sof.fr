@@ -12,24 +12,26 @@ interface AsyncGridProps<TQueryPath extends keyof AppRouter["_def"]["queries"] &
   columns: GridColDef[];
   query: [path: TQueryPath, ...args: inferHandlerInput<AppRouter["_def"]["queries"][TQueryPath]>];
   getRowId?: GridRowIdGetter;
+  getRowClassName?: (row: any) => any;
 }
 
 const rowsPerPageOptions = [10];
 
-export const AsyncGrid = <TQueryPath extends keyof AppRouter["_def"]["queries"] & string>({ columns, query, getRowId }: AsyncGridProps<TQueryPath>): JSX.Element => {
+export const AsyncGrid = <TQueryPath extends keyof AppRouter["_def"]["queries"] & string>({ columns, query, getRowId, getRowClassName }: AsyncGridProps<TQueryPath>): JSX.Element => {
   const theme = useTheme();
   const { data, isLoading, isError } = trpc.useQuery(query);
 
   return (
     <Card elevation={0} sx={{ width: '100%' }}>
       <DataGrid
-        rows={(data as any[]) ?? []}
+        rows={(data as any[] | undefined) ?? []}
         columns={columns}
         getRowId={getRowId}
         autoHeight
         pageSize={rowsPerPageOptions[0]}
         rowsPerPageOptions={rowsPerPageOptions}
         loading={isLoading}
+        getRowClassName={getRowClassName}
         disableColumnMenu
         disableColumnSelector
         disableSelectionOnClick

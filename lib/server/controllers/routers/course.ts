@@ -3,6 +3,7 @@ import { ContextProtected } from '../context';
 import { z } from 'zod';
 import { cancelCourse, findCourse, findCourses, findCoursesPaginated, updateCourse } from '../../services';
 import { schemaWithPagination } from '../schemas';
+import { courseUpdateNotesSchema } from '../../../common/newSchemas/course';
 
 export const courseRouter = trpc
   .router<ContextProtected>()
@@ -11,7 +12,15 @@ export const courseRouter = trpc
       id: z.number().int().min(0),
     }),
     resolve: async ({ input: { id } }) => {
-      return findCourse({ where: { id } });
+      return findCourse({ where: { id }, include: { registrations: true } });
+    },
+  })
+  .query('findUpdateNotes', {
+    input: z.strictObject({
+      id: z.number().int().min(0),
+    }),
+    resolve: async ({ input: { id } }) => {
+      return findCourse({ where: { id }, select: { id: true, notes: true } });
     },
   })
   .query('findAll', {
@@ -28,6 +37,7 @@ export const courseRouter = trpc
 
       return findCourses({
         where: future ? whereFuture : { NOT: whereFuture },
+        include: { registrations: true },
       })
     },
   })
@@ -43,6 +53,12 @@ export const courseRouter = trpc
     }),
     resolve: async ({ input: { id, slots, notes } }) =>
       await updateCourse({ where: { id }, data: { slots, notes } }),
+  })
+  .mutation('updateNotes', {
+    input: courseUpdateNotesSchema,
+    resolve: async ({ input: { id, notes } }) => {
+      return updateCourse({ where: { id }, data: { notes } });
+    },
   })
   .mutation('cancel', {
     input: z.strictObject({

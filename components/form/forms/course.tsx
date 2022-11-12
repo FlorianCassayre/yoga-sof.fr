@@ -1,5 +1,5 @@
 import React from 'react';
-import { DeepPartial, SwitchElement } from 'react-hook-form-mui';
+import { DeepPartial, SwitchElement, TextFieldElement } from 'react-hook-form-mui';
 import { z } from 'zod';
 import {
   courseModelGetTransformSchema,
@@ -11,7 +11,12 @@ import { CreateFormContent, UpdateFormContent } from '../form';
 import { Course } from '@prisma/client';
 import { ParsedUrlQuery } from 'querystring';
 import { QueryKey } from '../../../lib/server/controllers';
-import { courseCreateSchema, courseUpdateSchema } from '../../../lib/common/newSchemas/course';
+import {
+  courseCreateSchema,
+  courseFindTransformSchema,
+  courseUpdateNotesSchema,
+  courseUpdateSchema
+} from '../../../lib/common/newSchemas/course';
 import { SelectCourseModel } from '../newFields/SelectCourseModel';
 
 const CourseFormFields = () => (
@@ -48,7 +53,6 @@ const courseFormDefaultValues: DeepPartial<z.infer<typeof courseCreateSchema>> =
 
 const commonFormProps = {
   icon: <Event />,
-  defaultValues: courseFormDefaultValues,
   urlSuccessFor: (data: Course) => `/administration/seances`,
   urlCancel: `/administration/seances`,
   invalidate: ['course.find', 'course.findAll'] as QueryKey[],
@@ -62,6 +66,7 @@ export const CourseCreateForm = () => {
       schema={courseCreateSchema as any} // FIXME
       mutation={"course.create" as any} // FIXME
       successMessage={() => 'TODO'}
+      defaultValues={courseFormDefaultValues}
     >
       <CourseFormFields />
     </CreateFormContent>
@@ -72,15 +77,16 @@ export const CourseUpdateNotesForm = ({ queryData }: { queryData: ParsedUrlQuery
   return (
     <UpdateFormContent
       {...commonFormProps}
-      title="Modification d'une séance"
-      schema={courseUpdateSchema as any} // FIXME
-      mutation="course.update"
-      query="course.find"
-      querySchema={courseModelGetTransformSchema /*courseGetTransformSchema*/} // FIXME
+      title="Modification des notes d'une séance"
+      schema={courseUpdateNotesSchema}
+      mutation="course.updateNotes"
+      query="course.findUpdateNotes"
+      querySchema={courseFindTransformSchema}
       queryParams={queryData}
-      successMessage={() => 'TODO'}
+      successMessage={() => 'Les notes ont été mises à jour'}
+      defaultValues={{ notes: null }}
     >
-      <CourseFormFields />
+      <TextFieldElement name="notes" label="Notes (visibles seulement par vous)" multiline rows={4} fullWidth />
     </UpdateFormContent>
   );
 };

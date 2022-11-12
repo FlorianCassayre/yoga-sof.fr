@@ -1,3 +1,3 @@
-import ContentAccueil from '../contents/accueil.mdx';
+import ContentAccueil from '../contents/accueilOld.mdx';
 
 export default ContentAccueil;

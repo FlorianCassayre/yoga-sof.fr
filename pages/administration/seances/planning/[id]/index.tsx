@@ -1,20 +1,37 @@
 import React from 'react';
 import { BackofficeContent } from '../../../../../components/layout/admin/BackofficeContent';
-import { Assignment, Edit, EmojiPeople, Event, Notes } from '@mui/icons-material';
-import { Course } from '@prisma/client';
+import { AddBox, Assignment, Delete, Edit, EmojiPeople, Event, Notes } from '@mui/icons-material';
+import { Course, Prisma } from '@prisma/client';
 import { useRouter } from 'next/router';
 import { useSchemaQuery } from '../../../../../components/hooks/useSchemaQuery';
 import { courseFindTransformSchema } from '../../../../../lib/common/newSchemas/course';
 import { displayCourseName } from '../../../../../lib/common/newDisplay';
 import { CourseRegistrationEventGrid } from '../../../../../components/grid/grids/CourseRegistrationEventGrid';
 import { CourseRegistrationGrid } from '../../../../../components/grid/grids/CourseRegistrationGrid';
-import { Typography } from '@mui/material';
+import {
+  Badge, Box,
+  Card, CardActions, CardContent, Chip, Grid, IconButton,
+  Paper, Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography
+} from '@mui/material';
+import { InformationTable } from '../../../../../components/InformationTable';
+import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../../../lib/common/newCourse';
+import Link from 'next/link';
+import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../../../../lib/common/newDate';
+import { CourseStatusChip } from '../../../../../components/CourseStatusChip';
 
 interface CourseContentProps {
-  course: Course;
+  course: Prisma.CourseGetPayload<{ include: { registrations: true } }>;
 }
 
 const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: CourseContentProps) => {
+  const status = getCourseStatusWithRegistrations(course);
   return (
     <BackofficeContent
       title={displayCourseName(course)}
@@ -26,12 +43,75 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
         { name: 'Inscrire des utilisateurs', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { courseId: course.id } } },
       ]}
     >
-      {JSON.stringify(course)}
-      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
-        Inscriptions à cette séance
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
+        Détails de la séance
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12} md={4}>
+          <InformationTable
+            rows={[
+              { header: 'Type', value: CourseTypeNames[course.type] },
+              { header: 'Places', value: course.slots },
+              { header: 'Prix', value: `${course.price} €` },
+              { header: 'Date', value: formatDateDDsMMsYYYY(course.dateStart) },
+              { header: 'Heures', value: `${formatTimeHHhMM(course.dateStart)} à ${formatTimeHHhMM(course.dateEnd)}` },
+            ]}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card variant="outlined">
+            <CardContent sx={{ pb: 0 }}>
+              <Stack direction="row" gap={2}>
+                <Typography variant="h6" component="div">
+                  Statut
+                </Typography>
+                <CourseStatusChip course={course} />
+              </Stack>
+              <Box textAlign="center">
+                <Box fontSize={25}>
+                  <Box display="inline" color={status.registered > 0 ? 'green' : 'text.secondary'}>
+                  {status.registered}
+                  </Box>
+                  {' / '}
+                  {course.slots}
+                  <Typography color="text.secondary">
+                    Inscrit{status.registered > 1 ? 's' : ''} / Quota
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+            <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Link href={{ pathname: '/administration/inscriptions/creation', query: { courseId: course.id } }} passHref>
+                <IconButton size="small" aria-label="Inscrire des utilisateurs" disabled={!status.canRegister}><AddBox /></IconButton>
+              </Link>
+            </CardActions>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card variant="outlined">
+            <CardContent sx={{ pb: 0 }}>
+              <Typography variant="h6" component="div">
+                Notes
+              </Typography>
+              <Typography paragraph sx={{ fontStyle: 'italic', mb: 0 }}>
+                Lorem ipsum
+              </Typography>
+            </CardContent>
+            <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Link href={`/administration/seances/planning/${course.id}/edition`} passHref>
+                <IconButton size="small" aria-label="Modifier"><Edit /></IconButton>
+              </Link>
+            </CardActions>
+          </Card>
+        </Grid>
+      </Grid>
+
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
+        Inscrits à cette séance
       </Typography>
       <CourseRegistrationGrid courseId={course.id} />
-      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
+
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Historique d'inscriptions à cette séance
       </Typography>
       <CourseRegistrationEventGrid courseId={course.id} />
@@ -45,6 +125,6 @@ export default function AdminCourse() {
   const result = useSchemaQuery(['course.find', { id }], courseFindTransformSchema);
 
   return result && result.data ? (
-    <CourseContent course={result.data} />
+    <CourseContent course={result.data as CourseContentProps['course']} />
   ) : null;
 }

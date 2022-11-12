@@ -3,12 +3,13 @@ import { GridRenderCellParams } from '@mui/x-data-grid';
 import { Course, CourseRegistration, User } from '@prisma/client';
 import { displayUserName } from '../../../lib/common/newDisplay';
 import Link from 'next/link';
-import { Stack } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import { Person } from '@mui/icons-material';
 import { UserLink } from '../../link/UserLink';
 import { formatDateDDsMMsYYYYsHHhMMmSSs, formatTimestampRelative } from '../../../lib/common/newDate';
 import { GridValidRowModel } from '@mui/x-data-grid/models/gridRows';
 import { CourseLink } from '../../link/CourseLink';
+import { CourseStatusChip } from '../../CourseStatusChip';
 
 type PartialGridEnrichedColDef<R extends GridValidRowModel = any> = Pick<GridEnrichedColDef<R>, 'field'> & Partial<GridEnrichedColDef<R>>
 
@@ -17,22 +18,33 @@ export const userColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDe
   renderCell: ({ value }: GridRenderCellParams<User>) => value && (
     <UserLink user={value} />
   ),
+  minWidth: 150,
   ...params,
 });
 
 export const courseColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
   headerName: 'Séance',
   renderCell: ({ value }: GridRenderCellParams<Course>) => value && (
-    <CourseLink course={value} />
+    <Stack direction="row" gap={1}>
+      <CourseLink course={value} />
+      <CourseStatusChip course={value} />
+    </Stack>
   ),
+  minWidth: 560,
   ...params,
 });
 
-export const relativeTimestamp = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
+export const relativeTimestamp = (params: PartialGridEnrichedColDef, compact: boolean = false): GridEnrichedColDef => ({
   renderCell: ({ value }: GridRenderCellParams<string>) => value && (
-    <time dateTime={value} title={formatDateDDsMMsYYYYsHHhMMmSSs(value)}>
+    <time dateTime={value}>
       {formatTimestampRelative(value).toLowerCase()}
+      {!compact && (
+        <Box sx={{ color: 'text.disabled' }}>
+          {formatDateDDsMMsYYYYsHHhMMmSSs(value, true)}
+        </Box>
+      )}
     </time>
   ),
+  minWidth: 185,
   ...params,
 });
