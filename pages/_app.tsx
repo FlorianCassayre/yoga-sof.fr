@@ -61,7 +61,13 @@ interface LayoutProviderProps {
 }
 
 const LayoutProvider = ({ router, children }: LayoutProviderProps): JSX.Element => {
-  if (router.pathname.startsWith('/administration')) { // TODO
+  if (router.pathname === '/connexion' || router.pathname === '/redirection' || router.pathname === '/verification') {
+    return (
+      <>
+        {children}
+      </>
+    );
+  } else if (router.pathname.startsWith('/administration')) {
     return (
       <GuardedBackofficeContainer>
         {children}

@@ -37,7 +37,7 @@ export const courseColumn = (params: PartialGridEnrichedColDef): GridEnrichedCol
 export const relativeTimestamp = (params: PartialGridEnrichedColDef, compact: boolean = false): GridEnrichedColDef => ({
   renderCell: ({ value }: GridRenderCellParams<string>) => value && (
     <time dateTime={value}>
-      {formatTimestampRelative(value).toLowerCase()}
+      {formatTimestampRelative(value)}
       {!compact && (
         <Box sx={{ color: 'text.disabled' }}>
           {formatDateDDsMMsYYYYsHHhMMmSSs(value, true)}

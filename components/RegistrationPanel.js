@@ -415,7 +415,7 @@ export function RegistrationPanel() {
           <BsInfoCircleFill className="icon me-2" />
           Vous devez être connecté pour accéder au formulaire d'inscription.
           {' '}
-          <Link href="/connexion" passHref>
+          <Link href="/ConnexionPage" passHref>
             <Alert.Link>M'inscrire ou me connecter</Alert.Link>
           </Link>
         </Alert>

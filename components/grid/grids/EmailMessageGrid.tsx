@@ -90,7 +90,7 @@ export const EmailMessageGrid: React.FunctionComponent = () => {
     },
     {
       field: 'subject',
-      headerName: 'Subject',
+      headerName: 'Sujet',
     },
     {
       field: 'message',
