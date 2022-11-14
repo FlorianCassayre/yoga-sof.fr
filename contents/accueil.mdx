@@ -1,6 +1,8 @@
 import { AutoAwesome, CalendarMonth, Group } from '@mui/icons-material'; import Link from 'next/link'; import {
   courses
 } from '../components/contents/common/courses'; import {
+  InternalLink
+} from '../components/contents/common/InternalLink'; import {
   HomepageAlert
 } from '../components/contents/homepage/HomepageAlert';
 import { HomepageBanner } from '../components/contents/homepage/HomepageBanner'; import {
@@ -76,7 +78,7 @@ export const meta = {
   />
 </HomepageCards>
 
-<HomepageAlert>La première séance vous est offerte. <Link href="#">Je m'inscris maintenant</Link></HomepageAlert>
+<HomepageAlert>La première séance vous est offerte. <InternalLink href="#">Je m'inscris maintenant</InternalLink></HomepageAlert>
 
 <HomepageQuote
   quote="C'est à travers l'alignement de mon corps que j'ai découvert l'alignement de mon esprit, de mon Être et de mon intelligence."

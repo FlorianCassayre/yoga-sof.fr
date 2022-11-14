@@ -55,7 +55,7 @@ function Header({ title, url: titleUrl, sections, profile }: HeaderProps) {
 
   return (
     <React.Fragment>
-      <Toolbar sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}>
+      <Toolbar sx={{ px: '0 !important', mb: 2, borderBottom: 1, borderColor: 'divider' }}>
         <Link href={titleUrl} passHref>
           <MuiLink
             variant="h5"
@@ -101,6 +101,14 @@ function Header({ title, url: titleUrl, sections, profile }: HeaderProps) {
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
               >
                 {profile.children.map(({ children: categoryChildren }, i) =>
                   [

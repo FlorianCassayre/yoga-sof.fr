@@ -3,7 +3,7 @@ import '@fontsource/nunito/400.css';
 import '@fontsource/nunito/500.css';
 import '@fontsource/nunito/700.css';
 import '@fontsource/roboto';
-import { createTheme, ThemeProvider } from '@mui/material';
+import { createTheme, ThemeProvider, Link as MuiLink } from '@mui/material';
 import { withTRPC } from '@trpc/next';
 import { SessionProvider } from 'next-auth/react';
 import { MDXProvider } from '@mdx-js/react';
@@ -21,6 +21,7 @@ import { frFR as pickersfrFR } from '@mui/x-date-pickers';
 import { frFR as corefrFR } from '@mui/material/locale';
 import { FrontsiteContainer } from '../components/layout/public/FrontsiteContainer';
 import { SnackbarProvider } from 'notistack';
+import { InternalLink } from '../components/contents/common/InternalLink';
 
 function Paragraph({ children }: { children: React.ReactNode }) {
   return (
@@ -30,6 +31,7 @@ function Paragraph({ children }: { children: React.ReactNode }) {
 
 const components = {
   p: Paragraph,
+  a: InternalLink,
 };
 
 const theme = createTheme({

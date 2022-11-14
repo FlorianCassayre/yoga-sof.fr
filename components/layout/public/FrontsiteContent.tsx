@@ -12,12 +12,10 @@ export const FrontsiteContent: React.FC<FrontsiteContentProps> = ({ title, hideT
   return (
     <>
       <HeadMeta title={`${title} · Yoga Sof`} />
-      <main>
-        {title && !hideTitle && (
-          <Typography variant="h5">{title}</Typography>
-        )}
-        {children}
-      </main>
+      {title && !hideTitle && (
+        <Typography variant="h4">{title}</Typography>
+      )}
+      {children}
     </>
   );
 }

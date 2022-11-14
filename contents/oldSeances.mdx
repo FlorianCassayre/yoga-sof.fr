@@ -1,18 +1,68 @@
-import { Grid } from '@mui/material';
-import { courses } from '../components/contents/common/courses';
-import { CourseSection } from '../components/contents/yoga/CourseSection'; import {
-  SectionDivider
-} from '../components/contents/yoga/SectionDivider';
-import {
-  FrontsiteContent
-} from '../components/layout/public/FrontsiteContent';
+import { Button } from 'react-bootstrap'; import { BsPencilSquare } from 'react-icons/bs';
+import { PracticalInformations } from '../components';
+import { LocationUrl, PublicContainer } from '../components/contents';
+import Link from 'next/link';
+import { LOCATION_COMETE, LOCATION_HOME, YOGA_ADULT, YOGA_ADULT_CHILD, YOGA_CHILD } from '../lib/common';
 
 export const meta = {
-  title: 'Les séances',
-  hideTitle: false,
+  title: `Les séances`,
+  padNavbar: true,
 };
 
-<CourseSection course={courses.YOGA_ADULT} imageUrl="/images/bras-ocean.jpg">
+export const practicalInformationsAdult = {
+  section: `adulte`,
+  age: `Adultes`,
+  level: `Tous`,
+  group: `4-5 personnes`,
+  duration: `1h15`,
+  place: (
+    <>
+      À mon domicile au <LocationUrl location={LOCATION_HOME}>8 rue des moissonneurs, 68220 Hésingue</LocationUrl>.
+      Je peux également venir chez vous si vous constituez un petit groupe, n'hésitez pas à me contacter pour cela.
+    </>
+  ),
+  material: `Tapis de Yoga et une couverture, portez une tenue confortable. Vous pourrez emprunter sur place des blocs, sangles, coussins, balles et ballons.`,
+  image2: `/images/bras-ocean.jpg`,
+  price: `13 € / scéance ou 120 € les 10 séances + cotisation association 10 € / personne ou 15 € / famille`,
+  characteristic: `Respect de votre morphologie`,
+  registrable: true,
+};
+
+export const practicalInformationsChildren = {
+  section: `enfant`,
+  age: `6 à 11 ans`,
+  level: `Initiation`,
+  group: `6-8 enfants`,
+  duration: `1h`,
+  dates: `Lundi ou mardi de 16h30 à 17h30 (les horaires peuvent être légèrement décalés si les enfants arrivent un peu plus tard), à partir du 12 septembre 2022 `,
+  place: <LocationUrl location={LOCATION_COMETE}>La Comète Salle Orion 16 Rue du 20 Novembre, 68220 Hésingue</LocationUrl>,
+  material: `Venir directement après la classe en tenue souple et confortable qui ne serre pas au niveau de l'abdomen ; tapis, accessoires et autre matériel fournis`,
+  registration: `Informations ou inscriptions me contacter pour une première séance d'essai offerte`,
+  image2: `/images/bouda-tailleur.jpg`,
+  price: `90€/ trimestre et cotisation 10€/an pour l'association Yoga-Sof, en cours de conventionnement pour les coupons sport`,
+  registrable: false,
+};
+
+export const practicalInformationsParentChildren = {
+  section: `parent-enfant`,
+  age: `3 à 6 ans`,
+  level: `Initiation`,
+  group: `5 duos`,
+  duration: `1h`,
+  dates: `Pas encore commencé, liste d'attente en cours`,
+  place: `À définir`,
+  material: `Venir en tenue souple et confortable qui ne sert pas au niveau de l'abdomen, apporter un tapis de yoga et une couverture.`,
+  registration: `Informations ou inscriptions sur liste d'attente me contacter`,
+  image2: `/images/yoga-enfant-arbre-plage.jpg`,
+  price: `À définir`,
+  registrable: false,
+};
+
+# Les séances
+
+<h2 id="adulte">Yoga adulte</h2>
+
+<PracticalInformations type={YOGA_ADULT} courseModels={props.courseModels} data={practicalInformationsAdult}>
   J'enseigne un hatha Yoga respectueux de la physiologie de votre corps, en petit groupe convivial de 4-5 personnes, à
   Hésingue. Dès que nécessaire durant la séance, je vous proposerai des adaptations individuelles des postures à l'aide
   d'accessoires ou de variantes pour vous aider à développer votre force et votre souplesse sans inconfort, ni risque de
@@ -26,13 +76,20 @@ export const meta = {
   chemin de la connaissance de votre moi.
 
   La première séance est offerte.
-  Nouveaux tarifs valables pour toute l'année scolaire : 11€ la séance payée à l'avance par 30 sur l'année soit 330€/30 séances,
-  ou 120€ les 10 séances, ou 13€/séance   + cotisation association 10€ / personne ou 15€ / famille
-</CourseSection>
+  Nouveaux tarifs valables pour toute l'année scolaire : 11€ la séance payée à l'avance par 30 sur l'année soit 330€/30 séances, ou 120€ les 10 séances, ou 13€/séance   + cotisation association 10€ / personne ou 15€ / famille
+</PracticalInformations>
 
-<SectionDivider />
+<div className="text-center">
+  <Link href="/inscription" passHref>
+    <Button variant="success" className="mt-3"><BsPencilSquare className="icon me-2 mx-2" />Inscription à une séance de Yoga adulte</Button>
+  </Link>
+</div>
 
-<CourseSection course={courses.YOGA_CHILD} imageUrl="/images/bouda-tailleur.jpg">
+<hr />
+
+<h2 id="enfant" className="mt-4">Yoga enfant</h2>
+
+<PracticalInformations type={YOGA_CHILD} courseModels={props.courseModels} data={practicalInformationsChildren}>
   J'inviterai à entrer en contact avec le monde à travers leurs corps, en jouant et en créant. Par la symbolique des
   postures, sa conscience du corps va augmenter : il jouera à être un animal, un élément de la nature, un héros. Ce jeu
   le conduit vers la méditation, car ses pensées sont parfaitement concentrées sur ce qu'il “est” dans l'instant sans
@@ -69,11 +126,13 @@ export const meta = {
   Quelques mudras seront également proposés.
 
   Tarif : 90€ / trimestre + cotisation association 10€ / enfant ou 15€ / famille
-</CourseSection>
+</PracticalInformations>
 
-<SectionDivider />
+<hr />
 
-<CourseSection course={courses.YOGA_ADULT_CHILD} imageUrl="/images/yoga-enfant-arbre-plage.jpg">
+<h2 id="parent-enfant" className="mt-4">Yoga parent-enfant</h2>
+
+<PracticalInformations type={YOGA_ADULT_CHILD} courseModels={props.courseModels} data={practicalInformationsParentChildren}>
   Le Yoga parent-enfant permet à un duo composé d'un parent, grand-parent ou autre adulte référent accompagné d'un ou
   deux enfants entre 4 et 8 ans de partager un moment de complicité. La parent trouvera du plaisir à mettre son corps en
   mouvement ou bien se détendre, se laisser guider dans sa pratique de yoga. Il pourra en même temps offrir à son enfant
@@ -84,6 +143,6 @@ export const meta = {
   Il n'est pas nécessaire pour le parent d'être pratiquant de yoga.
 
   C'est l'occasion idéale pour partager de précieux moments avec votre enfant, un petit rituel à vous deux.
-</CourseSection>
+</PracticalInformations>
 
-export default ({ children }) => <FrontsiteContent {...meta}>{children}</FrontsiteContent>
+export default ({ children }) => <PublicContainer {...meta}>{children}</PublicContainer>

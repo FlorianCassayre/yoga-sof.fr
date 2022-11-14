@@ -3,10 +3,10 @@ import { prisma } from '../lib/server';
 
 export default ContentSeances;
 
-export async function getServerSideProps() {
+/*export async function getServerSideProps() {
   return {
     props: {
       courseModels: await prisma.courseModel.findMany(),
     },
   };
-}
+}*/

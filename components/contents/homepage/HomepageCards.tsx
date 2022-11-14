@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Paper, Typography } from '@mui/material';
+import { Card, CardContent, Grid, Paper, Typography } from '@mui/material';
 
 interface HomepageCardProps {
   title: string;
@@ -10,17 +10,19 @@ interface HomepageCardProps {
 const HomepageCard: React.FC<HomepageCardProps> = ({ title, icon, description }) => {
   return (
     <Grid item xs={12} md={4} display="flex" alignItems="stretch">
-      <Paper sx={{ p: 2, textAlign: 'center' }}>
-        <Typography variant="h5" component="div">
-          {title}
-        </Typography>
-        <Typography variant="h5" component="div" sx={{ mt: 1 }}>
-          {icon}
-        </Typography>
-        <Typography variant="body1" component="div">
-          {description}
-        </Typography>
-      </Paper>
+      <Card variant="outlined" sx={{ textAlign: 'center' }}>
+        <CardContent>
+          <Typography variant="h5" component="div">
+            {title}
+          </Typography>
+          <Typography variant="h5" component="div" sx={{ mt: 1 }}>
+            {icon}
+          </Typography>
+          <Typography variant="body1" component="div">
+            {description}
+          </Typography>
+        </CardContent>
+      </Card>
     </Grid>
   );
 };
