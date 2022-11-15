@@ -9,15 +9,9 @@ import { displayCourseName } from '../../../../../lib/common/newDisplay';
 import { CourseRegistrationEventGrid } from '../../../../../components/grid/grids/CourseRegistrationEventGrid';
 import { CourseRegistrationGrid } from '../../../../../components/grid/grids/CourseRegistrationGrid';
 import {
-  Badge, Box,
+  Box,
   Card, CardActions, CardContent, Chip, Grid, IconButton,
-  Paper, Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  Stack,
   Typography
 } from '@mui/material';
 import { InformationTable } from '../../../../../components/InformationTable';

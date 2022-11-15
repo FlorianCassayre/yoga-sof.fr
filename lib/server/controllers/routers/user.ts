@@ -11,7 +11,7 @@ export const userRouter = trpc
       id: z.number().int().min(0),
     }),
     resolve: async ({ input: { id } }) => {
-      return findUser({ where: { id } });
+      return findUser({ where: { id }, include: { accounts: true } });
     },
   })
   .query('findAll', {

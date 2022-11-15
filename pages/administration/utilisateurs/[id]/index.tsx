@@ -1,21 +1,45 @@
 import React from 'react';
 import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
-import { Assignment, Block, Edit, Person } from '@mui/icons-material';
-import { User } from '@prisma/client';
+import { Assignment, Block, Info, Edit, Person, Done, Close, Help, QuestionMark } from '@mui/icons-material';
+import { Prisma, User } from '@prisma/client';
 import { displayUserName } from '../../../../lib/common/newDisplay';
 import { userFindTransformSchema } from '../../../../lib/common/newSchemas/user';
 import { useSchemaQuery } from '../../../../components/hooks/useSchemaQuery';
 import { useRouter } from 'next/router';
 import { CourseRegistrationEventGrid } from '../../../../components/grid/grids/CourseRegistrationEventGrid';
 import { CourseRegistrationGrid } from '../../../../components/grid/grids/CourseRegistrationGrid';
-import { Chip, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import { InformationTable } from '../../../../components/InformationTable';
+import { CourseTypeNames } from '../../../../lib/common/newCourse';
+import {
+  formatDateDDsMMsYYYY,
+  formatDateDDsMMsYYYYsHHhMMmSSs,
+  formatTimeHHhMM,
+  formatTimestampRelative
+} from '../../../../lib/common/newDate';
+
+interface UserProvidedInformationChipProps {
+  original: string;
+}
+
+const UserProvidedInformationChip: React.FC<UserProvidedInformationChipProps> = ({ original }) => (
+  <Tooltip title={(
+    <>
+      <Box>Cette donnée a été modifiée par l'utilisateur.</Box>
+      <Box>La valeur originale était : <strong>{original}</strong></Box>
+    </>
+  )}>
+    <Info color="action" />
+  </Tooltip>
+);
 
 interface AdminUserContentProps {
-  user: User;
+  user: Prisma.UserGetPayload<{ include: { accounts: true } }>;
 }
 
 const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user }: AdminUserContentProps) => {
   const title = `Utilisateur ${displayUserName(user)}`;
+  const displayDate = (date: Date | string | undefined | null) => !!date && `${formatDateDDsMMsYYYYsHHhMMmSSs(date)} (${formatTimestampRelative(date).toLowerCase()})`
   return (
     <BackofficeContent
       titleRaw={title}
@@ -36,9 +60,60 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
         { name: 'Désactiver le compte', icon: <Block /> },
       ]}
     >
-      <div>
-        {JSON.stringify(user)}
-      </div>
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
+        Informations sur l'utilisateur
+      </Typography>
+      <Grid container spacing={2}>
+        <Grid item xs={12} lg={6}>
+          <InformationTable
+            rows={[
+              {
+                header: 'Statut',
+                value: user.disabled ? (
+                  <Chip label="Désactivé" color="error" variant="outlined" icon={<Close />} size="small" />
+                ) : user.lastActivity ? (
+                  <Chip label="Actif" color="success" variant="outlined" icon={<Done />} size="small" />
+                ) : (
+                  <Chip label="Jamais connecté" color="default" variant="outlined" icon={<QuestionMark />} size="small" />
+                ),
+              },
+              {
+                header: 'Nom',
+                value: (
+                  <Stack direction="row" alignItems="center" gap={1}>
+                    {user.customName ?? user.name}
+                    {user.customName && user.customName !== user.name && (
+                      <UserProvidedInformationChip original={user.name ?? ''} />
+                    )}
+                  </Stack>
+                ),
+              },
+              {
+                header: 'Adresse e-mail',
+                value: (
+                  <Stack direction="row" alignItems="center" gap={1}>
+                    {user.customEmail ?? user.email}
+                    {user.customEmail && user.customEmail !== user.email && (
+                      <UserProvidedInformationChip original={user.email ?? ''} />
+                    )}
+                  </Stack>
+                ),
+              },
+              { header: 'Première connexion', value: displayDate(user.createdAt) },
+              { header: 'Dernière connexion', value: displayDate(user.lastActivity) },
+            ]}
+          />
+        </Grid>
+        <Grid item xs={12} lg={6}>
+          <Card variant="outlined">
+            <CardContent sx={{ pb: 0 }}>
+              <Typography variant="h6" component="div">
+                Statistiques
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
         Inscriptions de cet utilisateur
       </Typography>
@@ -57,6 +132,6 @@ export default function AdminUser() {
   const result = useSchemaQuery(['user.find', { id }], userFindTransformSchema);
 
   return result && result.data ? (
-    <AdminUserContent user={result.data} />
+    <AdminUserContent user={result.data as any} />
   ) : null;
 }
