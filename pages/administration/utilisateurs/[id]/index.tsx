@@ -15,14 +15,14 @@ interface AdminUserContentProps {
 }
 
 const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user }: AdminUserContentProps) => {
+  const title = `Utilisateur ${displayUserName(user)}`;
   return (
     <BackofficeContent
+      titleRaw={title}
       title={
         <Stack direction="row" gap={2}>
           <span>
-            Utilisateur
-            {' '}
-            {displayUserName(user)}
+            {title}
           </span>
           {user.disabled && (
             <Chip label="Désactivé" color="error" variant="outlined" />
