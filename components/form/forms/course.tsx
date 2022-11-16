@@ -4,7 +4,7 @@ import { z } from 'zod';
 import {
   courseModelGetTransformSchema,
 } from '../../../lib/common/newSchemas';
-import { Grid } from '@mui/material';
+import { Alert, Grid } from '@mui/material';
 import { InputPrice, InputSlots, SelectCourseType, SelectWeekday, TimePickerElement } from '../newFields';
 import { Event } from '@mui/icons-material';
 import { CreateFormContent, UpdateFormContent } from '../form';
@@ -19,37 +19,13 @@ import {
 } from '../../../lib/common/newSchemas/course';
 import { SelectCourseModel } from '../newFields/SelectCourseModel';
 
-const CourseFormFields = () => (
-  <Grid container spacing={2}>
-    <Grid item xs={12}>
-      <SelectCourseModel name="model" />
-    </Grid>
-    <Grid item xs={12}>
-      <SelectCourseType name="type" />
-    </Grid>
-    <Grid item xs={12}>
-      <SelectWeekday name="weekday" />
-    </Grid>
-    <Grid item xs={12} sm={6}>
-    </Grid>
-    <Grid item xs={12} sm={6}>
-    </Grid>
-    <Grid item xs={12}>
-      <InputSlots name="slots" />
-    </Grid>
-    <Grid item xs={12}>
-      <InputPrice name="price" />
-    </Grid>
-  </Grid>
-);
-
 const courseFormDefaultValues: DeepPartial<z.infer<typeof courseCreateSchema>> = {
   slots: 1,
   price: 0,
 
   type: 'YOGA_ADULT' as any,
   weekday: 0,
-};
+} as any; // FIXME
 
 const commonFormProps = {
   icon: <Event />,
@@ -68,8 +44,41 @@ export const CourseCreateForm = () => {
       successMessage={() => 'TODO'}
       defaultValues={courseFormDefaultValues}
     >
-      <CourseFormFields />
+      <Grid container spacing={2}>
+
+      </Grid>
     </CreateFormContent>
+  );
+};
+
+export const CourseUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) => {
+  return (
+    <UpdateFormContent
+      {...commonFormProps}
+      title="Modification d'une séance planifiée"
+      schema={courseUpdateSchema}
+      mutation="course.update"
+      query="course.findUpdate"
+      querySchema={courseModelGetTransformSchema}
+      queryParams={queryData}
+      successMessage={() => 'Les caractéristiques de la séance ont été mises à jour'}
+      defaultValues={{}}
+    >
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Alert severity="warning">
+            Attention, vous êtes sur le point de modifier les caractéristiques d'une séance déjà planifiée.
+            Si vous changez le prix, les utilisateurs déjà inscrits et n'ayant pas encore payé devront s'acquitter du nouveau montant.
+          </Alert>
+        </Grid>
+        <Grid item xs={12}>
+          <InputSlots name="slots" />
+        </Grid>
+        <Grid item xs={12}>
+          <InputPrice name="price" />
+        </Grid>
+      </Grid>
+    </UpdateFormContent>
   );
 };
 
@@ -83,12 +92,10 @@ export const CourseUpdateNotesForm = ({ queryData }: { queryData: ParsedUrlQuery
       query="course.findUpdateNotes"
       querySchema={courseFindTransformSchema}
       queryParams={queryData}
-      successMessage={() => 'Les notes ont été mises à jour'}
+      successMessage={() => 'Les notes de la séance ont été mises à jour'}
       defaultValues={{ notes: null }}
     >
       <TextFieldElement name="notes" label="Notes (visibles seulement par vous)" multiline rows={4} fullWidth />
     </UpdateFormContent>
   );
 };
-
-export const CourseUpdateForm = CourseUpdateNotesForm; // FIXME

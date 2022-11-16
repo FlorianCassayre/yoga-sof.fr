@@ -10,13 +10,28 @@ import { CourseRegistrationEventGrid } from '../../../../components/grid/grids/C
 import { CourseRegistrationGrid } from '../../../../components/grid/grids/CourseRegistrationGrid';
 import { Box, Card, CardContent, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import { InformationTable } from '../../../../components/InformationTable';
-import { CourseTypeNames } from '../../../../lib/common/newCourse';
 import {
-  formatDateDDsMMsYYYY,
   formatDateDDsMMsYYYYsHHhMMmSSs,
-  formatTimeHHhMM,
   formatTimestampRelative
 } from '../../../../lib/common/newDate';
+import { getUserStatistics } from '../../../../lib/common/user';
+
+interface GridItemStatisticProps {
+  value: number;
+  title: string;
+  good?: boolean;
+}
+
+const GridItemStatistic: React.FC<GridItemStatisticProps> = ({ value, title, good }) => (
+  <Grid item xs={6} sm={3} textAlign="center">
+    <Typography variant="h4" component="div" sx={{ mt: 1, mb: 1 }} color={value > 0 ? (good === undefined ? 'black' : good ? 'green' : 'red') : 'text.secondary'}>
+      {value}
+    </Typography>
+    <Typography color="text.secondary">
+      {title}
+    </Typography>
+  </Grid>
+);
 
 interface UserProvidedInformationChipProps {
   original: string;
@@ -34,12 +49,13 @@ const UserProvidedInformationChip: React.FC<UserProvidedInformationChipProps> = 
 );
 
 interface AdminUserContentProps {
-  user: Prisma.UserGetPayload<{ include: { accounts: true } }>;
+  user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true } }>;
 }
 
 const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user }: AdminUserContentProps) => {
   const title = `Utilisateur ${displayUserName(user)}`;
-  const displayDate = (date: Date | string | undefined | null) => !!date && `${formatDateDDsMMsYYYYsHHhMMmSSs(date)} (${formatTimestampRelative(date).toLowerCase()})`
+  const displayDate = (date: Date | string | undefined | null) => !!date && `${formatDateDDsMMsYYYYsHHhMMmSSs(date)} (${formatTimestampRelative(date).toLowerCase()})`;
+  const statistics = getUserStatistics(user);
   return (
     <BackofficeContent
       titleRaw={title}
@@ -101,6 +117,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
               },
               { header: 'Première connexion', value: displayDate(user.createdAt) },
               { header: 'Dernière connexion', value: displayDate(user.lastActivity) },
+              { header: 'Services de connexion', value: user.accounts.length },
             ]}
           />
         </Grid>
@@ -110,6 +127,12 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
               <Typography variant="h6" component="div">
                 Statistiques
               </Typography>
+              <Grid container spacing={2}>
+                <GridItemStatistic value={statistics.coursesPast} title="Séances passées" />
+                <GridItemStatistic value={statistics.coursesFuture} title="Séances à venir" good />
+                <GridItemStatistic value={statistics.courseUnregistrations} title="Séances désinscrites" good={false} />
+                <GridItemStatistic value={statistics.courseAbsences} title="Absences" good={false} />
+              </Grid>
             </CardContent>
           </Card>
         </Grid>

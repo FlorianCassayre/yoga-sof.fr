@@ -8,7 +8,7 @@ export enum ServiceErrorCode {
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
   constructor(public readonly code: T) {
-    super(`${code}`);
+    super(`${ServiceErrorCodeMessages[code]}`);
     Object.setPrototypeOf(this, ServiceError.prototype);
   }
 }

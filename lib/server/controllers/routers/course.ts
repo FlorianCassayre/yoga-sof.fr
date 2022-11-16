@@ -15,6 +15,14 @@ export const courseRouter = trpc
       return findCourse({ where: { id }, include: { registrations: true } });
     },
   })
+  .query('findUpdate', {
+    input: z.strictObject({
+      id: z.number().int().min(0),
+    }),
+    resolve: async ({ input: { id } }) => {
+      return findCourse({ where: { id }, select: { id: true, slots: true, price: true } });
+    },
+  })
   .query('findUpdateNotes', {
     input: z.strictObject({
       id: z.number().int().min(0),
@@ -49,10 +57,10 @@ export const courseRouter = trpc
     input: z.strictObject({
       id: z.number().int().min(0),
       slots: z.number().int().min(0),
-      notes: z.string().nullable(),
+      price: z.number().int().min(0),
     }),
-    resolve: async ({ input: { id, slots, notes } }) =>
-      await updateCourse({ where: { id }, data: { slots, notes } }),
+    resolve: async ({ input: { id, slots, price } }) =>
+      await updateCourse({ where: { id }, data: { slots, price } }),
   })
   .mutation('updateNotes', {
     input: courseUpdateNotesSchema,

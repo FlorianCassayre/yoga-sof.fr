@@ -33,7 +33,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
       actions={[
         { name: 'Modifier mes notes', icon: <Notes /> },
         { name: `Faire l'appel`, icon: <EmojiPeople /> },
-        { name: 'Modifier la séance', icon: <Edit /> },
+        { name: 'Modifier la séance', icon: <Edit />, url: { pathname: `/administration/seances/planning/[id]/edition`, query: { id: course.id } } },
         { name: 'Inscrire des utilisateurs', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { courseId: course.id } } },
       ]}
     >
@@ -62,16 +62,16 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
                 <CourseStatusChip course={course} />
               </Stack>
               <Box textAlign="center">
-                <Box fontSize={25}>
+                <Typography variant="h4" component="div" sx={{ mt: 1, mb: 1 }}>
                   <Box display="inline" color={status.registered > 0 ? 'green' : 'text.secondary'}>
-                  {status.registered}
+                    {status.registered}
                   </Box>
                   {' / '}
                   {course.slots}
-                  <Typography color="text.secondary">
-                    Inscrit{status.registered > 1 ? 's' : ''} / Quota
-                  </Typography>
-                </Box>
+                </Typography>
+                <Typography color="text.secondary">
+                  Inscrits / Quota
+                </Typography>
               </Box>
             </CardContent>
             <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>

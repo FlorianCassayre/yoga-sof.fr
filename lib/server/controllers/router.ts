@@ -1,15 +1,17 @@
 import * as trpc from '@trpc/server';
 import { inferProcedureInput, inferProcedureOutput, ProcedureRecord } from '@trpc/server';
 import { createSessionRouter } from './middlewares/createSessionRouter';
-import { courseRouter } from './routers/course';
+import { courseRouter } from './routers';
 import { createProtectedRouter } from './middlewares/createProtectedRouter';
 import { UserType } from '../../common/all';
 import { Context } from './context';
-import { courseModelRouter } from './routers/courseModel';
-import { adminWhitelistRouter } from './routers/adminWhitelist';
-import { userRouter } from './routers/user';
-import { emailMessageRouter } from './routers/emailMessage';
+import { courseModelRouter } from './routers';
+import { adminWhitelistRouter } from './routers';
+import { userRouter } from './routers';
+import { emailMessageRouter } from './routers';
 import { courseRegistrationRouter } from './routers';
+import { ZodError } from 'zod';
+import { ServiceError } from '../services/helpers/errors';
 
 export const appRouter = trpc
   .router<Context>()
@@ -36,7 +38,28 @@ export const appRouter = trpc
   .merge(
     createSessionRouter()
       .merge('courseRegistration.', createProtectedRouter([UserType.Admin]).merge(courseRegistrationRouter))
-  );
+  )
+  .formatError(({ shape, error }) => {
+    if (error.cause instanceof ZodError) {
+      return {
+        ...shape,
+        data: {
+          ...shape.data,
+          zodError: error.cause.flatten(),
+        },
+      };
+    } else if (error.cause instanceof ServiceError) {
+      return {
+        code: -32600, // FIXME issue with compiler
+        message: error.cause.message,
+        data: {
+          code: error.cause.code,
+        },
+      };
+    } else {
+      return { code: shape.code, message: 'Une erreur est survenue', data: {} };
+    }
+  });
 
 export type AppRouter = typeof appRouter;
 

@@ -59,7 +59,7 @@ const InternalFormContent = <TMutationPath extends MutationKey>({
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const { mutate, isLoading, isError } = trpc.useMutation(mutation, {
+  const { mutate, isLoading, error } = trpc.useMutation(mutation, {
     onSuccess: (data) => {
       const invalidations = invalidate ? invalidate.map(query => queryClient.resetQueries(query)) : [];
       return Promise.all([router.push(urlSuccessFor(data)), ...invalidations])
@@ -83,9 +83,12 @@ const InternalFormContent = <TMutationPath extends MutationKey>({
       <FormContainer onSuccess={handleSubmit} resolver={zodResolver(schema)} defaultValues={defaultValues}>
         {!isLoading ? (
           <Grid container spacing={2}>
-            {isError && (
-              <Grid item xs={12} sx={{ mb: 2 }}>
-                <Alert severity="error">Une erreur est survenue.</Alert>
+            {!!error && (
+              <Grid item xs={12}>
+                <Alert severity="error">
+                  {(!!error.data && ('code' in error.data ?
+                    error.message : 'zodError' in error.data ? 'Certains champs ne sont pas correctement remplis' : null)) ?? 'Une erreur est survenue'}
+                </Alert>
               </Grid>
             )}
             <Grid item xs={12}>

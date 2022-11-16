@@ -1,16 +1,15 @@
 import { z } from 'zod';
 
-const courseSchemaBase = z.object({
-
-});
-
 export const courseFindSchema = z.object({
   id: z.number().int().min(0),
 });
 
-export const courseUpdateSchema = courseSchemaBase.merge(courseFindSchema);
+export const courseUpdateSchema = z.object({
+  price: z.number().int().min(0),
+  slots: z.number().int().min(0),
+}).merge(courseFindSchema);
 
-export const courseCreateSchema = courseSchemaBase;
+export const courseCreateSchema = courseUpdateSchema; // FIXME
 
 export const courseFindTransformSchema = z.object({
   id: z.preprocess(
