@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { z } from 'zod';
-import { DeepPartial, FormContainer } from 'react-hook-form-mui';
-import { MutationKey, Mutations, QueryKey, Queries } from '../../lib/server/controllers';
+import { DeepPartial, FormContainer, useFormState } from 'react-hook-form-mui';
+import { MutationKey, Mutations, QueryKey, Queries, AppRouter } from '../../lib/server/controllers';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Box, Button, CircularProgress, Grid } from '@mui/material';
 import { AddBox, Cancel, Save } from '@mui/icons-material';
@@ -11,6 +11,31 @@ import { BackofficeContent } from '../layout/admin/BackofficeContent';
 import { ParsedUrlQuery } from 'querystring';
 import { ZodTypeDef } from 'zod/lib/types';
 import { SnackbarMessage, useSnackbar } from 'notistack';
+import { TRPCClientErrorLike } from '@trpc/client';
+
+interface FormErrorAlertItemProps {
+  serverError: TRPCClientErrorLike<AppRouter> | null;
+}
+
+const FormErrorAlertItem: React.FC<FormErrorAlertItemProps> = ({ serverError }) => {
+  const { errors: clientErrors } = useFormState();
+
+  if (!serverError /*&& !clientErrors*/) {
+    return null;
+  }
+  // TODO
+
+  return (
+    <Grid item xs={12}>
+      <Alert severity="error">
+        {serverError ? (!!serverError.data && ('code' in serverError.data ?
+          serverError.message : 'zodError' in serverError.data ? 'Certains champs ne sont pas correctement remplis' : null)) ?? 'Une erreur est survenue' : (
+          'Certains champs ne sont pas correctement remplis'
+        )}
+      </Alert>
+    </Grid>
+  );
+};
 
 interface FormContentProps<TMutationPath extends MutationKey, TData> {
   children: React.ReactNode;
@@ -83,14 +108,7 @@ const InternalFormContent = <TMutationPath extends MutationKey>({
       <FormContainer onSuccess={handleSubmit} resolver={zodResolver(schema)} defaultValues={defaultValues}>
         {!isLoading ? (
           <Grid container spacing={2}>
-            {!!error && (
-              <Grid item xs={12}>
-                <Alert severity="error">
-                  {(!!error.data && ('code' in error.data ?
-                    error.message : 'zodError' in error.data ? 'Certains champs ne sont pas correctement remplis' : null)) ?? 'Une erreur est survenue'}
-                </Alert>
-              </Grid>
-            )}
+            <FormErrorAlertItem serverError={error} />
             <Grid item xs={12}>
               {children}
             </Grid>

@@ -16,10 +16,12 @@ export const SelectCourse: React.FC<SelectCourseProps> = ({ name, multiple }) =>
       name={name}
       options={data ?? []}
       multiple={multiple}
+      matchId
       label={`Séance${multiple ? 's' : ''}`}
+      loading={isLoading}
       autocompleteProps={{
         disabled: isLoading,
-        getOptionLabel: (option: Course) => displayCourseName(option)
+        getOptionLabel: (option: Course | undefined) => option ? displayCourseName(option) : '...',
       }}
     />
   );

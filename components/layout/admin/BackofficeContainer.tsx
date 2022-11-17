@@ -11,7 +11,7 @@ import {
   Logout,
   People, Settings
 } from '@mui/icons-material';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { Typography } from '@mui/material';
 import pkg from '../../../package.json';
 
@@ -58,7 +58,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
       profileMenu={{
         children: [
           { title: 'Profil', icon: <People /> },
-          { title: 'Se déconnecter', icon: <Logout /> },
+          { title: 'Se déconnecter', icon: <Logout />, onClick: () => signOut({ redirect: true, callbackUrl: '/' }) },
         ]
       }}
       footer={(

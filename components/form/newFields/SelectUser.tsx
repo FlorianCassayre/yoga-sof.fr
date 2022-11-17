@@ -16,10 +16,12 @@ export const SelectUser: React.FC<SelectUserProps> = ({ name, multiple }) => {
       name={name}
       options={data ?? []}
       multiple={multiple}
+      matchId
       label={`Utilisateur${multiple ? 's' : ''}`}
+      loading={isLoading}
       autocompleteProps={{
         disabled: isLoading,
-        getOptionLabel: (option: User) => displayUserName(option)
+        getOptionLabel: (option: User | undefined) => option ? displayUserName(option) : '...',
       }}
     />
   );

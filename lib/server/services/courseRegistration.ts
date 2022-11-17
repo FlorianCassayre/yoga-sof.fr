@@ -1,5 +1,7 @@
 import { CourseRegistration, Prisma } from '@prisma/client';
 import { prisma } from '../prisma';
+import { ServiceError, ServiceErrorCode } from './helpers/errors';
+import { courseRegistrationCreateSchema } from '../../common/newSchemas/courseRegistration';
 
 const registrationsToEvent = <T extends CourseRegistration>(registrations: T[]) =>
   registrations.flatMap(registration => [{
@@ -17,3 +19,34 @@ export const findCourseRegistrations = async <Where extends Prisma.CourseRegistr
 
 export const findCourseRegistrationEvents = async <Where extends Pick<Prisma.CourseRegistrationWhereInput, 'courseId' | 'userId'>, Select extends Prisma.CourseRegistrationSelect, Include extends Prisma.CourseRegistrationInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseRegistrationOrderByWithRelationInput>>(args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
  registrationsToEvent(await findCourseRegistrations(args))
+
+export const createCourseRegistrations = async (args: { data: { courses: number[], users: number[], notify: boolean } }) => {
+  courseRegistrationCreateSchema.parse(args.data);
+  return await prisma.$transaction(async () => {
+    const now = new Date();
+    const newRegistrations: number[] = [];
+    for (const courseId of args.data.courses) {
+      for (const userId of args.data.users) {
+        const course = await prisma.course.findUniqueOrThrow({ where: { id: courseId }, include: { registrations: { where: { isUserCanceled: false } } } });
+        if (course.isCanceled) {
+          throw new ServiceError(ServiceErrorCode.CourseCanceledNoRegistration);
+        }
+        if (course.dateStart.getTime() <= now.getTime()) {
+          throw new ServiceError(ServiceErrorCode.CoursePassedNoRegistration);
+        }
+        if (course.registrations.length >= course.slots) {
+          throw new ServiceError(ServiceErrorCode.CourseFullNoRegistration);
+        }
+        if (course.registrations.some(({ userId: registeredUserId }) => userId === registeredUserId)) {
+          throw new ServiceError(ServiceErrorCode.UserAlreadyRegistered);
+        }
+        const { id: newRegistrationId } = await prisma.courseRegistration.create({ data: { courseId, userId }, select: { id: true } });
+        newRegistrations.push(newRegistrationId);
+      }
+    }
+    if (args.data.notify) {
+      // TODO FIXME notify
+    }
+    return newRegistrations;
+  });
+};

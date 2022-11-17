@@ -17,6 +17,7 @@ export const SelectCourseModel: React.FC<SelectCourseModelProps> = ({ name, mult
       options={data ?? []}
       multiple={multiple}
       label="Modèle de séance"
+      loading={isLoading}
       autocompleteProps={{
         disabled: isLoading,
         getOptionLabel: (option: CourseModel) => displayCourseModelName(option)

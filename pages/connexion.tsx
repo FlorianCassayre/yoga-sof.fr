@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoginCardLayout, NewLoginCard1, NewLoginCard } from '../components/NewLoginCard';
+import { NewLoginCard } from '../components/NewLoginCard';
 import { getProviders } from 'next-auth/react';
 import { Box, Grid, Typography, Link as MuiLink } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';

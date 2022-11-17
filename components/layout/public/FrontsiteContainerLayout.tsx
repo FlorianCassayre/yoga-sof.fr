@@ -39,9 +39,10 @@ interface HeaderProps {
   url: string;
   sections: Section[];
   profile?: ProfileMenu | null;
+  signInUrl: string;
 }
 
-function Header({ title, url: titleUrl, sections, profile }: HeaderProps) {
+function Header({ title, url: titleUrl, sections, profile, signInUrl }: HeaderProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = !!anchorEl;
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -86,9 +87,11 @@ function Header({ title, url: titleUrl, sections, profile }: HeaderProps) {
           {profile === undefined ? (
             <Skeleton variant="text" width={150} />
           ) : profile === null ? (
-            <Button variant="outlined" size="small" >
-              Connexion
-            </Button>
+            <Link href={signInUrl} passHref>
+              <Button variant="outlined" size="small">
+                Connexion
+              </Button>
+            </Link>
           ) : (
             <>
               <Button
@@ -193,6 +196,7 @@ interface FrontsiteContainerLayoutProps {
   url: string;
   sections: Section[];
   profile?: ProfileMenu | null;
+  signInUrl: string;
   footerSections: Section[];
   footerSubtitle: string[];
   children: React.ReactNode;
@@ -203,6 +207,7 @@ export const FrontsiteContainerLayout: React.FC<FrontsiteContainerLayoutProps> =
   url,
   sections,
   profile,
+  signInUrl,
   footerSections,
   footerSubtitle,
   children
@@ -211,7 +216,7 @@ export const FrontsiteContainerLayout: React.FC<FrontsiteContainerLayoutProps> =
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <CssBaseline />
       <Container maxWidth="lg">
-        <Header title={title} url={url} sections={sections} profile={profile} />
+        <Header title={title} url={url} sections={sections} profile={profile} signInUrl={signInUrl} />
         <Box component="main" sx={{ mb: 2 }}>
           {children}
         </Box>

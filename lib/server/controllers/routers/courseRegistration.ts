@@ -1,7 +1,8 @@
 import * as trpc from '@trpc/server';
 import { ContextProtected } from '../context';
-import { findCourseRegistrationEvents, findCourseRegistrations } from '../../services';
+import { createCourseRegistrations, findCourseRegistrationEvents, findCourseRegistrations } from '../../services';
 import { z } from 'zod';
+import { courseRegistrationCreateSchema } from '../../../common/newSchemas/courseRegistration';
 
 const selectorSchema = z.strictObject({
   courseId: z.number().int().min(0).optional(),
@@ -22,4 +23,9 @@ export const courseRegistrationRouter = trpc
     input: selectorSchema,
     resolve: async ({ input: { courseId, userId } }) =>
       findCourseRegistrations({ where: { courseId, userId, isUserCanceled: false }, include: { course: courseId === undefined, user: userId === undefined } }),
+  })
+  .mutation('create', {
+    input: courseRegistrationCreateSchema,
+    resolve: async ({ input: { courses, users, notify } }) =>
+      createCourseRegistrations({ data: { courses, users, notify } }),
   });

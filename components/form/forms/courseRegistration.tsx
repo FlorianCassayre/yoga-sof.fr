@@ -7,17 +7,17 @@ import { Grid, Alert } from '@mui/material';
 import { Person } from '@mui/icons-material';
 import { CreateFormContent } from '../form';
 import { QueryKey } from '../../../lib/server/controllers';
-import { userCreateSchema } from '../../../lib/common/newSchemas/user';
 import { SelectUser } from '../newFields/SelectUser';
 import { SelectCourse } from '../newFields/SelectCourse';
 import { useRouter } from 'next/router';
+import { courseRegistrationCreateSchema } from '../../../lib/common/newSchemas/courseRegistration';
 
 const CourseRegistrationBatchFormFields = () => (
   <Grid container spacing={2}>
     <Grid item xs={12}>
       <Alert severity="warning">
         Attention, en principe les utilisateurs sont censés s'inscrire eux-mêmes aux séances.
-        En remplissant ce formulaire vous prenez la main sur le compte des utilisateurs que vous inscrivez.
+        En remplissant ce formulaire vous prenez la main sur les comptes des utilisateurs que vous inscrivez.
       </Alert>
     </Grid>
     <Grid item xs={12}>
@@ -32,14 +32,14 @@ const CourseRegistrationBatchFormFields = () => (
   </Grid>
 );
 
-const userFormDefaultValues: DeepPartial<z.infer<typeof userCreateSchema>> = {
-  name: '',
-  email: null,
+const courseRegistrationFormDefaultValues: DeepPartial<z.infer<typeof courseRegistrationCreateSchema>> = {
+  courses: [],
+  users: [],
+  notify: true,
 };
 
 const commonFormProps = {
   icon: <Person />,
-  defaultValues: userFormDefaultValues,
   urlSuccessFor: () => `/administration/seances`,
   urlCancel: `/administration/seances`,
   invalidate: [] as QueryKey[],
@@ -58,22 +58,28 @@ const querySchema = z.object({
 
 export const CourseRegistrationCreateBatchForm = () => {
   const router = useRouter();
-  const actualDefaultValues = useMemo(() => {
+  const actualDefaultValues: typeof courseRegistrationFormDefaultValues = useMemo(() => {
     const parsed = querySchema.safeParse(router.query);
     if (parsed.success) {
-      return { ...userFormDefaultValues, ...parsed.data };
+      const { courseId, userId } = parsed.data;
+      return {
+        ...courseRegistrationFormDefaultValues,
+        courses: courseId !== undefined ? [courseId] : courseRegistrationFormDefaultValues.courses,
+        users: userId !== undefined ? [userId] : courseRegistrationFormDefaultValues.users,
+      };
     } else {
-      return userFormDefaultValues;
+      return courseRegistrationFormDefaultValues;
     }
   }, [router]);
 
   return (
     <CreateFormContent
       {...commonFormProps}
+      defaultValues={actualDefaultValues}
       title="Inscription d'utilisateurs à des séances"
-      schema={userCreateSchema}
-      mutation="user.create"
-      successMessage={(data) => `TODO`}
+      schema={courseRegistrationCreateSchema}
+      mutation="courseRegistration.create"
+      successMessage={(data) => data.length + (data.length > 1 ? ` inscriptions ont été effectuées` : ` inscription a été effectuée`)}
     >
       <CourseRegistrationBatchFormFields />
     </CreateFormContent>

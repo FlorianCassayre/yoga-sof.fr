@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { FrontsiteContainerLayout } from './FrontsiteContainerLayout';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { AdminPanelSettings, Assignment, DateRange, Logout } from '@mui/icons-material';
 import { UserType } from '../../../lib/common/all';
 
@@ -41,7 +41,7 @@ export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children
           },
           {
             children: [
-              { title: 'Déconnexion', icon: <Logout /> },
+              { title: 'Se déconnecter', icon: <Logout />, onClick: () => signOut({ redirect: true, callbackUrl: '/' }) },
             ],
           },
         ],
@@ -55,6 +55,7 @@ export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children
       url="/"
       sections={commonSections}
       profile={profile}
+      signInUrl="/connexion"
       footerSections={[
         ...commonSections,
         { title: 'Règlement intérieur', url: '/reglement-interieur' },
