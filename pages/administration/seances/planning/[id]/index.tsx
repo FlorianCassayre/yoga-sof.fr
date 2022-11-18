@@ -1,6 +1,6 @@
 import React from 'react';
 import { BackofficeContent } from '../../../../../components/layout/admin/BackofficeContent';
-import { AddBox, Assignment, Delete, Edit, EmojiPeople, Event, Notes } from '@mui/icons-material';
+import { AddBox, Assignment, Cancel, Delete, Edit, EmojiPeople, Event, Notes } from '@mui/icons-material';
 import { Course, Prisma } from '@prisma/client';
 import { useRouter } from 'next/router';
 import { useSchemaQuery } from '../../../../../components/hooks/useSchemaQuery';
@@ -35,6 +35,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
         { name: `Faire l'appel`, icon: <EmojiPeople /> },
         { name: 'Modifier la séance', icon: <Edit />, url: { pathname: `/administration/seances/planning/[id]/edition`, query: { id: course.id } } },
         { name: 'Inscrire des utilisateurs', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { courseId: course.id } } },
+        { name: 'Annuler la séance', icon: <Cancel /> },
       ]}
     >
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>

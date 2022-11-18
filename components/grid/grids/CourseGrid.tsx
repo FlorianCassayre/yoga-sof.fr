@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { Cancel, Edit, Note, Notes, Visibility } from '@mui/icons-material';
 import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../../lib/common/newDate';
@@ -10,7 +10,37 @@ import { useRouter } from 'next/router';
 import { CourseStatusChip } from '../../CourseStatusChip';
 import { GridRenderCellParams } from '@mui/x-data-grid/models/params/gridCellParams';
 import { Box } from '@mui/material';
-import { courses } from '../../contents/common/courses';
+import { CancelCourseDialog } from '../../CancelCourseDialog';
+import { trpc } from '../../../lib/common/trpc';
+import { useSnackbar } from 'notistack';
+
+const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactElement[] => {
+  const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
+  const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('course.cancel', {
+    onSuccess: () => {
+      enqueueSnackbar('La séance a été annulée');
+      // TODO invalidate
+    },
+  });
+
+  return [
+    <GridActionsCellItem icon={<Notes />} label="Modifier les notes" onClick={() => router.push(`/administration/seances/planning/${course.id}/notes`)} />,
+    ...(!course.isCanceled && new Date() < new Date(course.dateStart) && !course.isCanceled ? [
+      <GridActionsCellItem icon={<Edit />} label="Modifier" disabled={isCanceling} onClick={() => router.push(`/administration/seances/planning/${course.id}/edition`)} />,
+      <>
+        <CancelCourseDialog
+          course={course}
+          open={confirmCancelDialogOpen}
+          setOpen={setConfirmCancelDialogOpen}
+          onConfirm={(cancelationReason) => mutateCancel({ id: course.id, cancelationReason })}
+        />
+        <GridActionsCellItem icon={<Cancel />} onClick={() => setConfirmCancelDialogOpen(true)} disabled={isCanceling} label="Annuler" />
+      </>,
+    ] : []),
+  ];
+}
 
 interface CourseGridProps {
   future: boolean;
@@ -108,13 +138,7 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, r
       field: 'actions',
       type: 'actions',
       minWidth: 130,
-      getActions: ({ row }: GridRowParams<Course>) => [
-        <GridActionsCellItem icon={<Notes />} label="Modifier les notes" onClick={() => router.push(`/administration/seances/planning/${row.id}/notes`)} />,
-        ...(!row.isCanceled && new Date() < new Date(row.dateStart) ? [
-          <GridActionsCellItem icon={<Edit />} label="Modifier" onClick={() => router.push(`/administration/seances/planning/${row.id}/edition`)} />,
-          <GridActionsCellItem icon={<Cancel />} onClick={() => null} label="Annuler" />,
-        ] : []),
-      ],
+      getActions: CourseGridActions,
     } as GridEnrichedColDef] : []),
   ];
 
