@@ -36,7 +36,7 @@ export const CancelCourseRegistrationDialog: React.FC<CancelCourseRegistrationDi
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Souhaitez-vous vraiment désinscrire l'utilisateur <strong>{displayUserName(courseRegistration.user)}</strong> de la séance <strong>{displayCourseName(courseRegistration.course, false)}</strong> ?
+          Souhaitez-vous vraiment désinscrire l'utilisateur <strong>{displayUserName(courseRegistration.user)}</strong> de la <strong>{displayCourseName(courseRegistration.course, false)}</strong> ?
         </DialogContentText>
       </DialogContent>
       <DialogActions>
