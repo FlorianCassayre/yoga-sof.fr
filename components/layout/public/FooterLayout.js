@@ -3,7 +3,6 @@ import { Col, Container, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import { BsEnvelopeFill, BsFacebook } from 'react-icons/bs';
 import { COMETE_URL, EMAIL_CONTACT, FACEBOOK_PAGE_URL } from '../../../lib/common';
 import { IconLaComete } from '../../icons';
-import { MapWidget } from '../../MapWidget';
 
 function FooterLink({ href, children }) {
   return (
@@ -75,7 +74,7 @@ export function FooterLayout() {
             </div>
           </Col>
           <Col xs={12} sm={12} lg={4} className="py-4 px-5">
-            <MapWidget />
+            {/*<MapWidget />*/}
           </Col>
         </Row>
       </Container>

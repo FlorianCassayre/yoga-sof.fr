@@ -8,16 +8,6 @@ import { StarIndicator } from '../StarIndicator';
 
 const compose = f => g => x => f(g(x));
 
-export const adaptColumn = f => ({ render, ...column }) => ({
-  render: data => compose(render)(f)(data),
-  ...column,
-});
-
-export const idColumn = {
-  title: '#',
-  render: ({ id }) => id,
-};
-
 export const userLinkColumn = {
   title: 'Utilisateur',
   render: ({ userId, user }) => (
@@ -41,19 +31,6 @@ export const plannedCourseLinkColumn = {
       </a>
     </Link>
   ),
-};
-
-export const bundleLinkColumn = {
-  title: 'Lot',
-  render: ({ bundleId, bundle }) => (bundleId !== null ? (
-    <Link href={`/administration/seances/lots/${bundleId}`} passHref>
-      <a>
-        <BsCollection className="icon me-2" />
-        {bundle.name}
-      </a>
-    </Link>
-  )
-    : '(aucun)'),
 };
 
 export const cancelRegistrationColumn = {

@@ -1,13 +1,8 @@
 export { AuthGuard } from './AuthGuard';
-export { ButtonICSLink } from './ButtonICSLink';
-export { CancelCourseConfirmDialog } from './CancelCourseConfirmDialog';
 export { CancelRegistrationConfirmDialog } from './CancelRegistrationConfirmDialog';
 export { ConfirmDialog } from './ConfirmDialog';
-export { CourseCards } from './CourseCards';
 export { CourseStatusBadge } from './CourseStatusBadge';
 export { ErrorMessage } from './ErrorMessage';
-export { LoginCard } from './LoginCard';
-export { MapWidget } from './MapWidget';
 export { NotificationsOverlay } from './NotificationsOverlay';
 export { PracticalInformations } from './PracticalInformations';
 export { RegistrationPanel } from './RegistrationPanel';

@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { Button, Container, Spinner, Table } from 'react-bootstrap';
 import { BsXOctagon } from 'react-icons/bs';
 import Link from 'next/link';
-import { AuthGuard, ButtonICSLink, ConfirmDialog, ErrorMessage } from '../components';
+import { AuthGuard, ConfirmDialog, ErrorMessage } from '../components';
 import { UserSelfForm } from '../components/form';
 import { PublicLayout } from '../components/layout/public';
 import { COURSE_NAMES,
@@ -139,7 +139,7 @@ function MesCoursLayout() {
       <h2 className="h3">Séances à venir</h2>
 
       <div className="text-end">
-        <ButtonICSLink session={session} />
+        {/*<ButtonICSLink session={session} />*/}
       </div>
 
       {renderTable({ rows: registrationsFuture, cancellable: true, emptyMessage: 'Pas de séances à venir.' })}
