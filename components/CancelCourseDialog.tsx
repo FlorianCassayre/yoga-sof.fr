@@ -40,13 +40,13 @@ export const CancelCourseDialog: React.FC<CancelCourseDialogProps> = ({ course, 
       <DialogContent>
         <DialogContentText>
           <Typography paragraph>
-            Souhaitez-vous vraiment annuler la séance de {displayCourseName(course, false)} ?
+            Souhaitez-vous vraiment annuler la <strong>{displayCourseName(course, false)}</strong> ?
             Vous ne serez plus en mesure de rouvrir les inscriptions pour cette séance.
           </Typography>
           <Typography paragraph>
             Vous pouvez optionnellement indiquer un motif, qui sera transmis aux personnes inscrites.
           </Typography>
-          <TextField label="Motif" value={reason} onChange={e => setReason(e.target.value)} fullWidth />
+          <TextField label="Motif (facultatif)" value={reason} onChange={e => setReason(e.target.value)} fullWidth />
         </DialogContentText>
       </DialogContent>
       <DialogActions>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BackofficeContent } from '../../../../../components/layout/admin/BackofficeContent';
 import { AddBox, Assignment, Cancel, Delete, Edit, EmojiPeople, Event, Notes } from '@mui/icons-material';
 import { Course, Prisma } from '@prisma/client';
@@ -19,6 +19,9 @@ import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../../.
 import Link from 'next/link';
 import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../../../../lib/common/newDate';
 import { CourseStatusChip } from '../../../../../components/CourseStatusChip';
+import { useSnackbar } from 'notistack';
+import { trpc } from '../../../../../lib/common/trpc';
+import { CancelCourseDialog } from '../../../../../components/CancelCourseDialog';
 
 interface CourseContentProps {
   course: Prisma.CourseGetPayload<{ include: { registrations: true } }>;
@@ -26,18 +29,35 @@ interface CourseContentProps {
 
 const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: CourseContentProps) => {
   const status = getCourseStatusWithRegistrations(course);
+  const { enqueueSnackbar } = useSnackbar();
+  const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('course.cancel', { // TODO factor this to avoid duplicating code
+    onSuccess: () => {
+      enqueueSnackbar('La séance a été annulée', { variant: 'success' });
+      // TODO invalidate
+    },
+    onError: () => {
+      enqueueSnackbar(`Une erreur est survenue lors de l'annulation de la séance`, { variant: 'error' });
+    },
+  });
   return (
     <BackofficeContent
       title={displayCourseName(course)}
       icon={<Event />}
       actions={[
-        { name: 'Modifier mes notes', icon: <Notes /> },
+        { name: 'Modifier mes notes', icon: <Notes />, url: { pathname: `/administration/seances/planning/[id]/notes`, query: { id: course.id } } },
         { name: `Faire l'appel`, icon: <EmojiPeople /> },
         { name: 'Modifier la séance', icon: <Edit />, url: { pathname: `/administration/seances/planning/[id]/edition`, query: { id: course.id } } },
         { name: 'Inscrire des utilisateurs', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { courseId: course.id } } },
-        { name: 'Annuler la séance', icon: <Cancel /> },
+        { name: 'Annuler la séance', icon: <Cancel />, onClick: () => setConfirmCancelDialogOpen(true), disabled: isCanceling },
       ]}
     >
+      <CancelCourseDialog
+        course={course}
+        open={confirmCancelDialogOpen}
+        setOpen={setConfirmCancelDialogOpen}
+        onConfirm={(cancelationReason) => mutateCancel({ id: course.id, cancelationReason })}
+      />
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Détails de la séance
       </Typography>

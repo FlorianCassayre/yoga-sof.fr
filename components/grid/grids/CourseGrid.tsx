@@ -20,8 +20,11 @@ const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactE
   const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
   const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('course.cancel', {
     onSuccess: () => {
-      enqueueSnackbar('La séance a été annulée');
+      enqueueSnackbar('La séance a été annulée', { variant: 'success' });
       // TODO invalidate
+    },
+    onError: () => {
+      enqueueSnackbar(`Une erreur est survenue lors de l'annulation de la séance`, { variant: 'error' });
     },
   });
 

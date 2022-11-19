@@ -8,6 +8,9 @@ export enum ServiceErrorCode {
   CourseCanceledNoRegistration,
   CourseFullNoRegistration,
   UserAlreadyRegistered,
+  CoursePassedNoUnregistration,
+  CourseCanceledNoUnregistration,
+  UserNotRegistered,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -27,4 +30,7 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.CourseCanceledNoRegistration]: `La séance est annulée et n'accepte donc pas d'inscriptions`,
   [ServiceErrorCode.CourseFullNoRegistration]: `La séance est pleine`,
   [ServiceErrorCode.UserAlreadyRegistered]: `L'utilisateur est déjà inscrit à cette séance`,
+  [ServiceErrorCode.CoursePassedNoUnregistration]: `Les inscriptions pour cette séance ne peuvent plus être modifiées`,
+  [ServiceErrorCode.CourseCanceledNoUnregistration]: `La séance est annulée donc les inscriptions ne peuvent plus être modifiées`,
+  [ServiceErrorCode.UserNotRegistered]: `L'utilisateur n'est pas inscrit à cette séance`,
 };

@@ -50,3 +50,21 @@ export const createCourseRegistrations = async (args: { data: { courses: number[
     return newRegistrations;
   });
 };
+
+export const cancelCourseRegistration = async (args: { data: { id: number } }) => {
+  return prisma.$transaction(async () => {
+    const id = args.data.id;
+    const now = new Date();
+    const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id }, include: { course: true } });
+    if (courseRegistration.course.isCanceled) {
+      throw new ServiceError(ServiceErrorCode.CourseCanceledNoUnregistration);
+    }
+    if (courseRegistration.course.dateStart.getTime() <= now.getTime()) {
+      throw new ServiceError(ServiceErrorCode.CoursePassedNoUnregistration);
+    }
+    if (courseRegistration.isUserCanceled) {
+      throw new ServiceError(ServiceErrorCode.UserNotRegistered);
+    }
+    return prisma.courseRegistration.update({ where: { id }, data: { isUserCanceled: true, canceledAt: now } });
+  });
+};

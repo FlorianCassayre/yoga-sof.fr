@@ -8,6 +8,7 @@ interface SpeedDialActionItem {
   name: string;
   url?: UrlObject | string;
   onClick?: () => void;
+  disabled?: boolean;
 }
 
 interface BasicSpeedDialProps {
@@ -31,8 +32,10 @@ export const BasicSpeedDial: React.FC<BasicSpeedDialProps> = ({ actions }) => {
             icon={action.icon}
             tooltipTitle={action.name}
             onClick={() => {
-              action.url && router.push(action.url);
-              action.onClick && action.onClick();
+              if (!action.disabled) {
+                action.url && router.push(action.url);
+                action.onClick && action.onClick();
+              }
             }}
           />
         ))}
