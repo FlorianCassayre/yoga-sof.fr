@@ -22,6 +22,8 @@ import { frFR as corefrFR } from '@mui/material/locale';
 import { FrontsiteContainer } from '../components/layout/public/FrontsiteContainer';
 import { SnackbarProvider } from 'notistack';
 import { InternalLink } from '../components/contents/common/InternalLink';
+import { zodFrenchErrorMap } from '../lib/client/zodFrenchErrorMap';
+import { z } from 'zod';
 
 function Paragraph({ children }: { children: React.ReactNode }) {
   return (
@@ -56,6 +58,8 @@ const theme = createTheme({
   frFR,
   pickersfrFR,
   corefrFR);
+
+z.setErrorMap(zodFrenchErrorMap);
 
 interface LayoutProviderProps {
   router: Router;
