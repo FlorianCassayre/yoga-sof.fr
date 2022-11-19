@@ -1,10 +1,7 @@
 import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { GridRenderCellParams } from '@mui/x-data-grid';
-import { Course, CourseRegistration, User } from '@prisma/client';
-import { displayUserName } from '../../../lib/common/newDisplay';
-import Link from 'next/link';
+import { Course, User } from '@prisma/client';
 import { Box, Stack } from '@mui/material';
-import { Person } from '@mui/icons-material';
 import { UserLink } from '../../link/UserLink';
 import { formatDateDDsMMsYYYYsHHhMMmSSs, formatTimestampRelative } from '../../../lib/common/newDate';
 import { GridValidRowModel } from '@mui/x-data-grid/models/gridRows';

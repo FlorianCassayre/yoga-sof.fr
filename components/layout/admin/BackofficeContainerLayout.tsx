@@ -58,7 +58,7 @@ const OptionalLink = ({ href, ...props }: Omit<LinkProps, 'href'> & { href?: Lin
 
 export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps> =
   ({ title, url: titleUrl, menu, profileMenu, children, footer }) => {
-  const isWide = useMedia('(min-width: 768px)');
+  const isWide = useMedia('(min-width: 768px)', true);
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [profileAnchorEl, setProfileProfileAnchorEl] = React.useState<null | HTMLElement>(null);
 

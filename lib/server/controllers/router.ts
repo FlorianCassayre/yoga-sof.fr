@@ -1,17 +1,20 @@
 import * as trpc from '@trpc/server';
 import { inferProcedureInput, inferProcedureOutput, ProcedureRecord } from '@trpc/server';
 import { createSessionRouter } from './middlewares/createSessionRouter';
-import { courseRouter } from './routers';
+import {
+  adminWhitelistRouter,
+  courseModelRouter,
+  courseRegistrationRouter,
+  courseRouter,
+  emailMessageRouter,
+  userRouter
+} from './routers';
 import { createProtectedRouter } from './middlewares/createProtectedRouter';
 import { UserType } from '../../common/all';
 import { Context } from './context';
-import { courseModelRouter } from './routers';
-import { adminWhitelistRouter } from './routers';
-import { userRouter } from './routers';
-import { emailMessageRouter } from './routers';
-import { courseRegistrationRouter } from './routers';
 import { ZodError } from 'zod';
 import { ServiceError } from '../services/helpers/errors';
+import { selfRouter } from './routers/self';
 
 export const appRouter = trpc
   .router<Context>()
@@ -38,6 +41,10 @@ export const appRouter = trpc
   .merge(
     createSessionRouter()
       .merge('courseRegistration.', createProtectedRouter([UserType.Admin]).merge(courseRegistrationRouter))
+  )
+  .merge(
+    createSessionRouter()
+      .merge('self.', createProtectedRouter([UserType.Regular, UserType.Admin]).merge(selfRouter))
   )
   .formatError(({ shape, error }) => {
     if (error.cause instanceof ZodError) {

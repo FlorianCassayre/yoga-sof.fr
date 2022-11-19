@@ -1,0 +1,46 @@
+import { RegistrationPanel } from '../components';
+import { PublicContainer } from '../components/contents';
+import { EMAIL_CONTACT, FACEBOOK_PAGE_URL } from '../lib/common';
+import Link from 'next/link';
+
+export const meta = {
+  title: 'Inscription Yoga',
+  padNavbar: true,
+};
+
+# Inscription à une ou plusieurs séance(s) de Yoga adulte
+
+* Les inscriptions aux séances de Yoga adulte se font via le formulaire ci-dessous.<br />
+  Pour une inscription à des séances de Yoga enfant et Yoga parent-enfant,
+  veuillez nous <a href={`mailto:${EMAIL_CONTACT}`}>envoyer un e-mail</a> ou
+  nous écrire depuis <a href={FACEBOOK_PAGE_URL} target="_blank" rel="noreferrer nofollow">notre page Facebook</a>.
+* La première séance vous est offerte, à la date de votre choix.
+* Dès que vous aurez validé le formulaire, vos inscriptions apparaîtront sur
+  <Link href="/mes-inscriptionsOld">votre page personnelle</Link>.
+* Vous reconnaissez avoir pris connaissance du <Link href="/reglement-interieur">règlement intérieur</Link>.
+  Vos données sont traitées selon notre <Link href="/confidentialite">politique de confidentialité</Link>.
+
+<RegistrationPanel />
+
+export const RegistrationNoticeRecap = () => (
+  <>
+    Ce montant indicatif n'inclut pas la cotisation annuelle qui s'élève à 10 € pour une personne, ou 15 € pour toute la famille.
+    Le règlement d'une séance s'effectue le jour-même sur place, il est également possible de régler toutes les séances en une fois.
+    Pour rappel votre première séance est offerte, et ne nécessite pas de cotisation.
+    <br />
+    <br />
+    Des cartes de 10 séances payables à l'avance sont disponibles, moyennant un rabais. Merci de nous contacter si vous êtes intéressé(e).
+    <br />
+    <br />
+    Vous avez la possibilité de vous désinscrire sans frais d'une ou de plusieurs séances depuis votre page personnelle.
+  </>
+);
+
+export const RegistrationNoticePersonalInformations = () => (
+  <>
+    Vous pouvez modifier ces informations depuis votre page personnelle.
+    Votre adresse e-mail nous permet notamment de vous informer en cas d'annulation de séance.
+  </>
+);
+
+export default ({ children }) => <PublicContainer {...meta}>{children}</PublicContainer>

@@ -86,7 +86,7 @@ export function NavigationLayout() {
                     Inscription à une séance
                   </NavDropdown.Item>
                 </Link>
-                <Link href="/mes-inscriptions" passHref>
+                <Link href="/mes-inscriptionsOld" passHref>
                   <NavDropdown.Item>
                     <BsCalendarWeek className="icon me-2" />
                     Mes inscriptions

@@ -32,7 +32,7 @@ const CalendarDialog: React.FC<CalendarDialogProps> = ({ open, setOpen }) => {
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Ce lien qui est à copier dans votre application de calendrier préférée (<strong>Google Calendar</strong>, <strong>Apple iCloud Calendar</strong>, <strong>Outlook</strong>, ...).
+          Ce lien est à copier dans votre application de calendrier préférée (<strong>Google Calendar</strong>, <strong>Apple iCloud Calendar</strong>, <strong>Outlook</strong>, ...).
           Vos événements apparaîtront automatiquement dans celui-ci et seront mis à jour quotidiennement avec les dernières informations.
         </DialogContentText>
       </DialogContent>

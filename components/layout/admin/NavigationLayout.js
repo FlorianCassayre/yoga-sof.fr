@@ -88,7 +88,7 @@ export function NavigationLayout({ children }) {
                   <span className="ms-2 d-none d-sm-inline">{sessionData.displayName}</span>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Link href="/mes-inscriptions" passHref>
+                  <Link href="/mes-inscriptionsOld" passHref>
                     <Dropdown.Item>
                       <BsPerson className="icon me-2" />
                       Profil utilisateur

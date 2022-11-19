@@ -89,3 +89,8 @@ export const formatDayRange = (start: Date | string, end: Date | string, capital
   //return [capitalize ? capitalizeFirst(dateString) : dateString, 'de', formatTimeRange(start, end)].join(' ');
   return '';
 };
+
+export const formatWeekday = (date: Date | string, capitalize = true) => {
+  const weekday = WeekdayNames[(new Date(date).getDay() + 1) % WeekdayNames.length];
+  return capitalize ? weekday : weekday.toLowerCase();
+};

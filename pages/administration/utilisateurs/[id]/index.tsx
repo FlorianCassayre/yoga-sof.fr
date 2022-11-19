@@ -115,8 +115,8 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
                   </Stack>
                 ),
               },
-              { header: 'Première connexion', value: displayDate(user.createdAt) },
               { header: 'Dernière connexion', value: displayDate(user.lastActivity) },
+              { header: 'Première connexion', value: displayDate(user.createdAt) },
               { header: 'Services de connexion', value: user.accounts.length },
             ]}
           />

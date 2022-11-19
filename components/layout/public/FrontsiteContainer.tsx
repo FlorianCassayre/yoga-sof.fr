@@ -10,10 +10,10 @@ interface FrontsiteContainerProps {
 
 const commonSections = [
   { title: 'Accueil', url: '/' },
-  { title: 'Le Yoga', url: '#' },
+  { title: 'Le Yoga', url: '/yoga' },
   { title: 'Les séances', url: '/seances' },
-  { title: 'Inscription', url: '#' },
-  { title: 'À propos', url: '#' },
+  { title: 'Inscription', url: '/inscription' },
+  { title: 'À propos', url: '/a-propos' },
 ];
 
 export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children }) => {
@@ -35,8 +35,8 @@ export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children
           }] : []),
           {
             children: [
-              { title: 'Inscription à des séances', icon: <Assignment /> },
-              { title: 'Consulter mes inscriptions', icon: <DateRange /> },
+              { title: 'Inscription à des séances', icon: <Assignment />, url: '/inscription' },
+              { title: 'Consulter mes inscriptions', icon: <DateRange />, url: '/mes-inscriptions' },
             ]
           },
           {

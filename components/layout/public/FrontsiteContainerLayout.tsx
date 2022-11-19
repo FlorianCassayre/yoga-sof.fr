@@ -169,7 +169,7 @@ interface HeaderProps {
 }
 
 function Header({ title, url: titleUrl, sections, profile, signInUrl }: HeaderProps) {
-  const isDesktop = useMedia('(min-width: 700px)');
+  const isDesktop = useMedia('(min-width: 700px)', true);
   const [isMenuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     if (isDesktop) {

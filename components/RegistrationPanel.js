@@ -25,7 +25,7 @@ import { useNotificationsContext, useRefreshContext } from '../state';
 import {
   RegistrationNoticePersonalInformations,
   RegistrationNoticeRecap,
-} from '../contents/inscription.mdx';
+} from '../contents/inscriptionOld.mdx';
 
 function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }) {
   const [{ isLoading: isSubmitting, isError: isSubmitError, data: submitResult }, submitDispatch] = usePromiseCallback(data => postSelfRegistrationBatch(data), []);
@@ -245,7 +245,7 @@ function RegistrationFormLayout({ sessionData, scheduleData, selfRegistrations }
                 <BsCheckLg className="icon me-2" />
                 Vos inscriptions ont bien été prises en compte, vous pouvez les retrouver sur
                 {' '}
-                <Link href="/mes-inscriptions" passHref><Alert.Link>votre page personnelle</Alert.Link></Link>
+                <Link href="/mes-inscriptionsOld" passHref><Alert.Link>votre page personnelle</Alert.Link></Link>
                 .
                 Si vous souhaitez vous inscrire à d'autres séances,
                 {' '}
