@@ -15,9 +15,11 @@ import { Context } from './context';
 import { ZodError } from 'zod';
 import { ServiceError } from '../services/helpers/errors';
 import { selfRouter } from './routers/self';
+import superjson from 'superjson';
 
 export const appRouter = trpc
   .router<Context>()
+  .transformer(superjson)
   .merge(
     createSessionRouter()
       .merge('course.', createProtectedRouter([UserType.Admin]).merge(courseRouter)),

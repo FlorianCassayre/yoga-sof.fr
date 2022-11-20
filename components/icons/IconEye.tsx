@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 
-export function IconEye(props) {
+import React from 'react';
+
+export const IconEye: React.FC<any> = (props) => {
   return (
     <svg viewBox="0 0 211.67 201.35" xmlns="http://www.w3.org/2000/svg" {...props}>
       <path
@@ -14,4 +16,4 @@ export function IconEye(props) {
       />
     </svg>
   );
-}
+};

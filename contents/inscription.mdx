@@ -1,12 +1,26 @@
+import { InternalLink } from '../components/contents/common/InternalLink'; import {
+  CourseRegistrationFormWidget
+} from '../components/CourseRegistrationFormWidget';
 import {
   FrontsiteContent
 } from '../components/layout/public/FrontsiteContent';
+import { EMAIL_CONTACT, FACEBOOK_PAGE_URL } from '../lib/common/newConfig';
+import { Link as MuiLink } from '@mui/material';
 
 export const meta = {
   title: 'Inscription à des séances de Yoga',
-  hideTitle: true,
 };
 
+* Les inscriptions aux séances de Yoga adulte se font via le formulaire ci-dessous.<br />
+Pour une inscription à des séances de Yoga enfant et Yoga parent-enfant,
+veuillez nous <MuiLink href={`mailto:${EMAIL_CONTACT}`}>envoyer un e-mail</MuiLink> ou
+nous écrire depuis <MuiLink href={FACEBOOK_PAGE_URL} target="_blank" rel="noreferrer nofollow">notre page Facebook</MuiLink>.
+* La première séance vous est offerte, à la date de votre choix.
+* Dès que vous aurez validé le formulaire, vos inscriptions apparaîtront sur
+<InternalLink href="/mes-inscriptionsOld">votre page personnelle</InternalLink>.
+* Vous reconnaissez avoir pris connaissance du <InternalLink href="/reglement-interieur">règlement intérieur</InternalLink>.
+Vos données sont traitées selon notre <InternalLink href="/confidentialite">politique de confidentialité</InternalLink>.
 
+<CourseRegistrationFormWidget />
 
 export default ({ children }) => <FrontsiteContent {...meta}>{children}</FrontsiteContent>

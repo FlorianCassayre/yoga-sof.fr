@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 
-export function IconFidhy(props) {
+import React from 'react';
+
+export const IconFidhy: React.FC<any> = (props) => {
   return (
     <svg viewBox="0 0 158.75 172.51" xmlns="http://www.w3.org/2000/svg" {...props}>
       <path
@@ -9,4 +11,4 @@ export function IconFidhy(props) {
       />
     </svg>
   );
-}
+};

@@ -1,6 +1,8 @@
 /* eslint-disable max-len */
 
-export function IconLaComete(props) {
+import React from 'react';
+
+export const IconLaComete: React.FC<any> = (props) => {
   return (
     <svg viewBox="0 0 52.322 51.388" xmlns="http://www.w3.org/2000/svg" {...props}>
       <path d="M35.242-.001a17.08 17.08 0 0 0-17.08 17.079 17.08 17.08 0 0 0 .988 5.689l2.827-2.827a13.581 13.581 0 0 1-.317-2.862A13.581 13.581 0 0 1 35.242 3.497a13.581 13.581 0 0 1 13.582 13.58A13.581 13.581 0 0 1 35.242 30.66a13.581 13.581 0 0 1-2.861-.317l-2.827 2.827a17.08 17.08 0 0 0 5.688.987 17.08 17.08 0 0 0 17.08-17.08A17.08 17.08 0 0 0 35.242 0z" />
@@ -11,4 +13,4 @@ export function IconLaComete(props) {
       </g>
     </svg>
   );
-}
+};

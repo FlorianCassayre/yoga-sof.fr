@@ -3,7 +3,7 @@ import '@fontsource/nunito/400.css';
 import '@fontsource/nunito/500.css';
 import '@fontsource/nunito/700.css';
 import '@fontsource/roboto';
-import { createTheme, ThemeProvider, Link as MuiLink } from '@mui/material';
+import { createTheme, ThemeProvider, Link as MuiLink, Typography } from '@mui/material';
 import { withTRPC } from '@trpc/next';
 import { SessionProvider } from 'next-auth/react';
 import { MDXProvider } from '@mdx-js/react';
@@ -25,10 +25,11 @@ import { InternalLink } from '../components/contents/common/InternalLink';
 import { zodFrenchErrorMap } from '../lib/client/zodFrenchErrorMap';
 import { z } from 'zod';
 import { fr } from 'date-fns/locale';
+import superjson from 'superjson';
 
 function Paragraph({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-justify">{children}</p>
+    <Typography paragraph align="justify">{children}</Typography>
   );
 }
 
@@ -135,7 +136,7 @@ export default withTRPC<AppRouter>({
       /**
        * @link https://react-query.tanstack.com/reference/QueryClient
        */
-      // queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
+      transformer: superjson,
     };
   },
   /**

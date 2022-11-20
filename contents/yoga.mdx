@@ -1,12 +1,27 @@
+import { YogaImage } from '../components/contents/yoga/YogaImage';
+import { YogaQuote } from '../components/contents/yoga/YogaQuote';
 import {
   FrontsiteContent
 } from '../components/layout/public/FrontsiteContent';
 
 export const meta = {
   title: 'Le Yoga',
-  hideTitle: true,
 };
 
+Le Yoga est une recherche d'équilibre entre tonus et détente, entre droite et gauche, entre flexion et extension. Par
+des postures correctement préparées, guidées et adaptées, nous cherchons à mieux nous connaître, à voir ce qui est
+faible dans votre corps, pour le renforcer, identifier ce qui rétracté et le détendre, le tout avec un minimum de
+tension, avec confort, mais sans relâchement. Une fois atteint la posture juste, c'est-à dire dans laquelle le
+diaphragme est libéré, le souffle est libre, vous vous installerez dans cette posture pour la tenir.
+Vous serez attentifs à observer notre esprit, à vous débarrasser des tensions comportementales et émotionnelles, vous
+apprendrez à mieux vous détendre. Par l'expérience de la conscience qui est à l'intérieur, vous développerez une
+attitude de l'être.
 
+<YogaQuote author="Sthira-sukham asanam" quote="Être fermement établi dans un espace heureux" source="Yoga sutra 46/II" />
+
+Le Yoga permet de diminuer les tensions de notre corps mais également l'anxiété et le stress. C'est grâce à cette
+pratique que l'on peut aider à réguler ses émotions, chose qui, aujourd'hui dans la vie quotidienne est indispensable.
+
+<YogaImage src="/images/meditation-riviere.jpg" alt="Yoga au bord de la rivière" />
 
 export default ({ children }) => <FrontsiteContent {...meta}>{children}</FrontsiteContent>

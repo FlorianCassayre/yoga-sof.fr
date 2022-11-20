@@ -1,4 +1,11 @@
-import { AutoAwesome, CalendarMonth, Group } from '@mui/icons-material'; import Link from 'next/link'; import {
+import {
+  AutoAwesome,
+  AutoAwesomeTwoTone,
+  CalendarMonth,
+  CalendarMonthTwoTone,
+  Group,
+  PeopleAltTwoTone
+} from '@mui/icons-material'; import Link from 'next/link'; import {
   courses
 } from '../components/contents/common/courses'; import {
   InternalLink
@@ -64,17 +71,17 @@ export const meta = {
   <HomepageCards.Card
     title="Effectifs réduits"
     description="Les séances se déroulent en petit nombre."
-    icon={<Group />}
+    icon={<PeopleAltTwoTone fontSize="large" />}
   />
   <HomepageCards.Card
     title="Personnalisation"
     description="Adaptation des postures par rapport à vos possibilités et votre morphologie."
-    icon={<AutoAwesome />}
+    icon={<AutoAwesomeTwoTone fontSize="large" />}
   />
   <HomepageCards.Card
     title="Flexibilité"
     description={`Les séances adultes peuvent être choisies "à la carte".`}
-    icon={<CalendarMonth />}
+    icon={<CalendarMonthTwoTone fontSize="large" />}
   />
 </HomepageCards>
 
