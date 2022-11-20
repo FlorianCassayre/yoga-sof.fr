@@ -24,6 +24,7 @@ import { SnackbarProvider } from 'notistack';
 import { InternalLink } from '../components/contents/common/InternalLink';
 import { zodFrenchErrorMap } from '../lib/client/zodFrenchErrorMap';
 import { z } from 'zod';
+import { fr } from 'date-fns/locale';
 
 function Paragraph({ children }: { children: React.ReactNode }) {
   return (
@@ -90,7 +91,7 @@ const LayoutProvider = ({ router, children }: LayoutProviderProps): JSX.Element 
 
 function MyApp({ Component, pageProps, router }: AppProps) {
   return (
-    <LocalizationProvider dateAdapter={DateFnsUtils}>
+    <LocalizationProvider dateAdapter={DateFnsUtils} adapterLocale={fr}>
       <ThemeProvider theme={theme}>
         <MDXProvider components={components as any}>
           <SessionProvider>

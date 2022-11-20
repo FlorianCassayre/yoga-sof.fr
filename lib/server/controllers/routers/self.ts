@@ -3,15 +3,10 @@ import { ContextProtected } from '../context';
 import { z } from 'zod';
 import {
   cancelCourseRegistration,
-  createUser,
-  findCourseRegistrations,
-  findCourses,
-  findUser,
-  findUsers,
-  findUserUpdate,
+  findCourseRegistrations, findUserUpdate,
   updateUser
 } from '../../services';
-import { userCreateSchema, userUpdateSchema } from '../../../common/newSchemas/user';
+import { prisma } from '../../prisma';
 
 // It is important to control the data that we return from this router, since it is accessible to any logged-in user
 
@@ -19,9 +14,10 @@ export const selfRouter = trpc
   .router<ContextProtected>()
   .query('findAllRegisteredCourses', {
     input: z.strictObject({
+      userCanceled: z.boolean(),
       future: z.boolean().nullable(),
     }),
-    resolve: async ({ input: { future } }) => {
+    resolve: async ({ input: { future, userCanceled } }) => {
       const whereCourseFuture = {
           dateEnd: {
             gt: new Date(),
@@ -29,7 +25,7 @@ export const selfRouter = trpc
       };
       return findCourseRegistrations({
         where: {
-          isUserCanceled: false,
+          isUserCanceled: userCanceled,
           course: future == null ? {} : future ? whereCourseFuture : { NOT: whereCourseFuture },
         },
         select: {
@@ -54,5 +50,26 @@ export const selfRouter = trpc
     input: z.strictObject({
       id: z.number().int().min(0),
     }),
-    resolve: async ({ input: { id } }) => cancelCourseRegistration({ data: { id } }).then(({ id }) => ({ id })),
+    resolve: async ({ input: { id }, ctx: { session: { userId } } }) => {
+      await prisma.$transaction(async () => {
+        await prisma.courseRegistration.findFirstOrThrow({ where: { id, userId } }); // Access control
+        cancelCourseRegistration({ where: { id } }).then(({ id }) => ({ id }));
+      });
+      return { id };
+    },
+  })
+  .query('profile', {
+    resolve: async ({ ctx: { session: { userId } } }) => {
+      const { name, email } = await findUserUpdate({ where: { id: userId } });
+      return { name, email };
+    },
+  })
+  .mutation('updateProfile', {
+    input: z.strictObject({
+      name: z.string().min(1),
+      email: z.string().email().nullable(),
+    }),
+    resolve: async ({ input: { name, email }, ctx: { session: { userId } } }) => {
+      await updateUser({ where: { id: userId }, data: { name, email } });
+    },
   });

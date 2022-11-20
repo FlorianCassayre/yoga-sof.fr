@@ -48,19 +48,20 @@ const GridActionCancelRegistration: React.FC<GridActionCancelRegistrationProps> 
 };
 
 interface FrontsiteCourseGrid {
-  future: boolean;
+  userCanceled: boolean;
+  future: boolean | null;
 }
 
-export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> = ({ future }) => {
+export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> = ({ userCanceled, future }) => {
   const columns: GridColumns = [
-    {
+    ...(userCanceled ? [] : [{
       field: 'status',
       headerName: 'Statut',
       sortable: false,
       renderCell: ({ row }) => (
         <CourseStatusChip course={row.course} />
       ),
-    },
+    } as GridEnrichedColDef]),
     {
       field: 'type',
       headerName: 'Type de séance',
@@ -81,9 +82,14 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
     },
     relativeTimestamp({
       field: 'createdAt',
-      headerName: `Date d'inscription`,
+      headerName: `Inscription`,
       flex: 1.5,
     }),
+    ...(userCanceled ? [relativeTimestamp({
+      field: 'canceledAt',
+      headerName: `Désinscription`,
+      flex: 1.5,
+    })] : []),
     ...(future ? [{
       field: 'actions',
       type: 'actions',
@@ -96,6 +102,6 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['self.findAllRegisteredCourses', { future }]} />
+    <AsyncGrid columns={columns} query={['self.findAllRegisteredCourses', { userCanceled, future }]} />
   );
 };

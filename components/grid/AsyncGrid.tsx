@@ -35,13 +35,18 @@ export const AsyncGrid = <TQueryPath extends keyof AppRouter["_def"]["queries"] 
         disableColumnMenu
         disableColumnSelector
         disableSelectionOnClick
-        sx={{ // Disable the annoying focus outline
+        sx={{
+          // Disable the annoying focus outline
           [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
             outline: "none"
           },
           [`& .${gridClasses.columnHeader}:focus, & .${gridClasses.columnHeader}:focus-within`]: {
             outline: "none"
-          }
+          },
+          // Hide the column separators
+          '& .MuiDataGrid-columnSeparator': {
+            display: 'none',
+          },
         }}
       />
     </Card>

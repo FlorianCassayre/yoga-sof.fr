@@ -37,5 +37,5 @@ export const courseRegistrationRouter = trpc
   .mutation('cancel', {
     input: z.strictObject({ id: z.number().int().min(0), }),
     resolve: async ({ input: { id } }) =>
-      cancelCourseRegistration({ data: { id } }),
+      cancelCourseRegistration({ where: { id } }),
   });

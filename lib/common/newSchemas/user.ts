@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { CourseType } from '@prisma/client';
 import { colonTimeToParts, timePartsToTotalMinutes, WeekdayNames } from '../newDate';
 
-const userSchemaBase = z.object({
+export const userSchemaBase = z.object({
   name: z.string().min(1),
   email: z.string().email().nullable(),
 });

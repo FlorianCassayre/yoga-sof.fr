@@ -51,9 +51,9 @@ export const createCourseRegistrations = async (args: { data: { courses: number[
   });
 };
 
-export const cancelCourseRegistration = async (args: { data: { id: number } }) => {
+export const cancelCourseRegistration = async (args: { where: { id: number } }) => {
   return prisma.$transaction(async () => {
-    const id = args.data.id;
+    const id = args.where.id;
     const now = new Date();
     const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id }, include: { course: true } });
     if (courseRegistration.course.isCanceled) {
