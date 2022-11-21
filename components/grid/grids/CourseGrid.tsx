@@ -13,6 +13,7 @@ import { Box } from '@mui/material';
 import { CancelCourseDialog } from '../../CancelCourseDialog';
 import { trpc } from '../../../lib/common/trpc';
 import { useSnackbar } from 'notistack';
+import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 
 const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactElement[] => {
   const router = useRouter();
@@ -29,9 +30,9 @@ const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactE
   });
 
   return [
-    <GridActionsCellItem icon={<Notes />} label="Modifier les notes" onClick={() => router.push(`/administration/seances/planning/${course.id}/notes`)} />,
+    <GridActionsCellItemTooltip icon={<Notes />} label="Modifier les notes" onClick={() => router.push(`/administration/seances/planning/${course.id}/notes`)} />,
     ...(!course.isCanceled && new Date() < new Date(course.dateStart) && !course.isCanceled ? [
-      <GridActionsCellItem icon={<Edit />} label="Modifier" disabled={isCanceling} onClick={() => router.push(`/administration/seances/planning/${course.id}/edition`)} />,
+      <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" disabled={isCanceling} onClick={() => router.push(`/administration/seances/planning/${course.id}/edition`)} />,
       <>
         <CancelCourseDialog
           course={course}
@@ -39,7 +40,7 @@ const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactE
           setOpen={setConfirmCancelDialogOpen}
           onConfirm={(cancelationReason) => mutateCancel({ id: course.id, cancelationReason })}
         />
-        <GridActionsCellItem icon={<Cancel />} onClick={() => setConfirmCancelDialogOpen(true)} disabled={isCanceling} label="Annuler" />
+        <GridActionsCellItemTooltip icon={<Cancel />} onClick={() => setConfirmCancelDialogOpen(true)} disabled={isCanceling} label="Annuler" />
       </>,
     ] : []),
   ];
@@ -59,7 +60,7 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, r
       type: 'actions',
       minWidth: 50,
       getActions: ({ row }: GridRowParams) => [
-        <GridActionsCellItem icon={<Visibility />} label="Consulter" onClick={() => router.push(`/administration/seances/planning/${row.id}`)} />,
+        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" onClick={() => router.push(`/administration/seances/planning/${row.id}`)} />,
       ],
     },
     {

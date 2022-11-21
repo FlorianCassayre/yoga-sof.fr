@@ -1,6 +1,6 @@
 import React from 'react';
 import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { Cancel, ContentPaste, ContentPasteOff, Login, Logout } from '@mui/icons-material';
+import { Cancel, CheckCircle, ContentPaste, ContentPasteOff, Login, Logout } from '@mui/icons-material';
 import { CourseRegistration } from '@prisma/client';
 import { GridActionsCellItem, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
@@ -34,10 +34,12 @@ export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistra
     relativeTimestamp({ field: 'date', headerName: `Date`, flex: 1 }),
     ...(readOnly ? [] : [{
       field: 'actions',
-      type: 'actions',
-      getActions: ({ row }: GridRowParams<{ registration: CourseRegistration }>) => !row.registration.isUserCanceled ? [ // TODO
-        <GridActionsCellItem icon={<Cancel />} onClick={() => null} label="Annuler" />,
-      ] : [],
+      headerName: '',
+      sortable: false,
+      renderCell: ({ row }: GridRenderCellParams<{ registration: CourseRegistration }>) => !row.registration.isUserCanceled && (
+        <CheckCircle color="action" fontSize="small" />
+      ),
+      align: 'center',
     } as GridEnrichedColDef]),
   ];
 

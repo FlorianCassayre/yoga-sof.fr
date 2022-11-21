@@ -9,6 +9,7 @@ import { UserLink } from '../../link/UserLink';
 import { relativeTimestamp, userColumn } from './common';
 import { EmailMessageTypeNames } from '../../../lib/common/newEmail';
 import { formatDateDDsMMsYYYYsHHhMMmSSs } from '../../../lib/common/newDate';
+import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 
 interface EmailDetailsDialogProps {
   open: boolean;
@@ -75,7 +76,7 @@ export const EmailMessageGrid: React.FunctionComponent = () => {
       type: 'actions',
       minWidth: 50,
       getActions: ({ row }: GridRowParams) => [
-        <GridActionsCellItem icon={<Visibility />} label="Consulter" onClick={() => handleDialogOpen(row)} />,
+        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" onClick={() => handleDialogOpen(row)} />,
       ],
     },
     {

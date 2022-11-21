@@ -109,11 +109,11 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
                 Notes
               </Typography>
               <Typography paragraph sx={{ fontStyle: 'italic', mb: 0 }}>
-                Lorem ipsum
+                {course.notes}
               </Typography>
             </CardContent>
             <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Link href={`/administration/seances/planning/${course.id}/edition`} passHref>
+              <Link href={`/administration/seances/planning/${course.id}/notes`} passHref>
                 <IconButton size="small" aria-label="Modifier"><Edit /></IconButton>
               </Link>
             </CardActions>

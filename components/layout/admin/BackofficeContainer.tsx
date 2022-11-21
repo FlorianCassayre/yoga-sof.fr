@@ -14,13 +14,15 @@ import {
 import { signOut, useSession } from 'next-auth/react';
 import { Typography } from '@mui/material';
 import pkg from '../../../package.json';
+import { useRouter } from 'next/router';
 
 interface BackofficeContainerProps {
   children: React.ReactNode;
 }
 
 export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ children }) => {
-  const session = useSession();
+  const { data: session } = useSession();
+  const router = useRouter();
 
   return (
     <BackofficeContainerLayout
@@ -57,7 +59,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
       ]}
       profileMenu={{
         children: [
-          { title: 'Profil', icon: <People /> },
+          { title: 'Profil', icon: <People />, onClick: () => router.push({ pathname: '/administration/utilisateurs/[id]', query: { id: session?.userId } }) },
           { title: 'Se déconnecter', icon: <Logout />, onClick: () => signOut({ redirect: true, callbackUrl: '/' }) },
         ]
       }}

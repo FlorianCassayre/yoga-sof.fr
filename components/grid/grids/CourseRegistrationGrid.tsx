@@ -8,6 +8,7 @@ import { courseColumn, relativeTimestamp, userColumn } from './common';
 import { CancelCourseRegistrationDialog } from '../../CancelCourseRegistrationDialog';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../lib/common/trpc';
+import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 
 interface GridActionCancelProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>;
@@ -28,7 +29,7 @@ const GridActionCancel: React.FC<GridActionCancelProps> = ({ courseRegistration 
   return (
     <>
       <CancelCourseRegistrationDialog courseRegistration={courseRegistration} open={open} setOpen={setOpen} onConfirm={() => mutateCancel({ id: courseRegistration.id })} />
-      <GridActionsCellItem icon={<Cancel />} onClick={() => setOpen(true)} label="Annuler" disabled={isCanceling} />
+      <GridActionsCellItemTooltip icon={<Cancel />} onClick={() => setOpen(true)} label="Annuler" disabled={isCanceling} />
     </>
   );
 };

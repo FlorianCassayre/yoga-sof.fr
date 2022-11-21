@@ -1,25 +1,18 @@
 import React, { useState } from 'react';
 import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import Link from 'next/link';
-import { IconButton } from '@mui/material';
-import { Cancel, Edit, Visibility } from '@mui/icons-material';
+import { Cancel } from '@mui/icons-material';
 import {
-  formatDateDDsMMsYYYY,
   formatDateDDsmmYYYY,
   formatTimeHHhMM,
   formatWeekday,
-  WeekdayNames
 } from '../../../lib/common/newDate';
 import { Course, CourseType, Prisma } from '@prisma/client';
 import { CourseTypeNames } from '../../../lib/common/newCourse';
 import { GridActionsCellItem, GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
-import { useRouter } from 'next/router';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../lib/common/trpc';
-import { CancelCourseRegistrationDialog } from '../../CancelCourseRegistrationDialog';
 import { FrontsiteCancelCourseRegistrationDialog } from '../../FrontsiteCancelCourseRegistrationDialog';
-import { GridRenderCellParams } from '@mui/x-data-grid/models/params/gridCellParams';
 import { CourseStatusChip } from '../../CourseStatusChip';
 import { relativeTimestamp } from './common';
 
@@ -42,7 +35,7 @@ const GridActionCancelRegistration: React.FC<GridActionCancelRegistrationProps> 
   return (
     <>
       <FrontsiteCancelCourseRegistrationDialog courseRegistration={courseRegistration} open={open} setOpen={setOpen} onConfirm={() => mutateCancel({ id: courseRegistration.id })} />
-      <GridActionsCellItem icon={<Cancel />} onClick={() => setOpen(true)} label="Annuler" disabled={isCanceling} />
+      <GridActionsCellItemTooltip icon={<Cancel />} onClick={() => setOpen(true)} label="Annuler" disabled={isCanceling} />
     </>
   );
 };
