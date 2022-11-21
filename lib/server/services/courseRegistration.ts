@@ -68,3 +68,7 @@ export const cancelCourseRegistration = async (args: { where: { id: number } }) 
     return prisma.courseRegistration.update({ where: { id }, data: { isUserCanceled: true, canceledAt: now } });
   });
 };
+
+export const updateCourseRegistrationAttendance = async (args: { where: { id: number }, data: { attended: boolean | null } }) => {
+  return prisma.courseRegistration.update(args); // TODO business rules here?
+};

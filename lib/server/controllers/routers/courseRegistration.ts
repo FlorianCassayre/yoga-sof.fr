@@ -4,7 +4,7 @@ import {
   cancelCourseRegistration,
   createCourseRegistrations,
   findCourseRegistrationEvents,
-  findCourseRegistrations
+  findCourseRegistrations, updateCourseRegistrationAttendance
 } from '../../services';
 import { z } from 'zod';
 import { courseRegistrationCreateSchema } from '../../../common/newSchemas/courseRegistration';
@@ -35,7 +35,12 @@ export const courseRegistrationRouter = trpc
       createCourseRegistrations({ data: { courses, users, notify } }),
   })
   .mutation('cancel', {
-    input: z.strictObject({ id: z.number().int().min(0), }),
+    input: z.strictObject({ id: z.number().int().min(0) }),
     resolve: async ({ input: { id } }) =>
       cancelCourseRegistration({ where: { id } }),
+  })
+  .mutation('attended', {
+    input: z.strictObject({ id: z.number().int().min(0), attended: z.boolean().nullable() }),
+    resolve: async ({ input: { id, attended } }) =>
+      updateCourseRegistrationAttendance({ where: { id }, data: { attended } }),
   });

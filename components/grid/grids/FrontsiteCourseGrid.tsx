@@ -8,13 +8,14 @@ import {
 } from '../../../lib/common/newDate';
 import { Course, CourseType, Prisma } from '@prisma/client';
 import { CourseTypeNames } from '../../../lib/common/newCourse';
-import { GridActionsCellItem, GridRowParams } from '@mui/x-data-grid';
+import { GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../lib/common/trpc';
 import { FrontsiteCancelCourseRegistrationDialog } from '../../FrontsiteCancelCourseRegistrationDialog';
 import { CourseStatusChip } from '../../CourseStatusChip';
 import { relativeTimestamp } from './common';
+import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 
 interface GridActionCancelRegistrationProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>;

@@ -40,13 +40,14 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
       enqueueSnackbar(`Une erreur est survenue lors de l'annulation de la séance`, { variant: 'error' });
     },
   });
+  const [isCheckingAttendance, setCheckingAttendance] = useState(false);
   return (
     <BackofficeContent
       title={displayCourseName(course)}
       icon={<Event />}
       actions={[
         { name: 'Modifier mes notes', icon: <Notes />, url: { pathname: `/administration/seances/planning/[id]/notes`, query: { id: course.id } } },
-        { name: `Faire l'appel`, icon: <EmojiPeople /> },
+        { name: isCheckingAttendance ? `Ne plus faire l'appel` : `Faire l'appel`, icon: <EmojiPeople />, onClick: () => setCheckingAttendance(!isCheckingAttendance) },
         { name: 'Modifier la séance', icon: <Edit />, url: { pathname: `/administration/seances/planning/[id]/edition`, query: { id: course.id } } },
         { name: 'Inscrire des utilisateurs', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { courseId: course.id } } },
         { name: 'Annuler la séance', icon: <Cancel />, onClick: () => setConfirmCancelDialogOpen(true), disabled: isCanceling },
@@ -124,7 +125,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Inscrits à cette séance
       </Typography>
-      <CourseRegistrationGrid courseId={course.id} />
+      <CourseRegistrationGrid courseId={course.id} attendance attendanceModifiable={isCheckingAttendance} />
 
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Historique d'inscriptions à cette séance
