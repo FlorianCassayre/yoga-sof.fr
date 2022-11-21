@@ -6,9 +6,10 @@ import { WeekdayNames } from '../../../lib/common/newDate';
 
 interface SelectWeekdayProps {
   name: string;
+  disabled?: boolean;
 }
 
-export const SelectWeekday: React.FC<SelectWeekdayProps> = ({ name }) => {
+export const SelectWeekday: React.FC<SelectWeekdayProps> = ({ name, disabled }) => {
   return (
     <SelectElement
       name={name}
@@ -17,6 +18,7 @@ export const SelectWeekday: React.FC<SelectWeekdayProps> = ({ name }) => {
         label: weekdayLabel,
       }))}
       label="Jour de la semaine"
+      disabled={disabled}
       fullWidth
     />
   );

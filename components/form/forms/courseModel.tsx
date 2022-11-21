@@ -45,11 +45,6 @@ const courseModelFormDefaultValues: DeepPartial<z.infer<typeof courseModelCreate
   slots: 1,
   price: 0,
   bundle: false,
-
-  type: 'YOGA_ADULT' as any,
-  weekday: 0,
-  timeStart: '01:00',
-  timeEnd: '02:30',
 };
 
 const commonFormProps = {

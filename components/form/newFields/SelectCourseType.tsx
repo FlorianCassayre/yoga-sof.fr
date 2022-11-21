@@ -5,9 +5,10 @@ import { SelectElement } from 'react-hook-form-mui';
 
 interface SelectCourseTypeProps {
   name: string;
+  disabled?: boolean;
 }
 
-export const SelectCourseType: React.FC<SelectCourseTypeProps> = ({ name }) => {
+export const SelectCourseType: React.FC<SelectCourseTypeProps> = ({ name, disabled }) => {
   return (
     <SelectElement
       name={name}
@@ -16,6 +17,7 @@ export const SelectCourseType: React.FC<SelectCourseTypeProps> = ({ name }) => {
         label: CourseTypeNames[key as keyof typeof CourseType],
       }))}
       label="Type de séance"
+      disabled={disabled}
       fullWidth
     />
   );

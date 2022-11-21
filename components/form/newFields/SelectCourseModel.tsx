@@ -3,13 +3,15 @@ import { AutocompleteElement } from 'react-hook-form-mui';
 import { trpc } from '../../../lib/common/trpc';
 import { CourseModel } from '@prisma/client';
 import { displayCourseModelName } from '../../../lib/common/newDisplay';
+import { Box } from '@mui/material';
 
 interface SelectCourseModelProps {
   name: string;
   multiple?: boolean;
+  disabled?: boolean;
 }
 
-export const SelectCourseModel: React.FC<SelectCourseModelProps> = ({ name, multiple }) => {
+export const SelectCourseModel: React.FC<SelectCourseModelProps> = ({ name, multiple, disabled }) => {
   const { data, isLoading } = trpc.useQuery(['courseModel.findAll']);
   return (
     <AutocompleteElement
@@ -19,8 +21,13 @@ export const SelectCourseModel: React.FC<SelectCourseModelProps> = ({ name, mult
       label="Modèle de séance"
       loading={isLoading}
       autocompleteProps={{
-        disabled: isLoading,
-        getOptionLabel: (option: CourseModel) => displayCourseModelName(option)
+        disabled: isLoading || disabled,
+        getOptionLabel: (option: CourseModel) => displayCourseModelName(option),
+        renderOption: (props, option) => ( // Weirdly enough, we need to override this ('supposedly' there is a problem of duplicate keys/labels)
+          <Box {...props as any} key={option.id}>
+            {displayCourseModelName(option)}
+          </Box>
+        ),
       }}
     />
   );
