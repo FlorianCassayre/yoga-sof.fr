@@ -7,9 +7,9 @@ import { AsyncGrid } from '../AsyncGrid';
 import { EmailMessage, EmailMessageType, User } from '@prisma/client';
 import { UserLink } from '../../link/UserLink';
 import { relativeTimestamp, userColumn } from './common';
-import { EmailMessageTypeNames } from '../../../lib/common/newEmail';
 import { formatDateDDsMMsYYYYsHHhMMmSSs } from '../../../lib/common/newDate';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
+import { EmailMessageTypeNames } from '../../../lib/common/emailMessages';
 
 interface EmailDetailsDialogProps {
   open: boolean;

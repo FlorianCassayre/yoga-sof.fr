@@ -3,6 +3,7 @@ import { prisma } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { Pagination } from './helpers/types';
 import { createPaginated, createPrismaPagination } from './helpers/pagination';
+import { notifyCourseCanceled } from '../newEmail';
 
 export const findCourse = async <Where extends Prisma.CourseWhereUniqueInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, select?: Select, include?: Include }) =>
   prisma.course.findUniqueOrThrow(args);
@@ -52,7 +53,7 @@ export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
     if (course.dateEnd < new Date()) {
       throw new ServiceError(ServiceErrorCode.CourseHasPassed);
     }
-    return prisma.course.update({
+    const returned = prisma.course.update({
       where,
       data: {
         isCanceled: true,
@@ -60,5 +61,7 @@ export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
       },
       ...rest
     });
+    await notifyCourseCanceled(await prisma.course.findUniqueOrThrow({ where, include: { registrations: { include: { user: true } } } }));
+    return returned;
   });
 };

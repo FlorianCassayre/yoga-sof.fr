@@ -2,6 +2,7 @@ import { CourseRegistration, Prisma } from '@prisma/client';
 import { prisma } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { courseRegistrationCreateSchema } from '../../common/newSchemas/courseRegistration';
+import { notifyCourseRegistration } from '../newEmail';
 
 const registrationsToEvent = <T extends CourseRegistration>(registrations: T[]) =>
   registrations.flatMap(registration => [{
@@ -25,8 +26,8 @@ export const createCourseRegistrations = async (args: { data: { courses: number[
   return await prisma.$transaction(async () => {
     const now = new Date();
     const newRegistrations: number[] = [];
-    for (const courseId of args.data.courses) {
-      for (const userId of args.data.users) {
+    for (const userId of args.data.users) {
+      for (const courseId of args.data.courses) {
         const course = await prisma.course.findUniqueOrThrow({ where: { id: courseId }, include: { registrations: { where: { isUserCanceled: false } } } });
         if (course.isCanceled) {
           throw new ServiceError(ServiceErrorCode.CourseCanceledNoRegistration);
@@ -41,11 +42,13 @@ export const createCourseRegistrations = async (args: { data: { courses: number[
           throw new ServiceError(ServiceErrorCode.UserAlreadyRegistered);
         }
         const { id: newRegistrationId } = await prisma.courseRegistration.create({ data: { courseId, userId }, select: { id: true } });
-        newRegistrations.push(newRegistrationId);
+        newRegistrations.push(courseId);
       }
     }
     if (args.data.notify) {
-      // TODO FIXME notify
+      for (const userId of args.data.users) {
+        await notifyCourseRegistration(userId, args.data.courses);
+      }
     }
     return newRegistrations;
   });
