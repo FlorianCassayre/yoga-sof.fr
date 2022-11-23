@@ -37,6 +37,7 @@ export const FrontsiteCancelCourseRegistrationDialog: React.FC<FrontsiteCancelCo
       <DialogContent>
         <DialogContentText>
           Souhaitez-vous vraiment vous désinscrire de la <strong>{displayCourseName(courseRegistration.course, false)}</strong> ?
+          Vous pourrez à tout moment vous y réinscrire, sous réserve qu'il reste de la place.
         </DialogContentText>
       </DialogContent>
       <DialogActions>

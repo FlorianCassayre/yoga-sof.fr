@@ -2,13 +2,12 @@ import React, { Fragment } from 'react';
 
 import { getProviders, signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
-import { joiValidator, providersData } from '../lib/client';
-import { EMAIL_CONTACT, schemaSignInEmail, schemaSignInExternal } from '../lib/common';
+import { AuthProviders } from '../lib/client';
+import { EMAIL_CONTACT } from '../lib/common';
 import { BuiltInProviderType } from 'next-auth/providers';
 import { ClientSafeProvider, LiteralUnion, SignInOptions } from 'next-auth/react/types';
-import { Alert, Box, Button, Card, CardContent, Divider, Grid, Stack, Typography, Link as MuiLink } from '@mui/material';
-import { Email, Facebook, Google, QuestionMark } from '@mui/icons-material';
+import { Alert, Button, Card, CardContent, Divider, Stack, Typography, Link as MuiLink } from '@mui/material';
+import { Email } from '@mui/icons-material';
 import { useAsyncFn } from 'react-use';
 import { FormContainer, TextFieldElement } from 'react-hook-form-mui';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -65,21 +64,6 @@ export const LoginCardLayout: React.FC<LoginCardLayoutProps> = ({ title, error, 
   );
 };
 
-const providerStyles: Record<string | 'fallback', { icon: React.ReactElement, color: 'inherit' | 'primary' | 'secondary' | 'success' | 'error' | 'info' | 'warning' }> = {
-  google: {
-    icon: <Google />,
-    color: 'inherit',
-  },
-  facebook: {
-    icon: <Facebook />,
-    color: 'primary',
-  },
-  fallback: {
-    icon: <QuestionMark />,
-    color: 'primary',
-  },
-};
-
 interface ProviderLoginProps {
   provider: ClientSafeProvider;
   disabled: boolean;
@@ -87,15 +71,16 @@ interface ProviderLoginProps {
 }
 
 const ExternalProviderLogin: React.FC<ProviderLoginProps> = ({ provider, disabled, callback }) => {
-  const { icon, color } = providerStyles[provider.id] ?? providerStyles.fallback;
+  const { name, icon, color, variant } = AuthProviders[provider.id] ?? AuthProviders.fallback;
   return (
-    <Button variant="contained" startIcon={icon} color={color} disabled={disabled} onClick={() => callback(provider.id)}>
-      Se connecter avec {provider.name}
+    <Button variant={variant} startIcon={icon} color={color} disabled={disabled} onClick={() => callback(provider.id)}>
+      Se connecter avec {name}
     </Button>
   );
 };
 
 const EmailProvider: React.FC<ProviderLoginProps> = ({ provider, disabled, callback }) => {
+  const { icon, color, variant } = AuthProviders[provider.id] ?? AuthProviders.fallback;
   return (
     <FormContainer
       defaultValues={{ email: '' }}
@@ -104,7 +89,7 @@ const EmailProvider: React.FC<ProviderLoginProps> = ({ provider, disabled, callb
     >
       <Stack direction="column" gap={1}>
         <TextFieldElement name="email" label="Addresse e-mail" disabled={disabled} fullWidth />
-        <Button type="submit" variant="outlined" startIcon={<Email />} color="inherit" disabled={disabled} fullWidth>
+        <Button type="submit" variant={variant} startIcon={icon} color={color} disabled={disabled} fullWidth>
           Recevoir un lien de connexion
         </Button>
       </Stack>
