@@ -4,6 +4,10 @@ import { getCalendarForRequest } from '../../lib/server/services/calendar';
 import { ServiceError, ServiceErrorCode } from '../../lib/server/services/helpers/errors';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405);
+  }
+
   const result = calendarFindSchema.safeParse(req.query);
 
   if (result.success) {
