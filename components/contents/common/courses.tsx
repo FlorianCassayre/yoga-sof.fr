@@ -3,6 +3,8 @@ import { CourseTypeNames } from '../../../lib/common/newCourse';
 
 interface CourseDataExplicit {
   notStarted?: boolean;
+  isRegistrationOnline?: boolean;
+  anchor: string;
   age: string;
   level: string;
   group: string;
@@ -15,12 +17,15 @@ interface CourseDataExplicit {
 
 interface CourseData extends CourseDataExplicit {
   notStarted: boolean;
+  isRegistrationOnline: boolean;
   type: CourseType;
   title: string;
 }
 
 const coursesExplicit: Record<CourseType, CourseDataExplicit> = {
   [CourseType.YOGA_ADULT]: {
+    isRegistrationOnline: true,
+    anchor: 'adulte',
     age: `Adultes`,
     level: `Tous niveaux`,
     group: `4-5 personnes`,
@@ -31,6 +36,7 @@ const coursesExplicit: Record<CourseType, CourseDataExplicit> = {
     registration: `Inscription en ligne depuis le site, ou bien me contacter`,
   },
   [CourseType.YOGA_CHILD]: {
+    anchor: 'enfant',
     age: `6 à 11 ans`,
     level: `Initiation`,
     group: `6-8 enfants`,
@@ -42,6 +48,7 @@ const coursesExplicit: Record<CourseType, CourseDataExplicit> = {
   },
   [CourseType.YOGA_ADULT_CHILD]: {
     notStarted: true, // Pas encore commencé
+    anchor: 'parent-enfant',
     age: `3 à 6 ans`,
     level: `Initiation`,
     group: `5 duos`,
@@ -55,5 +62,5 @@ const coursesExplicit: Record<CourseType, CourseDataExplicit> = {
 
 export const courses: Record<CourseType, CourseData> =
   Object.fromEntries(Object.entries(coursesExplicit).map(([key, value]) =>
-    [key, { ...value, type: key, title: CourseTypeNames[key as CourseType], notStarted: !!value.notStarted }])
+    [key, { ...value, type: key, title: CourseTypeNames[key as CourseType], notStarted: !!value.notStarted, isRegistrationOnline: !!value.isRegistrationOnline }])
   ) as Record<CourseType, CourseData>;

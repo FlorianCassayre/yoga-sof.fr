@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { CourseRegistrationEventGrid } from '../../../../components/grid/grids/CourseRegistrationEventGrid';
 import { CourseRegistrationGrid } from '../../../../components/grid/grids/CourseRegistrationGrid';
 import { Box, Card, CardContent, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
-import { InformationTable } from '../../../../components/InformationTable';
+import { InformationTableCard } from '../../../../components/InformationTableCard';
 import {
   formatDateDDsMMsYYYYsHHhMMmSSs,
   formatTimestampRelative
@@ -81,7 +81,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} lg={6}>
-          <InformationTable
+          <InformationTableCard
             rows={[
               {
                 header: 'Statut',

@@ -14,7 +14,7 @@ import {
   Stack,
   Typography
 } from '@mui/material';
-import { InformationTable } from '../../../../../components/InformationTable';
+import { InformationTableCard } from '../../../../../components/InformationTableCard';
 import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../../../lib/common/newCourse';
 import Link from 'next/link';
 import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../../../../lib/common/newDate';
@@ -64,7 +64,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
       </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} md={4}>
-          <InformationTable
+          <InformationTableCard
             rows={[
               { header: 'Type', value: CourseTypeNames[course.type] },
               { header: 'Places', value: course.slots },
