@@ -8,8 +8,8 @@ import { notifyCourseCanceled } from '../newEmail';
 export const findCourse = async <Where extends Prisma.CourseWhereUniqueInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, select?: Select, include?: Include }) =>
   prisma.course.findUniqueOrThrow(args);
 
-export const findCourses = async <Where extends Prisma.CourseWhereInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseOrderByWithRelationInput>>(args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
-  prisma.course.findMany(args);
+export const findCourses = async <T extends Prisma.CourseFindManyArgs>(args: Prisma.SelectSubset<T, Prisma.CourseFindManyArgs>) =>
+  prisma.course.findMany<T>(args);
 
 export const findCoursesPaginated = async <Where extends Prisma.CourseWhereInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseOrderByWithRelationInput>>(args: { pagination: Pagination, where?: Where, select?: Select, include?: Include, orderBy?: OrderBy }) => {
   const { pagination: { page, elementsPerPage }, ...rest } = args;

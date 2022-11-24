@@ -1,6 +1,4 @@
 import { z } from 'zod';
-import { CourseType } from '@prisma/client';
-import { colonTimeToParts, timePartsToTotalMinutes, WeekdayNames } from '../newDate';
 
 export const userSchemaBase = z.object({
   name: z.string().min(1),

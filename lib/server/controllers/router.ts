@@ -16,6 +16,7 @@ import { ZodError } from 'zod';
 import { ServiceError } from '../services/helpers/errors';
 import { selfRouter } from './routers/self';
 import superjson from 'superjson';
+import { publicRouter } from './routers/public';
 
 export const appRouter = trpc
   .router<Context>()
@@ -47,6 +48,10 @@ export const appRouter = trpc
   .merge(
     createSessionRouter()
       .merge('self.', createProtectedRouter([UserType.Regular, UserType.Admin]).merge(selfRouter))
+  )
+  .merge(
+    createSessionRouter()
+      .merge('public.', publicRouter)
   )
   .formatError(({ shape, error }) => {
     if (error.cause instanceof ZodError) {

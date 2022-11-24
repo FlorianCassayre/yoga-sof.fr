@@ -1,10 +1,8 @@
 import { z } from 'zod';
-
-const uniqueIdsSchema = z.array(z.number().int().min(0)).nonempty()
-  .refine(array => new Set(array).size === array.length, { message: `Les éléments doivent être distincts` });
+import { nonEmptyUniqueIdsSchema } from './common';
 
 export const courseRegistrationCreateSchema = z.strictObject({
-  courses: uniqueIdsSchema,
-  users: uniqueIdsSchema,
+  courses: nonEmptyUniqueIdsSchema,
+  users: nonEmptyUniqueIdsSchema,
   notify: z.boolean(),
 });
