@@ -18,11 +18,22 @@ const refineTimeRange: z.RefinementEffect<{ timeStart: string, timeEnd: string }
   }
 };
 
+const timeSchema = z.string().refine((value) => {
+  try {
+    colonTimeToParts(value);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}, {
+  message: 'Heure HH:MM invalide',
+});
+
 const courseModelSchemaBase = z.object({
   type: z.nativeEnum(CourseType),
   weekday: z.number().int().min(0).max(WeekdayNames.length - 1),
-  timeStart: z.string(),
-  timeEnd: z.string(),
+  timeStart: timeSchema,
+  timeEnd: timeSchema,
   slots: z.number().int().min(1).max(99),
   price: z.number().int().min(0).max(99),
   bundle: z.boolean(),

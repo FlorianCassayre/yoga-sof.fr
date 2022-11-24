@@ -1,4 +1,4 @@
-import { intervalToDuration } from "date-fns";
+import { intervalToDuration } from 'date-fns';
 
 export const WeekdayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
 
@@ -18,7 +18,7 @@ export const colonTimeToParts = (time: string): [number, number] => {
       return parts as [number, number];
     }
   }
-  throw new Error();
+  throw new Error(time); // Invalid time format
 };
 
 export const timePartsToTotalMinutes = (parts: [number, number]): number => parts[0] * 60 + parts[1];
