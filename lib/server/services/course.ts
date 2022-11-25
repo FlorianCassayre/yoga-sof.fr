@@ -4,6 +4,8 @@ import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { Pagination } from './helpers/types';
 import { createPaginated, createPrismaPagination } from './helpers/pagination';
 import { notifyCourseCanceled } from '../newEmail';
+import { colonTimeToParts } from '../../common/newDate';
+import { courseCreateManySchema } from '../../common/newSchemas/course';
 
 export const findCourse = async <Where extends Prisma.CourseWhereUniqueInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, select?: Select, include?: Include }) =>
   prisma.course.findUniqueOrThrow(args);
@@ -63,5 +65,31 @@ export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
     });
     await notifyCourseCanceled(await prisma.course.findUniqueOrThrow({ where, include: { registrations: { include: { user: true } } } }));
     return returned;
+  });
+};
+
+export const createCourses = async (args: { data: Pick<Course, 'type' | 'price' | 'slots'> & { timeStart: string, timeEnd: string, dates: Date[] } }) => {
+  courseCreateManySchema.parse({ ...args.data });
+  const { data: { type, price, slots, timeStart, timeEnd, dates } } = args;
+  dates.sort((a, b) => a.getTime() - b.getTime());
+  const withTime = (date: Date, time: string): Date => {
+    const copy = new Date(date);
+    const [hours, minutes] = colonTimeToParts(time);
+    copy.setHours(hours);
+    copy.setMinutes(minutes);
+    copy.setSeconds(0);
+    copy.setMilliseconds(0);
+    return copy;
+  }
+  return await prisma.course.createMany({
+    data: dates.map(date => {
+      return {
+        type,
+        price,
+        slots,
+        dateStart: withTime(date, timeStart),
+        dateEnd: withTime(date, timeEnd)
+      };
+    })
   });
 };

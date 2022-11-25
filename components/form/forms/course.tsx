@@ -26,7 +26,7 @@ import { Course } from '@prisma/client';
 import { ParsedUrlQuery } from 'querystring';
 import { QueryKey } from '../../../lib/server/controllers';
 import {
-  courseCreateSchema,
+  courseCreateManySchema,
   courseFindTransformSchema,
   courseUpdateNotesSchema,
   courseUpdateSchema
@@ -35,6 +35,24 @@ import { SelectCourseModel } from '../newFields/SelectCourseModel';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formatDateDDsMMsYYYY } from '../../../lib/common/newDate';
 
+const AddCourseSubmitButton = ({ onSubmit }: { onSubmit: any }) => {
+  const { handleSubmit } = useFormContext();
+  return (
+    <Button onClick={() => handleSubmit(onSubmit)()}>
+      Ajouter ces séances
+    </Button>
+  );
+};
+
+const withNormalizedTime = (date: Date): Date => {
+  const copy = new Date(date);
+  copy.setHours(0);
+  copy.setMinutes(0);
+  copy.setSeconds(0);
+  copy.setMilliseconds(0);
+  return copy;
+}
+
 interface RangeSelectionDialogProps {
   open: boolean;
   onClose: () => void;
@@ -42,14 +60,7 @@ interface RangeSelectionDialogProps {
 }
 
 const RangeSelectionDialog: React.FC<RangeSelectionDialogProps> = ({ open, onClose, onSelect }) => {
-  const today = useMemo(() => {
-    const today = new Date();
-    today.setHours(0);
-    today.setMinutes(0);
-    today.setSeconds(0);
-    today.setMilliseconds(0);
-    return today;
-  }, []);
+  const today = useMemo(() => withNormalizedTime(new Date()), []);
   const schema = useMemo(() => {
     return z.strictObject({
       dateStart: z.date().min(today, `La date ne peut pas être dans le passé`),
@@ -84,18 +95,16 @@ const RangeSelectionDialog: React.FC<RangeSelectionDialogProps> = ({ open, onClo
           </DialogContentText>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={6}>
-              <DatePickerElement name="dateStart" minDate={today} />
+              <DatePickerElement name="dateStart" minDate={today} label="Date de début" />
             </Grid>
             <Grid item xs={6}>
-              <DatePickerElement name="dateEnd" minDate={today} />
+              <DatePickerElement name="dateEnd" minDate={today} label="Date de fin" />
             </Grid>
           </Grid>
         </DialogContent>
         <DialogActions>
           <Button color="inherit" onClick={onClose}>Annuler</Button>
-          <Button type="submit">
-            Ajouter ces séances
-          </Button>
+          <AddCourseSubmitButton onSubmit={onSelect} />
         </DialogActions>
       </FormContainer>
     </Dialog>
@@ -124,10 +133,10 @@ const DatesSelectionList = () => {
       }
       return acc;
     };
-    let allDates = currentDates.concat(computeDatesBetween());
-    allDates = Array.from(new Set(allDates));
-    allDates.sort((a, b) => a < b ? -1 : 1);
-    setValue('dates', allDates);
+    const allDates = currentDates.concat(computeDatesBetween());
+    const allTimes = Array.from(new Set(allDates.map(date => date.getTime())));
+    allTimes.sort((a, b) => a < b ? -1 : 1);
+    setValue('dates', allTimes.map(time => new Date(time)));
   };
   const watchDates = watch('dates');
   const handleRemoveDate = (date: Date) => {
@@ -237,14 +246,13 @@ const CourseCreateFormContent = () => {
 };
 
 export const CourseCreateForm = () => {
-
   return (
     <CreateFormContent
       {...commonFormProps}
       title="Planification de séances"
-      schema={courseCreateSchema as any} // FIXME
-      mutation={"course.create" as any} // FIXME
-      successMessage={() => 'TODO'}
+      schema={courseCreateManySchema as any} // FIXME
+      mutation={"course.createMany" as any} // FIXME
+      successMessage={() => 'Les séances ont été planifiées'} // TODO show count
       defaultValues={courseFormDefaultValues}
     >
       <CourseCreateFormContent />

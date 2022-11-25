@@ -1,9 +1,18 @@
 import * as trpc from '@trpc/server';
 import { ContextProtected } from '../context';
 import { z } from 'zod';
-import { cancelCourse, findCourse, findCourses, findCoursesPaginated, updateCourse } from '../../services';
+import {
+  cancelCourse,
+  createCourses,
+  findCourse,
+  findCourses,
+  findCoursesPaginated,
+  updateCourse
+} from '../../services';
 import { schemaWithPagination } from '../schemas';
-import { courseUpdateNotesSchema } from '../../../common/newSchemas/course';
+import { courseCreateManySchema, courseUpdateNotesSchema } from '../../../common/newSchemas/course';
+import { prisma } from '../../prisma';
+import { colonTimeToParts } from '../../../common/newDate';
 
 export const courseRouter = trpc
   .router<ContextProtected>()
@@ -52,6 +61,11 @@ export const courseRouter = trpc
   .query('findAllPaginated', {
     input: schemaWithPagination,
     resolve: async ({ input: { pagination } }) => findCoursesPaginated({ pagination }),
+  })
+  .mutation('createMany', {
+    input: courseCreateManySchema,
+    resolve: async ({ input: { type, timeStart, timeEnd, price, slots, dates } }) =>
+      createCourses({ data: { type, price, slots, timeStart, timeEnd, dates } }),
   })
   .mutation('update', {
     input: z.strictObject({
