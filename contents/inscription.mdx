@@ -17,10 +17,25 @@ veuillez nous <MuiLink href={`mailto:${EMAIL_CONTACT}`}>envoyer un e-mail</MuiLi
 nous écrire depuis <MuiLink href={FACEBOOK_PAGE_URL} target="_blank" rel="noreferrer nofollow">notre page Facebook</MuiLink>.
 * La première séance vous est offerte, à la date de votre choix.
 * Dès que vous aurez validé le formulaire, vos inscriptions apparaîtront sur
-<InternalLink href="/mes-inscriptionsOld">votre page personnelle</InternalLink>.
+<InternalLink href="/mes-inscriptions">votre page personnelle</InternalLink>.
 * Vous reconnaissez avoir pris connaissance du <InternalLink href="/reglement-interieur">règlement intérieur</InternalLink>.
 Vos données sont traitées selon notre <InternalLink href="/confidentialite">politique de confidentialité</InternalLink>.
 
 <CourseRegistrationFormWidget />
+
+export const RegistrationNoticeRecap = () => (
+  <>
+    Ce montant indicatif n'inclut pas la cotisation annuelle qui s'élève à 10 € pour une personne, ou 15 € pour toute la famille.
+    Le règlement d'une séance s'effectue le jour-même sur place, et il est également possible de régler toutes les séances en une fois.
+    Pour rappel votre première séance est offerte, et ne nécessite pas de cotisation.
+    Des cartes de 10 séances payables à l'avance sont disponibles, moyennant un rabais. Merci de nous contacter si vous êtes intéressé(e).
+  </>
+);
+
+export const RegistrationNoticePersonalInformation = () => (
+  <>
+    À compléter ou corriger au besoin. Votre adresse e-mail nous permet notamment de vous informer en cas d'annulation de séance.
+  </>
+);
 
 export default ({ children }) => <FrontsiteContent {...meta}>{children}</FrontsiteContent>

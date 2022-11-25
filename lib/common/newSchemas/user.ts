@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const userSchemaBase = z.object({
   name: z.string().min(1),
-  email: z.string().email().nullable(),
+  email: z.union([z.literal(''), z.string().email()]).nullable(),
 });
 
 export const userFindSchema = z.object({

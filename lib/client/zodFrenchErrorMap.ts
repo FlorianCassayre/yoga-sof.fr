@@ -85,11 +85,11 @@ export const zodFrenchErrorMap: ZodErrorMap = (issue, _ctx) => {
       if (issue.type === "array")
         message = `La liste doit contenir ${
           issue.inclusive ? `au moins` : `plus de`
-        } ${issue.minimum} élément(s)`;
+        } ${issue.minimum !== 1 ? issue.minimum : 'un'} élément${issue.minimum > 1 ? 's' : ''}`;
       else if (issue.type === "string")
-        message = `La chaîne de caractères doit contenir ${
+        message = `L'entrée doit contenir ${
           issue.inclusive ? `au moins` : `plus de`
-        } ${issue.minimum} caractère(s)`;
+        } ${issue.minimum !== 1 ? issue.minimum : 'un'} caractère${issue.minimum > 1 ? 's' : ''}`;
       else if (issue.type === "number")
         message = `Le nombre doit être supérieur ${
           issue.inclusive ? `ou égal ` : ``
@@ -104,11 +104,11 @@ export const zodFrenchErrorMap: ZodErrorMap = (issue, _ctx) => {
       if (issue.type === "array")
         message = `La liste doit contenir ${
           issue.inclusive ? `au plus` : `moins de`
-        } ${issue.maximum} élément(s)`;
+        } ${issue.maximum !== 1 ? issue.maximum : 'un'} élément${issue.maximum > 1 ? 's' : ''}`;
       else if (issue.type === "string")
-        message = `La chaîne de caractères doit contenir ${
+        message = `L'entrée doit contenir ${
           issue.inclusive ? `au plus` : `moins de`
-        } ${issue.maximum} caractère(s)`;
+        } ${issue.maximum !== 1 ? issue.maximum : 'un'} caractère${issue.maximum > 1 ? 's' : ''}`;
       else if (issue.type === "number")
         message = `Le nombre doit être inférieur ${
           issue.inclusive ? `ou égal ` : ``
