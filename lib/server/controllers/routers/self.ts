@@ -19,7 +19,7 @@ export const selfRouter = trpc
       userCanceled: z.boolean(),
       future: z.boolean().nullable(),
     }),
-    resolve: async ({ input: { future, userCanceled } }) => {
+    resolve: async ({ input: { future, userCanceled }, ctx: { session: { userId } } }) => {
       const whereCourseFuture = {
           dateEnd: {
             gt: new Date(),
@@ -27,6 +27,7 @@ export const selfRouter = trpc
       };
       return findCourseRegistrations({
         where: {
+          userId,
           isUserCanceled: userCanceled,
           course: future == null ? {} : future ? whereCourseFuture : { NOT: whereCourseFuture },
         },

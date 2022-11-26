@@ -19,7 +19,7 @@ export const displayCourseName = ({ type, dateStart, dateEnd }: Pick<Course, 'ty
   'de',
   formatTimeHHhMM(dateStart),
   'à',
-  formatTimeHHhMM(dateStart),
+  formatTimeHHhMM(dateEnd),
 ].join(' ');
 
 export const displayCourseModelName = ({ type, weekday, timeStart, timeEnd, bundle }: CourseModel, capitalize = true) => [

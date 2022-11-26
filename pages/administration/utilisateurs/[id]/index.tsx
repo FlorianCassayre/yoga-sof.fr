@@ -119,7 +119,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
                 value: (
                   <Stack direction="row" alignItems="center" gap={1}>
                     {user.customName ?? user.name}
-                    {user.customName && user.customName !== user.name && (
+                    {user.customName !== null && user.customName !== user.name && (
                       <UserProvidedInformationChip original={user.name ?? ''} />
                     )}
                   </Stack>
@@ -130,7 +130,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
                 value: (
                   <Stack direction="row" alignItems="center" gap={1}>
                     {user.customEmail ?? user.email}
-                    {user.customEmail && user.customEmail !== user.email && (
+                    {user.customEmail !== null && user.customEmail !== user.email && (
                       <UserProvidedInformationChip original={user.email ?? ''} />
                     )}
                   </Stack>
@@ -158,11 +158,11 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
           </Card>
         </Grid>
       </Grid>
-      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Inscriptions de cet utilisateur
       </Typography>
       <CourseRegistrationGrid userId={user.id} />
-      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Historique d'inscriptions de cet utilisateur
       </Typography>
       <CourseRegistrationEventGrid userId={user.id} />

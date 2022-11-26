@@ -109,7 +109,7 @@ const AdminHomeContent: React.FC = () => {
         Séances à venir
       </Typography>
       <Typography paragraph>
-        Les utilisateurs ne peuvent seulement s'inscrire à des séances qui ont été planifiées.
+        Les utilisateurs ne peuvent s'inscrire qu'à des séances qui ont été planifiées.
         Ce tableau contient la liste des séances passées, présentes et futures. Le bouton permet de planifier de
         nouvelles séances. Il n'est pas possible de supprimer de séances, en revanche il est possible d'en annuler.
       </Typography>

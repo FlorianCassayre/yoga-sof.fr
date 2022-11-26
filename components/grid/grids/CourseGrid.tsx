@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { Cancel, Edit, Note, Notes, Visibility } from '@mui/icons-material';
-import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../../lib/common/date';
+import { Cancel, Edit, Notes, Visibility } from '@mui/icons-material';
+import { formatDateDDsmmYYYY, formatTimeHHhMM, formatWeekday } from '../../../lib/common/date';
 import { Course, CourseType, Prisma } from '@prisma/client';
 import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../lib/common/course';
-import { GridActionsCellItem, GridRowParams } from '@mui/x-data-grid';
+import { GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useRouter } from 'next/router';
 import { CourseStatusChip } from '../../CourseStatusChip';
@@ -89,7 +89,7 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, r
       headerName: 'Date',
       minWidth: 110,
       flex: 1,
-      valueFormatter: params => formatDateDDsMMsYYYY(params.value),
+      valueFormatter: ({ value }) => `${formatWeekday(value)} ${formatDateDDsmmYYYY(value)}`,
     },
     {
       field: 'time',

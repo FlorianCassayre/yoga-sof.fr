@@ -152,7 +152,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Inscrits à cette séance
       </Typography>
-      <CourseRegistrationGrid courseId={course.id} attendance attendanceModifiable={isCheckingAttendance} />
+      <CourseRegistrationGrid courseId={course.id} attendance={!course.isCanceled && !status.isBeforeStart} attendanceModifiable={isCheckingAttendance} />
 
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Historique d'inscriptions à cette séance

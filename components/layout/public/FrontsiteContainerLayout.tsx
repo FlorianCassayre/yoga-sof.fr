@@ -15,7 +15,7 @@ import { Menu as MenuIcon, Person } from '@mui/icons-material';
 import CssBaseline from '@mui/material/CssBaseline';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useMedia } from 'react-use';
+import { useLocation, useMedia } from 'react-use';
 
 interface MenuTitleProps {
   logo: React.ReactElement;
@@ -69,6 +69,7 @@ interface MenuSectionsProps {
 }
 
 const MenuSections: React.FC<MenuSectionsProps> = ({ sections }) => {
+  const state = useLocation();
   return (
     <>
       {sections.map(({ title, url }, i) => (
@@ -81,7 +82,7 @@ const MenuSections: React.FC<MenuSectionsProps> = ({ sections }) => {
             color="inherit"
             noWrap
             variant="body2"
-            sx={{ p: 1, flexShrink: 0 }}
+            sx={{ p: 1, flexShrink: 0, textDecoration: url === state.pathname ? undefined : 'none' }}
           >
             {title}
           </MuiLink>
