@@ -1,5 +1,5 @@
 import React from 'react';
-import { NewAuthGuard } from '../../NewAuthGuard';
+import { AuthGuard } from '../../AuthGuard';
 import { UserType } from '../../../lib/common/all';
 import { BackofficeContainer } from './BackofficeContainer';
 
@@ -9,10 +9,10 @@ interface GuardedBackofficeContainerProps {
 
 export const GuardedBackofficeContainer: React.FC<GuardedBackofficeContainerProps> = ({ children }) => {
   return (
-    <NewAuthGuard allowedUserTypes={[UserType.Admin]}>
+    <AuthGuard allowedUserTypes={[UserType.Admin]}>
       <BackofficeContainer>
         {children}
       </BackofficeContainer>
-    </NewAuthGuard>
+    </AuthGuard>
   );
 }

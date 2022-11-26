@@ -9,7 +9,7 @@ import {
   DialogTitle, TextField,
   Typography
 } from '@mui/material';
-import { displayCourseName, displayUserName } from '../lib/common/newDisplay';
+import { displayCourseName, displayUserName } from '../lib/common/display';
 
 interface DisableUserDialogProps {
   user: User;

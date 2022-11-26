@@ -2,7 +2,7 @@ import { CourseRegistration, Prisma } from '@prisma/client';
 import { prisma } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { courseRegistrationCreateSchema } from '../../common/newSchemas/courseRegistration';
-import { notifyCourseRegistration } from '../newEmail';
+import { notifyCourseRegistration } from '../email';
 
 const registrationsToEvent = <T extends CourseRegistration>(registrations: T[]) =>
   registrations.flatMap(registration => [{

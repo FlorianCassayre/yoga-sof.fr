@@ -3,7 +3,7 @@ import { GridRenderCellParams } from '@mui/x-data-grid';
 import { Course, User } from '@prisma/client';
 import { Box, Stack } from '@mui/material';
 import { UserLink } from '../../link/UserLink';
-import { formatDateDDsMMsYYYYsHHhMMmSSs, formatTimestampRelative } from '../../../lib/common/newDate';
+import { formatDateDDsMMsYYYYsHHhMMmSSs, formatTimestampRelative } from '../../../lib/common/date';
 import { GridValidRowModel } from '@mui/x-data-grid/models/gridRows';
 import { CourseLink } from '../../link/CourseLink';
 import { CourseStatusChip } from '../../CourseStatusChip';

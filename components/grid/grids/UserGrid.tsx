@@ -6,7 +6,7 @@ import { GridActionsCellItem, GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useRouter } from 'next/router';
 import { relativeTimestamp } from './common';
-import { displayUserEmail, displayUserName } from '../../../lib/common/newDisplay';
+import { displayUserEmail, displayUserName } from '../../../lib/common/display';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 
 // TODO

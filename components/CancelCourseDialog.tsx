@@ -9,7 +9,7 @@ import {
   DialogTitle, TextField,
   Typography
 } from '@mui/material';
-import { displayCourseName } from '../lib/common/newDisplay';
+import { displayCourseName } from '../lib/common/display';
 
 interface CancelCourseDialogProps {
   course: Course;

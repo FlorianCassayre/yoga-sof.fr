@@ -3,7 +3,7 @@ import { courses } from '../common/courses';
 import { CourseType } from '@prisma/client';
 import { Grid, Typography, Chip, CardContent, Card, CardActionArea, CardMedia } from '@mui/material';
 import { Accessibility, AccessTime, DarkMode, Groups } from '@mui/icons-material';
-import { CourseTypeNames } from '../../../lib/common/newCourse';
+import { CourseTypeNames } from '../../../lib/common/course';
 import Link from 'next/link';
 
 interface HomepageCourseProps {

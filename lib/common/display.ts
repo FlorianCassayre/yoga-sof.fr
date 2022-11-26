@@ -1,5 +1,5 @@
 import { Course, CourseModel, User } from '@prisma/client';
-import { CourseTypeNames } from './newCourse';
+import { CourseTypeNames } from './course';
 import {
   formatColonTimeHHhMM,
   formatDateDDsmmYYYY,
@@ -7,7 +7,7 @@ import {
   formatTimeHHhMM,
   formatWeekday,
   WeekdayNames
-} from './newDate';
+} from './date';
 
 export const displayCourseName = ({ type, dateStart, dateEnd }: Pick<Course, 'type' | 'dateStart' | 'dateEnd'>, capitalize = true) => [
   capitalize ? 'Séance' : 'séance',

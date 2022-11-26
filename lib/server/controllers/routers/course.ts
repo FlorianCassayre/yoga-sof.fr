@@ -12,7 +12,7 @@ import {
 import { schemaWithPagination } from '../schemas';
 import { courseCreateManySchema, courseUpdateNotesSchema } from '../../../common/newSchemas/course';
 import { prisma } from '../../prisma';
-import { colonTimeToParts } from '../../../common/newDate';
+import { colonTimeToParts } from '../../../common/date';
 
 export const courseRouter = trpc
   .router<ContextProtected>()

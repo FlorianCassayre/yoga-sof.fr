@@ -1,6 +1,6 @@
 import React from 'react';
 import { RichLink } from './RichLink';
-import { displayCourseName, displayUserName } from '../../lib/common/newDisplay';
+import { displayCourseName, displayUserName } from '../../lib/common/display';
 import { Event, Person } from '@mui/icons-material';
 import { Course } from '@prisma/client';
 

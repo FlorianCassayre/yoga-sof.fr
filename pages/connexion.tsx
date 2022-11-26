@@ -1,5 +1,5 @@
 import React from 'react';
-import { NewLoginCard } from '../components/NewLoginCard';
+import { LoginCard } from '../components/LoginCard';
 import { getProviders } from 'next-auth/react';
 import { Box, Grid, Typography, Link as MuiLink } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -21,7 +21,7 @@ const ConnexionPage: React.FC<ConnexionPageProps> = ({ providers }) => {
       <Grid container justifyContent="center">
         <Grid item xs={12} sm={9} md={6} lg={4} xl={3}>
           <Box sx={{ my: 3, mx: 2 }}>
-            <NewLoginCard providers={providers} />
+            <LoginCard providers={providers} />
             <Box textAlign="center" sx={{ mt: 2 }}>
               <Link href="/" passHref>
                 <MuiLink>

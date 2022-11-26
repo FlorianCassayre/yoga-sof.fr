@@ -2,7 +2,7 @@ import React from 'react';
 import { AutocompleteElement } from 'react-hook-form-mui';
 import { trpc } from '../../../lib/common/trpc';
 import { Course } from '@prisma/client';
-import { displayCourseName } from '../../../lib/common/newDisplay';
+import { displayCourseName } from '../../../lib/common/display';
 
 interface SelectCourseProps {
   name: string;

@@ -23,9 +23,9 @@ export const nextAuthOptions: NextAuthOptions = {
       clientSecret: process.env.FACEBOOK_SECRET,
     }), */
     EmailProvider({
-      server: NODEMAILER_CONFIGURATION as any, // FIXME
+      server: NODEMAILER_CONFIGURATION,
       from: process.env.EMAIL_FROM,
-      sendVerificationRequest: sendVerificationRequest as any,
+      sendVerificationRequest,
     }),
   ],
   // This option is not strictly required since next-auth will look for the variable `NEXTAUTH_SECRET` anyway

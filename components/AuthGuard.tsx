@@ -3,12 +3,12 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useMemo } from 'react';
 import { UserType } from '../lib/common/all';
 
-interface NewAuthGuardProps {
+interface AuthGuardProps {
   allowedUserTypes: UserType[];
   children: React.ReactNode;
 }
 
-export const NewAuthGuard: React.FC<NewAuthGuardProps> = ({ allowedUserTypes, children }) => {
+export const AuthGuard: React.FC<AuthGuardProps> = ({ allowedUserTypes, children }) => {
   const { data: session, status } = useSession();
   const loading = useMemo(() => status === 'loading', [status]);
   const hasPermission = useMemo(() => session && allowedUserTypes.includes(session.userType), [session, allowedUserTypes]);

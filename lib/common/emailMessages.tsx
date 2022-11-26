@@ -1,8 +1,8 @@
 import { Course, CourseRegistration, EmailMessageType } from '@prisma/client';
-import { displayCourseName, displayUserName } from './newDisplay';
+import { displayCourseName, displayUserName } from './display';
 import React from 'react';
 import { urlForLocation } from './urls';
-import { LocationHome } from './newConfig';
+import { LocationHome } from './config';
 
 export const EmailMessageTypeNames: { [K in EmailMessageType]: string } = {
   [EmailMessageType.SESSION_CANCELED]: 'Annulation de séance',

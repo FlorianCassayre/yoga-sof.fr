@@ -1,8 +1,8 @@
 import React from 'react';
 import { CourseType } from '@prisma/client';
-import { CourseTypeNames } from '../../../lib/common/newCourse';
+import { CourseTypeNames } from '../../../lib/common/course';
 import { SelectElement } from 'react-hook-form-mui';
-import { WeekdayNames } from '../../../lib/common/newDate';
+import { WeekdayNames } from '../../../lib/common/date';
 
 interface SelectWeekdayProps {
   name: string;

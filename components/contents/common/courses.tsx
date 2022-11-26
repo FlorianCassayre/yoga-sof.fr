@@ -1,5 +1,5 @@
 import { CourseType } from '@prisma/client';
-import { CourseTypeNames } from '../../../lib/common/newCourse';
+import { CourseTypeNames } from '../../../lib/common/course';
 
 interface CourseDataExplicit {
   notStarted?: boolean;

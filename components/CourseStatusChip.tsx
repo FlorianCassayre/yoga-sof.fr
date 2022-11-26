@@ -1,6 +1,6 @@
 import React from 'react';
 import { Course } from '@prisma/client';
-import { getCourseStatus } from '../lib/common/newCourse';
+import { getCourseStatus } from '../lib/common/course';
 import { Chip } from '@mui/material';
 
 interface CourseStatusChipProps {

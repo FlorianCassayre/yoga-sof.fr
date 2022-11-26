@@ -2,12 +2,11 @@ import React, { Fragment } from 'react';
 
 import { getProviders, signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { AuthProviders } from '../lib/client';
-import { EMAIL_CONTACT } from '../lib/common';
+import { AuthProviders } from '../lib/client/providers';
+import { EMAIL_CONTACT } from '../lib/common/config';
 import { BuiltInProviderType } from 'next-auth/providers';
 import { ClientSafeProvider, LiteralUnion, SignInOptions } from 'next-auth/react/types';
 import { Alert, Button, Card, CardContent, Divider, Stack, Typography, Link as MuiLink } from '@mui/material';
-import { Email } from '@mui/icons-material';
 import { useAsyncFn } from 'react-use';
 import { FormContainer, TextFieldElement } from 'react-hook-form-mui';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -97,11 +96,11 @@ const EmailProvider: React.FC<ProviderLoginProps> = ({ provider, disabled, callb
   );
 };
 
-interface NewLoginCardProps {
+interface LoginCardProps {
   providers: NonNullable<Awaited<ReturnType<typeof getProviders>>>;
 }
 
-export const NewLoginCard: React.FC<NewLoginCardProps> = ({ providers }) => {
+export const LoginCard: React.FC<LoginCardProps> = ({ providers }) => {
   const emailKey = 'email';
 
   const router = useRouter();

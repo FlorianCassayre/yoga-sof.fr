@@ -10,7 +10,7 @@ import { ParsedUrlQuery } from 'querystring';
 import { QueryKey } from '../../../lib/server/controllers';
 import { User } from '@prisma/client';
 import { userCreateSchema, userFindTransformSchema, userUpdateSchema } from '../../../lib/common/newSchemas/user';
-import { displayUserName } from '../../../lib/common/newDisplay';
+import { displayUserName } from '../../../lib/common/display';
 
 const UserFormFields = () => (
   <Grid container spacing={2}>

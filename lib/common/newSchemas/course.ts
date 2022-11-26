@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CourseType } from '@prisma/client';
-import { formatDateDDsMMsYYYY } from '../newDate';
+import { formatDateDDsMMsYYYY } from '../date';
 import { refineTimeRange, timeSchema } from './common';
 
 export const courseFindSchema = z.object({

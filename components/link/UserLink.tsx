@@ -1,6 +1,6 @@
 import React from 'react';
 import { RichLink } from './RichLink';
-import { displayUserName } from '../../lib/common/newDisplay';
+import { displayUserName } from '../../lib/common/display';
 import { Person } from '@mui/icons-material';
 
 interface UserLinkProps {

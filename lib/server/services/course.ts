@@ -3,8 +3,8 @@ import { prisma } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { Pagination } from './helpers/types';
 import { createPaginated, createPrismaPagination } from './helpers/pagination';
-import { notifyCourseCanceled } from '../newEmail';
-import { colonTimeToParts } from '../../common/newDate';
+import { notifyCourseCanceled } from '../email';
+import { colonTimeToParts } from '../../common/date';
 import { courseCreateManySchema } from '../../common/newSchemas/course';
 
 export const findCourse = async <Where extends Prisma.CourseWhereUniqueInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, select?: Select, include?: Include }) =>

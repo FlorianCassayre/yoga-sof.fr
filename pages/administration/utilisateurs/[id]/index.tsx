@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
 import { Assignment, Block, Info, Edit, Person, Done, Close, Help, QuestionMark } from '@mui/icons-material';
 import { Prisma, User } from '@prisma/client';
-import { displayUserName } from '../../../../lib/common/newDisplay';
+import { displayUserName } from '../../../../lib/common/display';
 import { userFindTransformSchema } from '../../../../lib/common/newSchemas/user';
 import { useSchemaQuery } from '../../../../components/hooks/useSchemaQuery';
 import { useRouter } from 'next/router';
@@ -13,7 +13,7 @@ import { InformationTableCard } from '../../../../components/InformationTableCar
 import {
   formatDateDDsMMsYYYYsHHhMMmSSs,
   formatTimestampRelative
-} from '../../../../lib/common/newDate';
+} from '../../../../lib/common/date';
 import { getUserStatistics } from '../../../../lib/common/user';
 import { trpc } from '../../../../lib/common/trpc';
 import { useSnackbar } from 'notistack';

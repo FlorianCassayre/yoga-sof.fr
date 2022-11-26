@@ -13,9 +13,9 @@ import {
 } from '@mui/material';
 import { trpc } from '../lib/common/trpc';
 import { CourseModel } from '@prisma/client';
-import { CourseTypeNames } from '../lib/common/newCourse';
+import { CourseTypeNames } from '../lib/common/course';
 import { AddBox, AutoAwesomeMotion, Delete, Edit, Event } from '@mui/icons-material';
-import { formatColonTimeHHhMM, WeekdayNames } from '../lib/common/newDate';
+import { formatColonTimeHHhMM, WeekdayNames } from '../lib/common/date';
 import Link from 'next/link';
 import { useSnackbar } from 'notistack';
 
@@ -112,11 +112,11 @@ const GridItem: React.FC = ({ children }) => (
   </Grid>
 );
 
-interface NewCourseModelCardsProps {
+interface CourseModelCardsProps {
   readOnly?: boolean;
 }
 
-export const CourseModelCards: React.FC<NewCourseModelCardsProps> = ({ readOnly }) => {
+export const CourseModelCards: React.FC<CourseModelCardsProps> = ({ readOnly }) => {
   const { data, isError, isLoading } = trpc.useQuery(['courseModel.findAll']);
 
   const defaultHeight = 180;

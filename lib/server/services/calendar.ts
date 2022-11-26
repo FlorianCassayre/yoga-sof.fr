@@ -1,8 +1,8 @@
 import { createEvents, DateArray } from 'ics';
 import { Course, Prisma } from '@prisma/client';
-import { CourseTypeNames } from '../../common/newCourse';
-import { CourseTypeLocation, EMAIL_CONTACT } from '../../common/newConfig';
-import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../common/newDate';
+import { CourseTypeNames } from '../../common/course';
+import { CourseTypeLocation, EMAIL_CONTACT } from '../../common/config';
+import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../common/date';
 import { prisma } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { CourseType } from '@prisma/client';
-import { WeekdayNames } from '../newDate';
+import { WeekdayNames } from '../date';
 import { refineTimeRange, timeSchema } from './common';
 
 const courseModelSchemaBase = z.object({

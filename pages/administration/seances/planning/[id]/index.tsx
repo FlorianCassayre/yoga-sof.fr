@@ -5,7 +5,7 @@ import { Course, Prisma } from '@prisma/client';
 import { useRouter } from 'next/router';
 import { useSchemaQuery } from '../../../../../components/hooks/useSchemaQuery';
 import { courseFindTransformSchema } from '../../../../../lib/common/newSchemas/course';
-import { displayCourseName } from '../../../../../lib/common/newDisplay';
+import { displayCourseName } from '../../../../../lib/common/display';
 import { CourseRegistrationEventGrid } from '../../../../../components/grid/grids/CourseRegistrationEventGrid';
 import { CourseRegistrationGrid } from '../../../../../components/grid/grids/CourseRegistrationGrid';
 import {
@@ -15,9 +15,9 @@ import {
   Typography
 } from '@mui/material';
 import { InformationTableCard } from '../../../../../components/InformationTableCard';
-import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../../../lib/common/newCourse';
+import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../../../lib/common/course';
 import Link from 'next/link';
-import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../../../../lib/common/newDate';
+import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../../../../lib/common/date';
 import { CourseStatusChip } from '../../../../../components/CourseStatusChip';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../../../lib/common/trpc';

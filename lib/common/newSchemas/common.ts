@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { colonTimeToParts, timePartsToTotalMinutes } from '../newDate';
+import { colonTimeToParts, timePartsToTotalMinutes } from '../date';
 
 export const idSchema = z.number().int().min(0);
 

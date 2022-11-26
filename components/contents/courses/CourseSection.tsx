@@ -2,12 +2,12 @@ import React, { useMemo } from 'react';
 import { courses } from '../common/courses';
 import { CourseModel, CourseType } from '@prisma/client';
 import { Box, Button, Card, CardContent, CardMedia, Grid, Skeleton, Typography } from '@mui/material';
-import { CourseTypeNames } from '../../../lib/common/newCourse';
+import { CourseTypeNames } from '../../../lib/common/course';
 import Link from 'next/link';
 import { Assignment } from '@mui/icons-material';
 import { InformationTable } from '../../InformationTable';
 import { trpc } from '../../../lib/common/trpc';
-import { formatColonTimeHHhMM, WeekdayNames } from '../../../lib/common/newDate';
+import { formatColonTimeHHhMM, WeekdayNames } from '../../../lib/common/date';
 
 interface CourseSectionProps {
   course: typeof courses[CourseType];

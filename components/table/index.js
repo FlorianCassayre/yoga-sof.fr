@@ -1,1 +1,0 @@
-export { StaticPaginatedTable } from './StaticPaginatedTable';

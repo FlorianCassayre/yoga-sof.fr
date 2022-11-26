@@ -3,12 +3,13 @@
 // Overriding https://next-auth.js.org/providers/email#customizing-emails
 
 import nodemailer from 'nodemailer';
+import { SendVerificationRequestParams } from 'next-auth/providers/email';
 
-export async function sendVerificationRequest({
+export const sendVerificationRequest = async ({
   identifier: email,
   url,
   provider: { server, from },
-}) {
+}: SendVerificationRequestParams) => {
   const { host } = new URL(url)
   const transport = nodemailer.createTransport(server)
   await transport.sendMail({
@@ -18,9 +19,9 @@ export async function sendVerificationRequest({
     text: text({ url, host }),
     html: html({ url, host, email }),
   })
-}
+};
 
-function html({ url, host, email }) {
+const html = ({ url, host, email }: { url: string, host: string, email: string }) => {
   const escapedEmail = `${email.replace(/\./g, "&#8203;.")}`
   const escapedHost = `${host.replace(/\./g, "&#8203;.")}`
 
@@ -70,8 +71,8 @@ function html({ url, host, email }) {
   </table>
 </body>
 `
-}
+};
 
-function text({ url, host }) {
+const text = ({ url, host }: { url: string, host: string }) => {
   return `Connexion à Yoga Sof (${host})\n${url}\n\n`
-}
+};

@@ -33,7 +33,7 @@ import {
 } from '../../../lib/common/newSchemas/course';
 import { SelectCourseModel } from '../newFields/SelectCourseModel';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { formatDateDDsMMsYYYY } from '../../../lib/common/newDate';
+import { formatDateDDsMMsYYYY } from '../../../lib/common/date';
 
 const AddCourseSubmitButton = ({ onSubmit }: { onSubmit: any }) => {
   const { handleSubmit } = useFormContext();

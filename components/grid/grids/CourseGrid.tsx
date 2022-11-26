@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { Cancel, Edit, Note, Notes, Visibility } from '@mui/icons-material';
-import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../../lib/common/newDate';
+import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../../lib/common/date';
 import { Course, CourseType, Prisma } from '@prisma/client';
-import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../lib/common/newCourse';
+import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../lib/common/course';
 import { GridActionsCellItem, GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useRouter } from 'next/router';

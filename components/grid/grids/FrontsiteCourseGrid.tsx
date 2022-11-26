@@ -5,9 +5,9 @@ import {
   formatDateDDsmmYYYY,
   formatTimeHHhMM,
   formatWeekday,
-} from '../../../lib/common/newDate';
+} from '../../../lib/common/date';
 import { Course, CourseType, Prisma } from '@prisma/client';
-import { CourseTypeNames } from '../../../lib/common/newCourse';
+import { CourseTypeNames } from '../../../lib/common/course';
 import { GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useSnackbar } from 'notistack';
