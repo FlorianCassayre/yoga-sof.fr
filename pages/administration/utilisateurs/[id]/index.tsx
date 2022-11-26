@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
 import { Assignment, Block, Info, Edit, Person, Done, Close, Help, QuestionMark } from '@mui/icons-material';
 import { Prisma, User } from '@prisma/client';
@@ -15,6 +15,10 @@ import {
   formatTimestampRelative
 } from '../../../../lib/common/newDate';
 import { getUserStatistics } from '../../../../lib/common/user';
+import { trpc } from '../../../../lib/common/trpc';
+import { useSnackbar } from 'notistack';
+import { DisableUserDialog } from '../../../../components/DisableUserDialog';
+import { RenableUserDialog } from '../../../../components/RenableUserDialog';
 
 interface GridItemStatisticProps {
   value: number;
@@ -56,6 +60,19 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
   const title = `Utilisateur ${displayUserName(user)}`;
   const displayDate = (date: Date | string | undefined | null) => !!date && `${formatDateDDsMMsYYYYsHHhMMmSSs(date)} (${formatTimestampRelative(date).toLowerCase()})`;
   const statistics = getUserStatistics(user);
+  const { invalidateQueries } = trpc.useContext();
+  const { enqueueSnackbar } = useSnackbar();
+  const { mutate: mutateDisable, isLoading: isDisablingLoading } = trpc.useMutation('user.disabled', {
+    onSuccess: async (_, { disabled }) => {
+      await Promise.all([invalidateQueries('user.find'), invalidateQueries('user.findAll'), invalidateQueries('user.findUpdate')]);
+      enqueueSnackbar(disabled ? `L'utilisateur a été désactivé` : `L'utilisateur a été réactivé`, { variant: 'success' });
+    },
+    onError: (_, { disabled }) => {
+      enqueueSnackbar(`Une erreur est survenue lors de la ${disabled ? 'désactivation' : 'réactivation'} de l'utilisateur`, { variant: 'error' });
+    },
+  });
+  const [isDisableDialogOpen, setDisableDialogOpen] = useState(false);
+  //mutateDisable({ id: user.id, disabled: !user.disabled })
   return (
     <BackofficeContent
       titleRaw={title}
@@ -73,9 +90,11 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       actions={[
         { name: 'Modifier', icon: <Edit />, url: `/administration/utilisateurs/${user.id}/edition` },
         { name: 'Inscrire à des séances', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { userId: user.id } } },
-        { name: 'Désactiver le compte', icon: <Block /> },
+        { name: user.disabled ? 'Réactiver le compte' : 'Désactiver le compte', icon: <Block />, onClick: () => setDisableDialogOpen(true), disabled: isDisablingLoading },
       ]}
     >
+      <DisableUserDialog user={user} open={isDisableDialogOpen && !user.disabled} setOpen={setDisableDialogOpen} onConfirm={() => mutateDisable({ id: user.id, disabled: true })} />
+      <RenableUserDialog user={user} open={isDisableDialogOpen && user.disabled} setOpen={setDisableDialogOpen} onConfirm={() => mutateDisable({ id: user.id, disabled: false })} />
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Informations sur l'utilisateur
       </Typography>

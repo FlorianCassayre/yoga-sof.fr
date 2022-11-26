@@ -1,8 +1,8 @@
 import * as trpc from '@trpc/server';
 import { ContextProtected } from '../context';
 import { z } from 'zod';
-import { createUser, findUser, findUsers, findUserUpdate, updateUser } from '../../services';
-import { userCreateSchema, userUpdateSchema } from '../../../common/newSchemas/user';
+import { createUser, findUser, findUsers, findUserUpdate, updateUser, updateUserDisable } from '../../services';
+import { userCreateSchema, userDisableSchema, userUpdateSchema } from '../../../common/newSchemas/user';
 
 export const userRouter = trpc
   .router<ContextProtected>()
@@ -15,7 +15,7 @@ export const userRouter = trpc
     },
   })
   .query('findAll', {
-    resolve: async () => findUsers(),
+    resolve: async () => findUsers({ where: { disabled: false } }),
   })
   .query('findUpdate', {
     input: z.strictObject({
@@ -32,4 +32,8 @@ export const userRouter = trpc
   .mutation('update', {
     input: userUpdateSchema,
     resolve: async ({ input: { id, ...data } }) => updateUser({ where: { id }, data }),
+  })
+  .mutation('disabled', {
+    input: userDisableSchema,
+    resolve: async ({ input: { id, ...data } }) => updateUserDisable({ where: { id }, data }),
   });

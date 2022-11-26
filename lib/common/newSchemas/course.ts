@@ -10,7 +10,7 @@ export const courseFindSchema = z.object({
 const courseSchemaBase = z.object({
   price: z.number().int().min(0).max(99),
   slots: z.number().int().min(1).max(99),
-})
+});
 
 export const courseUpdateSchema = courseSchemaBase.merge(courseFindSchema);
 

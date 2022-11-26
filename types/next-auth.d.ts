@@ -1,4 +1,3 @@
-import NextAuth from 'next-auth';
 import { UserType } from '../lib/common/all';
 
 declare module "next-auth" {

@@ -7,6 +7,7 @@ import EmailProvider from 'next-auth/providers/email';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { NODEMAILER_CONFIGURATION, prisma, sendVerificationRequest } from '../../../lib/server';
 import { UserType } from '../../../lib/common/all';
+import { isWhitelistedAdmin } from '../../../lib/server/services';
 
 export const nextAuthOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -22,7 +23,7 @@ export const nextAuthOptions: NextAuthOptions = {
       clientSecret: process.env.FACEBOOK_SECRET,
     }), */
     EmailProvider({
-      server: NODEMAILER_CONFIGURATION,
+      server: NODEMAILER_CONFIGURATION as any, // FIXME
       from: process.env.EMAIL_FROM,
       sendVerificationRequest: sendVerificationRequest as any,
     }),
@@ -93,13 +94,7 @@ export const nextAuthOptions: NextAuthOptions = {
         },
       });
 
-      const isEmailAdminWhitelisted = !!(await prisma.adminWhitelist.count({
-        where: {
-          // This email must have necessarily come from one of the registered providers,
-          // and cannot be changed manually. Thus it should be safe to trust.
-          email: user.email ?? undefined,
-        },
-      }));
+      const isEmailAdminWhitelisted = await isWhitelistedAdmin(user);
 
       // We extend the `session` object to contain information about the permissions of the user
       session.userId = user.id;

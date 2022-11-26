@@ -19,3 +19,7 @@ export const userFindTransformSchema = z.object({
     z.number().int().min(0)
   ),
 });
+
+export const userDisableSchema = z.object({
+  disabled: z.boolean(),
+}).merge(userFindSchema);

@@ -1,7 +1,9 @@
 import { Prisma } from '@prisma/client';
 import { prisma } from '../prisma';
-import { userCreateSchema, userUpdateSchema } from '../../common/newSchemas/user';
+import { userCreateSchema, userDisableSchema, userUpdateSchema } from '../../common/newSchemas/user';
 import { z } from 'zod';
+import { isWhitelistedAdmin } from './adminWhitelist';
+import { ServiceError, ServiceErrorCode } from './helpers/errors';
 
 export const findUser = async <Where extends Prisma.UserWhereUniqueInput, Select extends Prisma.UserSelect, Include extends Prisma.UserInclude>(args: { where: Where, select?: Select, include?: Include }) =>
   prisma.user.findUniqueOrThrow(args);
@@ -28,3 +30,16 @@ export const updateUser = async <Where extends Prisma.UserWhereUniqueInput, Sele
     return await prisma.user.update({ ...args, data: { customName, customEmail } });
   });
 }
+
+export const updateUserDisable = async (args: { where: Prisma.UserWhereUniqueInput, data: Omit<z.infer<typeof userDisableSchema>, 'id'> }) => {
+  userDisableSchema.parse({ ...args.where, ...args.data });
+  await prisma.$transaction(async () => {
+    if (args.data.disabled) {
+      const user = await prisma.user.findUniqueOrThrow({ where: args.where, select: { email: true } });
+      if (await isWhitelistedAdmin(user)) {
+        throw new ServiceError(ServiceErrorCode.UserCannotBeDisabled);
+      }
+    }
+    await prisma.user.update({ where: args.where, data: { disabled: args.data.disabled } });
+  });
+};

@@ -11,6 +11,7 @@ export enum ServiceErrorCode {
   CoursePassedNoUnregistration,
   CourseCanceledNoUnregistration,
   UserNotRegistered,
+  UserCannotBeDisabled,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -33,4 +34,5 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.CoursePassedNoUnregistration]: `Les inscriptions pour cette séance ne peuvent plus être modifiées`,
   [ServiceErrorCode.CourseCanceledNoUnregistration]: `La séance est annulée donc les inscriptions ne peuvent plus être modifiées`,
   [ServiceErrorCode.UserNotRegistered]: `L'utilisateur n'est pas inscrit à cette séance`,
+  [ServiceErrorCode.UserCannotBeDisabled]: `L'utilisateur est un administrateur et ne peut donc pas être désactivé`,
 };
