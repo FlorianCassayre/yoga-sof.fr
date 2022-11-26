@@ -1,10 +1,14 @@
 import * as trpc from '@trpc/server';
 import { ContextUnprotected } from '../context';
-import { findCourses } from '../../services';
+import { findCourseModels, findCourses } from '../../services';
 import { Prisma } from '@prisma/client';
 
 export const publicRouter = trpc
   .router<ContextUnprotected>()
+  .query('findAllModels', {
+    resolve: async () =>
+      findCourseModels({ select: { type: true, slots: true, price: true, weekday: true, timeStart: true, timeEnd: true } }),
+  })
   .query('findAllFutureCourses', {
     resolve: async () => {
       const date = new Date();

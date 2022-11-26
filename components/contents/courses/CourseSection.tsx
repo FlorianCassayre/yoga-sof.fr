@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { courses } from '../common/courses';
-import { CourseType } from '@prisma/client';
-import { Box, Button, Card, CardContent, CardMedia, Grid, Typography } from '@mui/material';
+import { CourseModel, CourseType } from '@prisma/client';
+import { Box, Button, Card, CardContent, CardMedia, Grid, Skeleton, Typography } from '@mui/material';
 import { CourseTypeNames } from '../../../lib/common/newCourse';
 import Link from 'next/link';
 import { Assignment } from '@mui/icons-material';
 import { InformationTable } from '../../InformationTable';
+import { trpc } from '../../../lib/common/trpc';
+import { formatColonTimeHHhMM, WeekdayNames } from '../../../lib/common/newDate';
 
 interface CourseSectionProps {
   course: typeof courses[CourseType];
@@ -15,6 +17,19 @@ interface CourseSectionProps {
 
 export const CourseSection: React.FC<CourseSectionProps> = ({ course, imageUrl, children }) => {
   const { type, anchor, isRegistrationOnline, notStarted, age, level, group, duration, price, location, stuff, registration } = course;
+  const { data: modelsData, isLoading: isModelsLoading } = trpc.useQuery(['public.findAllModels']);
+  const modelsDataGrouped = useMemo(() => {
+    if (modelsData) {
+      const modelsFiltered = modelsData.filter(({ type }) => type === course.type);
+      const weekdaysMap = Object.fromEntries(Array.from(new Set(modelsFiltered.map(({ weekday }) => weekday))).map(weekday => [weekday, [] as CourseModel[]]));
+      modelsFiltered.forEach(model => weekdaysMap[model.weekday].push(model));
+      return Object.entries(weekdaysMap)
+        .map(([weekday, models]) => [parseInt(weekday), models.sort((a, b) => a.timeStart < b.timeStart ? -1 : 1)] as const)
+        .sort(([a,], [b,]) => a - b);
+    } else {
+      return undefined;
+    }
+  }, [modelsData]);
 
   const bullets: { title: string, content: React.ReactNode }[] = [];
 
@@ -44,7 +59,14 @@ export const CourseSection: React.FC<CourseSectionProps> = ({ course, imageUrl, 
                 Informations pratiques
               </Typography>
               <InformationTable rows={[
-                { header: 'Dates', value: 'TODO' },
+                {
+                  header: 'Dates',
+                  value: isModelsLoading || !modelsDataGrouped ? <Skeleton /> : (
+                    modelsDataGrouped.map(([weekday, models]) =>
+                      [WeekdayNames[weekday] + 's', models.map(({ timeStart, timeEnd }) =>
+                        ['de', formatColonTimeHHhMM(timeStart), 'à', formatColonTimeHHhMM(timeEnd)].join(' ')).join(', et ')].join(' ')).join(' ; ')
+                  ),
+                },
                 { header: 'Lieu', value: location },
                 { header: 'Matériel à amener', value: stuff },
                 { header: 'Inscription', value: registration },
