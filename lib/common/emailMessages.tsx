@@ -66,7 +66,7 @@ export const EmailMessageTemplateCourseCanceled: EmailMessageWithContentTemplate
       {' '}
       a malheureusement été annulée.
       <br />
-      {course.cancelationReason && (
+      {!!course.cancelationReason && (
         <>
           {course.cancelationReason}
           <br />
