@@ -82,24 +82,33 @@ export const EmailMessageGrid: React.FunctionComponent = () => {
     {
       field: 'type',
       headerName: `Type d'e-mail`,
-      valueFormatter: ({ value }: { value: EmailMessageType }) => EmailMessageTypeNames[value],
+      minWidth: 250,
+      flex: 1.5,
+      valueGetter: ({ value }: { value: EmailMessageType }) => EmailMessageTypeNames[value],
     },
     userColumn({ field: 'user' }),
     {
       field: 'destinationAddress',
       headerName: 'Addresse de destination',
+      minWidth: 250,
+      flex: 1.5,
     },
     {
       field: 'subject',
       headerName: 'Sujet',
+      minWidth: 300,
+      flex: 2,
     },
     {
       field: 'message',
-      headerName: 'Longueur du message',
-      valueFormatter: ({ value }) => `${value.length} caractère${value.length > 1 ? 's' : ''}`,
+      headerName: 'Longueur',
+      minWidth: 150,
+      flex: 1,
+      valueGetter: ({ value }) => value.length,
+      valueFormatter: ({ value }) => `${value} caractère${value > 1 ? 's' : ''}`,
     },
-    relativeTimestamp({ field: 'createdAt', headerName: 'Date de création' }),
-    relativeTimestamp({ field: 'sentAt', headerName: `Date d'envoi` }),
+    relativeTimestamp({ field: 'createdAt', headerName: 'Date de création', flex: 1 }),
+    relativeTimestamp({ field: 'sentAt', headerName: `Date d'envoi`, flex: 1 }),
   ];
 
   return (
@@ -107,7 +116,7 @@ export const EmailMessageGrid: React.FunctionComponent = () => {
       {dialogData && (
         <EmailDetailsDialog open={open} onClose={() => setOpen(false)} data={dialogData} />
       )}
-      <AsyncGrid columns={columns} query={['emailMessage.findAll']} />
+      <AsyncGrid columns={columns} query={['emailMessage.findAll']} initialSort={{ field: 'createdAt', sort: 'desc' }} />
     </>
   );
 };

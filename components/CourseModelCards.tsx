@@ -129,7 +129,11 @@ export const CourseModelCards: React.FC<CourseModelCardsProps> = ({ readOnly }) 
     <Grid container spacing={2}>
       {data ? (
           <>
-            {data.map((courseModel) =>
+            {data
+              .sort(({ weekday: weekday1, timeStart: timeStart1 }, { weekday: weekday2, timeStart: timeStart2 }) =>
+                weekday1 === weekday2 ? (timeStart1 < timeStart2 ? -1 : 1) : weekday1 - weekday2
+              )
+              .map((courseModel) =>
               <GridItem key={courseModel.id}>
                 <CourseModelCard courseModel={courseModel} readOnly={readOnly} />
               </GridItem>

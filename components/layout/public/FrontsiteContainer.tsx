@@ -63,7 +63,7 @@ export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children
         { title: 'Règlement intérieur', url: '/reglement-interieur' },
         { title: 'Politique de confidentialité', url: '/confidentialite' },
       ]}
-      footerSubtitle={['Sophie Richaud-Cassayre', 'Enseignante de Yoga']}
+      footerSubtitle={['Sophie Richaud-Cassayre', 'Enseignante de Yoga à Hésingue']}
     >
       {children}
     </FrontsiteContainerLayout>

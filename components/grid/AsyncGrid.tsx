@@ -11,12 +11,13 @@ interface AsyncGridProps<TQueryPath extends keyof AppRouter["_def"]["queries"] &
   query: [path: TQueryPath, ...args: inferHandlerInput<AppRouter["_def"]["queries"][TQueryPath]>];
   getRowId?: GridRowIdGetter;
   getRowClassName?: (row: any) => any;
+  initialSort: { field: string, sort: 'asc' | 'desc' };
 }
 
 const rowsPerPageOptions = [10];
 
-export const AsyncGrid = <TQueryPath extends keyof AppRouter["_def"]["queries"] & string>({ columns, query, getRowId, getRowClassName }: AsyncGridProps<TQueryPath>): JSX.Element => {
-  const theme = useTheme();
+export const AsyncGrid = <TQueryPath extends keyof AppRouter["_def"]["queries"] & string>({ columns, query, getRowId, getRowClassName, initialSort }: AsyncGridProps<TQueryPath>): JSX.Element => {
+  //const theme = useTheme();
   const { data, isLoading, isError } = trpc.useQuery(query);
 
   return (
@@ -30,6 +31,8 @@ export const AsyncGrid = <TQueryPath extends keyof AppRouter["_def"]["queries"] 
         rowsPerPageOptions={rowsPerPageOptions}
         loading={isLoading}
         getRowClassName={getRowClassName}
+        sortingOrder={['asc', 'desc']}
+        initialState={{ sorting: { sortModel: [initialSort] } }}
         disableColumnMenu
         disableColumnSelector
         disableSelectionOnClick

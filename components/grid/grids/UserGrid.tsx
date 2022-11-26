@@ -40,20 +40,26 @@ export const UserGrid: React.FunctionComponent = () => {
     {
       field: 'name',
       headerName: 'Nom',
-      renderCell: ({ row }: { row: User }) => displayUserName(row),
+      minWidth: 200,
+      flex: 1,
+      valueGetter: ({ row }: { row: User }) => displayUserName(row),
     },
     {
       field: 'email',
       headerName: 'Addresse e-mail',
-      renderCell: ({ row }: { row: User }) => displayUserEmail(row),
+      minWidth: 250,
+      flex: 1.5,
+      valueGetter: ({ row }: { row: User }) => displayUserEmail(row),
     },
     relativeTimestamp({
       field: 'createdAt',
       headerName: 'Date de création',
+      flex: 1,
     }),
     relativeTimestamp({
       field: 'lastActivity',
       headerName: 'Dernière activité',
+      flex: 1,
     }),
     {
       field: 'actions',
@@ -65,6 +71,6 @@ export const UserGrid: React.FunctionComponent = () => {
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['user.findAll']} />
+    <AsyncGrid columns={columns} query={['user.findAll']} initialSort={{ field: 'lastActivity', sort: 'desc' }} />
   );
 };

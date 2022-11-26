@@ -17,6 +17,7 @@ import { CourseStatusChip } from '../../CourseStatusChip';
 import { relativeTimestamp } from './common';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { QueryKey } from '../../../lib/server/controllers';
+import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 
 interface GridActionCancelRegistrationProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>;
@@ -63,18 +64,17 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
     {
       field: 'type',
       headerName: 'Type de séance',
-      sortable: false,
       minWidth: 150,
       flex: 1,
-      valueGetter: ({ row }) => row.course.type,
-      valueFormatter: ({ value }: { value: CourseType }) => CourseTypeNames[value],
+      valueGetter: ({ row }) => CourseTypeNames[row.course.type as CourseType],
     },
     {
       field: 'date',
       headerName: 'Date et heure',
-      minWidth: 100,
+      minWidth: 350,
       flex: 3,
       valueGetter: ({ row: { course } }) => [course.dateStart, course.dateEnd],
+      sortComparator: (([date1,], [date2,]) => date1 < date2 ? -1 : 1) as GridComparatorFn<[Date, Date]>,
       valueFormatter: ({ value: [dateStart, dateEnd] }) =>
         `Le ${formatWeekday(dateStart, false)} ${formatDateDDsmmYYYY(dateStart)} de ${formatTimeHHhMM(dateStart)} à ${formatTimeHHhMM(dateEnd)}`,
     },
@@ -100,6 +100,6 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['self.findAllRegisteredCourses', { userCanceled, future }]} />
+    <AsyncGrid columns={columns} query={['self.findAllRegisteredCourses', { userCanceled, future }]} initialSort={{ field: 'createdAt', sort: future ? 'asc' : 'desc' }} />
   );
 };

@@ -49,9 +49,9 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
     {
       field: 'type',
       headerName: 'Type de séance',
-      minWidth: 140,
+      minWidth: 200,
       flex: 1,
-      valueFormatter: ({ value }: GridValueFormatterParams<CourseType>) => CourseTypeNames[value],
+      valueGetter: ({ value }: GridValueFormatterParams<CourseType>) => CourseTypeNames[value],
       headerAlign: 'center',
       align: 'center',
     },
@@ -60,6 +60,7 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
       headerName: 'Date et horaire',
       minWidth: 350,
       flex: 2,
+      valueGetter: ({ row: { dateStart } }) => dateStart,
       renderCell: ({ row: { dateStart, dateEnd } }: GridRenderCellParams<{ dateStart: Date, dateEnd: Date }>) =>
         [formatWeekday(dateStart), formatDateDDsmmYYYY(dateStart), 'de', formatTimeHHhMM(dateStart), 'à', formatTimeHHhMM(dateEnd)].join(' '),
       headerAlign: 'center',
@@ -70,6 +71,7 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
       headerName: 'Places restantes / disponibles',
       minWidth: 250,
       flex: 1,
+      valueGetter: ({ row: { slots, registrations } }) => slots - registrations,
       renderCell: ({ row: { slots, registrations } }: GridRenderCellParams<{ slots: number, registrations: number }>) => (
         <Box sx={{ fontWeight: 'bold' }}>
           <Box display="inline" sx={{ color: registrations >= slots ? 'error.main' : slots - registrations <= 1 ? 'warning.main' : 'success.main' }}>{slots - registrations}</Box>
@@ -87,6 +89,8 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
       columns={columns}
       pageSize={rowsPerPageOptions[0]}
       rowsPerPageOptions={rowsPerPageOptions}
+      sortingOrder={['asc', 'desc']}
+      initialState={{ sorting: { sortModel: [{ field: 'date', sort: 'asc' }] } }}
       checkboxSelection
       selectionModel={[...watchCourseIds, ...Array.from(alreadyRegisteredCourseSet)]}
       onSelectionModelChange={selected => setValue('courseIds', selected.map(id => parseInt(id as any)).filter(id => !alreadyRegisteredCourseSet.has(id)))}
@@ -133,7 +137,7 @@ const CourseRegistrationFormStep1: React.FC<Pick<CourseRegistrationFormProps, 'c
 };
 
 const CourseRegistrationFormStep2: React.FC<Pick<CourseRegistrationFormProps, 'courses'>> = ({ courses }) => {
-  const { watch, setValue } = useFormContext();
+  const { watch } = useFormContext();
   const watchSelectedCourseIds = watch('courseIds') as number[];
   const coursesById = useMemo(() => Object.fromEntries(courses.map(course => [course.id, course])), [courses]);
   const selectedCourses = useMemo(() => watchSelectedCourseIds.map(id => coursesById[id]), [watchSelectedCourseIds, coursesById]);
@@ -173,7 +177,7 @@ const CourseRegistrationFormStep2: React.FC<Pick<CourseRegistrationFormProps, 'c
                   {selectedCoursesByTypesSorted.map(([type, courses]) => (
                     <Fragment key={type}>
                       {courses.map((course, i) => (
-                        <TableRow>
+                        <TableRow key={course.id}>
                           {i === 0 && (
                             <TableCell rowSpan={courses.length} sx={{ textAlign: 'center' }}>
                               {CourseTypeNames[course.type]}

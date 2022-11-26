@@ -37,13 +37,13 @@ export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistra
       headerName: '',
       sortable: false,
       renderCell: ({ row }: GridRenderCellParams<{ registration: CourseRegistration }>) => !row.registration.isUserCanceled && (
-        <CheckCircle color="action" fontSize="small" />
+        <CheckCircle color="success" fontSize="small" />
       ),
       align: 'center',
     } as GridEnrichedColDef]),
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['courseRegistration.findAllEvents', { courseId, userId }]} getRowId={({ isEventTypeUserCanceled, registration: { id } }) => `${isEventTypeUserCanceled}:${id}`} />
+    <AsyncGrid columns={columns} query={['courseRegistration.findAllEvents', { courseId, userId }]} getRowId={({ isEventTypeUserCanceled, registration: { id } }) => `${isEventTypeUserCanceled}:${id}`} initialSort={{ field: 'date', sort: 'desc' }} />
   );
 };

@@ -108,6 +108,6 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['courseRegistration.findAllActive', { courseId, userId }]} />
+    <AsyncGrid columns={columns} query={['courseRegistration.findAllActive', { courseId, userId }]} initialSort={{ field: 'createdAt', sort: 'desc' }} />
   );
 };

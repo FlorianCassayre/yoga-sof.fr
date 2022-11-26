@@ -15,6 +15,7 @@ import { trpc } from '../../../lib/common/trpc';
 import { useSnackbar } from 'notistack';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { QueryKey } from '../../../lib/server/controllers';
+import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 
 const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactElement[] => {
   const router = useRouter();
@@ -62,6 +63,7 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, r
     {
       field: 'details',
       type: 'actions',
+      sortable: false,
       minWidth: 50,
       getActions: ({ row }: GridRowParams) => [
         <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" onClick={() => router.push(`/administration/seances/planning/${row.id}`)} />,
@@ -78,7 +80,6 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, r
     {
       field: 'type',
       headerName: 'Type de séance',
-      sortable: false,
       minWidth: 150,
       flex: 1,
       valueFormatter: ({ value }: { value: CourseType }) => CourseTypeNames[value],
@@ -93,23 +94,25 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, r
     {
       field: 'time',
       headerName: 'Horaire',
-      minWidth: 100,
+      minWidth: 150,
       flex: 1,
       valueGetter: params => [params.row.dateStart, params.row.dateEnd],
+      sortComparator: (([date1,], [date2,]) => formatTimeHHhMM(date1) < formatTimeHHhMM(date2) ? -1 : 1) as GridComparatorFn<[Date, Date]>,
       valueFormatter: params => params.value.map((v: string) => formatTimeHHhMM(v)).join(' à '),
     },
     {
       field: 'price',
       headerName: 'Prix',
-      minWidth: 50,
+      minWidth: 80,
       flex: 0.5,
       valueFormatter: ({ value }: { value: number }) => value > 0 ? `${value} €` : 'Gratuit',
     },
     {
       field: 'registrations',
-      headerName: (future ? '' : 'Présence / ') + 'Inscriptions / Place disponibles',
+      headerName: (future ? '' : 'Présence / ') + 'Inscriptions / Quota',
       minWidth: future ? 100 : 150,
       flex: 1,
+      valueGetter: params => getCourseStatusWithRegistrations(params.row).registered,
       renderCell: ({ row }: GridRenderCellParams<Prisma.CourseGetPayload<{ include: { registrations: true } }>>) => {
         const status = getCourseStatusWithRegistrations(row);
         return (
@@ -140,6 +143,7 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, r
       field: 'notes',
       headerName: 'Notes',
       sortable: false,
+      minWidth: 100,
       flex: 1,
     },
     ...(!readOnly ? [{
@@ -151,6 +155,6 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, r
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['course.findAll', { future }]} />
+    <AsyncGrid columns={columns} query={['course.findAll', { future }]} initialSort={{ field: 'dateStart', sort: future ? 'asc' : 'desc' }} />
   );
 };
