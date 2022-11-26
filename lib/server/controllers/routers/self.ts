@@ -48,6 +48,12 @@ export const selfRouter = trpc
       });
     },
   })
+  .query('profile', {
+    resolve: async ({ ctx: { session: { userId } } }) => {
+      const { name, email } = await findUserUpdate({ where: { id: userId } });
+      return { name, email };
+    },
+  })
   .mutation('cancelRegistration', {
     input: z.strictObject({
       id: z.number().int().min(0),
@@ -58,12 +64,6 @@ export const selfRouter = trpc
         await cancelCourseRegistration({ where: { id } }).then(({ id }) => ({ id }));
       });
       return { id };
-    },
-  })
-  .query('profile', {
-    resolve: async ({ ctx: { session: { userId } } }) => {
-      const { name, email } = await findUserUpdate({ where: { id: userId } });
-      return { name, email };
     },
   })
   .mutation('updateProfile', {

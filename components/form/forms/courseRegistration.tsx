@@ -42,7 +42,7 @@ const commonFormProps = {
   icon: <Person />,
   urlSuccessFor: () => `/administration/seances`,
   urlCancel: `/administration/seances`,
-  invalidate: [] as QueryKey[],
+  invalidate: ['courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive', 'course.find', 'course.findAll'] as QueryKey[],
 };
 
 const querySchema = z.object({

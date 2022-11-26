@@ -19,6 +19,7 @@ import { trpc } from '../../../../lib/common/trpc';
 import { useSnackbar } from 'notistack';
 import { DisableUserDialog } from '../../../../components/DisableUserDialog';
 import { RenableUserDialog } from '../../../../components/RenableUserDialog';
+import { QueryKey } from '../../../../lib/server/controllers';
 
 interface GridItemStatisticProps {
   value: number;
@@ -64,7 +65,9 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
   const { enqueueSnackbar } = useSnackbar();
   const { mutate: mutateDisable, isLoading: isDisablingLoading } = trpc.useMutation('user.disabled', {
     onSuccess: async (_, { disabled }) => {
-      await Promise.all([invalidateQueries('user.find'), invalidateQueries('user.findAll'), invalidateQueries('user.findUpdate')]);
+      await Promise.all((
+        ['user.find', 'user.findAll'] as QueryKey[]
+      ).map(query => invalidateQueries(query)));
       enqueueSnackbar(disabled ? `L'utilisateur a été désactivé` : `L'utilisateur a été réactivé`, { variant: 'success' });
     },
     onError: (_, { disabled }) => {
@@ -72,7 +75,6 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
     },
   });
   const [isDisableDialogOpen, setDisableDialogOpen] = useState(false);
-  //mutateDisable({ id: user.id, disabled: !user.disabled })
   return (
     <BackofficeContent
       titleRaw={title}

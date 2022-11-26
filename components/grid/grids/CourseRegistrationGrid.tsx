@@ -9,6 +9,7 @@ import { CancelCourseRegistrationDialog } from '../../CancelCourseRegistrationDi
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../lib/common/trpc';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
+import { QueryKey } from '../../../lib/server/controllers';
 
 interface GridActionsAttendanceProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>;
@@ -19,9 +20,11 @@ const GridActionsAttendance: React.FC<GridActionsAttendanceProps> = ({ courseReg
   const { enqueueSnackbar } = useSnackbar();
   const { invalidateQueries } = trpc.useContext();
   const { mutate: mutateAttendance, isLoading: isUpdatingAttendance } = trpc.useMutation('courseRegistration.attended', {
-    onSuccess: () => {
-      //enqueueSnackbar(`La présence a été modifiée`, { variant: 'success' });
-      return invalidateQueries('courseRegistration.findAllActive'); // TODO invalidate more than just this one
+    onSuccess: async () => {
+      await Promise.all((
+        ['course.find', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]
+      ).map(query => invalidateQueries(query)));
+      enqueueSnackbar(`La présence a été modifiée`, { variant: 'success' });
     },
     onError: () => {
       enqueueSnackbar(`Une erreur est survenue lors de la mise à jour de la présence`, { variant: 'error' });
@@ -54,10 +57,13 @@ interface GridActionCancelProps {
 const GridActionCancel: React.FC<GridActionCancelProps> = ({ courseRegistration }) => {
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
+  const { invalidateQueries } = trpc.useContext();
   const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('courseRegistration.cancel', {
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all((
+        ['course.find', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]
+      ).map(query => invalidateQueries(query)));
       enqueueSnackbar(`L'inscription de l'utilisateur à la séance a été annulée`, { variant: 'success' });
-      // TODO invalidate
     },
     onError: () => {
       enqueueSnackbar(`Une erreur est survenue lors de l'annulation de l'inscription de l'utilisateur à la séance`, { variant: 'error' });

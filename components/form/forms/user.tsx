@@ -33,7 +33,7 @@ const commonFormProps = {
   defaultValues: userFormDefaultValues,
   urlSuccessFor: (data: User) => `/administration/utilisateurs/${data.id}`,
   urlCancel: `/administration/utilisateurs`,
-  invalidate: ['user.find', 'user.findAll', 'user.findUpdate'] as QueryKey[],
+  invalidate: ['user.find', 'user.findAll', 'user.findUpdate', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[],
 };
 
 export const UserCreateForm = () => {

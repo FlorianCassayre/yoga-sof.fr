@@ -190,7 +190,7 @@ const commonFormProps = {
   icon: <Event />,
   urlSuccessFor: (data: Course) => `/administration/seances`,
   urlCancel: `/administration/seances`,
-  invalidate: ['course.find', 'course.findAll'] as QueryKey[],
+  invalidate: ['course.find', 'course.findUpdate', 'course.findUpdateNotes', 'course.findAll'] as QueryKey[],
 };
 
 const CourseCreateFormContent = () => {

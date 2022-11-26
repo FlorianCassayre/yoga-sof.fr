@@ -68,9 +68,9 @@ const UserDataForm: React.FC = () => {
   const { data: initialData } = trpc.useQuery(['self.profile']);
   const { enqueueSnackbar } = useSnackbar();
   const { mutate, isLoading: isUpdateLoading } = trpc.useMutation('self.updateProfile', {
-    onSuccess: () => {
+    onSuccess: async () => {
+      await invalidateQueries(['self.profile']);
       enqueueSnackbar('Vos données ont été mises à jour', { variant: 'success' });
-      return invalidateQueries(['self.profile']);
     },
     onError: () => {
       enqueueSnackbar('Une erreur est survenue lors de la mise à jour de vos données', { variant: 'error' });

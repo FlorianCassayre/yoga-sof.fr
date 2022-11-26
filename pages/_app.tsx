@@ -96,14 +96,10 @@ function MyApp({ Component, pageProps, router }: AppProps) {
       <ThemeProvider theme={theme}>
         <MDXProvider components={components as any}>
           <SessionProvider>
-            <SnackbarProvider maxSnack={3}>
-              {/*<NotificationsProvider>
-                <RefreshProvider>*/}
-                  <LayoutProvider router={router}>
-                    <Component {...pageProps} />
-                  </LayoutProvider>
-              {/*}</RefreshProvider>
-              </NotificationsProvider>*/}
+            <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
+              <LayoutProvider router={router}>
+                <Component {...pageProps} />
+              </LayoutProvider>
             </SnackbarProvider>
           </SessionProvider>
         </MDXProvider>

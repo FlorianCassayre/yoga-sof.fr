@@ -88,7 +88,7 @@ const InternalFormContent = <TMutationPath extends MutationKey>({
     onSuccess: (data) => {
       const invalidations = invalidate ? invalidate.map(query => queryClient.resetQueries(query)) : [];
       return Promise.all([router.push(urlSuccessFor(data)), ...invalidations])
-        .then(() => enqueueSnackbar(successMessage(data), { variant: 'success', autoHideDuration: 3000 }));
+        .then(() => enqueueSnackbar(successMessage(data), { variant: 'success' }));
     },
   });
 

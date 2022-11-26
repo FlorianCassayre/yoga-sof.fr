@@ -58,10 +58,10 @@ export const courseRouter = trpc
       })
     },
   })
-  .query('findAllPaginated', {
+  /*.query('findAllPaginated', {
     input: schemaWithPagination,
     resolve: async ({ input: { pagination } }) => findCoursesPaginated({ pagination }),
-  })
+  })*/
   .mutation('createMany', {
     input: courseCreateManySchema,
     resolve: async ({ input: { type, timeStart, timeEnd, price, slots, dates } }) =>

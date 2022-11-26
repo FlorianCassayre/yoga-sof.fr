@@ -37,6 +37,7 @@ import { frontsiteCourseRegistrationSchema } from '../lib/common/newSchemas/fron
 // @ts-ignore
 import { RegistrationNoticePersonalInformation, RegistrationNoticeRecap } from '../contents/inscription.mdx';
 import { useSnackbar } from 'notistack';
+import { QueryKey } from '../lib/server/controllers';
 
 const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'userCourses'>> = ({ courses, userCourses }) => {
   const { watch, setValue } = useFormContext();
@@ -352,8 +353,13 @@ const CourseStepContent: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 
 }
 
 const CourseRegistrationForm: React.FC<CourseRegistrationFormProps> = ({ courses, userCourses, userProfile }) => {
+  const { invalidateQueries } = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
   const { mutate: submitRegister, isLoading: isSubmitRegisterLoading, isSuccess: isSubmitRegisterSuccess } = trpc.useMutation('self.register', {
+    onSuccess: async () => {
+      await Promise.all((['self.findAllRegisteredCourses', 'self.profile', 'public.findAllModels', 'public.findAllFutureCourses'] as QueryKey[]).map(query => invalidateQueries(query)));
+      enqueueSnackbar(`Vos inscriptions ont bien été prises en compte`, { variant: 'success' });
+    },
     onError: () => {
       enqueueSnackbar(`Une erreur est survenue au moment de soumettre vos inscriptions`, { variant: 'error' });
     },

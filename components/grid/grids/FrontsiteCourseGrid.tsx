@@ -16,6 +16,7 @@ import { FrontsiteCancelCourseRegistrationDialog } from '../../FrontsiteCancelCo
 import { CourseStatusChip } from '../../CourseStatusChip';
 import { relativeTimestamp } from './common';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
+import { QueryKey } from '../../../lib/server/controllers';
 
 interface GridActionCancelRegistrationProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>;
@@ -24,10 +25,13 @@ interface GridActionCancelRegistrationProps {
 const GridActionCancelRegistration: React.FC<GridActionCancelRegistrationProps> = ({ courseRegistration }) => {
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
+  const { invalidateQueries } = trpc.useContext();
   const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('self.cancelRegistration', {
-    onSuccess: () => {
+    onSuccess: async () => {
+      await Promise.all((
+        ['self.findAllRegisteredCourses', 'public.findAllModels', 'public.findAllFutureCourses'] as QueryKey[]
+      ).map(query => invalidateQueries(query)));
       enqueueSnackbar(`Vous vous êtes désinscrit de la séance`, { variant: 'success' });
-      // TODO invalidate
     },
     onError: () => {
       enqueueSnackbar(`Une erreur est survenue lors de la désinscription de la séance`, { variant: 'error' });

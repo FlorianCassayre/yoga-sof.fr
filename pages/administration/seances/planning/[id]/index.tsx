@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BackofficeContent } from '../../../../../components/layout/admin/BackofficeContent';
 import { AddBox, Assignment, Cancel, Delete, Edit, EmojiPeople, Event, Notes } from '@mui/icons-material';
-import { Course, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { useRouter } from 'next/router';
 import { useSchemaQuery } from '../../../../../components/hooks/useSchemaQuery';
 import { courseFindTransformSchema } from '../../../../../lib/common/newSchemas/course';
@@ -22,6 +22,7 @@ import { CourseStatusChip } from '../../../../../components/CourseStatusChip';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../../../lib/common/trpc';
 import { CancelCourseDialog } from '../../../../../components/CancelCourseDialog';
+import { QueryKey } from '../../../../../lib/server/controllers';
 
 interface CourseContentProps {
   course: Prisma.CourseGetPayload<{ include: { registrations: true } }>;
@@ -31,10 +32,13 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
   const status = getCourseStatusWithRegistrations(course);
   const { enqueueSnackbar } = useSnackbar();
   const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
+  const { invalidateQueries } = trpc.useContext();
   const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('course.cancel', { // TODO factor this to avoid duplicating code
-    onSuccess: () => {
-      enqueueSnackbar('La séance a été annulée', { variant: 'success' });
-      // TODO invalidate
+    onSuccess: async () => {
+      await Promise.all((
+        ['course.find', 'course.findUpdate', 'course.findUpdateNotes', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]
+      ).map(query => invalidateQueries(query)));
+      await enqueueSnackbar('La séance a été annulée', { variant: 'success' });
     },
     onError: () => {
       enqueueSnackbar(`Une erreur est survenue lors de l'annulation de la séance`, { variant: 'error' });

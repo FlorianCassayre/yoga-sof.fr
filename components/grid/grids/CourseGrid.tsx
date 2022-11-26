@@ -14,15 +14,19 @@ import { CancelCourseDialog } from '../../CancelCourseDialog';
 import { trpc } from '../../../lib/common/trpc';
 import { useSnackbar } from 'notistack';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
+import { QueryKey } from '../../../lib/server/controllers';
 
 const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactElement[] => {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
+  const { invalidateQueries } = trpc.useContext();
   const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('course.cancel', {
-    onSuccess: () => {
-      enqueueSnackbar('La séance a été annulée', { variant: 'success' });
-      // TODO invalidate
+    onSuccess: async () => {
+      await Promise.all((
+        ['course.find', 'course.findUpdate', 'course.findUpdateNotes', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]
+      ).map(query => invalidateQueries(query)));
+      await enqueueSnackbar('La séance a été annulée', { variant: 'success' });
     },
     onError: () => {
       enqueueSnackbar(`Une erreur est survenue lors de l'annulation de la séance`, { variant: 'error' });

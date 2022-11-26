@@ -18,6 +18,7 @@ import { AddBox, AutoAwesomeMotion, Delete, Edit, Event } from '@mui/icons-mater
 import { formatColonTimeHHhMM, WeekdayNames } from '../lib/common/date';
 import Link from 'next/link';
 import { useSnackbar } from 'notistack';
+import { QueryKey } from '../lib/server/controllers';
 
 interface ConfirmDeleteDialogProps {
   open: boolean;
@@ -58,10 +59,13 @@ const CourseModelCard: React.FC<CourseModelCard> = ({ courseModel: { id, type, w
 
   const { mutate: mutateDelete, isLoading: isDeleting } = trpc.useMutation('courseModel.delete', {
     onSuccess: async () => {
-      await Promise.all([invalidateQueries('courseModel.find'), invalidateQueries('courseModel.findAll')]);
-      enqueueSnackbar(`Le modèle a été supprimé.`, { variant: 'success', autoHideDuration: 3000 })
+      await Promise.all((['courseModel.find', 'courseModel.findAll'] as QueryKey[]).map(query => invalidateQueries(query)));
+      enqueueSnackbar(`Le modèle a été supprimé.`, { variant: 'success' })
     },
-  }); // TODO onError
+    onError: () => {
+      enqueueSnackbar(`Une erreur est survenue lors de la suppression du modèle de séance`, { variant: 'error' });
+    }
+  });
 
   const [isDeleteOpen, setDeleteOpen] = useState(false);
 
