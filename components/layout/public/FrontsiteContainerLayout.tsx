@@ -18,11 +18,12 @@ import { useRouter } from 'next/router';
 import { useMedia } from 'react-use';
 
 interface MenuTitleProps {
+  logo: React.ReactElement;
   title: string;
   titleUrl: string;
 }
 
-const MenuTitle: React.FC<MenuTitleProps> = ({ title, titleUrl }) => {
+const MenuTitle: React.FC<MenuTitleProps> = ({ logo, title, titleUrl }) => {
   return (
     <Link href={titleUrl} passHref>
       <MuiLink
@@ -31,7 +32,12 @@ const MenuTitle: React.FC<MenuTitleProps> = ({ title, titleUrl }) => {
         noWrap
         sx={{ pr: 2, flexShrink: 0, textDecoration: 'none' }}
       >
-        {title}
+        <Stack direction="row" spacing={1} alignItems="center">
+          {logo}
+          <Box>
+            {title}
+          </Box>
+        </Stack>
       </MuiLink>
     </Link>
   );
@@ -161,6 +167,7 @@ const ProfileMenuButton: React.FC<ProfileMenuButtonProps> = ({ profile, signInUr
 }
 
 interface HeaderProps {
+  logo: React.ReactElement;
   title: string;
   url: string;
   sections: Section[];
@@ -168,7 +175,7 @@ interface HeaderProps {
   signInUrl: string;
 }
 
-function Header({ title, url: titleUrl, sections, profile, signInUrl }: HeaderProps) {
+function Header({ logo, title, url: titleUrl, sections, profile, signInUrl }: HeaderProps) {
   const isDesktop = useMedia('(min-width: 700px)', true);
   const [isMenuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
@@ -182,7 +189,7 @@ function Header({ title, url: titleUrl, sections, profile, signInUrl }: HeaderPr
       <Toolbar sx={{ px: '0 !important', mb: 2, borderBottom: 1, borderColor: 'divider', flexDirection: isDesktop ? 'row' : 'column' }}>
         {isDesktop ? (
           <>
-            <MenuTitle title={title} titleUrl={titleUrl} />
+            <MenuTitle logo={logo} title={title} titleUrl={titleUrl} />
             <MenuSections sections={sections} />
             <ProfileMenuButton profile={profile} signInUrl={signInUrl} />
           </>
@@ -192,7 +199,7 @@ function Header({ title, url: titleUrl, sections, profile, signInUrl }: HeaderPr
               {!isDesktop && (
                 <IconButton onClick={() => setMenuOpen(!isMenuOpen)}><MenuIcon /></IconButton>
               )}
-              <MenuTitle title={title} titleUrl={titleUrl} />
+              <MenuTitle logo={logo} title={title} titleUrl={titleUrl} />
             </Stack>
             <Collapse in={isMenuOpen}>
               <Stack direction="column" alignItems="center">
@@ -252,6 +259,7 @@ function Footer({ sections, title, subtitle }: FooterProps) {
 }
 
 interface FrontsiteContainerLayoutProps {
+  logo: React.ReactElement;
   title: string;
   url: string;
   sections: Section[];
@@ -263,6 +271,7 @@ interface FrontsiteContainerLayoutProps {
 }
 
 export const FrontsiteContainerLayout: React.FC<FrontsiteContainerLayoutProps> = ({
+  logo,
   title,
   url,
   sections,
@@ -276,7 +285,7 @@ export const FrontsiteContainerLayout: React.FC<FrontsiteContainerLayoutProps> =
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <CssBaseline />
       <Container maxWidth="lg">
-        <Header title={title} url={url} sections={sections} profile={profile} signInUrl={signInUrl} />
+        <Header logo={logo} title={title} url={url} sections={sections} profile={profile} signInUrl={signInUrl} />
         <Box component="main" sx={{ mb: 2 }}>
           {children}
         </Box>

@@ -3,6 +3,7 @@ import { FrontsiteContainerLayout } from './FrontsiteContainerLayout';
 import { signOut, useSession } from 'next-auth/react';
 import { AdminPanelSettings, Assignment, DateRange, Logout } from '@mui/icons-material';
 import { UserType } from '../../../lib/common/all';
+import { IconYoga } from '../../icons';
 
 interface FrontsiteContainerProps {
   children: React.ReactNode;
@@ -51,6 +52,7 @@ export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children
 
   return (
     <FrontsiteContainerLayout
+      logo={<IconYoga />}
       title="Yoga Sof"
       url="/"
       sections={commonSections}
