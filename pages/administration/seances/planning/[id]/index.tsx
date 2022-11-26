@@ -9,10 +9,12 @@ import { displayCourseName } from '../../../../../lib/common/display';
 import { CourseRegistrationEventGrid } from '../../../../../components/grid/grids/CourseRegistrationEventGrid';
 import { CourseRegistrationGrid } from '../../../../../components/grid/grids/CourseRegistrationGrid';
 import {
+  Alert,
   Box,
   Card, CardActions, CardContent, Chip, Grid, IconButton,
   Stack,
-  Typography
+  Typography,
+  Link as MuiLink,
 } from '@mui/material';
 import { InformationTableCard } from '../../../../../components/InformationTableCard';
 import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../../../lib/common/course';
@@ -89,6 +91,14 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
               </Stack>
               <Box textAlign="center">
                 <Typography variant="h4" component="div" sx={{ mt: 1, mb: 1 }}>
+                  {!status.isBeforeStart && (
+                    <>
+                      <Box display="inline" color={course.isCanceled ? 'text.secondary' : status.presenceNotFilled ? 'orange' : status.attended === status.registered ? 'green' : 'red'}>
+                        {course.isCanceled ? '-' : status.attended}
+                      </Box>
+                      {' / '}
+                    </>
+                  )}
                   <Box display="inline" color={status.registered > 0 ? 'green' : 'text.secondary'}>
                     {status.registered}
                   </Box>
@@ -96,9 +106,22 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
                   {course.slots}
                 </Typography>
                 <Typography color="text.secondary">
+                  {!status.isBeforeStart ? `Présents / ` : ''}
                   Inscrits / Quota
                 </Typography>
               </Box>
+              {!status.isBeforeStart && status.presenceNotFilled && (
+                <Alert severity="warning" sx={{ mt: 2 }}>
+                  La présence n'a pas encore été entièrement remplie.
+                  {!isCheckingAttendance && (
+                    <>
+                      {' '}
+                      <MuiLink href="#" onClick={e => { e.stopPropagation(); setCheckingAttendance(true) }}>Faire l'appel ?</MuiLink>
+                    </>
+                  )}
+
+                </Alert>
+              )}
             </CardContent>
             <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Link href={{ pathname: '/administration/inscriptions/creation', query: { courseId: course.id } }} passHref>

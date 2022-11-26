@@ -109,7 +109,7 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, r
     },
     {
       field: 'registrations',
-      headerName: (future ? '' : 'Présence / ') + 'Inscriptions / Quota',
+      headerName: (future ? '' : 'Présents / ') + 'Inscrits / Quota',
       minWidth: future ? 100 : 150,
       flex: 1,
       valueGetter: params => getCourseStatusWithRegistrations(params.row).registered,
