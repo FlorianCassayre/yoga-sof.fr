@@ -1,4 +1,5 @@
 export enum ServiceErrorCode {
+  CourseCanceledNoModification,
   FewerSlotsThanRegistered,
   CourseAlreadyCanceled,
   CourseHasPassed,
@@ -12,6 +13,8 @@ export enum ServiceErrorCode {
   CourseCanceledNoUnregistration,
   UserNotRegistered,
   UserCannotBeDisabled,
+  CourseCanceledAttendance,
+  UserNotRegisteredAttendance,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -22,6 +25,7 @@ export class ServiceError<T extends ServiceErrorCode> extends Error {
 }
 
 export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
+  [ServiceErrorCode.CourseCanceledNoModification]: `La séance ne peut plus être modifiée`,
   [ServiceErrorCode.FewerSlotsThanRegistered]: `Le nombre de places ne peut pas être inférieur au nombre d'inscrits`,
   [ServiceErrorCode.CourseAlreadyCanceled]: `La séance a déjà été annulée`,
   [ServiceErrorCode.CourseHasPassed]: `La séance est passée et ne peut pas être modifiée`,
@@ -35,4 +39,6 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.CourseCanceledNoUnregistration]: `La séance est annulée donc les inscriptions ne peuvent plus être modifiées`,
   [ServiceErrorCode.UserNotRegistered]: `L'utilisateur n'est pas inscrit à cette séance`,
   [ServiceErrorCode.UserCannotBeDisabled]: `L'utilisateur est un administrateur et ne peut donc pas être désactivé`,
+  [ServiceErrorCode.CourseCanceledAttendance]: `La séance est annulée donc la présence ne peut plus être modifiée`,
+  [ServiceErrorCode.UserNotRegisteredAttendance]: `L'utilisateur n'est pas inscrit à cette séance`,
 };

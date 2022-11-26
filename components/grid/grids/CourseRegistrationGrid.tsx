@@ -10,6 +10,7 @@ import { useSnackbar } from 'notistack';
 import { trpc } from '../../../lib/common/trpc';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { QueryKey } from '../../../lib/server/controllers';
+import { getCourseStatus } from '../../../lib/common/course';
 
 interface GridActionsAttendanceProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>;
@@ -69,10 +70,13 @@ const GridActionCancel: React.FC<GridActionCancelProps> = ({ courseRegistration 
       enqueueSnackbar(`Une erreur est survenue lors de l'annulation de l'inscription de l'utilisateur à la séance`, { variant: 'error' });
     },
   });
+  const status = getCourseStatus(courseRegistration.course);
   return (
     <>
       <CancelCourseRegistrationDialog courseRegistration={courseRegistration} open={open} setOpen={setOpen} onConfirm={() => mutateCancel({ id: courseRegistration.id })} />
-      <GridActionsCellItemTooltip icon={<Cancel />} onClick={() => setOpen(true)} label="Annuler" disabled={isCanceling} />
+      {!courseRegistration.course.isCanceled && status.isBeforeStart && (
+        <GridActionsCellItemTooltip icon={<Cancel />} onClick={() => setOpen(true)} label="Annuler" disabled={isCanceling} />
+      )}
     </>
   );
 };

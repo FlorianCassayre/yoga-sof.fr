@@ -73,5 +73,14 @@ export const cancelCourseRegistration = async (args: { where: { id: number } }) 
 };
 
 export const updateCourseRegistrationAttendance = async (args: { where: { id: number }, data: { attended: boolean | null } }) => {
-  return prisma.courseRegistration.update(args); // TODO business rules here?
+  return prisma.$transaction(async () => {
+    const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id: args.where.id }, include: { course: true } });
+    if (courseRegistration.course.isCanceled) {
+      throw new ServiceError(ServiceErrorCode.CourseCanceledAttendance);
+    }
+    if (courseRegistration.isUserCanceled) {
+      throw new ServiceError(ServiceErrorCode.UserNotRegisteredAttendance);
+    }
+    return prisma.courseRegistration.update(args);
+  });
 };

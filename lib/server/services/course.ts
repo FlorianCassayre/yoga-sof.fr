@@ -30,6 +30,9 @@ export const findCoursesPaginated = async <Where extends Prisma.CourseWhereInput
 export const updateCourse = async <Where extends Prisma.CourseWhereUniqueInput, Data extends Partial<Pick<Course, 'slots' | 'price' | 'notes'>>, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, data: Data, select?: Select, include?: Include }) => {
   const { where: { id }, data: { slots } } = args;
   return await prisma.$transaction(async () => {
+    if ((args.data.slots !== undefined || args.data.price !== undefined) && (await prisma.course.findUniqueOrThrow({ where: args.where, select: { isCanceled: true } })).isCanceled) {
+      throw new ServiceError(ServiceErrorCode.CourseCanceledNoModification);
+    }
     if (slots !== undefined) {
       const count = await prisma.courseRegistration.count({
         where: {
