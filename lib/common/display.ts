@@ -15,12 +15,12 @@ export const displayCourseName = ({ type, dateStart, dateEnd }: Pick<Course, 'ty
   'du',
   formatWeekday(dateStart, false),
   formatDateDDsmmYYYY(dateStart),
-  formatDayRange(dateStart, dateEnd, false),
   'de',
   formatTimeHHhMM(dateStart),
   'à',
   formatTimeHHhMM(dateEnd),
 ].join(' ');
+//formatDayRange(dateStart, dateEnd, false),
 
 export const displayCourseModelName = ({ type, weekday, timeStart, timeEnd, bundle }: CourseModel, capitalize = true) => [
   capitalize ? CourseTypeNames[type] : CourseTypeNames[type].toLowerCase(),

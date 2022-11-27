@@ -40,40 +40,38 @@ export const CourseSection: React.FC<CourseSectionProps> = ({ course, imageUrl, 
           {CourseTypeNames[type]}
         </Typography>
         {children}
-        {!notStarted && (
-          <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={5}>
-              <Typography component="h3" variant="h6" sx={{ mb: 1 }}>
-                Détails
-              </Typography>
-              <InformationTable rows={[
-                { header: 'Âge', value: age },
-                { header: 'Niveau', value: level },
-                { header: 'Groupe', value: group },
-                { header: 'Durée', value: duration },
-                { header: 'Tarif', value: price },
-              ]} />
-            </Grid>
-            <Grid item xs={12} sm={7}>
-              <Typography component="h3" variant="h6" sx={{ mb: 1 }}>
-                Informations pratiques
-              </Typography>
-              <InformationTable rows={[
-                {
-                  header: 'Dates',
-                  value: isModelsLoading || !modelsDataGrouped ? <Skeleton /> : (
-                    modelsDataGrouped.map(([weekday, models]) =>
-                      [WeekdayNames[weekday] + 's', models.map(({ timeStart, timeEnd }) =>
-                        ['de', formatColonTimeHHhMM(timeStart), 'à', formatColonTimeHHhMM(timeEnd)].join(' ')).join(', et ')].join(' ')).join(' ; ')
-                  ),
-                },
-                { header: 'Lieu', value: location },
-                { header: 'Matériel à amener', value: stuff },
-                { header: 'Inscription', value: registration },
-              ]} />
-            </Grid>
+        <Grid container spacing={3} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={5}>
+            <Typography component="h3" variant="h6" sx={{ mb: 1 }}>
+              Détails
+            </Typography>
+            <InformationTable rows={[
+              { header: 'Âge', value: age },
+              { header: 'Niveau', value: level },
+              { header: 'Groupe', value: group },
+              { header: 'Durée', value: duration },
+              { header: 'Tarif', value: price },
+            ]} />
           </Grid>
-        )}
+          {!notStarted && (<Grid item xs={12} sm={7}>
+            <Typography component="h3" variant="h6" sx={{ mb: 1 }}>
+              Informations pratiques
+            </Typography>
+            <InformationTable rows={[
+              {
+                header: 'Dates',
+                value: isModelsLoading || !modelsDataGrouped ? <Skeleton /> : (
+                  modelsDataGrouped.map(([weekday, models]) =>
+                    [WeekdayNames[weekday] + 's', models.map(({ timeStart, timeEnd }) =>
+                      ['de', formatColonTimeHHhMM(timeStart), 'à', formatColonTimeHHhMM(timeEnd)].join(' ')).join(', et ')].join(' ')).join(' ; ')
+                ),
+              },
+              { header: 'Lieu', value: location },
+              { header: 'Matériel à amener', value: stuff },
+              { header: 'Inscription', value: registration },
+            ]} />
+          </Grid>)}
+        </Grid>
         {isRegistrationOnline && (
           <Box textAlign="center">
             <Link href="/inscription" passHref>

@@ -24,10 +24,10 @@ export const AboutPerson: React.FC<AboutPersonProps> = ({ personImageSrc, person
           <Typography fontWeight="bold">{personName}</Typography>
           <Typography color="text.secondary">{personTitle}</Typography>
         </Box>
-        <Box sx={{ mt: 2 }}>
+        <Stack direction="column" spacing={0.5} sx={{ mt: 2 }}>
           {links.map(({ label, url, icon }) => (
             <MuiLink key={url} href={url} target="_blank" rel="noreferrer nofollow">
-              <Stack direction="row" spacing={1} justifyContent="center">
+              <Stack direction="row" spacing={0.5} justifyContent="center">
                 {icon}
                 <span>
                   {label}
@@ -35,7 +35,7 @@ export const AboutPerson: React.FC<AboutPersonProps> = ({ personImageSrc, person
               </Stack>
             </MuiLink>
           ))}
-        </Box>
+        </Stack>
       </Grid>
       <Grid item xs={12} md={8} lg={9}>
         {children}

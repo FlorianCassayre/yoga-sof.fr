@@ -15,7 +15,7 @@ import { Menu as MenuIcon, Person } from '@mui/icons-material';
 import CssBaseline from '@mui/material/CssBaseline';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useLocation, useMedia } from 'react-use';
+import { useMedia } from 'react-use';
 
 interface MenuTitleProps {
   logo: React.ReactElement;
@@ -69,7 +69,7 @@ interface MenuSectionsProps {
 }
 
 const MenuSections: React.FC<MenuSectionsProps> = ({ sections }) => {
-  const state = useLocation();
+  const router = useRouter();
   return (
     <>
       {sections.map(({ title, url }, i) => (
@@ -82,7 +82,7 @@ const MenuSections: React.FC<MenuSectionsProps> = ({ sections }) => {
             color="inherit"
             noWrap
             variant="body2"
-            sx={{ p: 1, flexShrink: 0, textDecoration: url === state.pathname ? undefined : 'none' }}
+            sx={{ p: 1, flexShrink: 0, textDecoration: url === router.pathname ? undefined : 'none' }}
           >
             {title}
           </MuiLink>
@@ -216,13 +216,19 @@ function Header({ logo, title, url: titleUrl, sections, profile, signInUrl }: He
   );
 }
 
+interface LinkIcon {
+  url: string;
+  icon: React.ReactElement;
+}
+
 interface FooterProps {
   sections: Section[];
   title: string;
   subtitle: string[];
+  links: LinkIcon[];
 }
 
-function Footer({ sections, title, subtitle }: FooterProps) {
+function Footer({ sections, title, subtitle, links }: FooterProps) {
   return (
     <Box component="footer" sx={{ bgcolor: 'grey.200', py: 6, mt: 'auto' }}>
       <Container maxWidth="lg">
@@ -252,6 +258,13 @@ function Footer({ sections, title, subtitle }: FooterProps) {
                 )}
               </Fragment>
             ))}
+            <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
+              {links.map(({ url, icon }, i) => (
+                <MuiLink key={i} href={url}>
+                  {icon}
+                </MuiLink>
+              ))}
+            </Stack>
           </Grid>
         </Grid>
       </Container>
@@ -268,6 +281,7 @@ interface FrontsiteContainerLayoutProps {
   signInUrl: string;
   footerSections: Section[];
   footerSubtitle: string[];
+  footerLinks: LinkIcon[];
   children: React.ReactNode;
 }
 
@@ -280,6 +294,7 @@ export const FrontsiteContainerLayout: React.FC<FrontsiteContainerLayoutProps> =
   signInUrl,
   footerSections,
   footerSubtitle,
+  footerLinks,
   children
 }) => {
   return (
@@ -291,7 +306,7 @@ export const FrontsiteContainerLayout: React.FC<FrontsiteContainerLayoutProps> =
           {children}
         </Box>
       </Container>
-      <Footer sections={footerSections} title={title} subtitle={footerSubtitle} />
+      <Footer sections={footerSections} title={title} subtitle={footerSubtitle} links={footerLinks} />
     </Box>
   );
 };

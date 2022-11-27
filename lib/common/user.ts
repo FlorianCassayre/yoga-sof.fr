@@ -4,8 +4,8 @@ export const getUserStatistics = (user: Prisma.UserGetPayload<{ include: { cours
   const { courseRegistrations } = user;
 
   const today = new Date();
-  const notUserCanceled = courseRegistrations.filter(({ isUserCanceled }) => !isUserCanceled);
-  const coursesPast = notUserCanceled.filter(({ course: { dateEnd } }) => new Date(dateEnd).getTime() <= today.getTime()).length;
+  const notUserCanceled = courseRegistrations.filter(({ isUserCanceled, course: { isCanceled } }) => !isCanceled && !isUserCanceled);
+  const coursesPast = notUserCanceled.filter(({ course: { isCanceled, dateEnd } }) => !isCanceled && new Date(dateEnd).getTime() <= today.getTime()).length;
   const coursesFuture = notUserCanceled.length - coursesPast;
   const coursesWithLastUnregistrations = new Set<number>();
   courseRegistrations.forEach(({ courseId }) => coursesWithLastUnregistrations.add(courseId));

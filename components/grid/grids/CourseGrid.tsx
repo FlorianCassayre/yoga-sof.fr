@@ -52,11 +52,12 @@ const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactE
 }
 
 interface CourseGridProps {
-  future: boolean;
+  future: boolean | null;
+  canceled: boolean;
   readOnly?: boolean;
 }
 
-export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, readOnly }) => {
+export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, canceled, readOnly }) => {
   const router = useRouter();
 
   const columns: GridColumns = [
@@ -122,7 +123,7 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, r
                 {row.isCanceled ? (
                   <Box display="inline" color="text.secondary">-</Box>
                 ) : (
-                  <Box display="inline" color={status.registered === 0 ? 'text.secondary' : status.attended < status.registered ? 'orange' : 'green'}>
+                  <Box display="inline" color={status.registered === 0 ? 'text.secondary' : status.attended < status.registered ? (status.presenceNotFilled ? 'orange' : 'red') : 'green'}>
                     {status.attended}
                   </Box>
                 )}
@@ -155,6 +156,6 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, r
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['course.findAll', { future }]} initialSort={{ field: 'dateStart', sort: future ? 'asc' : 'desc' }} />
+    <AsyncGrid columns={columns} query={['course.findAll', { future, canceled }]} initialSort={{ field: 'dateStart', sort: future ? 'asc' : 'desc' }} />
   );
 };

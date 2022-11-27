@@ -113,15 +113,23 @@ const AdminHomeContent: React.FC = () => {
         Ce tableau contient la liste des séances passées, présentes et futures. Le bouton permet de planifier de
         nouvelles séances. Il n'est pas possible de supprimer de séances, en revanche il est possible d'en annuler.
       </Typography>
-      <CourseGrid future />
+      <CourseGrid future canceled={false} />
 
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
-        Séances passées ou annulées
+        Séances passées
       </Typography>
       <Typography paragraph>
-        Les séances passées ou ayant été annulées.
+        Les séances passées.
       </Typography>
-      <CourseGrid future={false} />
+      <CourseGrid future={false} canceled={false} />
+
+      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
+        Séances annulées
+      </Typography>
+      <Typography paragraph>
+        Les séances ayant été annulées.
+      </Typography>
+      <CourseGrid future={null} canceled />
     </BackofficeContent>
   );
 };

@@ -42,20 +42,15 @@ export const courseRouter = trpc
   })
   .query('findAll', {
     input: z.strictObject({
-      future: z.boolean(),
+      future: z.boolean().nullable(),
+      canceled: z.boolean(),
     }),
-    resolve: async ({ input: { future } }) => {
-      const whereFuture = {
-        dateEnd: {
-          gt: new Date(),
-        },
-        isCanceled: false,
-      };
-
+    resolve: async ({ input: { future, canceled } }) => {
+      const now = new Date();
       return findCourses({
-        where: future ? whereFuture : { NOT: whereFuture },
+        where: { ...(future === null ? {} : future ? { dateEnd: { gt: now } } : { dateEnd: { lte: now } }), isCanceled: canceled },
         include: { registrations: true },
-      })
+      });
     },
   })
   /*.query('findAllPaginated', {

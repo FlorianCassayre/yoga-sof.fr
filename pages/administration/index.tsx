@@ -20,7 +20,7 @@ const AdminHomeContent: React.FC = () => {
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Prochaines séances
       </Typography>
-      <CourseGrid future readOnly />
+      <CourseGrid future canceled={false} readOnly />
 
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Dernières inscriptions et désinscriptions

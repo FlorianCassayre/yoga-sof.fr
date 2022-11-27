@@ -2,7 +2,7 @@
 
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-// import FacebookProvider from 'next-auth/providers/facebook';
+import FacebookProvider from 'next-auth/providers/facebook';
 import EmailProvider from 'next-auth/providers/email';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { NODEMAILER_CONFIGURATION, prisma, sendVerificationRequest } from '../../../lib/server';
@@ -18,10 +18,10 @@ export const nextAuthOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_SECRET as string,
     }),
     // Facebook is disabled temporarily until the app is reactivated
-    /* FacebookProvider({
-      clientId: process.env.FACEBOOK_ID,
-      clientSecret: process.env.FACEBOOK_SECRET,
-    }), */
+    /*FacebookProvider({
+      clientId: process.env.FACEBOOK_ID as string,
+      clientSecret: process.env.FACEBOOK_SECRET as string,
+    }),*/
     EmailProvider({
       server: NODEMAILER_CONFIGURATION,
       from: process.env.EMAIL_FROM,

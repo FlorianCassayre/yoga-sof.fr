@@ -1,9 +1,18 @@
 import React, { useMemo } from 'react';
 import { FrontsiteContainerLayout } from './FrontsiteContainerLayout';
 import { signOut, useSession } from 'next-auth/react';
-import { AdminPanelSettings, Assignment, DateRange, Logout } from '@mui/icons-material';
+import {
+  AdminPanelSettings,
+  Assignment,
+  DateRange,
+  EmailTwoTone,
+  FacebookTwoTone, FlareTwoTone,
+  Instagram,
+  Logout
+} from '@mui/icons-material';
 import { UserType } from '../../../lib/common/all';
 import { IconYoga } from '../../icons';
+import { COMETE_URL, EMAIL_CONTACT, FACEBOOK_PAGE_URL, INSTAGRAM_URL } from '../../../lib/common/config';
 
 interface FrontsiteContainerProps {
   children: React.ReactNode;
@@ -64,6 +73,24 @@ export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children
         { title: 'Politique de confidentialité', url: '/confidentialite' },
       ]}
       footerSubtitle={['Sophie Richaud-Cassayre', 'Enseignante de Yoga à Hésingue']}
+      footerLinks={[
+        {
+          url: FACEBOOK_PAGE_URL,
+          icon: <FacebookTwoTone fontSize="large" />,
+        },
+        {
+          url: INSTAGRAM_URL,
+          icon: <Instagram fontSize="large" />,
+        },
+        {
+          url: COMETE_URL,
+          icon: <FlareTwoTone fontSize="large" />,
+        },
+        {
+          url: `mailto:${EMAIL_CONTACT}`,
+          icon: <EmailTwoTone fontSize="large" />,
+        },
+      ]}
     >
       {children}
     </FrontsiteContainerLayout>

@@ -1,10 +1,10 @@
-import { EmailTwoTone, FacebookTwoTone } from '@mui/icons-material';
+import { EmailTwoTone, FacebookTwoTone, FlareTwoTone, Instagram } from '@mui/icons-material';
 import { AboutPerson } from '../components/contents/about/AboutPerson';
 import { AboutQuoted } from '../components/contents/about/AboutQuoted'; import { IconEye, IconFidhy, IconLaComete } from '../components/icons';
 import {
   FrontsiteContent
 } from '../components/layout/public/FrontsiteContent';
-import { COMETE_URL, EMAIL_CONTACT, FACEBOOK_PAGE_URL } from '../lib/common/config';
+import { COMETE_URL, EMAIL_CONTACT, FACEBOOK_PAGE_URL, INSTAGRAM_URL } from '../lib/common/config';
 
 export const meta = {
   title: 'À propos',
@@ -21,6 +21,16 @@ export const iconsHeight = '100px';
       label: 'Yoga-Sof',
       url: FACEBOOK_PAGE_URL,
       icon: <FacebookTwoTone />,
+    },
+    {
+      label: 'yoga.sof.hesingue',
+      url: INSTAGRAM_URL,
+      icon: <Instagram />,
+    },
+    {
+      label: 'Page association',
+      url: COMETE_URL,
+      icon: <FlareTwoTone />,
     },
     {
       label: EMAIL_CONTACT,
@@ -68,7 +78,7 @@ export const iconsHeight = '100px';
   J'adhère au Code d'Éthique et de Déontologie des enseignants de Yoga et suis rattachée à la Fidhy (Fédérération
   Inter-enseignements de Hatha Yoga), elle-même membre de l'Union Européenne de Yoga.
 
-  <h2 className="h5">Mes diplômes et certificats</h2>
+  <h2>Mes diplômes et certificats</h2>
 
     * 2022 : Institut De Gasquet, Yoga sans dégâts (70 heures)
     * 2020 : École de Yoga de l'Énergie, Formation d'enseignante de Yoga enfants et parents-enfants avec Nathalie Hérault

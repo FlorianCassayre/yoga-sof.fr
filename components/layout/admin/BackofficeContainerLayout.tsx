@@ -18,6 +18,7 @@ import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material';
 import Link from 'next/link';
 import { LinkProps } from 'next/dist/client/link';
 import { TypeSafePage } from 'next-type-safe-routes';
+import { useRouter } from 'next/router';
 
 const drawerWidth = 240;
 
@@ -66,12 +67,12 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
     setProfileProfileAnchorEl(event.currentTarget);
   };
 
-  const state = useLocation();
+  const router = useRouter();
   const longestMatchingUrl = useMemo(() => {
-    const matches = menu.flatMap(category => category.children.map(({ url }) => url).filter(url => url && state.pathname?.startsWith(url))) as string[];
+    const matches = menu.flatMap(category => category.children.map(({ url }) => url).filter(url => url && router.pathname.startsWith(url))) as string[];
     matches.sort((a, b) => b.length - a.length);
     return matches.length > 0 ? matches[0] : null;
-  }, [state, menu]);
+  }, [router, menu]);
   const isUrlSelected = useCallback((url: string) => longestMatchingUrl !== null && url === longestMatchingUrl, [longestMatchingUrl]);
 
   return (
