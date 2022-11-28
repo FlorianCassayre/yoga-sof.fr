@@ -1,17 +1,48 @@
 [yoga-sof.fr](https://yoga-sof.fr)
 ===
 
-Website for the **Yoga Sof** organization.
+<p align="center">
+  Website for the <b>Yoga Sof</b> organization
+</p>
 
-_Site pour l'organisation **Yoga Sof**._
+<p align="center">
+  <i>Site pour l'organisation <b>Yoga Sof</b></i>
+</p>
 
-## Tasks
+<img src="cover.png" alt="Cover">
 
-**[Access the board](https://github.com/FlorianCassayre/yoga-sof.fr/projects/1)**
+## Features
 
-## Deployment
+* Full-blown application that includes a front and a back-office
+* Schedule classes and manage user reservations
+* Email notification system
+* Seamless integration with digital calendars
+* Clean, affordable and responsive UI
+* Easily customizable MDX files
 
-The following steps should be followed (in that order) to deploy or upgrade in production:
+## Technical details
+
+The application was rewritten in November 2022.
+Because of that, some parts are rough and are planned to be polished in the future.
+
+### Stack
+
+* [Next.js](https://nextjs.org/) ([Node.js](https://nodejs.org/) + [React](https://reactjs.org/))
+* [MUI](https://mui.com/)
+* [Prisma](https://www.prisma.io/)
+* [tRPC](https://trpc.io/)
+* [react-hook-form](https://react-hook-form.com/)
+* [MDX](https://mdxjs.com/)
+
+### Deployment
+
+The production server should be started with the following command:
+
+```
+npm run run-production
+```
+
+The command essentially does the following:
 
 * `git pull --ff-only` or `git clone git@github.com:FlorianCassayre/yoga-sof.fr.git` to fetch the source code
 * Update or define `.env.production` according to the template `.env`
@@ -26,3 +57,11 @@ For a fresh install, you can additionally run `npx dotenv -e .env.production -- 
 database with the initial whitelisted email addresses, as defined in `SEED_EMAILS_ADMIN`.
 
 For a normal update, you may use the command `npm run update-production`. This command assumes that both the favicon and the environment did not change.
+
+## Licensing
+
+The source code is made available under the terms of the MIT license.
+
+Please do not reuse the name of our association ("Yoga Sof"), or reuse the photos in an inappropriate way.
+
+If you are interested in having a similar website, contact us at contact[at]yoga-sof[dot]fr
