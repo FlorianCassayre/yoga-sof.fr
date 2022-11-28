@@ -10,7 +10,7 @@ interface HomepageCardProps {
 const HomepageCard: React.FC<HomepageCardProps> = ({ title, icon, description }) => {
   return (
     <Grid item xs={12} md={4} display="flex" alignItems="stretch">
-      <Card variant="outlined" sx={{ textAlign: 'center' }}>
+      <Card variant="outlined" sx={{ textAlign: 'center', width: '100%' }}>
         <CardContent>
           <Typography variant="h5" component="div">
             {title}

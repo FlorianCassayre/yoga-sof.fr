@@ -21,15 +21,17 @@ interface MenuTitleProps {
   logo: React.ReactElement;
   title: string;
   titleUrl: string;
+  onClick?: () => void;
 }
 
-const MenuTitle: React.FC<MenuTitleProps> = ({ logo, title, titleUrl }) => {
+const MenuTitle: React.FC<MenuTitleProps> = ({ logo, title, titleUrl, onClick }) => {
   return (
     <Link href={titleUrl} passHref>
       <MuiLink
         variant="h5"
         color="inherit"
         noWrap
+        onClick={() => onClick && onClick()}
         sx={{ pr: 2, flexShrink: 0, textDecoration: 'none' }}
       >
         <Stack direction="row" spacing={1} alignItems="center">
@@ -66,9 +68,10 @@ interface ProfileMenu {
 
 interface MenuSectionsProps {
   sections: Section[];
+  onClick?: () => void;
 }
 
-const MenuSections: React.FC<MenuSectionsProps> = ({ sections }) => {
+const MenuSections: React.FC<MenuSectionsProps> = ({ sections, onClick }) => {
   const router = useRouter();
   return (
     <>
@@ -82,6 +85,7 @@ const MenuSections: React.FC<MenuSectionsProps> = ({ sections }) => {
             color="inherit"
             noWrap
             variant="body2"
+            onClick={() => onClick && onClick()}
             sx={{ p: 1, flexShrink: 0, textDecoration: url === router.pathname ? undefined : 'none' }}
           >
             {title}
@@ -200,11 +204,11 @@ function Header({ logo, title, url: titleUrl, sections, profile, signInUrl }: He
               {!isDesktop && (
                 <IconButton onClick={() => setMenuOpen(!isMenuOpen)}><MenuIcon /></IconButton>
               )}
-              <MenuTitle logo={logo} title={title} titleUrl={titleUrl} />
+              <MenuTitle logo={logo} title={title} titleUrl={titleUrl} onClick={() => setMenuOpen(false)} />
             </Stack>
             <Collapse in={isMenuOpen}>
               <Stack direction="column" alignItems="center">
-                <MenuSections sections={sections} />
+                <MenuSections sections={sections} onClick={() => setMenuOpen(false)} />
                 <ProfileMenuButton profile={profile} signInUrl={signInUrl} />
                 <Box sx={{ height: 8 }} />
               </Stack>
