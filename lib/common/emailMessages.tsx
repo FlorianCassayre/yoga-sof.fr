@@ -19,7 +19,7 @@ export type EmailMessageTemplate<Props extends {}> = {
 
 type EmailMessageWithContentTemplate<Props,> = EmailMessageTemplate<Props & { user: Parameters<typeof displayUserName>[0], casual?: boolean }>;
 
-const withContent = <Props,>
+const withContent = <Props extends {},>
 (template: EmailMessageTemplate<Props>): EmailMessageWithContentTemplate<Props> => {
   const emailTemplatePartSubjectSuffix = '- Yoga Sof';
   const emailSubject = (subject: string) => `${subject} ${emailTemplatePartSubjectSuffix}`;
