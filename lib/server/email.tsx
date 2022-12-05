@@ -3,10 +3,13 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { prisma } from './prisma';
 import { CourseType, EmailMessageType, Prisma, User } from '@prisma/client';
 import {
-  EmailMessageTemplate, EmailMessageTemplateCourseAdultRegistrationConfirmation,
+  EmailMessageTemplate
+} from '../common/emailMessages';
+import {
+  EmailMessageTemplateCourseAdultRegistrationConfirmation,
   EmailMessageTemplateCourseAdultReminderNewcomer,
   EmailMessageTemplateCourseCanceled
-} from '../common/emailMessages';
+} from '../../contents/emailMessages';
 
 const NAME_FROM = 'Yoga Sof';
 
