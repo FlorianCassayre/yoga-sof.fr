@@ -1,9 +1,9 @@
-import { displayCourseName, displayUserName } from '../lib/common/display';
+import { displayCourseName, displayUserName } from '../src/common/display';
 import { Course, CourseRegistration, EmailMessageType } from '@prisma/client';
-import { urlForLocation } from '../lib/common/urls';
-import { LocationHome } from '../lib/common/config';
+import { urlForLocation } from '../src/common/urls';
+import { LocationHome } from '../src/common/config';
 import React from 'react';
-import { EmailMessageTemplate, EmailMessageWithContentTemplate } from '../lib/common/emailMessages';
+import { EmailMessageTemplate, EmailMessageWithContentTemplate } from '../src/common/emailMessages';
 
 const withContent = <Props extends {},>
 (template: EmailMessageTemplate<Props>): EmailMessageWithContentTemplate<Props> => {

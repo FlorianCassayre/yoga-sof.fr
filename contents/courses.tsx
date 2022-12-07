@@ -1,8 +1,8 @@
 import { CourseType } from '@prisma/client';
 import { Link } from '@mui/material';
-import { LocationComete, LocationHome } from '../lib/common/config';
+import { LocationComete, LocationHome } from '../src/common/config';
 import React from 'react';
-import { CourseDataExplicit } from '../components/contents/common/courses';
+import { CourseDataExplicit } from '../src/components/contents/common/courses';
 
 export const coursesExplicit: Record<CourseType, CourseDataExplicit> = {
   [CourseType.YOGA_ADULT]: {

@@ -8,7 +8,7 @@
     "start": "next start",
     "generate-favicons": "node scripts/favicons.js",
     "lint": "next lint",
-    "lint-fix": "eslint --fix 'components/**/*.js' 'hooks/**/*.js' 'lib/**/*.js' 'pages/**/*.js' 'components/state/**/*.js' '*.js'",
+    "lint-fix": "eslint --fix 'src/*.ts' 'src/*.tsx'",
     "prisma-migrate-dev": "npx dotenv -e .env.development -- npx prisma migrate dev; npx prisma generate",
     "start-production": "npx next start -p 8085 -H localhost",
     "prisma-migrate-production": "npx dotenv -e .env.production -- npx prisma migrate deploy; npx prisma generate",
