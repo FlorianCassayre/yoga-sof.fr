@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (result.success) {
     const { token, coach } = result.data;
     try {
-      const icsDataString = await getCalendarForRequest(token, !!coach);
+      const icsDataString = await getCalendarForRequest(token, coach != null);
       res.status(200);
       res.setHeader('Content-Type', 'text/calendar');
       res.write(icsDataString);

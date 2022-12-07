@@ -86,7 +86,7 @@ const generateParticipantICS = (registrations: Prisma.CourseRegistrationGetPaylo
   if (error) {
     throw error;
   } else {
-    return value as string;
+    return value ?? '';
   }
 };
 
