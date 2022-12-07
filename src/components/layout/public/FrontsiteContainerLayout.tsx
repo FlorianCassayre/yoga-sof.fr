@@ -264,7 +264,7 @@ function Footer({ sections, title, subtitle, links }: FooterProps) {
             ))}
             <Stack direction="row" spacing={2} justifyContent="center" sx={{ mt: 2 }}>
               {links.map(({ url, icon }, i) => (
-                <MuiLink key={i} href={url}>
+                <MuiLink key={i} href={url} target="_blank" rel="noopener noreferrer">
                   {icon}
                 </MuiLink>
               ))}
