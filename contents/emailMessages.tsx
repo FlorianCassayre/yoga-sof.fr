@@ -82,7 +82,7 @@ export const EmailMessageTemplateCourseAdultReminderNewcomer: EmailMessageWithCo
       Essayez d'être ponctuel(le) en arrivant 5 minutes avant pour vous installer.
       <br />
       <br />
-      Apportez simplement votre tapis et couverture (ou drap s'il fait chaud), portez une tenue confortable, mais vous pouvez également vous changer et utiliser les toilettes sur place.
+      Apportez simplement votre tapis et couverture (ou plaid), portez une tenue confortable, mais vous pouvez également vous changer et utiliser les toilettes sur place.
       <br />
       <br />
       Vous trouverez dans la salle ce qu'il faut pour adapter votre posture et pratiquer sereinement.
@@ -90,9 +90,9 @@ export const EmailMessageTemplateCourseAdultReminderNewcomer: EmailMessageWithCo
       <br />
       S'il y a des informations que vous jugez importantes à me transmettre concernant votre santé, vos inquiétudes ou vos souhaits,
       {' '}
-      vous pouvez le faire par retour de ce mail, ou bien en début de séance. Dans tous les cas, c'est votre ressenti qui prime
+      vous pouvez le faire par mail à contact@yoga-sof.fr, ou bien en début de séance. Dans tous les cas, soyez connecté à votre ressenti corporel et sentez libres
       {' '}
-      et vous pourrez défaire la posture dès que vous sentez le moment, ou bien me demander en temps réel une adaptation de la posture si je ne l'ai pas anticipé.
+      de défaire la posture dès que vous en sentez le besoin, ou bien me demander en temps réel une adaptation de la posture si je ne l'ai pas anticipé.
       {' '}
       Cette séance de Yoga est un moment pour vous, profitez-en complètement !
       <br />
