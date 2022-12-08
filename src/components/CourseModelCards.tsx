@@ -18,7 +18,6 @@ import { AddBox, AutoAwesomeMotion, Delete, Edit, Event } from '@mui/icons-mater
 import { formatColonTimeHHhMM, WeekdayNames } from '../common/date';
 import Link from 'next/link';
 import { useSnackbar } from 'notistack';
-import { QueryKey } from '../server/controllers';
 
 interface ConfirmDeleteDialogProps {
   open: boolean;
@@ -54,12 +53,12 @@ interface CourseModelCard {
 }
 
 const CourseModelCard: React.FC<CourseModelCard> = ({ courseModel: { id, type, weekday, timeStart, timeEnd, slots, price, bundle }, readOnly }) => {
-  const { invalidateQueries } = trpc.useContext();
+  const trpcClient = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { mutate: mutateDelete, isLoading: isDeleting } = trpc.useMutation('courseModel.delete', {
+  const { mutate: mutateDelete, isLoading: isDeleting } = trpc.courseModelDelete.useMutation({
     onSuccess: async () => {
-      await Promise.all((['courseModel.find', 'courseModel.findAll'] as QueryKey[]).map(query => invalidateQueries(query)));
+      await Promise.all(([trpcClient.courseModelFind, trpcClient.courseModelFindAll]).map(procedure => procedure.invalidate()));
       enqueueSnackbar(`Le modèle a été supprimé.`, { variant: 'success' })
     },
     onError: () => {
@@ -121,7 +120,7 @@ interface CourseModelCardsProps {
 }
 
 export const CourseModelCards: React.FC<CourseModelCardsProps> = ({ readOnly }) => {
-  const { data, isError, isLoading } = trpc.useQuery(['courseModel.findAll']);
+  const { data, isError, isLoading } = trpc.courseModelFindAll.useQuery();
 
   const defaultHeight = 180;
 

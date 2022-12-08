@@ -1,24 +1,31 @@
-import { trpc } from '../../common/trpc';
-import { AppRouter, inferProcedures } from '../../server/controllers';
-import { inferHandlerInput } from '@trpc/server';
+import { inferProcedureInput } from '@trpc/server';
 import { TRPCClientErrorLike } from '@trpc/client';
-import { UseQueryResult } from 'react-query';
-import { UseTRPCQueryOptions } from '@trpc/react/dist/declarations/src/createReactQueryHooks';
 import { z } from 'zod';
 import { ZodTypeDef } from 'zod/lib/types';
+import { UseTRPCQueryOptions, UseTRPCQueryResult } from '@trpc/react-query/src/shared/hooks/createHooksInternal';
+import { DecorateProcedure } from '@trpc/react-query/shared';
+import { inferTransformedProcedureOutput } from '@trpc/server/shared';
+import { AnyQueryProcedure } from '@trpc/server/src/core/procedure';
 
 export const useSchemaQuery =
-  <TPath extends keyof AppRouter["_def"]["queries"] & string,
-    TQueryFnData = inferProcedures<AppRouter["_def"]["queries"]>[TPath]["output"],
-    TData = inferProcedures<AppRouter["_def"]["queries"]>[TPath]["output"],
-    TCustom = inferProcedures<AppRouter["_def"]["queries"]>[TPath]["input"]>
-  (pathAndInput: [path: TPath, args: TCustom],
-    schema: z.ZodType<inferProcedures<AppRouter["_def"]["queries"]>[TPath]["input"], ZodTypeDef, TCustom>,
-    opts?: UseTRPCQueryOptions<TPath, inferProcedures<AppRouter["_def"]["queries"]>[TPath]["input"], TQueryFnData, TData, TRPCClientErrorLike<AppRouter>> | undefined
-  ): UseQueryResult<TData, TRPCClientErrorLike<AppRouter>> | null => {
-    const parsed = schema.safeParse(pathAndInput[1]);
+  <TProcedure extends AnyQueryProcedure,
+    TQueryFnData = inferTransformedProcedureOutput<TProcedure>,
+    TData = inferTransformedProcedureOutput<TProcedure>,
+    TCustom = inferProcedureInput<TProcedure>>
+  (procedure: DecorateProcedure<TProcedure, any, any>,
+    input: TCustom,
+    schema: z.ZodType<inferProcedureInput<TProcedure>, ZodTypeDef, TCustom>,
+    opts?: UseTRPCQueryOptions<
+      any,
+      inferProcedureInput<TProcedure>,
+      TQueryFnData,
+      TData,
+      TRPCClientErrorLike<TProcedure>
+      >
+  ): UseTRPCQueryResult<TData, TRPCClientErrorLike<TProcedure>> | null => {
+    const parsed = schema.safeParse(input);
     if (parsed.success) {
-      return trpc.useQuery([pathAndInput[0], ...([parsed.data] as inferHandlerInput<AppRouter["_def"]["queries"][TPath]>)], opts);
+      return procedure.useQuery(parsed.data, opts);
     } else {
       return null;
     }

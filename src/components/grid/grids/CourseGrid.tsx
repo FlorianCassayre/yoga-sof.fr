@@ -14,19 +14,18 @@ import { CancelCourseDialog } from '../../CancelCourseDialog';
 import { trpc } from '../../../common/trpc';
 import { useSnackbar } from 'notistack';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
-import { QueryKey } from '../../../server/controllers';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 
 const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactElement[] => {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
-  const { invalidateQueries } = trpc.useContext();
-  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('course.cancel', {
+  const trpcClient = trpc.useContext();
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.courseCancel.useMutation({
     onSuccess: async () => {
       await Promise.all((
-        ['course.find', 'course.findUpdate', 'course.findUpdateNotes', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]
-      ).map(query => invalidateQueries(query)));
+        [trpcClient.courseFind, trpcClient.courseFindUpdate, trpcClient.courseFindUpdateNotes, trpcClient.courseFindAll, trpcClient.courseRegistrationFindAll, trpcClient.courseRegistrationFindAllEvents, trpcClient.courseRegistrationFindAllActive]
+      ).map(procedure => procedure.invalidate()));
       await enqueueSnackbar('La séance a été annulée', { variant: 'success' });
     },
     onError: () => {
@@ -156,6 +155,6 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, c
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['course.findAll', { future, canceled }]} initialSort={{ field: 'dateStart', sort: future ? 'asc' : 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.courseFindAll} input={{ future, canceled }} initialSort={{ field: 'dateStart', sort: future ? 'asc' : 'desc' }} />
   );
 };

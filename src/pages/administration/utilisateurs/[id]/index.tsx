@@ -19,7 +19,6 @@ import { trpc } from '../../../../common/trpc';
 import { useSnackbar } from 'notistack';
 import { DisableUserDialog } from '../../../../components/DisableUserDialog';
 import { RenableUserDialog } from '../../../../components/RenableUserDialog';
-import { QueryKey } from '../../../../server/controllers';
 
 interface GridItemStatisticProps {
   value: number;
@@ -61,13 +60,13 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
   const title = `Utilisateur ${displayUserName(user)}`;
   const displayDate = (date: Date | string | undefined | null) => !!date && `${formatDateDDsMMsYYYYsHHhMMmSSs(date)} (${formatTimestampRelative(date).toLowerCase()})`;
   const statistics = getUserStatistics(user);
-  const { invalidateQueries } = trpc.useContext();
+  const trpcClient = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
-  const { mutate: mutateDisable, isLoading: isDisablingLoading } = trpc.useMutation('user.disabled', {
+  const { mutate: mutateDisable, isLoading: isDisablingLoading } = trpc.userDisabled.useMutation({
     onSuccess: async (_, { disabled }) => {
       await Promise.all((
-        ['user.find', 'user.findAll'] as QueryKey[]
-      ).map(query => invalidateQueries(query)));
+        [trpcClient.userFind, trpcClient.userFindAll]
+      ).map(procedure => procedure.invalidate()));
       enqueueSnackbar(disabled ? `L'utilisateur a été désactivé` : `L'utilisateur a été réactivé`, { variant: 'success' });
     },
     onError: (_, { disabled }) => {
@@ -173,7 +172,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
 export default function AdminUser() {
   const router = useRouter();
   const { id } = router.query;
-  const result = useSchemaQuery(['user.find', { id }], userFindTransformSchema);
+  const result = useSchemaQuery(trpc.userFind, { id }, userFindTransformSchema);
 
   return result && result.data ? (
     <AdminUserContent user={result.data as any} />

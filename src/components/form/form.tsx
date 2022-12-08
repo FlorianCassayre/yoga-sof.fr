@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { z } from 'zod';
 import { DeepPartial, FormContainer, useFormState } from 'react-hook-form-mui';
-import { MutationKey, Mutations, QueryKey, Queries, AppRouter } from '../../server/controllers';
+import { AppRouter } from '../../server/controllers';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Box, Button, CircularProgress, Grid } from '@mui/material';
 import { AddBox, Cancel, Save } from '@mui/icons-material';
@@ -12,6 +12,8 @@ import { ParsedUrlQuery } from 'querystring';
 import { ZodTypeDef } from 'zod/lib/types';
 import { SnackbarMessage, useSnackbar } from 'notistack';
 import { TRPCClientErrorLike } from '@trpc/client';
+import { AnyMutationProcedure, AnyQueryProcedure, inferProcedureInput, inferProcedureOutput } from '@trpc/server';
+import { DecorateProcedure } from '@trpc/react-query/dist/shared';
 
 interface FormErrorAlertItemProps {
   serverError: TRPCClientErrorLike<AppRouter> | null;
@@ -37,62 +39,61 @@ const FormErrorAlertItem: React.FC<FormErrorAlertItemProps> = ({ serverError }) 
   );
 };
 
-interface FormContentProps<TMutationPath extends MutationKey, TData> {
+interface FormContentProps<TMutationProcedure extends AnyMutationProcedure, TData> {
   children: React.ReactNode;
   title: string;
   icon: React.ReactNode;
-  schema: z.ZodType<Mutations[TMutationPath]['input']>;
+  schema: z.ZodType<inferProcedureInput<TMutationProcedure>>;
   urlSuccessFor: (data: TData) => string;
   urlCancel: string;
-  mutation: TMutationPath;
-  defaultValues: DeepPartial<Mutations[TMutationPath]['input']>;
-  invalidate?: QueryKey[];
+  mutationProcedure: DecorateProcedure<TMutationProcedure, any, any>;
+  defaultValues: DeepPartial<inferProcedureInput<TMutationProcedure>>;
+  invalidate?: { reset: () => Promise<void> }[];
   successMessage: (data: TData) => SnackbarMessage;
 }
 
-interface CreateFormContentProps<TMutationPath extends MutationKey> extends FormContentProps<TMutationPath, Mutations[TMutationPath]['output']> {
+interface CreateFormContentProps<TMutationProcedure extends AnyMutationProcedure> extends FormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>> {
 
 }
 
-interface UpdateFormContentProps<TQueryPath extends QueryKey, TMutationPath extends MutationKey, TQueryInputSchema extends z.ZodType<Queries[TQueryPath]['input'], ZodTypeDef, any>> extends FormContentProps<TMutationPath, Mutations[TMutationPath]['output']> {
-  query: TQueryPath;
+interface UpdateFormContentProps<TQueryProcedure extends AnyQueryProcedure, TMutationProcedure extends AnyMutationProcedure, TQueryInputSchema extends z.ZodType<inferProcedureInput<TQueryProcedure>, ZodTypeDef, any>> extends FormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>> {
+  queryProcedure: DecorateProcedure<TQueryProcedure, any, any>;
   querySchema: TQueryInputSchema;
   queryParams: ParsedUrlQuery;
 }
 
-interface InternalFormContentProps<TMutationPath extends MutationKey, TData> extends FormContentProps<TMutationPath, TData> {
+interface InternalFormContentProps<TMutationProcedure extends AnyMutationProcedure, TData> extends FormContentProps<TMutationProcedure, TData> {
   edit: boolean;
   isLoading: boolean;
 }
 
-const InternalFormContent = <TMutationPath extends MutationKey>({
+const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
   children,
   title,
   icon,
   schema,
   urlSuccessFor,
   urlCancel,
-  mutation,
+  mutationProcedure,
   defaultValues,
   invalidate,
   successMessage,
   edit,
   isLoading: isQueryLoading,
-}: InternalFormContentProps<TMutationPath, Mutations[TMutationPath]['output']>) => {
+}: InternalFormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>>) => {
   const router = useRouter();
-  const { queryClient } = trpc.useContext();
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const { mutate, isLoading, error } = trpc.useMutation(mutation, {
+  const { mutate, isLoading, error } = mutationProcedure.useMutation({
     onSuccess: (data) => {
-      const invalidations = invalidate ? invalidate.map(query => queryClient.resetQueries(query)) : [];
+      const invalidations = (invalidate ?? []).map(procedure => procedure.reset());
       return Promise.all([router.push(urlSuccessFor(data)), ...invalidations])
         .then(() => enqueueSnackbar(successMessage(data), { variant: 'success' }));
     },
   });
 
-  const handleSubmit = useCallback((data: Mutations[TMutationPath]['input']) => {
+  const handleSubmit = useCallback((data: inferProcedureInput<TMutationProcedure>) => {
     mutate(data);
   }, []);
 
@@ -137,7 +138,7 @@ const InternalFormContent = <TMutationPath extends MutationKey>({
   );
 }
 
-export const CreateFormContent = <TMutationPath extends MutationKey>({ children, ...props }: CreateFormContentProps<TMutationPath>): JSX.Element => {
+export const CreateFormContent = <TMutationProcedure extends AnyMutationProcedure>({ children, ...props }: CreateFormContentProps<TMutationProcedure>): JSX.Element => {
   return (
     <InternalFormContent
       {...props}
@@ -149,16 +150,16 @@ export const CreateFormContent = <TMutationPath extends MutationKey>({ children,
   );
 };
 
-export const UpdateFormContent = <TQueryPath extends QueryKey, TMutationPath extends MutationKey, TQueryInputSchema extends z.ZodType<Queries[TQueryPath]['input'], ZodTypeDef, any>>({
+export const UpdateFormContent = <TQueryProcedure extends AnyQueryProcedure, TMutationProcedure extends AnyMutationProcedure, TQueryInputSchema extends z.ZodType<inferProcedureInput<TQueryProcedure>, ZodTypeDef, any>>({
   children,
   defaultValues,
-  query,
+  queryProcedure,
   querySchema,
   queryParams,
   ...props
-}: UpdateFormContentProps<TQueryPath, TMutationPath, TQueryInputSchema>): JSX.Element => {
+}: UpdateFormContentProps<TQueryProcedure, TMutationProcedure, TQueryInputSchema>): JSX.Element => {
   const parsed = querySchema.parse(queryParams); // TODO error handling
-  const { data, isLoading, isError } = trpc.useQuery([query, parsed] as any); // Sadly...
+  const { data, isLoading, isError } = queryProcedure.useQuery(parsed)
   // TODO error
   return (
     <InternalFormContent

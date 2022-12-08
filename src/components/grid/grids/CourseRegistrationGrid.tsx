@@ -9,7 +9,6 @@ import { CancelCourseRegistrationDialog } from '../../CancelCourseRegistrationDi
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../common/trpc';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
-import { QueryKey } from '../../../server/controllers';
 import { getCourseStatus } from '../../../common/course';
 
 interface GridActionsAttendanceProps {
@@ -19,12 +18,12 @@ interface GridActionsAttendanceProps {
 
 const GridActionsAttendance: React.FC<GridActionsAttendanceProps> = ({ courseRegistration, readOnly }) => {
   const { enqueueSnackbar } = useSnackbar();
-  const { invalidateQueries } = trpc.useContext();
-  const { mutate: mutateAttendance, isLoading: isUpdatingAttendance } = trpc.useMutation('courseRegistration.attended', {
+  const trpcClient = trpc.useContext();
+  const { mutate: mutateAttendance, isLoading: isUpdatingAttendance } = trpc.courseRegistrationAttended.useMutation({
     onSuccess: async () => {
       await Promise.all((
-        ['course.find', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]
-      ).map(query => invalidateQueries(query)));
+        [trpcClient.courseFind, trpcClient.courseFindAll, trpcClient.courseRegistrationFindAll, trpcClient.courseRegistrationFindAllEvents, trpcClient.courseRegistrationFindAllActive]
+      ).map(procedure => procedure.invalidate()));
       enqueueSnackbar(`La présence a été modifiée`, { variant: 'success' });
     },
     onError: () => {
@@ -58,12 +57,12 @@ interface GridActionCancelProps {
 const GridActionCancel: React.FC<GridActionCancelProps> = ({ courseRegistration }) => {
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const { invalidateQueries } = trpc.useContext();
-  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('courseRegistration.cancel', {
+  const trpcClient = trpc.useContext();
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.courseRegistrationCancel.useMutation({
     onSuccess: async () => {
       await Promise.all((
-        ['course.find', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]
-      ).map(query => invalidateQueries(query)));
+        [trpcClient.courseFind, trpcClient.courseFindAll, trpcClient.courseRegistrationFindAll, trpcClient.courseRegistrationFindAllEvents, trpcClient.courseRegistrationFindAllActive]
+      ).map(procedure => procedure.invalidate()));
       enqueueSnackbar(`L'inscription de l'utilisateur à la séance a été annulée`, { variant: 'success' });
     },
     onError: () => {
@@ -112,6 +111,6 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['courseRegistration.findAllActive', { courseId, userId }]} initialSort={{ field: 'createdAt', sort: 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.courseRegistrationFindAllActive} input={{ courseId, userId }} initialSort={{ field: 'createdAt', sort: 'desc' }} />
   );
 };

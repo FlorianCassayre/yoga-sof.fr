@@ -10,7 +10,7 @@ interface SelectUserProps {
 }
 
 export const SelectUser: React.FC<SelectUserProps> = ({ name, multiple }) => {
-  const { data, isLoading } = trpc.useQuery(['user.findAll']);
+  const { data, isLoading } = trpc.userFindAll.useQuery();
   return (
     <AutocompleteElement
       name={name}

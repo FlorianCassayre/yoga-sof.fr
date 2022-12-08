@@ -26,6 +26,7 @@ import { zodFrenchErrorMap } from '../common/zodFrenchErrorMap';
 import { z } from 'zod';
 import { fr } from 'date-fns/locale';
 import superjson from 'superjson';
+import { trpc } from '../common/trpc';
 
 function Paragraph({ children }: { children: React.ReactNode }) {
   return (
@@ -108,45 +109,4 @@ function MyApp({ Component, pageProps, router }: AppProps) {
   );
 }
 
-const getBaseUrl = () => {
-  if (typeof window !== 'undefined') {
-    return '';
-  }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  return `http://localhost:${process.env.PORT ?? 3000}`; // Dev SSR should use localhost
-};
-
-export default withTRPC<AppRouter>({
-  config: ({ ctx }): WithTRPCConfig<AppRouter> => {
-    /**
-     * If you want to use SSR, you need to use the server's full URL
-     * @link https://trpc.io/docs/ssr
-     */
-    const url = `${getBaseUrl()}/api/trpc`;
-    return {
-      queryClientConfig: {
-        defaultOptions: {
-          queries: {
-            retry: false,
-            keepPreviousData: false,
-            optimisticResults: false,
-          },
-          mutations: {
-            retry: false,
-          },
-        },
-      },
-      url,
-      /**
-       * @link https://react-query.tanstack.com/reference/QueryClient
-       */
-      transformer: superjson,
-    };
-  },
-  /**
-   * @link https://trpc.io/docs/ssr
-   */
-  ssr: false,
-})(MyApp);
+export default trpc.withTRPC(MyApp);

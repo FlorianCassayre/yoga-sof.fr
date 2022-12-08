@@ -24,7 +24,6 @@ import { CourseStatusChip } from '../../../../../components/CourseStatusChip';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../../../common/trpc';
 import { CancelCourseDialog } from '../../../../../components/CancelCourseDialog';
-import { QueryKey } from '../../../../../server/controllers';
 
 interface CourseContentProps {
   course: Prisma.CourseGetPayload<{ include: { registrations: true } }>;
@@ -34,12 +33,12 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
   const status = getCourseStatusWithRegistrations(course);
   const { enqueueSnackbar } = useSnackbar();
   const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
-  const { invalidateQueries } = trpc.useContext();
-  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('course.cancel', { // TODO factor this to avoid duplicating code
+  const trpcClient = trpc.useContext();
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.courseCancel.useMutation({ // TODO factor this to avoid duplicating code
     onSuccess: async () => {
       await Promise.all((
-        ['course.find', 'course.findUpdate', 'course.findUpdateNotes', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]
-      ).map(query => invalidateQueries(query)));
+        [trpcClient.courseFind, trpcClient.courseFindUpdate, trpcClient.courseFindUpdateNotes, trpcClient.courseFindAll, trpcClient.courseRegistrationFindAll, trpcClient.courseRegistrationFindAllEvents, trpcClient.courseRegistrationFindAllActive]
+      ).map(procedure => procedure.invalidate()));
       await enqueueSnackbar('La séance a été annulée', { variant: 'success' });
     },
     onError: () => {
@@ -116,7 +115,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
                   {!isCheckingAttendance && (
                     <>
                       {' '}
-                      <MuiLink href="#" onClick={e => { e.stopPropagation(); setCheckingAttendance(true) }}>Faire l'appel ?</MuiLink>
+                      <MuiLink href="#" onClick={e => { e.stopPropagation(); e.preventDefault(); setCheckingAttendance(true) }}>Faire l'appel ?</MuiLink>
                     </>
                   )}
 
@@ -165,7 +164,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
 export default function AdminCourse() {
   const router = useRouter();
   const { id } = router.query;
-  const result = useSchemaQuery(['course.find', { id }], courseFindTransformSchema);
+  const result = useSchemaQuery(trpc.courseFind, { id }, courseFindTransformSchema);
 
   return result && result.data ? (
     <CourseContent course={result.data as CourseContentProps['course']} />
