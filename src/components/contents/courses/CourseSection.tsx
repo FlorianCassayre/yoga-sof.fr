@@ -59,7 +59,7 @@ export const CourseSection: React.FC<CourseSectionProps> = ({ course, imageUrl, 
             </Typography>
             <InformationTable rows={[
               {
-                header: 'Dates',
+                header: 'Créneaux',
                 value: isModelsLoading || !modelsDataGrouped ? <Skeleton /> : (
                   modelsDataGrouped.map(([weekday, models]) =>
                     [WeekdayNames[weekday] + 's', models.map(({ timeStart, timeEnd }) =>
@@ -67,7 +67,7 @@ export const CourseSection: React.FC<CourseSectionProps> = ({ course, imageUrl, 
                 ),
               },
               { header: 'Lieu', value: location },
-              { header: 'Matériel à amener', value: stuff },
+              { header: 'Matériel', value: stuff },
               { header: 'Inscription', value: registration },
             ]} />
           </Grid>)}
