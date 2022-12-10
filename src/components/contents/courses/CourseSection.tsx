@@ -74,7 +74,7 @@ export const CourseSection: React.FC<CourseSectionProps> = ({ course, imageUrl, 
         </Grid>
         {isRegistrationOnline && (
           <Box textAlign="center">
-            <Link href="/home/florian/IdeaProjects/yoga-sof.fr/src/pages/inscription" passHref>
+            <Link href="/inscription" passHref>
               <Button variant="outlined" startIcon={<Assignment />}>Inscription en ligne</Button>
             </Link>
           </Box>

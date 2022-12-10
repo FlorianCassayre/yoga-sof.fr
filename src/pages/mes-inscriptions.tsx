@@ -115,7 +115,7 @@ const MesInscriptionsContent: React.FC<MesInscriptionsContentProps> = ({ session
   return (
     <FrontsiteContent title="Mes inscriptions">
       Cette page liste l'ensemble de vos inscriptions aux séances de Yoga.
-      Ces inscriptions se font au moyen de <Link href="/home/florian/IdeaProjects/yoga-sof.fr/src/pages/inscription" passHref><MuiLink>ce formulaire</MuiLink></Link>.
+      Ces inscriptions se font au moyen de <Link href="/inscription" passHref><MuiLink>ce formulaire</MuiLink></Link>.
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Séances à venir
       </Typography>
@@ -133,7 +133,7 @@ const MesInscriptionsContent: React.FC<MesInscriptionsContentProps> = ({ session
       </Typography>
       Votre adresse email nous permet notamment de vous informer en cas d'annulation de séance.
       <UserDataForm />
-      Vos données personnelles sont traitées conformément à notre <Link href="/home/florian/IdeaProjects/yoga-sof.fr/src/pages/confidentialite" passHref><MuiLink>politique de confidentialité</MuiLink></Link>,
+      Vos données personnelles sont traitées conformément à notre <Link href="/confidentialite" passHref><MuiLink>politique de confidentialité</MuiLink></Link>,
       en particulier celles-ci ne sont utilisées que dans le but d'assurer l'inscription et l'organisation des séances de Yoga.
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Calendrier personnel

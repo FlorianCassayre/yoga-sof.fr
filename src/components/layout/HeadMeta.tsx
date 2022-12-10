@@ -10,10 +10,10 @@ export const HeadMeta: React.FC<HeadMetaProps> = ({ title }) => {
     <Head>
       <title>{title}</title>
 
-      <link rel="icon" href="/home/florian/IdeaProjects/yoga-sof.fr/public/favicon.ico" sizes="any" />
-      <link rel="icon" type="image/svg+xml" href="/home/florian/IdeaProjects/yoga-sof.fr/public/icon.svg" />
-      <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-      <link rel="manifest" href="/home/florian/IdeaProjects/yoga-sof.fr/public/manifest.webmanifest" />
+      <link rel="icon" href="/favicon.ico" sizes="any" />
+      <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+      <link rel="manifest" href="/manifest.webmanifest" />
 
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="theme-color" content="#fff" />

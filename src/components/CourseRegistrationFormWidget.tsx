@@ -257,7 +257,7 @@ const CourseRegistrationFormStepConfirmed: React.FC<CourseRegistrationFormStepCo
         <Box>
           Vous pouvez dès à présent les retrouver sur
           {' '}
-          <Link href="/home/florian/IdeaProjects/yoga-sof.fr/src/pages/mes-inscriptions" passHref>
+          <Link href="/mes-inscriptions" passHref>
             <MuiLink>votre page personnelle</MuiLink>
           </Link>
           .
@@ -265,7 +265,7 @@ const CourseRegistrationFormStepConfirmed: React.FC<CourseRegistrationFormStepCo
         <Box>
           En cas de question, n'hésitez pas à
           {' '}
-          <Link href="/home/florian/IdeaProjects/yoga-sof.fr/src/pages/a-propos" passHref>
+          <Link href="/a-propos" passHref>
             <MuiLink>nous contacter</MuiLink>
           </Link>
           {' '}
@@ -406,7 +406,7 @@ export const CourseRegistrationFormWidget: React.FC<CourseRegistrationFormWidget
               <FaceTwoTone color="disabled" fontSize="large" />
               <Face2TwoTone color="disabled" fontSize="large" />
             </Stack>
-            <Link href="/home/florian/IdeaProjects/yoga-sof.fr/src/pages/connexion" passHref>
+            <Link href="/connexion" passHref>
               <Button variant="outlined" startIcon={<Login />} sx={{ my: 2 }}>
                 Créer un compte ou me connecter
               </Button>
