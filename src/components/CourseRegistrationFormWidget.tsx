@@ -218,7 +218,7 @@ const CourseRegistrationFormStep2: React.FC<Pick<CourseRegistrationFormProps, 'c
               <TextFieldElement variant="standard" name="name" label="Nom complet" fullWidth />
             </Grid>
             <Grid item xs={12}>
-              <TextFieldElement variant="standard" name="email" label="Adresse e-mail (facultatif)" fullWidth />
+              <TextFieldElement variant="standard" name="email" label="Adresse e-mail" fullWidth />
             </Grid>
           </Grid>
           <RegistrationNoticePersonalInformation />
