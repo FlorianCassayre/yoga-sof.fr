@@ -27,7 +27,7 @@ const GridActionCancelRegistration: React.FC<GridActionCancelRegistrationProps> 
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const { invalidateQueries } = trpc.useContext();
-  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('self.cancelRegistration', {
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.selfCancelRegistration.useMutation({
     onSuccess: async () => {
       await Promise.all((
         ['self.findAllRegisteredCourses', 'public.findAllModels', 'public.findAllFutureCourses'] as QueryKey[]

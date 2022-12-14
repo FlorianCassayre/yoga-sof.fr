@@ -54,12 +54,12 @@ interface CourseModelCard {
 }
 
 const CourseModelCard: React.FC<CourseModelCard> = ({ courseModel: { id, type, weekday, timeStart, timeEnd, slots, price, bundle }, readOnly }) => {
-  const { invalidateQueries } = trpc.useContext();
+  const { invalidate } = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { mutate: mutateDelete, isLoading: isDeleting } = trpc.useMutation('courseModel.delete', {
+  const { mutate: mutateDelete, isLoading: isDeleting } = trpc.courseModelDelete.useMutation({
     onSuccess: async () => {
-      await Promise.all((['courseModel.find', 'courseModel.findAll'] as QueryKey[]).map(query => invalidateQueries(query)));
+      await Promise.all((['courseModel.find', 'courseModel.findAll'] as QueryKey[]).map(query => invalidate(query)));
       enqueueSnackbar(`Le modèle a été supprimé.`, { variant: 'success' })
     },
     onError: () => {
@@ -121,7 +121,7 @@ interface CourseModelCardsProps {
 }
 
 export const CourseModelCards: React.FC<CourseModelCardsProps> = ({ readOnly }) => {
-  const { data, isError, isLoading } = trpc.useQuery(['courseModel.findAll']);
+  const { data, isError, isLoading } = trpc.courseModelFindAll.useQuery();
 
   const defaultHeight = 180;
 

@@ -20,7 +20,7 @@ interface GridActionsAttendanceProps {
 const GridActionsAttendance: React.FC<GridActionsAttendanceProps> = ({ courseRegistration, readOnly }) => {
   const { enqueueSnackbar } = useSnackbar();
   const { invalidateQueries } = trpc.useContext();
-  const { mutate: mutateAttendance, isLoading: isUpdatingAttendance } = trpc.useMutation('courseRegistration.attended', {
+  const { mutate: mutateAttendance, isLoading: isUpdatingAttendance } = trpc.courseRegistrationAttended.useMutation({
     onSuccess: async () => {
       await Promise.all((
         ['course.find', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]
@@ -59,7 +59,7 @@ const GridActionCancel: React.FC<GridActionCancelProps> = ({ courseRegistration 
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const { invalidateQueries } = trpc.useContext();
-  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('courseRegistration.cancel', {
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.courseRegistrationCancel.useMutation({
     onSuccess: async () => {
       await Promise.all((
         ['course.find', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]

@@ -1,9 +1,7 @@
-import * as trpc from '@trpc/server';
-import { ContextProtected } from '../context';
 import { findAdminsWhitelist } from '../../services';
+import { adminProcedure, router } from '../trpc';
 
-export const adminWhitelistRouter = trpc
-  .router<ContextProtected>()
-  .query('findAll', {
-    resolve: async () => findAdminsWhitelist(),
-  });
+export const adminWhitelistRouter = router({
+  adminWhitelistFindAll: adminProcedure
+    .query(async () => findAdminsWhitelist()),
+});

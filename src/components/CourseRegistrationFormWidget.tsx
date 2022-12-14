@@ -357,11 +357,11 @@ const CourseStepContent: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 
 }
 
 const CourseRegistrationForm: React.FC<CourseRegistrationFormProps> = ({ courses, userCourses, userProfile }) => {
-  const { invalidateQueries } = trpc.useContext();
+  const { invalidate } = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
-  const { mutate: submitRegister, isLoading: isSubmitRegisterLoading, isSuccess: isSubmitRegisterSuccess } = trpc.useMutation('self.register', {
+  const { mutate: submitRegister, isLoading: isSubmitRegisterLoading, isSuccess: isSubmitRegisterSuccess } = trpc.selfRegister.useMutation({
     onSuccess: async () => {
-      await Promise.all((['self.findAllRegisteredCourses', 'self.profile', 'public.findAllModels', 'public.findAllFutureCourses'] as QueryKey[]).map(query => invalidateQueries(query)));
+      await Promise.all((['self.findAllRegisteredCourses', 'self.profile', 'public.findAllModels', 'public.findAllFutureCourses'] as QueryKey[]).map(query => invalidate(query)));
       enqueueSnackbar(`Vos inscriptions ont bien été prises en compte`, { variant: 'success' });
     },
     onError: () => {
@@ -386,13 +386,13 @@ interface CourseRegistrationFormWidgetProps {}
 export const CourseRegistrationFormWidget: React.FC<CourseRegistrationFormWidgetProps> = () => {
   const { status } = useSession();
   const isAuthenticated = useMemo(() => status === 'authenticated', [status]);
-  const { data: coursesData, isError: isCoursesError } = trpc.useQuery(['public.findAllFutureCourses'], {
+  const { data: coursesData, isError: isCoursesError } = trpc.publicFindAllFutureCourses.useQuery(undefined, {
     enabled: isAuthenticated,
   });
-  const { data: userCoursesData, isError: isUserCoursesError } = trpc.useQuery(['self.findAllRegisteredCourses', { userCanceled: false, future: true }], {
+  const { data: userCoursesData, isError: isUserCoursesError } = trpc.selfFindAllRegisteredCourses.useQuery({ userCanceled: false, future: true }, {
     enabled: isAuthenticated,
   });
-  const { data: userProfileData, isError: isUserProfileError } = trpc.useQuery(['self.profile'], {
+  const { data: userProfileData, isError: isUserProfileError } = trpc.selfProfile.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 

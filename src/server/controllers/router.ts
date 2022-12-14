@@ -1,6 +1,5 @@
 import * as trpc from '@trpc/server';
 import { inferProcedureInput, inferProcedureOutput, ProcedureRecord } from '@trpc/server';
-import { createSessionRouter } from './middlewares/createSessionRouter';
 import {
   adminWhitelistRouter,
   courseModelRouter,
@@ -9,71 +8,25 @@ import {
   emailMessageRouter,
   userRouter
 } from './routers';
-import { createProtectedRouter } from './middlewares/createProtectedRouter';
 import { UserType } from '../../common/all';
 import { Context } from './context';
 import { ZodError } from 'zod';
 import { ServiceError } from '../services/helpers/errors';
 import { selfRouter } from './routers/self';
-import superjson from 'superjson';
 import { publicRouter } from './routers/public';
+import { mergeRouters, router } from './trpc';
 
-export const appRouter = trpc
-  .router<Context>()
-  .transformer(superjson)
-  .merge(
-    createSessionRouter()
-      .merge('course.', createProtectedRouter([UserType.Admin]).merge(courseRouter)),
-  )
-  .merge(
-    createSessionRouter()
-      .merge('courseModel.', createProtectedRouter([UserType.Admin]).merge(courseModelRouter))
-  )
-  .merge(
-    createSessionRouter()
-      .merge('adminWhitelist.', createProtectedRouter([UserType.Admin]).merge(adminWhitelistRouter))
-  )
-  .merge(
-    createSessionRouter()
-      .merge('user.', createProtectedRouter([UserType.Admin]).merge(userRouter))
-  )
-  .merge(
-    createSessionRouter()
-      .merge('emailMessage.', createProtectedRouter([UserType.Admin]).merge(emailMessageRouter))
-  )
-  .merge(
-    createSessionRouter()
-      .merge('courseRegistration.', createProtectedRouter([UserType.Admin]).merge(courseRegistrationRouter))
-  )
-  .merge(
-    createSessionRouter()
-      .merge('self.', createProtectedRouter([UserType.Regular, UserType.Admin]).merge(selfRouter))
-  )
-  .merge(
-    createSessionRouter()
-      .merge('public.', publicRouter)
-  )
-  .formatError(({ shape, error }) => {
-    if (error.cause instanceof ZodError) {
-      return {
-        ...shape,
-        data: {
-          ...shape.data,
-          zodError: error.cause.flatten(),
-        },
-      };
-    } else if (error.cause instanceof ServiceError) {
-      return {
-        code: -32600, // FIXME issue with compiler
-        message: error.cause.message,
-        data: {
-          code: error.cause.code,
-        },
-      };
-    } else {
-      return { code: shape.code, message: 'Une erreur est survenue', data: {} };
-    }
-  });
+export const appRouter =
+  mergeRouters(
+    adminWhitelistRouter,
+    courseRouter,
+    courseModelRouter,
+    courseRegistrationRouter,
+    emailMessageRouter,
+    publicRouter,
+    selfRouter,
+    userRouter,
+  );
 
 export type AppRouter = typeof appRouter;
 

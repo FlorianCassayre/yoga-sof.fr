@@ -21,12 +21,12 @@ const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactE
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
-  const { invalidateQueries } = trpc.useContext();
-  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('course.cancel', {
+  const { invalidate } = trpc.useContext();
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.courseCancel.useMutation({
     onSuccess: async () => {
       await Promise.all((
         ['course.find', 'course.findUpdate', 'course.findUpdateNotes', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]
-      ).map(query => invalidateQueries(query)));
+      ).map(query => invalidate(query)));
       await enqueueSnackbar('La séance a été annulée', { variant: 'success' });
     },
     onError: () => {

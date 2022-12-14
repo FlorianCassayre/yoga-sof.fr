@@ -34,12 +34,12 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
   const status = getCourseStatusWithRegistrations(course);
   const { enqueueSnackbar } = useSnackbar();
   const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
-  const { invalidateQueries } = trpc.useContext();
-  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.useMutation('course.cancel', { // TODO factor this to avoid duplicating code
+  const { invalidate } = trpc.useContext();
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.courseCancel.useMutation({ // TODO factor this to avoid duplicating code
     onSuccess: async () => {
       await Promise.all((
         ['course.find', 'course.findUpdate', 'course.findUpdateNotes', 'course.findAll', 'courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive'] as QueryKey[]
-      ).map(query => invalidateQueries(query)));
+      ).map(query => invalidate(query)));
       await enqueueSnackbar('La séance a été annulée', { variant: 'success' });
     },
     onError: () => {

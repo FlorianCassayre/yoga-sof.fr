@@ -61,13 +61,13 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
   const title = `Utilisateur ${displayUserName(user)}`;
   const displayDate = (date: Date | string | undefined | null) => !!date && `${formatDateDDsMMsYYYYsHHhMMmSSs(date)} (${formatTimestampRelative(date).toLowerCase()})`;
   const statistics = getUserStatistics(user);
-  const { invalidateQueries } = trpc.useContext();
+  const trpcClient = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
-  const { mutate: mutateDisable, isLoading: isDisablingLoading } = trpc.useMutation('user.disabled', {
+  const { mutate: mutateDisable, isLoading: isDisablingLoading } = trpc.userDisabled.useMutation({
     onSuccess: async (_, { disabled }) => {
       await Promise.all((
-        ['user.find', 'user.findAll'] as QueryKey[]
-      ).map(query => invalidateQueries(query)));
+        ['userFind', 'userFindAll'] as QueryKey[]
+      ).map(query => trpcClient[query].invalidate(query)));
       enqueueSnackbar(disabled ? `L'utilisateur a été désactivé` : `L'utilisateur a été réactivé`, { variant: 'success' });
     },
     onError: (_, { disabled }) => {
