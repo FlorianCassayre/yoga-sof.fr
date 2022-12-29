@@ -311,7 +311,7 @@ const CourseRegistrationFormNavigation: React.FC<CourseRegistrationFormNavigatio
   };
 
   return !done ? (
-    <Stack direction="row" sx={{ mt: 2, justifyContent: 'space-between' }}>
+    <Stack direction="row" spacing={2} sx={{ mt: 2, justifyContent: 'space-between' }}>
       {/* The `key` attributes here are important, otherwise React considers a click as a submit action */}
         <Button key={`back-${watchStep}`} variant="outlined" color="inherit" startIcon={<ArrowBack />} onClick={handlePrevious} disabled={isLoading} sx={{ visibility: watchStep <= 0 || watchStep >= 2 ? 'hidden' : undefined }}>
           Étape précédente

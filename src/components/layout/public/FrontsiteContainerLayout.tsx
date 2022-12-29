@@ -10,12 +10,12 @@ import {
   Skeleton,
   Stack,
   Toolbar,
+  useMediaQuery, useTheme,
 } from '@mui/material';
 import { Menu as MenuIcon, Person } from '@mui/icons-material';
 import CssBaseline from '@mui/material/CssBaseline';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useMedia } from 'react-use';
 
 interface MenuTitleProps {
   logo: React.ReactElement;
@@ -180,8 +180,9 @@ interface HeaderProps {
   signInUrl: string;
 }
 
-function Header({ logo, title, url: titleUrl, sections, profile, signInUrl }: HeaderProps) {
-  const isDesktop = useMedia('(min-width: 700px)', true);
+function Header({logo, title, url: titleUrl, sections, profile, signInUrl}: HeaderProps) {
+  const theme = useTheme();
+  const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
   const [isMenuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     if (isDesktop) {
@@ -189,34 +190,35 @@ function Header({ logo, title, url: titleUrl, sections, profile, signInUrl }: He
     }
   }, [setMenuOpen, isDesktop]);
 
+  const toolbarSx = {
+    px: '0 !important',
+    mb: 2,
+    borderBottom: 1,
+    borderColor: 'divider',
+    flexDirection: { xs: 'column', md: 'row' }
+  };
+
   return (
-    <React.Fragment>
-      <Toolbar sx={{ px: '0 !important', mb: 2, borderBottom: 1, borderColor: 'divider', flexDirection: isDesktop ? 'row' : 'column' }}>
-        {isDesktop ? (
-          <>
-            <MenuTitle logo={logo} title={title} titleUrl={titleUrl} />
-            <MenuSections sections={sections} />
-            <ProfileMenuButton profile={profile} signInUrl={signInUrl} />
-          </>
-        ) : (
-          <>
-            <Stack direction="row" alignItems="center" gap={1} sx={{ mt: 0.9 }}>
-              {!isDesktop && (
-                <IconButton onClick={() => setMenuOpen(!isMenuOpen)}><MenuIcon /></IconButton>
-              )}
-              <MenuTitle logo={logo} title={title} titleUrl={titleUrl} onClick={() => setMenuOpen(false)} />
-            </Stack>
-            <Collapse in={isMenuOpen}>
-              <Stack direction="column" alignItems="center">
-                <MenuSections sections={sections} onClick={() => setMenuOpen(false)} />
-                <ProfileMenuButton profile={profile} signInUrl={signInUrl} />
-                <Box sx={{ height: 8 }} />
-              </Stack>
-            </Collapse>
-          </>
-        )}
+    <>
+      <Toolbar sx={{ ...toolbarSx, display: { xs: 'none', md: 'flex' } }}>
+        <MenuTitle logo={logo} title={title} titleUrl={titleUrl}/>
+        <MenuSections sections={sections}/>
+        <ProfileMenuButton profile={profile} signInUrl={signInUrl}/>
       </Toolbar>
-    </React.Fragment>
+      <Toolbar sx={{ ...toolbarSx, display: { xs: 'flex', md: 'none' } }}>
+        <Stack direction="row" alignItems="center" gap={1} sx={{ mt: 0.9 }}>
+          <IconButton onClick={() => setMenuOpen(!isMenuOpen)}><MenuIcon/></IconButton>
+          <MenuTitle logo={logo} title={title} titleUrl={titleUrl} onClick={() => setMenuOpen(false)}/>
+        </Stack>
+        <Collapse in={isMenuOpen}>
+          <Stack direction="column" alignItems="center">
+            <MenuSections sections={sections} onClick={() => setMenuOpen(false)}/>
+            <ProfileMenuButton profile={profile} signInUrl={signInUrl}/>
+            <Box sx={{ height: 8 }}/>
+          </Stack>
+        </Collapse>
+      </Toolbar>
+    </>
   );
 }
 
@@ -236,7 +238,7 @@ function Footer({ sections, title, subtitle, links }: FooterProps) {
   return (
     <Box component="footer" sx={{ bgcolor: 'grey.200', py: 6, mt: 'auto' }}>
       <Container maxWidth="lg">
-        <Grid container>
+        <Grid container spacing={4}>
           <Grid item container xs={12} md={6} sx={{ textAlign: 'center' }}>
             {sections.map(({ title, url }, i) => (
               <Grid key={i} item xs={12}>

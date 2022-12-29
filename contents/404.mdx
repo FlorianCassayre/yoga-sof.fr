@@ -1,5 +1,6 @@
-import Link from 'next/link';
-import { FrontsiteContent } from '../src/components/layout/public/FrontsiteContent';
+import { FrontsiteContent } from '../src/components/layout/public/FrontsiteContent'; import {
+    InternalLink
+} from '../src/components/contents/common/InternalLink';
 
 export const meta = {
   title: 'Page introuvable',
@@ -7,6 +8,6 @@ export const meta = {
 
 Si vous pensez qu'il s'agit d'une erreur, merci de nous le faire savoir.
 
-<Link href="/">Retourner à l'accueil</Link>
+<InternalLink href="/">Retourner à l'accueil</InternalLink>
 
 export default ({ children }) => <FrontsiteContent {...meta}>{children}</FrontsiteContent>
