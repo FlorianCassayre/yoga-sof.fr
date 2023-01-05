@@ -53,7 +53,7 @@ const commonFormProps = {
   defaultValues: courseModelFormDefaultValues,
   urlSuccessFor: (data: CourseModel) => `/administration/seances`,
   urlCancel: `/administration/seances`,
-  invalidate: ['courseModel.find', 'courseModel.findAll'] as QueryKey[],
+  invalidate: ['courseModel.find', 'courseModel.findAll'] as const,
 };
 
 export const CourseModelCreateForm = () => {

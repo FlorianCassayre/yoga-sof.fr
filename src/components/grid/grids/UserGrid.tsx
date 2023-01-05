@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { relativeTimestamp } from './common';
 import { displayUserEmail, displayUserName } from '../../../common/display';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
+import { trpc } from '../../../common/trpc';
 
 // TODO
 /*
@@ -28,7 +29,7 @@ render: ({ accounts, emailVerified }) => {
 export const UserGrid: React.FunctionComponent = () => {
   const router = useRouter();
 
-  const columns: GridColumns = [
+  const columns = [
     {
       field: 'details',
       type: 'actions',
@@ -71,6 +72,6 @@ export const UserGrid: React.FunctionComponent = () => {
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['user.findAll']} initialSort={{ field: 'lastActivity', sort: 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.userFindAll} input={undefined} initialSort={{ field: 'lastActivity', sort: 'desc' }} />
   );
 };

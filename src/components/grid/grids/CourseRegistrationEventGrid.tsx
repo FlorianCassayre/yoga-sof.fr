@@ -6,6 +6,7 @@ import { GridActionsCellItem, GridRenderCellParams, GridRowParams } from '@mui/x
 import { AsyncGrid } from '../AsyncGrid';
 import { courseColumn, relativeTimestamp, userColumn } from './common';
 import { Tooltip } from '@mui/material';
+import { trpc } from '../../../common/trpc';
 
 interface CourseRegistrationEventGridProps {
   courseId?: number;
@@ -44,6 +45,6 @@ export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistra
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['courseRegistration.findAllEvents', { courseId, userId }]} getRowId={({ isEventTypeUserCanceled, registration: { id } }) => `${isEventTypeUserCanceled}:${id}`} initialSort={{ field: 'date', sort: 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.courseRegistrationFindAllEvents} input={{ courseId, userId }} getRowId={({ isEventTypeUserCanceled, registration: { id } }) => `${isEventTypeUserCanceled}:${id}`} initialSort={{ field: 'date', sort: 'desc' }} />
   );
 };

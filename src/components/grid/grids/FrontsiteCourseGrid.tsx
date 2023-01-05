@@ -26,12 +26,12 @@ interface GridActionCancelRegistrationProps {
 const GridActionCancelRegistration: React.FC<GridActionCancelRegistrationProps> = ({ courseRegistration }) => {
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const { invalidateQueries } = trpc.useContext();
+  const trpcClient = trpc.useContext();
   const { mutate: mutateCancel, isLoading: isCanceling } = trpc.selfCancelRegistration.useMutation({
     onSuccess: async () => {
       await Promise.all((
-        ['self.findAllRegisteredCourses', 'public.findAllModels', 'public.findAllFutureCourses'] as QueryKey[]
-      ).map(query => invalidateQueries(query)));
+        ['selfFindAllRegisteredCourses', 'publicFindAllModels', 'publicFindAllFutureCourses'] as const
+      ).map(query => trpcClient[query].invalidate()));
       enqueueSnackbar(`Vous vous êtes désinscrit de la séance`, { variant: 'success' });
     },
     onError: () => {
@@ -100,6 +100,6 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['self.findAllRegisteredCourses', { userCanceled, future }]} initialSort={{ field: 'createdAt', sort: future ? 'asc' : 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.selfFindAllRegisteredCourses} input={{ userCanceled, future }} initialSort={{ field: 'createdAt', sort: future ? 'asc' : 'desc' }} />
   );
 };

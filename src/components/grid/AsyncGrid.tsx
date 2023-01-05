@@ -4,11 +4,19 @@ import { inferHandlerInput } from '@trpc/server';
 import { AppRouter } from '../../server/controllers';
 import { trpc } from '../../common/trpc';
 import { Card, useTheme } from '@mui/material';
-import { GridRowIdGetter } from '@mui/x-data-grid/models/gridRows';
+import { GridRowIdGetter, GridValidRowModel } from '@mui/x-data-grid/models/gridRows';
+import { Procedure, ProcedureParams } from '@trpc/server/src/core/procedure';
+import { AnyRootConfig } from '@trpc/server/src/core/internals/config';
+import { inferProcedureInput } from '@trpc/server/dist/core/types';
+import { DecorateProcedure } from '@trpc/react-query/shared';
+import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
 
-interface AsyncGridProps<TQueryPath extends keyof AppRouter["_def"]["queries"] & string> {
+type ProcedureQueryArray<T> = Procedure<'query', ProcedureParams<AnyRootConfig, unknown, unknown, unknown, unknown, T[], unknown>>;
+
+interface AsyncGridProps<T, TProcedure extends ProcedureQueryArray<T>> {
   columns: GridColDef[];
-  query: [path: TQueryPath, ...args: inferHandlerInput<AppRouter["_def"]["queries"][TQueryPath]>];
+  procedure: DecorateProcedure<TProcedure, any, any>;
+  input: inferProcedureInput<TProcedure>,
   getRowId?: GridRowIdGetter;
   getRowClassName?: (row: any) => any;
   initialSort: { field: string, sort: 'asc' | 'desc' };
@@ -16,14 +24,14 @@ interface AsyncGridProps<TQueryPath extends keyof AppRouter["_def"]["queries"] &
 
 const rowsPerPageOptions = [10];
 
-export const AsyncGrid = <TQueryPath extends keyof AppRouter["_def"]["queries"] & string>({ columns, query, getRowId, getRowClassName, initialSort }: AsyncGridProps<TQueryPath>): JSX.Element => {
+export const AsyncGrid = <RowModel extends GridValidRowModel, Columns extends GridColumns<RowModel>, TProcedure extends ProcedureQueryArray<RowModel>>({ columns, procedure, input, getRowId, getRowClassName, initialSort }: AsyncGridProps<RowModel, TProcedure>): JSX.Element => {
   //const theme = useTheme();
-  const { data, isLoading, isError } = trpc.useQuery(query);
+  const { data, isLoading, isError } = procedure.useQuery(input);
 
   return (
     <Card elevation={0} sx={{ width: '100%' }}>
       <DataGrid
-        rows={(data as any[] | undefined) ?? []}
+        rows={data ?? []}
         columns={columns}
         getRowId={getRowId}
         autoHeight

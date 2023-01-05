@@ -1,9 +1,10 @@
 import React from 'react';
 import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { AsyncGrid } from '../AsyncGrid';
+import { trpc } from '../../../common/trpc';
 
 export const AdminWhitelistGrid: React.FunctionComponent = () => {
-  const columns: GridColumns = [
+  const columns = [
     {
       field: 'email',
       headerName: 'Adresse e-mail',
@@ -13,6 +14,6 @@ export const AdminWhitelistGrid: React.FunctionComponent = () => {
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['adminWhitelist.findAll']} getRowId={({ email }) => email} initialSort={{ field: 'email', sort: 'asc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.adminWhitelistFindAll} input={undefined} getRowId={({ email }) => email} initialSort={{ field: 'email', sort: 'asc' }} />
   );
 };

@@ -1,4 +1,3 @@
-import * as trpc from '@trpc/server';
 import { inferProcedureInput, inferProcedureOutput, ProcedureRecord } from '@trpc/server';
 import {
   adminWhitelistRouter,
@@ -8,10 +7,6 @@ import {
   emailMessageRouter,
   userRouter
 } from './routers';
-import { UserType } from '../../common/all';
-import { Context } from './context';
-import { ZodError } from 'zod';
-import { ServiceError } from '../services/helpers/errors';
 import { selfRouter } from './routers/self';
 import { publicRouter } from './routers/public';
 import { mergeRouters, router } from './trpc';
@@ -29,6 +24,19 @@ export const appRouter =
   );
 
 export type AppRouter = typeof appRouter;
+
+export type inferQueryOutput<
+  TRouteKey extends keyof AppRouter['_def']['queries'],
+  > = inferProcedureOutput<AppRouter['_def']['queries'][TRouteKey]>;
+export type inferQueryInput<
+  TRouteKey extends keyof AppRouter['_def']['queries'],
+  > = inferProcedureInput<AppRouter['_def']['queries'][TRouteKey]>;
+export type inferMutationOutput<
+  TRouteKey extends keyof AppRouter['_def']['mutations'],
+  > = inferProcedureOutput<AppRouter['_def']['mutations'][TRouteKey]>;
+export type inferMutationInput<
+  TRouteKey extends keyof AppRouter['_def']['mutations'],
+  > = inferProcedureInput<AppRouter['_def']['mutations'][TRouteKey]>;
 
 export type inferProcedures<TObj extends ProcedureRecord> = {
   [TPath in keyof TObj]: {

@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { Dialog, DialogContent, DialogTitle, Grid, IconButton, TextField, Typography } from '@mui/material';
 import { Close, Visibility } from '@mui/icons-material';
-import { GridActionsCellItem, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
+import { GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
-import { EmailMessage, EmailMessageType, User } from '@prisma/client';
-import { UserLink } from '../../link/UserLink';
+import { EmailMessage, EmailMessageType } from '@prisma/client';
 import { relativeTimestamp, userColumn } from './common';
 import { formatDateDDsMMsYYYYsHHhMMmSSs } from '../../../common/date';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { EmailMessageTypeNames } from '../../../common/emailMessages';
+import { trpc } from '../../../common/trpc';
 
 interface EmailDetailsDialogProps {
   open: boolean;
@@ -116,7 +116,7 @@ export const EmailMessageGrid: React.FunctionComponent = () => {
       {dialogData && (
         <EmailDetailsDialog open={open} onClose={() => setOpen(false)} data={dialogData} />
       )}
-      <AsyncGrid columns={columns} query={['emailMessage.findAll']} initialSort={{ field: 'createdAt', sort: 'desc' }} />
+      <AsyncGrid columns={columns} procedure={trpc.emailMessageFindAll} input={undefined} initialSort={{ field: 'createdAt', sort: 'desc' }} />
     </>
   );
 };

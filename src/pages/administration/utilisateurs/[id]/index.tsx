@@ -66,8 +66,8 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
   const { mutate: mutateDisable, isLoading: isDisablingLoading } = trpc.userDisabled.useMutation({
     onSuccess: async (_, { disabled }) => {
       await Promise.all((
-        ['userFind', 'userFindAll'] as QueryKey[]
-      ).map(query => trpcClient[query].invalidate(query)));
+        ['userFind', 'userFindAll'] as const
+      ).map(query => trpcClient[query].invalidate()));
       enqueueSnackbar(disabled ? `L'utilisateur a été désactivé` : `L'utilisateur a été réactivé`, { variant: 'success' });
     },
     onError: (_, { disabled }) => {

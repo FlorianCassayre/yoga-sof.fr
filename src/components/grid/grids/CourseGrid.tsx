@@ -156,6 +156,6 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, c
   ];
 
   return (
-    <AsyncGrid columns={columns} query={['course.findAll', { future, canceled }]} initialSort={{ field: 'dateStart', sort: future ? 'asc' : 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.courseFindAll} input={{ future, canceled }} initialSort={{ field: 'dateStart', sort: future ? 'asc' : 'desc' }} />
   );
 };
