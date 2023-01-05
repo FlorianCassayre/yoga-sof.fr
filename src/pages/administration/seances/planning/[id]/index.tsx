@@ -165,7 +165,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
 export default function AdminCourse() {
   const router = useRouter();
   const { id } = router.query;
-  const result = useSchemaQuery(['course.find', { id }], courseFindTransformSchema);
+  const result = useSchemaQuery(trpc.courseFind, { id }, courseFindTransformSchema);
 
   return result && result.data ? (
     <CourseContent course={result.data as CourseContentProps['course']} />

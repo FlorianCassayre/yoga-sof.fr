@@ -2,6 +2,9 @@ import { z } from 'zod';
 import { CourseType } from '@prisma/client';
 import { formatDateDDsMMsYYYY } from '../date';
 import { refineTimeRange, timeSchema } from './common';
+import { inferProcedureParams } from '@trpc/server/src/core/types';
+import { ZodTypeDef } from 'zod/lib/types';
+import { inferProcedureInput } from '@trpc/server';
 
 export const courseFindSchema = z.object({
   id: z.number().int().min(0),

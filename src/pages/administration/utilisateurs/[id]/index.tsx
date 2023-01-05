@@ -173,7 +173,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
 export default function AdminUser() {
   const router = useRouter();
   const { id } = router.query;
-  const result = useSchemaQuery(['user.find', { id }], userFindTransformSchema);
+  const result = useSchemaQuery(trpc.userFind, { id }, userFindTransformSchema);
 
   return result && result.data ? (
     <AdminUserContent user={result.data as any} />
