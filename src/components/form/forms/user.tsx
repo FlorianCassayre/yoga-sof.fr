@@ -11,6 +11,7 @@ import { QueryKey } from '../../../server/controllers';
 import { User } from '@prisma/client';
 import { userCreateSchema, userFindTransformSchema, userUpdateSchema } from '../../../common/schemas/user';
 import { displayUserName } from '../../../common/display';
+import { trpc } from '../../../common/trpc';
 
 const UserFormFields = () => (
   <Grid container spacing={2}>
@@ -28,12 +29,16 @@ const userFormDefaultValues: DeepPartial<z.infer<typeof userCreateSchema>> = {
   email: null,
 };
 
+const useProceduresToInvalidate = () => {
+  const { userFind, userFindAll, userFindUpdate, courseRegistrationFindAll, courseRegistrationFindAllEvents, courseRegistrationFindAllActive } = trpc.useContext();
+  return [userFind, userFindAll, userFindUpdate, courseRegistrationFindAll, courseRegistrationFindAllEvents, courseRegistrationFindAllActive];
+};
+
 const commonFormProps = {
   icon: <Person />,
   defaultValues: userFormDefaultValues,
   urlSuccessFor: (data: User) => `/administration/utilisateurs/${data.id}`,
   urlCancel: `/administration/utilisateurs`,
-  invalidate: ['userFind', 'userFindAll', 'userFindUpdate', 'courseRegistrationFindAll', 'courseRegistrationFindAllEvents', 'courseRegistrationFindAllActive'] as const,
 };
 
 export const UserCreateForm = () => {
@@ -42,8 +47,9 @@ export const UserCreateForm = () => {
       {...commonFormProps}
       title="Création d'un compte utilisateur"
       schema={userCreateSchema}
-      mutation="user.create"
+      mutationProcedure={trpc.userCreate}
       successMessage={(data) => `L'utilisateur ${displayUserName(data)} a été créé.`}
+      invalidate={useProceduresToInvalidate()}
     >
       <UserFormFields />
     </CreateFormContent>
@@ -56,11 +62,12 @@ export const UserUpdateForm = ({ queryParams }: { queryParams: ParsedUrlQuery })
       {...commonFormProps}
       title="Modification d'un compte utilisateur"
       schema={userUpdateSchema}
-      mutation="user.update"
-      query="user.findUpdate"
+      mutationProcedure={trpc.userUpdate}
+      queryProcedure={trpc.userFindUpdate}
       querySchema={userFindTransformSchema}
       queryParams={queryParams}
       successMessage={(data) => `L'utilisateur ${displayUserName(data)} a été mis à jour.`}
+      invalidate={useProceduresToInvalidate()}
     >
       <UserFormFields />
     </UpdateFormContent>

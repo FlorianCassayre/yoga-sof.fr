@@ -34,6 +34,7 @@ import {
 import { SelectCourseModel } from '../newFields/SelectCourseModel';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formatDateDDsMMsYYYY } from '../../../common/date';
+import { trpc } from '../../../common/trpc';
 
 const AddCourseSubmitButton = ({ onSubmit }: { onSubmit: any }) => {
   const { handleSubmit } = useFormContext();
@@ -186,11 +187,14 @@ const courseFormDefaultValues = {
   dates: [] as Date[],
 };
 
+const useProceduresToInvalidate = () => {
+  const { courseFind, courseFindUpdate, courseFindUpdateNotes, courseFindAll } = trpc.useContext();
+  return [courseFind, courseFindUpdate, courseFindUpdateNotes, courseFindAll];
+};
+
 const commonFormProps = {
   icon: <Event />,
-  urlSuccessFor: (data: Course) => `/administration/seances`,
   urlCancel: `/administration/seances`,
-  invalidate: ['course.find', 'course.findUpdate', 'course.findUpdateNotes', 'course.findAll'] as QueryKey[],
 };
 
 const CourseCreateFormContent = () => {
@@ -250,10 +254,12 @@ export const CourseCreateForm = () => {
     <CreateFormContent
       {...commonFormProps}
       title="Planification de séances"
-      schema={courseCreateManySchema as any} // FIXME
-      mutation={"course.createMany" as any} // FIXME
+      schema={courseCreateManySchema}
+      mutationProcedure={trpc.courseCreateMany}
       successMessage={() => 'Les séances ont été planifiées'} // TODO show count
       defaultValues={courseFormDefaultValues}
+      urlSuccessFor={() => `/administration/seances`}
+      invalidate={useProceduresToInvalidate()}
     >
       <CourseCreateFormContent />
     </CreateFormContent>
@@ -266,12 +272,14 @@ export const CourseUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) =
       {...commonFormProps}
       title="Modification d'une séance planifiée"
       schema={courseUpdateSchema}
-      mutation="course.update"
-      query="course.findUpdate"
+      mutationProcedure={trpc.courseUpdate}
+      queryProcedure={trpc.courseFindUpdate}
       querySchema={courseModelGetTransformSchema}
       queryParams={queryData}
       successMessage={() => 'Les caractéristiques de la séance ont été mises à jour'}
       defaultValues={{}}
+      urlSuccessFor={() => `/administration/seances`}
+      invalidate={useProceduresToInvalidate()}
     >
       <Grid container spacing={2}>
         <Grid item xs={12}>
@@ -297,12 +305,14 @@ export const CourseUpdateNotesForm = ({ queryData }: { queryData: ParsedUrlQuery
       {...commonFormProps}
       title="Modification des notes d'une séance"
       schema={courseUpdateNotesSchema}
-      mutation="course.updateNotes"
-      query="course.findUpdateNotes"
+      mutationProcedure={trpc.courseUpdateNotes}
+      queryProcedure={trpc.courseFindUpdateNotes}
       querySchema={courseFindTransformSchema}
       queryParams={queryData}
       successMessage={() => 'Les notes de la séance ont été mises à jour'}
       defaultValues={{ notes: null }}
+      urlSuccessFor={() => `/administration/seances`}
+      invalidate={useProceduresToInvalidate()}
     >
       <TextFieldElement name="notes" label="Notes (visibles seulement par vous)" multiline rows={4} fullWidth />
     </UpdateFormContent>

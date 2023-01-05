@@ -14,6 +14,7 @@ import { CreateFormContent, UpdateFormContent } from '../form';
 import { CourseModel } from '@prisma/client';
 import { ParsedUrlQuery } from 'querystring';
 import { QueryKey } from '../../../server/controllers';
+import { trpc } from '../../../common/trpc';
 
 const CourseModelFormFields = () => (
   <Grid container spacing={2}>
@@ -47,13 +48,17 @@ const courseModelFormDefaultValues: DeepPartial<z.infer<typeof courseModelCreate
   bundle: false,
 };
 
+const useProceduresToInvalidate = () => {
+  const { courseModelFind, courseModelFindAll } = trpc.useContext();
+  return [courseModelFind, courseModelFindAll];
+};
+
 const commonFormProps = {
   icon: <Event />,
   //children: <CourseModelFields />,
   defaultValues: courseModelFormDefaultValues,
   urlSuccessFor: (data: CourseModel) => `/administration/seances`,
   urlCancel: `/administration/seances`,
-  invalidate: ['courseModel.find', 'courseModel.findAll'] as const,
 };
 
 export const CourseModelCreateForm = () => {
@@ -62,8 +67,9 @@ export const CourseModelCreateForm = () => {
       {...commonFormProps}
       title="Création d'un modèle de séance"
       schema={courseModelCreateSchema}
-      mutation="courseModel.create"
+      mutationProcedure={trpc.courseModelCreate}
       successMessage={(data) => `Le modèle a été créé.`}
+      invalidate={useProceduresToInvalidate()}
     >
       <CourseModelFormFields />
     </CreateFormContent>
@@ -76,11 +82,12 @@ export const CourseModelUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery
       {...commonFormProps}
       title="Modification d'un modèle de séance"
       schema={courseModelUpdateSchema}
-      mutation="courseModel.update"
-      query="courseModel.find"
+      mutationProcedure={trpc.courseModelUpdate}
+      queryProcedure={trpc.courseModelFind}
       querySchema={courseModelGetTransformSchema}
       queryParams={queryData}
       successMessage={(data) => `Le modèle a été mis à jour.`}
+      invalidate={useProceduresToInvalidate()}
     >
       <CourseModelFormFields />
     </UpdateFormContent>

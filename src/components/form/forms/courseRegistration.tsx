@@ -11,6 +11,7 @@ import { SelectUser } from '../newFields/SelectUser';
 import { SelectCourse } from '../newFields/SelectCourse';
 import { useRouter } from 'next/router';
 import { courseRegistrationCreateSchema } from '../../../common/schemas/courseRegistration';
+import { trpc } from '../../../common/trpc';
 
 const CourseRegistrationBatchFormFields = () => (
   <Grid container spacing={2}>
@@ -38,11 +39,15 @@ const courseRegistrationFormDefaultValues: DeepPartial<z.infer<typeof courseRegi
   notify: true,
 };
 
+const useProceduresToInvalidate = () => {
+  const { courseRegistrationFindAll, courseRegistrationFindAllEvents, courseRegistrationFindAllActive, courseFind, courseFindAll } = trpc.useContext();
+  return [courseRegistrationFindAll, courseRegistrationFindAllEvents, courseRegistrationFindAllActive, courseFind, courseFindAll];
+};
+
 const commonFormProps = {
   icon: <Person />,
   urlSuccessFor: () => `/administration/seances`,
   urlCancel: `/administration/seances`,
-  invalidate: ['courseRegistration.findAll', 'courseRegistration.findAllEvents', 'courseRegistration.findAllActive', 'course.find', 'course.findAll'] as QueryKey[],
 };
 
 const querySchema = z.object({
@@ -78,8 +83,9 @@ export const CourseRegistrationCreateBatchForm = () => {
       defaultValues={actualDefaultValues}
       title="Inscription d'utilisateurs à des séances"
       schema={courseRegistrationCreateSchema}
-      mutation="courseRegistration.create"
+      mutationProcedure={trpc.courseRegistrationCreate}
       successMessage={(data) => data.length + (data.length > 1 ? ` inscriptions ont été effectuées` : ` inscription a été effectuée`)}
+      invalidate={useProceduresToInvalidate()}
     >
       <CourseRegistrationBatchFormFields />
     </CreateFormContent>
