@@ -116,7 +116,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
                   {!isCheckingAttendance && (
                     <>
                       {' '}
-                      <MuiLink href="#" onClick={e => { e.stopPropagation(); setCheckingAttendance(true) }}>Faire l'appel ?</MuiLink>
+                      <MuiLink href="#" onClick={e => { e.stopPropagation(); e.preventDefault(); setCheckingAttendance(true) }}>Faire l'appel ?</MuiLink>
                     </>
                   )}
 
