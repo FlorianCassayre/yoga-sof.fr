@@ -1,11 +1,11 @@
 import { initTRPC } from '@trpc/server';
 import { Context } from './context';
-import { sessionMiddleware } from './middlewares/createSessionRouter';
 import { UserType } from '../../common/all';
-import { createSessionProtectedMiddleware } from './middlewares/createProtectedRouter';
 import superjson from 'superjson';
 import { ZodError } from 'zod';
 import { ServiceError } from '../services/helpers/errors';
+import { getSession } from 'next-auth/react';
+import * as trpc from '@trpc/server';
 
 const t = initTRPC.context<Context & Record<string, unknown>>().create({
   transformer: superjson,
@@ -37,7 +37,33 @@ export const procedure = t.procedure;
 export const middleware = t.middleware;
 export const mergeRouters = t.mergeRouters;
 
-export const sessionUnprotectedProcedure = procedure.use(sessionMiddleware);
+const createSessionMiddleware = middleware(async ({ next, ctx: { req } }) => {
+  const session = await getSession({ req });
+  return next({
+    ctx: {
+      session,
+    },
+  });
+});
+
+const createSessionProtectedMiddleware = (allowedUserTypes: UserType[]) => {
+  return middleware(async ({ next, ctx: { req } }) => {
+    const session = await getSession({ req });
+    if (session === null) {
+      throw new trpc.TRPCError({ code: 'UNAUTHORIZED' });
+    }
+    if (!allowedUserTypes.includes(session.userType)) {
+      throw new trpc.TRPCError({ code: 'FORBIDDEN' });
+    }
+    return next({
+      ctx: {
+        session,
+      },
+    });
+  });
+};
+
+export const sessionUnprotectedProcedure = procedure.use(createSessionMiddleware);
 const createSessionProtectedProcedure =
   (allowedUserTypes: UserType[]) => procedure.use(createSessionProtectedMiddleware(allowedUserTypes));
 export const adminProcedure = createSessionProtectedProcedure([UserType.Admin]);
