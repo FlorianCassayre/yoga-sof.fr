@@ -8,7 +8,7 @@ import {
   courseModelUpdateSchema
 } from '../../../common/schemas';
 import { Grid } from '@mui/material';
-import { InputPrice, InputSlots, SelectCourseType, SelectWeekday, TimePickerElement } from '../newFields';
+import { InputPrice, InputSlots, SelectCourseType, SelectWeekday, TimePickerElement } from '../fields';
 import { Event } from '@mui/icons-material';
 import { CreateFormContent, UpdateFormContent } from '../form';
 import { CourseModel } from '@prisma/client';

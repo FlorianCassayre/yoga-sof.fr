@@ -19,7 +19,7 @@ import {
   ListItemText,
   Stack, Typography
 } from '@mui/material';
-import { InputPrice, InputSlots, SelectCourseType, SelectWeekday, TimePickerElement } from '../newFields';
+import { InputPrice, InputSlots, SelectCourseType, SelectWeekday, TimePickerElement } from '../fields';
 import { AddBox, Delete, Event } from '@mui/icons-material';
 import { CreateFormContent, UpdateFormContent } from '../form';
 import { ParsedUrlQuery } from 'querystring';
@@ -29,7 +29,7 @@ import {
   courseUpdateNotesSchema,
   courseUpdateSchema
 } from '../../../common/schemas/course';
-import { SelectCourseModel } from '../newFields/SelectCourseModel';
+import { SelectCourseModel } from '../fields/SelectCourseModel';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formatDateDDsMMsYYYY } from '../../../common/date';
 import { trpc } from '../../../common/trpc';

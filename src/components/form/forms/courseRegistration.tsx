@@ -6,8 +6,8 @@ import {
 import { Grid, Alert } from '@mui/material';
 import { Person } from '@mui/icons-material';
 import { CreateFormContent } from '../form';
-import { SelectUser } from '../newFields/SelectUser';
-import { SelectCourse } from '../newFields/SelectCourse';
+import { SelectUser } from '../fields/SelectUser';
+import { SelectCourse } from '../fields/SelectCourse';
 import { useRouter } from 'next/router';
 import { courseRegistrationCreateSchema } from '../../../common/schemas/courseRegistration';
 import { trpc } from '../../../common/trpc';
