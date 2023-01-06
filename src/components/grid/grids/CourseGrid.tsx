@@ -21,10 +21,10 @@ const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactE
   const { enqueueSnackbar } = useSnackbar();
   const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
   const trpcClient = trpc.useContext();
-  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.courseCancel.useMutation({
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.course.cancel.useMutation({
     onSuccess: async () => {
       await Promise.all((
-        [trpcClient.courseFind, trpcClient.courseFindUpdate, trpcClient.courseFindUpdateNotes, trpcClient.courseFindAll, trpcClient.courseRegistrationFindAll, trpcClient.courseRegistrationFindAllEvents, trpcClient.courseRegistrationFindAllActive]
+        [trpcClient.course.find, trpcClient.course.findUpdate, trpcClient.course.findUpdateNotes, trpcClient.course.findAll, trpcClient.courseRegistration.findAll, trpcClient.courseRegistration.findAllEvents, trpcClient.courseRegistration.findAllActive]
       ).map(procedure => procedure.invalidate()));
       await enqueueSnackbar('La séance a été annulée', { variant: 'success' });
     },
@@ -155,6 +155,6 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, c
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.courseFindAll} input={{ future, canceled }} initialSort={{ field: 'dateStart', sort: future ? 'asc' : 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.course.findAll} input={{ future, canceled }} initialSort={{ field: 'dateStart', sort: future ? 'asc' : 'desc' }} />
   );
 };

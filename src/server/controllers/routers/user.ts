@@ -4,29 +4,29 @@ import { userCreateSchema, userDisableSchema, userUpdateSchema } from '../../../
 import { adminProcedure, router } from '../trpc';
 
 export const userRouter = router({
-  userFind: adminProcedure
+  find: adminProcedure
     .input(z.strictObject({
       id: z.number().int().min(0),
     }))
     .query(async ({ input: { id } }) => {
       return findUser({ where: { id }, include: { courseRegistrations: { include: { course: true } }, accounts: true } });
     }),
-  userFindAll: adminProcedure
+  findAll: adminProcedure
     .query(async () => findUsers({ where: { disabled: false } })),
-  userFindUpdate: adminProcedure
+  findUpdate: adminProcedure
     .input(z.strictObject({
       id: z.number().int().min(0),
     }))
     .query(async ({ input: { id } }) => {
       return findUserUpdate({ where: { id } });
     }),
-  userCreate: adminProcedure
+  create: adminProcedure
     .input(userCreateSchema)
     .mutation(async ({ input }) => createUser({ data: input })),
-  userUpdate: adminProcedure
+  update: adminProcedure
     .input(userUpdateSchema)
     .mutation(async ({ input: { id, ...data } }) => updateUser({ where: { id }, data })),
-  userDisabled: adminProcedure
+  disabled: adminProcedure
     .input(userDisableSchema)
     .mutation(async ({ input: { id, ...data } }) => updateUserDisable({ where: { id }, data })),
 });

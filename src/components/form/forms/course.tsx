@@ -186,8 +186,8 @@ const courseFormDefaultValues = {
 };
 
 const useProceduresToInvalidate = () => {
-  const { courseFind, courseFindUpdate, courseFindUpdateNotes, courseFindAll } = trpc.useContext();
-  return [courseFind, courseFindUpdate, courseFindUpdateNotes, courseFindAll];
+  const { course } = trpc.useContext();
+  return [course.find, course.findUpdate, course.findUpdateNotes, course.findAll];
 };
 
 const commonFormProps = {
@@ -253,7 +253,7 @@ export const CourseCreateForm = () => {
       {...commonFormProps}
       title="Planification de séances"
       schema={courseCreateManySchema}
-      mutationProcedure={trpc.courseCreateMany}
+      mutationProcedure={trpc.course.createMany}
       successMessage={() => 'Les séances ont été planifiées'} // TODO show count
       defaultValues={courseFormDefaultValues}
       urlSuccessFor={() => `/administration/seances`}
@@ -270,8 +270,8 @@ export const CourseUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) =
       {...commonFormProps}
       title="Modification d'une séance planifiée"
       schema={courseUpdateSchema}
-      mutationProcedure={trpc.courseUpdate}
-      queryProcedure={trpc.courseFindUpdate}
+      mutationProcedure={trpc.course.update}
+      queryProcedure={trpc.course.findUpdate}
       querySchema={courseModelGetTransformSchema}
       queryParams={queryData}
       successMessage={() => 'Les caractéristiques de la séance ont été mises à jour'}
@@ -303,8 +303,8 @@ export const CourseUpdateNotesForm = ({ queryData }: { queryData: ParsedUrlQuery
       {...commonFormProps}
       title="Modification des notes d'une séance"
       schema={courseUpdateNotesSchema}
-      mutationProcedure={trpc.courseUpdateNotes}
-      queryProcedure={trpc.courseFindUpdateNotes}
+      mutationProcedure={trpc.course.updateNotes}
+      queryProcedure={trpc.course.findUpdateNotes}
       querySchema={courseFindTransformSchema}
       queryParams={queryData}
       successMessage={() => 'Les notes de la séance ont été mises à jour'}

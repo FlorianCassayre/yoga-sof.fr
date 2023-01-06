@@ -18,7 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { userSchemaBase } from '../common/schemas/user';
 
 const CalendarWidget = () => {
-  const { data, isLoading } = trpc.selfFindAllRegisteredCourses.useQuery({ future: null, userCanceled: false });
+  const { data, isLoading } = trpc.self.findAllRegisteredCourses.useQuery({ future: null, userCanceled: false });
   const renderDay = (day: Date, selectedDays: Date[], pickersDayProps: PickersDayProps<Date>) => {
     const isSelected = data && data.some(({ course: { dateStart } }: any) => isSameDay(new Date(dateStart), day));
     const isDisabled = !isSameDay(day, new Date()) && day.getTime() < new Date().getTime();
@@ -65,11 +65,11 @@ const CalendarWidget = () => {
 
 const UserDataForm: React.FC = () => {
   const trpcClient = trpc.useContext();
-  const { data: initialData } = trpc.selfProfile.useQuery();
+  const { data: initialData } = trpc.self.profile.useQuery();
   const { enqueueSnackbar } = useSnackbar();
-  const { mutate, isLoading: isUpdateLoading } = trpc.selfUpdateProfile.useMutation({
+  const { mutate, isLoading: isUpdateLoading } = trpc.self.updateProfile.useMutation({
     onSuccess: async () => {
-      await trpcClient.selfProfile.invalidate();
+      await trpcClient.self.profile.invalidate();
       enqueueSnackbar('Vos données ont été mises à jour', { variant: 'success' });
     },
     onError: () => {

@@ -19,10 +19,10 @@ interface GridActionsAttendanceProps {
 const GridActionsAttendance: React.FC<GridActionsAttendanceProps> = ({ courseRegistration, readOnly }) => {
   const { enqueueSnackbar } = useSnackbar();
   const trpcClient = trpc.useContext();
-  const { mutate: mutateAttendance, isLoading: isUpdatingAttendance } = trpc.courseRegistrationAttended.useMutation({
+  const { mutate: mutateAttendance, isLoading: isUpdatingAttendance } = trpc.courseRegistration.attended.useMutation({
     onSuccess: async () => {
       await Promise.all((
-        [trpcClient.courseFind, trpcClient.courseFindAll, trpcClient.courseRegistrationFindAll, trpcClient.courseRegistrationFindAllEvents, trpcClient.courseRegistrationFindAllActive]
+        [trpcClient.course.find, trpcClient.course.findAll, trpcClient.courseRegistration.findAll, trpcClient.courseRegistration.findAllEvents, trpcClient.courseRegistration.findAllActive]
       ).map(procedure => procedure.invalidate()));
       enqueueSnackbar(`La présence a été modifiée`, { variant: 'success' });
     },
@@ -58,10 +58,10 @@ const GridActionCancel: React.FC<GridActionCancelProps> = ({ courseRegistration 
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const trpcClient = trpc.useContext();
-  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.courseRegistrationCancel.useMutation({
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.courseRegistration.cancel.useMutation({
     onSuccess: async () => {
       await Promise.all((
-        [trpcClient.courseFind, trpcClient.courseFindAll, trpcClient.courseRegistrationFindAll, trpcClient.courseRegistrationFindAllEvents, trpcClient.courseRegistrationFindAllActive]
+        [trpcClient.course.find, trpcClient.course.findAll, trpcClient.courseRegistration.findAll, trpcClient.courseRegistration.findAllEvents, trpcClient.courseRegistration.findAllActive]
       ).map(procedure => procedure.invalidate()));
       enqueueSnackbar(`L'inscription de l'utilisateur à la séance a été annulée`, { variant: 'success' });
     },
@@ -111,6 +111,6 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.courseRegistrationFindAllActive} input={{ courseId, userId }} initialSort={{ field: 'createdAt', sort: 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.courseRegistration.findAllActive} input={{ courseId, userId }} initialSort={{ field: 'createdAt', sort: 'desc' }} />
   );
 };

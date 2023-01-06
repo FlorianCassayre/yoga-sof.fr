@@ -3,10 +3,10 @@ import { Prisma } from '@prisma/client';
 import { procedure, router } from '../trpc';
 
 export const publicRouter = router({
-  publicFindAllModels: procedure
+  findAllModels: procedure
     .query(async () =>
       findCourseModels({ select: { type: true, slots: true, price: true, weekday: true, timeStart: true, timeEnd: true } })),
-  publicFindAllFutureCourses: procedure
+  findAllFutureCourses: procedure
     .query(async () => {
       const date = new Date();
       // TODO what is the problem with typing??

@@ -62,10 +62,10 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
   const statistics = getUserStatistics(user);
   const trpcClient = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
-  const { mutate: mutateDisable, isLoading: isDisablingLoading } = trpc.userDisabled.useMutation({
+  const { mutate: mutateDisable, isLoading: isDisablingLoading } = trpc.user.disabled.useMutation({
     onSuccess: async (_, { disabled }) => {
       await Promise.all((
-        [trpcClient.userFind, trpcClient.userFindAll]
+        [trpcClient.user.find, trpcClient.user.findAll]
       ).map(procedure => procedure.invalidate()));
       enqueueSnackbar(disabled ? `L'utilisateur a été désactivé` : `L'utilisateur a été réactivé`, { variant: 'success' });
     },
@@ -172,7 +172,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
 export default function AdminUser() {
   const router = useRouter();
   const { id } = router.query;
-  const result = useSchemaQuery(trpc.userFind, { id }, userFindTransformSchema);
+  const result = useSchemaQuery(trpc.user.find, { id }, userFindTransformSchema);
 
   return result && result.data ? (
     <AdminUserContent user={result.data as any} />

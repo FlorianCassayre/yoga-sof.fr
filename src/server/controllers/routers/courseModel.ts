@@ -9,20 +9,20 @@ import { courseModelCreateSchema, courseModelFindSchema, courseModelUpdateSchema
 import { adminProcedure, router } from '../trpc';
 
 export const courseModelRouter = router({
-  courseModelFind: adminProcedure
+  find: adminProcedure
     .input(courseModelFindSchema)
     .query(async ({ input: { id } }) => {
       return findCourseModel({ where: { id } });
     }),
-  courseModelFindAll: adminProcedure
+  findAll: adminProcedure
     .query(async () => findCourseModels()),
-  courseModelCreate: adminProcedure
+  create: adminProcedure
     .input(courseModelCreateSchema)
     .mutation(async ({ input }) => createCourseModel({ data: input })),
-  courseModelUpdate: adminProcedure
+  update: adminProcedure
     .input(courseModelUpdateSchema)
     .mutation(async ({ input: { id, ...data } }) => updateCourseModel({ where: { id }, data })),
-  courseModelDelete: adminProcedure
+  delete: adminProcedure
     .input(courseModelFindSchema)
     .mutation(async ({ input: { id } }) => {
       await deleteCourseModel({ where: { id } });

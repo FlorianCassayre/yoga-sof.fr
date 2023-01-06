@@ -48,8 +48,8 @@ const courseModelFormDefaultValues: DeepPartial<z.infer<typeof courseModelCreate
 };
 
 const useProceduresToInvalidate = () => {
-  const { courseModelFind, courseModelFindAll } = trpc.useContext();
-  return [courseModelFind, courseModelFindAll];
+  const { courseModel } = trpc.useContext();
+  return [courseModel.find, courseModel.findAll];
 };
 
 const commonFormProps = {
@@ -66,7 +66,7 @@ export const CourseModelCreateForm = () => {
       {...commonFormProps}
       title="Création d'un modèle de séance"
       schema={courseModelCreateSchema}
-      mutationProcedure={trpc.courseModelCreate}
+      mutationProcedure={trpc.courseModel.create}
       successMessage={(data) => `Le modèle a été créé.`}
       invalidate={useProceduresToInvalidate()}
     >
@@ -81,8 +81,8 @@ export const CourseModelUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery
       {...commonFormProps}
       title="Modification d'un modèle de séance"
       schema={courseModelUpdateSchema}
-      mutationProcedure={trpc.courseModelUpdate}
-      queryProcedure={trpc.courseModelFind}
+      mutationProcedure={trpc.courseModel.update}
+      queryProcedure={trpc.courseModel.find}
       querySchema={courseModelGetTransformSchema}
       queryParams={queryData}
       successMessage={(data) => `Le modèle a été mis à jour.`}

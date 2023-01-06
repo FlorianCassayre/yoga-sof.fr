@@ -12,7 +12,7 @@ import { router, userProcedure } from '../trpc';
 // It is important to control the data that we return from this router, since it is accessible to any logged-in user
 
 export const selfRouter = router({
-  selfFindAllRegisteredCourses: userProcedure
+  findAllRegisteredCourses: userProcedure
     .input(z.strictObject({
       userCanceled: z.boolean(),
       future: z.boolean().nullable(),
@@ -46,12 +46,12 @@ export const selfRouter = router({
         },
       });
     }),
-  selfProfile: userProcedure
+  profile: userProcedure
     .query(async ({ ctx: { session: { userId } } }) => {
       const { name, email } = await findUserUpdate({ where: { id: userId } });
       return { name, email };
     }),
-  selfCancelRegistration: userProcedure
+  cancelRegistration: userProcedure
     .input(z.strictObject({
       id: z.number().int().min(0),
     }))
@@ -62,12 +62,12 @@ export const selfRouter = router({
       });
       return { id };
     }),
-  selfUpdateProfile: userProcedure
+  updateProfile: userProcedure
     .input(userSchemaBase)
     .mutation(async ({ input: { name, email }, ctx: { session: { userId } } }) => {
       await updateUser({ where: { id: userId }, data: { name, email } });
     }),
-  selfRegister: userProcedure
+  register: userProcedure
     .input(frontsiteCourseRegistrationSchema)
     .mutation(async ({ input: { courseIds, notify, name, email }, ctx: { session: { userId } } }) => {
       await prisma.$transaction(async () => {

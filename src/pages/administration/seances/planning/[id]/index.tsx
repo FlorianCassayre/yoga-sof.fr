@@ -34,10 +34,10 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
   const { enqueueSnackbar } = useSnackbar();
   const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
   const trpcClient = trpc.useContext();
-  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.courseCancel.useMutation({ // TODO factor this to avoid duplicating code
+  const { mutate: mutateCancel, isLoading: isCanceling } = trpc.course.cancel.useMutation({ // TODO factor this to avoid duplicating code
     onSuccess: async () => {
       await Promise.all((
-        [trpcClient.courseFind, trpcClient.courseFindUpdate, trpcClient.courseFindUpdateNotes, trpcClient.courseFindAll, trpcClient.courseRegistrationFindAll, trpcClient.courseRegistrationFindAllEvents, trpcClient.courseRegistrationFindAllActive]
+        [trpcClient.course.find, trpcClient.course.findUpdate, trpcClient.course.findUpdateNotes, trpcClient.course.findAll, trpcClient.courseRegistration.findAll, trpcClient.courseRegistration.findAllEvents, trpcClient.courseRegistration.findAllActive]
       ).map(procedure => procedure.invalidate()));
       await enqueueSnackbar('La séance a été annulée', { variant: 'success' });
     },
@@ -164,7 +164,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
 export default function AdminCourse() {
   const router = useRouter();
   const { id } = router.query;
-  const result = useSchemaQuery(trpc.courseFind, { id }, courseFindTransformSchema);
+  const result = useSchemaQuery(trpc.course.find, { id }, courseFindTransformSchema);
 
   return result && result.data ? (
     <CourseContent course={result.data as CourseContentProps['course']} />

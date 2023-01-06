@@ -72,6 +72,6 @@ export const UserGrid: React.FunctionComponent = () => {
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.userFindAll} input={undefined} initialSort={{ field: 'lastActivity', sort: 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.user.findAll} input={undefined} initialSort={{ field: 'lastActivity', sort: 'desc' }} />
   );
 };

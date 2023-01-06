@@ -39,8 +39,8 @@ const courseRegistrationFormDefaultValues: DeepPartial<z.infer<typeof courseRegi
 };
 
 const useProceduresToInvalidate = () => {
-  const { courseRegistrationFindAll, courseRegistrationFindAllEvents, courseRegistrationFindAllActive, courseFind, courseFindAll } = trpc.useContext();
-  return [courseRegistrationFindAll, courseRegistrationFindAllEvents, courseRegistrationFindAllActive, courseFind, courseFindAll];
+  const { courseRegistration, course } = trpc.useContext();
+  return [courseRegistration.findAll, courseRegistration.findAllEvents, courseRegistration.findAllActive, course.find, course.findAll];
 };
 
 const commonFormProps = {
@@ -82,7 +82,7 @@ export const CourseRegistrationCreateBatchForm = () => {
       defaultValues={actualDefaultValues}
       title="Inscription d'utilisateurs à des séances"
       schema={courseRegistrationCreateSchema}
-      mutationProcedure={trpc.courseRegistrationCreate}
+      mutationProcedure={trpc.courseRegistration.create}
       successMessage={(data) => data.length + (data.length > 1 ? ` inscriptions ont été effectuées` : ` inscription a été effectuée`)}
       invalidate={useProceduresToInvalidate()}
     >

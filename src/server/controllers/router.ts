@@ -8,18 +8,18 @@ import {
 } from './routers';
 import { selfRouter } from './routers/self';
 import { publicRouter } from './routers/public';
-import { mergeRouters } from './trpc';
+import { router } from './trpc';
 
 export const appRouter =
-  mergeRouters(
-    adminWhitelistRouter,
-    courseRouter,
-    courseModelRouter,
-    courseRegistrationRouter,
-    emailMessageRouter,
-    publicRouter,
-    selfRouter,
-    userRouter,
-  );
+  router({
+    adminWhitelist: adminWhitelistRouter,
+    course: courseRouter,
+    courseModel: courseModelRouter,
+    courseRegistration: courseRegistrationRouter,
+    emailMessage: emailMessageRouter,
+    public: publicRouter,
+    self: selfRouter,
+    user: userRouter,
+  });
 
 export type AppRouter = typeof appRouter;

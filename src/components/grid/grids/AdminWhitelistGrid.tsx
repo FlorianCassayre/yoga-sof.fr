@@ -14,6 +14,6 @@ export const AdminWhitelistGrid: React.FunctionComponent = () => {
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.adminWhitelistFindAll} input={undefined} getRowId={({ email }) => email} initialSort={{ field: 'email', sort: 'asc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.adminWhitelist.findAll} input={undefined} getRowId={({ email }) => email} initialSort={{ field: 'email', sort: 'asc' }} />
   );
 };

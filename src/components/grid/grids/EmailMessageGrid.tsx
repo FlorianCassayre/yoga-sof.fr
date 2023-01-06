@@ -116,7 +116,7 @@ export const EmailMessageGrid: React.FunctionComponent = () => {
       {dialogData && (
         <EmailDetailsDialog open={open} onClose={() => setOpen(false)} data={dialogData} />
       )}
-      <AsyncGrid columns={columns} procedure={trpc.emailMessageFindAll} input={undefined} initialSort={{ field: 'createdAt', sort: 'desc' }} />
+      <AsyncGrid columns={columns} procedure={trpc.emailMessage.findAll} input={undefined} initialSort={{ field: 'createdAt', sort: 'desc' }} />
     </>
   );
 };

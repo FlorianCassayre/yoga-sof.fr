@@ -17,7 +17,7 @@ interface CourseSectionProps {
 
 export const CourseSection: React.FC<CourseSectionProps> = ({ course, imageUrl, children }) => {
   const { type, anchor, isRegistrationOnline, notStarted, age, level, group, duration, price, location, stuff, registration } = course;
-  const { data: modelsData, isLoading: isModelsLoading } = trpc.publicFindAllModels.useQuery();
+  const { data: modelsData, isLoading: isModelsLoading } = trpc.public.findAllModels.useQuery();
   const modelsDataGrouped = useMemo(() => {
     if (modelsData) {
       const modelsFiltered = modelsData.filter(({ type }) => type === course.type);

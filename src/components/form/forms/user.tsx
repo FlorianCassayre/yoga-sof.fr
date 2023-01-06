@@ -29,8 +29,8 @@ const userFormDefaultValues: DeepPartial<z.infer<typeof userCreateSchema>> = {
 };
 
 const useProceduresToInvalidate = () => {
-  const { userFind, userFindAll, userFindUpdate, courseRegistrationFindAll, courseRegistrationFindAllEvents, courseRegistrationFindAllActive } = trpc.useContext();
-  return [userFind, userFindAll, userFindUpdate, courseRegistrationFindAll, courseRegistrationFindAllEvents, courseRegistrationFindAllActive];
+  const { user, courseRegistration } = trpc.useContext();
+  return [user.find, user.findAll, user.findUpdate, courseRegistration.findAll, courseRegistration.findAllEvents, courseRegistration.findAllActive];
 };
 
 const commonFormProps = {
@@ -46,7 +46,7 @@ export const UserCreateForm = () => {
       {...commonFormProps}
       title="Création d'un compte utilisateur"
       schema={userCreateSchema}
-      mutationProcedure={trpc.userCreate}
+      mutationProcedure={trpc.user.create}
       successMessage={(data) => `L'utilisateur ${displayUserName(data)} a été créé.`}
       invalidate={useProceduresToInvalidate()}
     >
@@ -61,8 +61,8 @@ export const UserUpdateForm = ({ queryParams }: { queryParams: ParsedUrlQuery })
       {...commonFormProps}
       title="Modification d'un compte utilisateur"
       schema={userUpdateSchema}
-      mutationProcedure={trpc.userUpdate}
-      queryProcedure={trpc.userFindUpdate}
+      mutationProcedure={trpc.user.update}
+      queryProcedure={trpc.user.findUpdate}
       querySchema={userFindTransformSchema}
       queryParams={queryParams}
       successMessage={(data) => `L'utilisateur ${displayUserName(data)} a été mis à jour.`}

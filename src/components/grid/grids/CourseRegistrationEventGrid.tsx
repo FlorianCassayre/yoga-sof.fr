@@ -45,6 +45,6 @@ export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistra
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.courseRegistrationFindAllEvents} input={{ courseId, userId }} getRowId={({ isEventTypeUserCanceled, registration: { id } }) => `${isEventTypeUserCanceled}:${id}`} initialSort={{ field: 'date', sort: 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.courseRegistration.findAllEvents} input={{ courseId, userId }} getRowId={({ isEventTypeUserCanceled, registration: { id } }) => `${isEventTypeUserCanceled}:${id}`} initialSort={{ field: 'date', sort: 'desc' }} />
   );
 };
