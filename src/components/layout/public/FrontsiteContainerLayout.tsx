@@ -206,11 +206,12 @@ function Header({logo, title, url: titleUrl, sections, profile, signInUrl}: Head
         <ProfileMenuButton profile={profile} signInUrl={signInUrl}/>
       </Toolbar>
       <Toolbar sx={{ ...toolbarSx, display: { xs: 'flex', md: 'none' } }}>
-        <Stack direction="row" alignItems="center" gap={1} sx={{ mt: 0.9 }}>
-          <IconButton onClick={() => setMenuOpen(!isMenuOpen)}><MenuIcon/></IconButton>
+        <IconButton onClick={() => setMenuOpen(!isMenuOpen)} sx={{ position: 'absolute', left: 0, top: { xs: 8, sm: 12 } }}><MenuIcon/></IconButton>
+        <Box alignItems="center" sx={{ mt: { xs: 1.4, sm: 2 }, mb: -10 }}>
           <MenuTitle logo={logo} title={title} titleUrl={titleUrl} onClick={() => setMenuOpen(false)}/>
-        </Stack>
+        </Box>
         <Collapse in={isMenuOpen}>
+          <Box sx={{ mt: 7 }} />
           <Stack direction="column" alignItems="center">
             <MenuSections sections={sections} onClick={() => setMenuOpen(false)}/>
             <ProfileMenuButton profile={profile} signInUrl={signInUrl}/>
