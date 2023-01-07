@@ -14,7 +14,8 @@ const timeFormatterHHhMM = new Intl.DateTimeFormat(locale, {
 export const colonTimeToParts = (time: string): [number, number] => {
   if (/[0-9]{2}:[0-9]{2}/.test(time)) {
     const parts = time.split(':').map(s => parseInt(s));
-    if(parts.every(n => n >= 0 && n < 60)) {
+    const [hours, minutes] = parts;
+    if (0 <= hours && hours < 24 && 0 <= minutes && minutes < 60) {
       return parts as [number, number];
     }
   }

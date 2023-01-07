@@ -42,8 +42,6 @@ const CourseModelFormFields = () => (
 );
 
 const courseModelFormDefaultValues: DeepPartial<z.infer<typeof courseModelCreateSchema>> = {
-  slots: 1,
-  price: 0,
   bundle: false,
 };
 

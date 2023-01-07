@@ -180,8 +180,6 @@ const DatesSelectionList = () => {
 };
 
 const courseFormDefaultValues = {
-  slots: 1,
-  price: 0,
   dates: [] as Date[],
 };
 
