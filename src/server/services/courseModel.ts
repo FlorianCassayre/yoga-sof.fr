@@ -6,7 +6,10 @@ export const findCourseModel = async <Where extends Prisma.CourseModelWhereUniqu
   prisma.courseModel.findUniqueOrThrow(args);
 
 export const findCourseModels = async <Where extends Prisma.CourseModelWhereInput, Select extends Prisma.CourseModelSelect>(args: { where?: Where, select?: Select } = {}) =>
-  prisma.courseModel.findMany(args);
+  (await prisma.courseModel.findMany(args))
+    .sort(({ weekday: weekday1, timeStart: timeStart1 }, { weekday: weekday2, timeStart: timeStart2 }) =>
+      weekday1 === weekday2 ? (timeStart1 < timeStart2 ? -1 : 1) : weekday1 - weekday2
+    );
 
 export const createCourseModel = async <Data extends Prisma.CourseModelCreateInput, Select extends Prisma.CourseModelSelect>(args: { data: Data, select?: Select }) => {
   courseModelCreateSchema.parse(args.data);
