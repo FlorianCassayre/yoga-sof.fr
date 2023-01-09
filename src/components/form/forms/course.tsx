@@ -33,6 +33,7 @@ import { SelectCourseModel } from '../fields/SelectCourseModel';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { formatDateDDsMMsYYYY } from '../../../common/date';
 import { trpc } from '../../../common/trpc';
+import { useRouter } from 'next/router';
 
 const AddCourseSubmitButton = ({ onSubmit }: { onSubmit: any }) => {
   const { handleSubmit } = useFormContext();
@@ -179,7 +180,7 @@ const DatesSelectionList = () => {
   );
 };
 
-const courseFormDefaultValues = {
+const courseFormDefaultValues: { dates: Date[], modelId?: number } = {
   dates: [] as Date[],
 };
 
@@ -193,8 +194,32 @@ const commonFormProps = {
   urlCancel: `/administration/seances`,
 };
 
+const querySchema = z.object({
+  modelId: z.preprocess(
+    (a) => a ? parseInt(z.string().parse(a), 10) : undefined,
+    z.number().int().min(0).optional()
+  ),
+});
+
 const CourseCreateFormContent = () => {
+  const router = useRouter();
   const { watch, setValue } = useFormContext();
+  const modelId = useMemo(() => {
+    const parsed = querySchema.safeParse(router.query);
+    if (parsed.success) {
+      const { modelId } = parsed.data;
+      return modelId ?? null;
+    } else {
+      return null;
+    }
+  }, [router]);
+  const { data } = trpc.courseModel.find.useQuery({ id: modelId ?? 0 }, { enabled: modelId != null });
+  useEffect(() => {
+    if (data) {
+      setValue('model', data);
+    }
+  }, [data, setValue]);
+
   const watchCourseModel = watch('model');
   const isUsingModel = useMemo(() => watchCourseModel != null, [watchCourseModel]);
   useEffect(() => {
