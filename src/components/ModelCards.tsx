@@ -8,7 +8,7 @@ import {
   CardContent, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
   Grid,
   IconButton,
-  Skeleton,
+  Skeleton, Tooltip
 } from '@mui/material';
 import { AddBox, Delete, Edit } from '@mui/icons-material';
 import Link from 'next/link';
@@ -17,6 +17,7 @@ import { Procedure, ProcedureParams } from '@trpc/server/src/core/procedure';
 import { AnyRootConfig } from '@trpc/server/src/core/internals/config';
 import { DecorateProcedure } from '@trpc/react-query/shared';
 import { Serialize } from '@trpc/server/dist/shared/internal/serialize';
+import { useRouter } from 'next/router';
 
 type InputIdentifier = { id: number };
 
@@ -59,6 +60,7 @@ interface ModelCard<T extends InputIdentifier, TProcedureDelete extends Procedur
   procedureDelete: DecorateProcedure<TProcedureDelete, any, any>;
   deleteInvalidate: { invalidate: () => Promise<void> }[];
   renderCardContent: (data: ConvertInput<T>) => React.ReactNode;
+  renderAdditionalActions?: (data: ConvertInput<T>, disabled: boolean) => React.ReactNode;
   urlEditFor: (data: InputIdentifier) => string;
   readOnly?: boolean;
 }
@@ -68,10 +70,12 @@ const ModelCard = <T extends InputIdentifier, TProcedureDelete extends Procedure
   procedureDelete,
   deleteInvalidate,
   renderCardContent,
+  renderAdditionalActions,
   urlEditFor,
   readOnly,
 }: ModelCard<T, TProcedureDelete>): React.ReactElement => {
   const { id } = data;
+  const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
 
   const { mutate: mutateDelete, isLoading: isDeleting } = procedureDelete.useMutation({
@@ -86,6 +90,8 @@ const ModelCard = <T extends InputIdentifier, TProcedureDelete extends Procedure
 
   const [isDeleteOpen, setDeleteOpen] = useState(false);
 
+  const disabled = isDeleting;
+
   return (
     <Card variant="outlined">
       <CardContent sx={{ pb: 0 }}>
@@ -93,10 +99,13 @@ const ModelCard = <T extends InputIdentifier, TProcedureDelete extends Procedure
       </CardContent>
       {!readOnly && (
         <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <IconButton size="small" aria-label="Supprimer" onClick={() => setDeleteOpen(true)} disabled={isDeleting}><Delete /></IconButton>
-          <Link href={urlEditFor({ id })} passHref>
-            <IconButton size="small" aria-label="Modifier" disabled={isDeleting}><Edit /></IconButton>
-          </Link>
+          {renderAdditionalActions && renderAdditionalActions(data, disabled)}
+          <Tooltip title="Supprimer">
+            <IconButton size="small" onClick={() => setDeleteOpen(true)} disabled={disabled}><Delete /></IconButton>
+          </Tooltip>
+          <Tooltip title="Modifier">
+            <IconButton size="small" disabled={disabled} onClick={() => router.push(urlEditFor({ id }))}><Edit /></IconButton>
+          </Tooltip>
         </CardActions>
       )}
 
@@ -130,6 +139,7 @@ export const ModelCards = <T extends InputIdentifier, TProcedureFindAll extends 
   procedureDelete,
   deleteInvalidate,
   renderCardContent,
+  renderAdditionalActions,
   urlEditFor,
   urlCreate,
   createLabel,
@@ -145,7 +155,7 @@ export const ModelCards = <T extends InputIdentifier, TProcedureFindAll extends 
             {data
               .map((model) =>
               <GridItem key={model.id}>
-                <ModelCard data={model} {...{ procedureDelete, deleteInvalidate, renderCardContent, urlEditFor, readOnly }} />
+                <ModelCard data={model} {...{ procedureDelete, deleteInvalidate, renderCardContent, renderAdditionalActions, urlEditFor, readOnly }} />
               </GridItem>
             )}
             {!readOnly && (

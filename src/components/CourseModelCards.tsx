@@ -1,21 +1,23 @@
 import React from 'react';
 import {
-  Chip,
-  Stack,
+  Chip, IconButton,
+  Stack, Tooltip,
   Typography
 } from '@mui/material';
 import { trpc } from '../common/trpc';
 import { CourseModel } from '@prisma/client';
 import { CourseTypeNames } from '../common/course';
-import { AutoAwesomeMotion, Event } from '@mui/icons-material';
+import { AutoAwesomeMotion, DateRange, Edit, Event } from '@mui/icons-material';
 import { formatColonTimeHHhMM, WeekdayNames } from '../common/date';
 import { ModelCards } from './ModelCards';
+import { useRouter } from 'next/router';
 
 interface CourseModelCardsProps {
   readOnly?: boolean;
 }
 
 export const CourseModelCards: React.FC<CourseModelCardsProps> = ({ readOnly }) => {
+  const router = useRouter();
   const trpcClient = trpc.useContext();
 
   return (
@@ -47,6 +49,11 @@ export const CourseModelCards: React.FC<CourseModelCardsProps> = ({ readOnly }) 
             <strong>{price} €</strong> par séance
           </Typography>
         </>
+      )}
+      renderAdditionalActions={({ id, bundle }: CourseModel, disabled) => !bundle && (
+        <Tooltip title="Planifier des séances">
+          <IconButton size="small" disabled={disabled} onClick={() => router.push({ pathname: '/administration/seances/planning/creation', query: { modelId: id } })}><DateRange /></IconButton>
+        </Tooltip>
       )}
     />
   );
