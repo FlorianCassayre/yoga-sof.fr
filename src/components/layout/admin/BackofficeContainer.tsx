@@ -2,13 +2,13 @@ import React from 'react';
 import { BackofficeContainerLayout } from './BackofficeContainerLayout';
 import {
   AdminPanelSettings,
-  Assignment,
+  Assignment, CardGiftcard,
   Dashboard,
   DateRange,
   Email,
-  Euro,
+  Euro, Groups,
   Home,
-  Logout,
+  Logout, Payments,
   People, Settings
 } from '@mui/icons-material';
 import { signOut, useSession } from 'next-auth/react';
@@ -32,7 +32,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
         {
           children: [
             { title: 'Aperçu', icon: <Dashboard />, url: '/administration' }
-          ]
+          ],
         },
         {
           title: 'Organisation',
@@ -40,8 +40,13 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
             { title: 'Séances', icon: <DateRange />, url: '/administration/seances' },
             { title: 'Inscriptions', icon: <Assignment />, url: '/administration/inscriptions' },
             { title: 'Utilisateurs', icon: <People />, url: '/administration/utilisateurs' },
-            { title: 'Comptabilité', icon: <Euro />, disabled: true },
-          ]
+          ],
+        },
+        {
+          title: 'Comptabilité',
+          children: [
+            { title: 'Cartes', icon: <CardGiftcard />, url: '/administration/cartes' },
+          ],
         },
         {
           title: 'Administration',

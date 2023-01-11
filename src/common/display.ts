@@ -1,4 +1,4 @@
-import { Course, CourseModel, User } from '@prisma/client';
+import { Coupon, CouponModel, Course, CourseModel, User } from '@prisma/client';
 import { CourseTypeNames } from './course';
 import {
   formatColonTimeHHhMM,
@@ -47,3 +47,7 @@ export const displayUserName = ({ customName, name, customEmail, email, id }: Pi
 
 export const displayUserEmail = ({ customEmail, email }: Pick<User, 'customEmail' | 'email'>) =>
   customEmail || email;
+
+export const displayCouponModelName = ({ courseType, quantity }: Pick<CouponModel, 'courseType' | 'quantity'>) => `Carte de ${quantity} séance${quantity > 1 ? 's' : ''} ${CourseTypeNames[courseType]}`;
+
+export const displayCouponName = ({ courseType, quantity }: Pick<Coupon, 'courseType' | 'quantity'>, capitalize = true) => `${capitalize ? 'Carte' : 'carte'} de ${quantity} séance${quantity > 1 ? 's' : ''} ${CourseTypeNames[courseType]}`;

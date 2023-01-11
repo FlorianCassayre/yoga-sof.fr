@@ -4,3 +4,7 @@ export * from './courseModel';
 export * from './courseRegistration';
 export * from './emailMessage';
 export * from './user';
+export * from './self';
+export * from './public';
+export * from './couponModel';
+export * from './coupon';

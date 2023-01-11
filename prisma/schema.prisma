@@ -71,6 +71,7 @@ model User {
 
   emailsReceived      EmailMessage[]
   courseRegistrations CourseRegistration[]
+  coupons             Coupon[]
 
   disabled            Boolean              @default(false)
 
@@ -184,4 +185,27 @@ model EmailMessage {
   sentAt             DateTime?        @map("sent_at")
 
   @@map("email_message")
+}
+
+model CouponModel {
+  id         Int        @id @default(autoincrement())
+  courseType CourseType @map("course_type")
+  quantity   Int        @db.UnsignedInt
+  price      Int        @db.UnsignedInt
+
+  @@map("coupon_model")
+}
+
+model Coupon {
+  id         Int        @id @default(autoincrement())
+  code       String     @unique
+  courseType CourseType @map("course_type")
+  quantity   Int        @db.UnsignedInt
+  price      Int        @db.UnsignedInt
+  disabled   Boolean    @default(false)
+  userId     Int        @map("user_id")
+  user       User       @relation(fields: [userId], references: [id])
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  @@map("coupon")
 }

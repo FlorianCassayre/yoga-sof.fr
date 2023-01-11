@@ -16,15 +16,9 @@ import { useSnackbar } from 'notistack';
 import { Procedure, ProcedureParams } from '@trpc/server/src/core/procedure';
 import { AnyRootConfig } from '@trpc/server/src/core/internals/config';
 import { DecorateProcedure } from '@trpc/react-query/shared';
-import { Serialize } from '@trpc/server/dist/shared/internal/serialize';
 import { useRouter } from 'next/router';
+import { ConvertInput, InputIdentifier, ProcedureQueryArray } from '../server/controllers/types';
 
-type InputIdentifier = { id: number };
-
-type NonJsonPrimitive = undefined | Function | symbol;
-type ConvertInput<T> = T | (T extends NonJsonPrimitive ? null : Serialize<T>);
-
-type ProcedureQueryArray<T> = Procedure<'query', ProcedureParams<AnyRootConfig, unknown, undefined, unknown, unknown, T[], unknown>>;
 type ProcedureMutateIdentifier = Procedure<'mutation', ProcedureParams<AnyRootConfig, unknown, InputIdentifier, unknown, unknown, unknown, unknown>>;
 
 interface ConfirmDeleteDialogProps {

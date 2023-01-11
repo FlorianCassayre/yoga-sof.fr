@@ -4,10 +4,12 @@ import {
   courseRegistrationRouter,
   courseRouter,
   emailMessageRouter,
-  userRouter
+  userRouter,
+  selfRouter,
+  publicRouter,
+  couponModelRouter,
+  couponRouter,
 } from './routers';
-import { selfRouter } from './routers/self';
-import { publicRouter } from './routers/public';
 import { router } from './trpc';
 
 export const appRouter =
@@ -20,6 +22,8 @@ export const appRouter =
     public: publicRouter,
     self: selfRouter,
     user: userRouter,
+    couponModel: couponModelRouter,
+    coupon: couponRouter,
   });
 
 export type AppRouter = typeof appRouter;
