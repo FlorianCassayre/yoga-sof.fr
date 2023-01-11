@@ -1,28 +1,23 @@
 import React from 'react';
-import { AutocompleteElement } from 'react-hook-form-mui';
 import { trpc } from '../../../common/trpc';
-import { User } from '@prisma/client';
 import { displayUserName } from '../../../common/display';
+import { AsyncSelect } from './AsyncSelect';
 
 interface SelectUserProps {
   name: string;
   multiple?: boolean;
+  label?: string;
 }
 
-export const SelectUser: React.FC<SelectUserProps> = ({ name, multiple }) => {
-  const { data, isLoading } = trpc.user.findAll.useQuery();
+export const SelectUser: React.FC<SelectUserProps> = ({ name, multiple, label }) => {
   return (
-    <AutocompleteElement
+    <AsyncSelect
       name={name}
-      options={data ?? []}
       multiple={multiple}
-      matchId
-      label={`Utilisateur${multiple ? 's' : ''}`}
-      loading={isLoading}
-      autocompleteProps={{
-        disabled: isLoading,
-        getOptionLabel: (option: User | undefined) => option ? displayUserName(option) : '...',
-      }}
+      label={label ?? `Utilisateur${multiple ? 's' : ''}`}
+      renderOptionLabel={displayUserName}
+      procedure={trpc.user.findAll}
+      input={undefined}
     />
   );
 };

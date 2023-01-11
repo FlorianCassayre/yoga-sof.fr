@@ -15,6 +15,7 @@ export enum ServiceErrorCode {
   UserCannotBeDisabled,
   CourseCanceledAttendance,
   UserNotRegisteredAttendance,
+  CouponAlreadyDisabled,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -41,4 +42,5 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.UserCannotBeDisabled]: `L'utilisateur est un administrateur et ne peut donc pas être désactivé`,
   [ServiceErrorCode.CourseCanceledAttendance]: `La séance est annulée donc la présence ne peut plus être modifiée`,
   [ServiceErrorCode.UserNotRegisteredAttendance]: `L'utilisateur n'est pas inscrit à cette séance`,
+  [ServiceErrorCode.CouponAlreadyDisabled]: `La carte est déjà désactivée`,
 };
