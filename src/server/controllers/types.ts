@@ -7,4 +7,4 @@ export type ConvertInput<T> = T | (T extends NonJsonPrimitive ? null : Serialize
 
 export type ProcedureQueryArray<TOutput, TInput = undefined> = Procedure<'query', ProcedureParams<AnyRootConfig, unknown, TInput, unknown, unknown, TOutput[], unknown>>;
 
-export type InputIdentifier = { id: number };
+export type InputIdentifier = { id: number | string };

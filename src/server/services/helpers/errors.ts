@@ -16,6 +16,7 @@ export enum ServiceErrorCode {
   CourseCanceledAttendance,
   UserNotRegisteredAttendance,
   CouponAlreadyDisabled,
+  MembershipAlreadyDisabled,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -43,4 +44,5 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.CourseCanceledAttendance]: `La séance est annulée donc la présence ne peut plus être modifiée`,
   [ServiceErrorCode.UserNotRegisteredAttendance]: `L'utilisateur n'est pas inscrit à cette séance`,
   [ServiceErrorCode.CouponAlreadyDisabled]: `La carte est déjà désactivée`,
+  [ServiceErrorCode.MembershipAlreadyDisabled]: `L'adhésion est déjà annulée`,
 };

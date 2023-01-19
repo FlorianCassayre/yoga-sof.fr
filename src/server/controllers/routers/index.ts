@@ -8,3 +8,4 @@ export * from './self';
 export * from './public';
 export * from './couponModel';
 export * from './coupon';
+export * from './membershipModel';

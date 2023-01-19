@@ -22,6 +22,20 @@ export const userColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDe
   ...params,
 });
 
+export const usersColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
+  headerName: 'Utilisateurs',
+  sortComparator: ((user1, user2) => displayUserName(user1) < displayUserName(user2) ? -1 : 1) as GridComparatorFn<User>,
+  renderCell: ({ value }: GridRenderCellParams<User[]>) => (
+    <Stack direction="column">
+      {value && value.map(user => // FIXME
+        <UserLink user={user} key={user.id} />
+      )}
+    </Stack>
+  ),
+  minWidth: 200,
+  ...params,
+});
+
 export const courseColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
   headerName: 'Séance',
   sortComparator: ((course1, course2) => course1.dateStart < course2.dateStart ? -1 : 1) as GridComparatorFn<Course>,
