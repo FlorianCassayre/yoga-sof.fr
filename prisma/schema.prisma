@@ -72,6 +72,7 @@ model User {
   emailsReceived      EmailMessage[]
   courseRegistrations CourseRegistration[]
   coupons             Coupon[]
+  memberships         Membership[]         @relation("user_membership")
 
   disabled            Boolean              @default(false)
 
@@ -208,4 +209,29 @@ model Coupon {
   createdAt  DateTime   @default(now()) @map("created_at")
 
   @@map("coupon")
+}
+
+enum MembershipType {
+  PERSON
+  FAMILY
+}
+
+model MembershipModel {
+  id    MembershipType @id
+  price Int            @db.UnsignedInt
+
+  @@map("membership_model")
+}
+
+model Membership {
+  id        Int      @id @default(autoincrement())
+  type      MembershipType
+  dateStart DateTime @map("date_start") @db.Date
+  dateEnd   DateTime @map("date_end") @db.Date
+  price     Int      @db.UnsignedInt
+  disabled  Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  users     User[]   @relation("user_membership")
+
+  @@map("membership")
 }

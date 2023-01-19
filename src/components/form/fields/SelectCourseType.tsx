@@ -2,6 +2,7 @@ import React from 'react';
 import { CourseType } from '@prisma/client';
 import { CourseTypeNames } from '../../../common/course';
 import { SelectElement } from 'react-hook-form-mui';
+import { SelectEnum } from './SelectEnum';
 
 interface SelectCourseTypeProps {
   name: string;
@@ -10,15 +11,12 @@ interface SelectCourseTypeProps {
 
 export const SelectCourseType: React.FC<SelectCourseTypeProps> = ({ name, disabled }) => {
   return (
-    <SelectElement
+    <SelectEnum
       name={name}
-      options={Object.keys(CourseType).map(key => ({
-        id: key,
-        label: CourseTypeNames[key as keyof typeof CourseType],
-      }))}
+      values={Object.keys(CourseType) as CourseType[]}
+      labels={CourseTypeNames}
       label="Type de séance"
       disabled={disabled}
-      fullWidth
     />
   );
 };

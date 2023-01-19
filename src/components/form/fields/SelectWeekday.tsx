@@ -1,8 +1,6 @@
 import React from 'react';
-import { CourseType } from '@prisma/client';
-import { CourseTypeNames } from '../../../common/course';
-import { SelectElement } from 'react-hook-form-mui';
 import { WeekdayNames } from '../../../common/date';
+import { SelectEnum } from './SelectEnum';
 
 interface SelectWeekdayProps {
   name: string;
@@ -11,15 +9,12 @@ interface SelectWeekdayProps {
 
 export const SelectWeekday: React.FC<SelectWeekdayProps> = ({ name, disabled }) => {
   return (
-    <SelectElement
+    <SelectEnum
       name={name}
-      options={WeekdayNames.map((weekdayLabel, weekdayIndex) => ({
-        id: weekdayIndex,
-        label: weekdayLabel,
-      }))}
+      values={WeekdayNames.map((_, weekdayIndex) => weekdayIndex)}
+      labels={WeekdayNames}
       label="Jour de la semaine"
       disabled={disabled}
-      fullWidth
     />
   );
 };

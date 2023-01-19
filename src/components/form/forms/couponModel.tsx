@@ -1,5 +1,5 @@
 import React from 'react';
-import { DeepPartial, SwitchElement } from 'react-hook-form-mui';
+import { DeepPartial } from 'react-hook-form-mui';
 import { z } from 'zod';
 import {
   couponModelCreateSchema,
@@ -8,7 +8,7 @@ import {
 } from '../../../common/schemas/couponModel';
 import { Grid } from '@mui/material';
 import { InputPrice, SelectCourseType } from '../fields';
-import { Event } from '@mui/icons-material';
+import { CardGiftcard } from '@mui/icons-material';
 import { CreateFormContent, UpdateFormContent } from '../form';
 import { CouponModel } from '@prisma/client';
 import { ParsedUrlQuery } from 'querystring';
@@ -37,7 +37,7 @@ const useProceduresToInvalidate = () => {
 };
 
 const commonFormProps = {
-  icon: <Event />,
+  icon: <CardGiftcard />,
   defaultValues: couponModelFormDefaultValues,
   urlSuccessFor: (data: CouponModel) => `/administration/cartes`,
   urlCancel: `/administration/cartes`,
@@ -50,7 +50,7 @@ export const CouponModelCreateForm = () => {
       title="Création d'un type de carte"
       schema={couponModelCreateSchema}
       mutationProcedure={trpc.couponModel.create}
-      successMessage={(data) => `Le modèle a été créé.`}
+      successMessage={(data) => `Le type de carte a été créé.`}
       invalidate={useProceduresToInvalidate()}
     >
       <CouponModelFormFields />
@@ -68,7 +68,7 @@ export const CouponModelUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery
       queryProcedure={trpc.couponModel.find}
       querySchema={couponModelGetTransformSchema}
       queryParams={queryData}
-      successMessage={(data) => `Le modèle a été mis à jour.`}
+      successMessage={(data) => `Le type de carte a été mis à jour.`}
       invalidate={useProceduresToInvalidate()}
     >
       <CouponModelFormFields />
