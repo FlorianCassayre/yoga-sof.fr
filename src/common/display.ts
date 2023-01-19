@@ -1,12 +1,22 @@
-import { Coupon, CouponModel, Course, CourseModel, Transaction, User } from '@prisma/client';
+import {
+  Coupon,
+  CouponModel,
+  Course,
+  CourseModel,
+  Membership,
+  MembershipModel,
+  Transaction,
+  User
+} from '@prisma/client';
 import { CourseTypeNames } from './course';
 import {
-  formatColonTimeHHhMM,
+  formatColonTimeHHhMM, formatDateDDsMMsYYYY,
   formatDateDDsmmYYYY,
   formatTimeHHhMM,
   formatWeekday,
   WeekdayNames
 } from './date';
+import { MembershipTypeNames } from './membership';
 
 export const displayCourseName = ({ type, dateStart, dateEnd }: Pick<Course, 'type' | 'dateStart' | 'dateEnd'>, capitalize = true) => [
   capitalize ? 'Séance' : 'séance',
@@ -56,3 +66,8 @@ export const displayTransactionWithDate = ({ amount, date, comment }: Pick<Trans
 export const displayCouponModelName = ({ courseType, quantity }: Pick<CouponModel, 'courseType' | 'quantity'>) => `Carte de ${quantity} séance${quantity > 1 ? 's' : ''} ${CourseTypeNames[courseType]}`;
 
 export const displayCouponName = ({ courseType, quantity }: Pick<Coupon, 'courseType' | 'quantity'>, capitalize = true) => `${capitalize ? 'Carte' : 'carte'} de ${quantity} séance${quantity > 1 ? 's' : ''} ${CourseTypeNames[courseType]}`;
+
+export const displayMembershipModelName = ({ id: type, price }: Pick<MembershipModel, 'id' | 'price'>) => `${MembershipTypeNames[type]} (${price} €)`;
+
+export const displayMembershipName = ({ type, dateStart, dateEnd }: Pick<Membership, 'type' | 'dateStart' | 'dateEnd'>, capitalize = true) =>
+  `${capitalize ? 'Adhésion' : 'adhésion'} ${MembershipTypeNames[type].toLowerCase()} du ${formatDateDDsMMsYYYY(dateStart)} au ${formatDateDDsMMsYYYY(dateEnd)}`;

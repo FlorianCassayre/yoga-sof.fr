@@ -8,10 +8,11 @@ import {
   selfRouter,
   publicRouter,
   couponModelRouter,
-  couponRouter,
+  couponRouter, membershipModelRouter
 } from './routers';
 import { router } from './trpc';
 import { transactionRouter } from './routers/transaction';
+import { membershipRouter } from './routers/membership';
 
 export const appRouter =
   router({
@@ -26,6 +27,8 @@ export const appRouter =
     transaction: transactionRouter,
     couponModel: couponModelRouter,
     coupon: couponRouter,
+    membershipModel: membershipModelRouter,
+    membership: membershipRouter,
   });
 
 export type AppRouter = typeof appRouter;

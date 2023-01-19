@@ -20,6 +20,7 @@ export enum ServiceErrorCode {
   UserCannotControlUser,
   UserCannotBeDeleted,
   CouponAlreadyDisabled,
+  MembershipAlreadyDisabled,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -51,4 +52,5 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.UserCannotControlUser]: `L'utilisateur ne peut pas effectuer d'action pour l'utilisateur donné`,
   [ServiceErrorCode.UserCannotBeDeleted]: `L'utilisateur ne peut pas être supprimé car certaines données liées à son compte seraient perdues`,
   [ServiceErrorCode.CouponAlreadyDisabled]: `La carte est déjà désactivée`,
+  [ServiceErrorCode.MembershipAlreadyDisabled]: `L'adhésion est déjà annulée`,
 };
