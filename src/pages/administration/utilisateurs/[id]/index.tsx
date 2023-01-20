@@ -11,10 +11,11 @@ import { CourseRegistrationGrid } from '../../../../components/grid/grids/Course
 import { Box, Card, CardContent, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import { InformationTableCard } from '../../../../components/InformationTableCard';
 import {
+  formatDateDDsMMsYYYY,
   formatDateDDsMMsYYYYsHHhMMmSSs,
   formatTimestampRelative
 } from '../../../../common/date';
-import { getUserStatistics } from '../../../../common/user';
+import { getUserLatestMembership, getUserStatistics } from '../../../../common/user';
 import { trpc } from '../../../../common/trpc';
 import { useSnackbar } from 'notistack';
 import { DisableUserDialog } from '../../../../components/DisableUserDialog';
@@ -23,6 +24,8 @@ import { AuthProviders } from '../../../../common/providers';
 import { grey } from '@mui/material/colors';
 import { UserLink } from '../../../../components/link/UserLink';
 import { BackofficeContentLoading } from '../../../../components/layout/admin/BackofficeContentLoading';
+import { CouponGrid } from '../../../../components/grid/grids/CouponGrid';
+import { MembershipGrid } from '../../../../components/grid/grids/MembershipGrid';
 
 interface GridItemStatisticProps {
   value: number;
@@ -49,7 +52,12 @@ const UserProvidedInformationChip: React.FC<UserProvidedInformationChipProps> = 
   <Tooltip title={(
     <>
       <Box>Cette donnée a été modifiée par l'utilisateur.</Box>
-      <Box>La valeur originale était : <strong>{original}</strong></Box>
+      <Box>
+        La valeur originale était{' '}
+        {original ? (
+          <strong>{original}</strong>
+        ) : 'vide.'}
+      </Box>
     </>
   )}>
     <Info color="action" />
@@ -57,13 +65,14 @@ const UserProvidedInformationChip: React.FC<UserProvidedInformationChipProps> = 
 );
 
 interface AdminUserContentProps {
-  user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true } }>;
+  user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, memberships: true } }>;
 }
 
 const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user }: AdminUserContentProps) => {
   const title = `Utilisateur ${displayUserName(user)}`;
   const displayDate = (date: Date | string | undefined | null) => !!date && `${formatDateDDsMMsYYYYsHHhMMmSSs(date)} (${formatTimestampRelative(date).toLowerCase()})`;
   const statistics = getUserStatistics(user);
+  const membership = getUserLatestMembership(user);
   const trpcClient = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
   const { mutate: mutateDisable, isLoading: isDisablingLoading } = trpc.user.disabled.useMutation({
@@ -120,6 +129,14 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
                 ),
               },
               {
+                header: 'Adhérant',
+                value: membership ? (
+                  <Chip label={`Oui (jusqu'au ${formatDateDDsMMsYYYY(membership.dateEnd)})`} color="success" variant="outlined" icon={<Done />} size="small" />
+                ) : (
+                  <Chip label="Non" color="default" variant="outlined" icon={<Close />} size="small" />
+                ),
+              },
+              {
                 header: 'Nom',
                 value: (
                   <Stack direction="row" alignItems="center" gap={1}>
@@ -141,8 +158,8 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
                   </Stack>
                 ),
               },
-              { header: 'Dernière connexion', value: displayDate(user.lastActivity) },
-              { header: 'Première connexion', value: displayDate(user.createdAt) },
+              { header: 'Dernière connexion', value: user.lastActivity !== null ? displayDate(user.lastActivity) : 'Jamais' },
+              { header: 'Création du compte', value: displayDate(user.createdAt) },
               {
                 header: 'Services de connexion',
                 value: (() => {
@@ -206,7 +223,14 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
         Absences de cet utilisateur
       </Typography>
       <CourseRegistrationGrid userId={user.id} attended={false} />
-    </BackofficeContent>
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
+        Comptabilité
+      </Typography>
+      <Stack direction="column" gap={2}>
+        <MembershipGrid collapsible collapsedSummary="Adhésions de l'utilisateur" userId={user.id} />
+        <CouponGrid collapsible collapsedSummary="Cartes possédées par cet utilisateur" userId={user.id} />
+      </Stack>
+      </BackofficeContent>
   );
 };
 

@@ -8,8 +8,11 @@ export const membershipRouter = router({
     .input(membershipFindSchema)
     .query(async ({ input: { id } }) => findMembership({ where: { id } })),
   findAll: adminProcedure
-    .input(z.object({ includeDisabled: z.boolean().optional() }))
-    .query(async ({ input: { includeDisabled } }) => findMemberships({ where: { includeDisabled: !!includeDisabled } })),
+    .input(z.object({
+      includeDisabled: z.boolean().optional(),
+      userId: z.number().int().min(0).optional(),
+    }))
+    .query(async ({ input: { includeDisabled, userId } }) => findMemberships({ where: { includeDisabled: !!includeDisabled, userId } })),
   create: adminProcedure
     .input(membershipCreateSchema)
     .mutation(async ({ input: { membershipModelId, dateStart, users }, ctx: { session } }) =>
