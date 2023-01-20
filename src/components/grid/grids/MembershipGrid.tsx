@@ -119,11 +119,15 @@ const MembershipGridActions = ({ row: membership }: GridRowParams<Membership>): 
       onConfirm={() => mutateDisable({ id: membership.id })}
     />,
   ];
+};
+
+interface MembershipGridProps {
+  userId?: number;
+  collapsible?: boolean;
+  collapsedSummary?: React.ReactNode;
 }
 
-export const MembershipGrid: React.FunctionComponent = () => {
-  const router = useRouter();
-
+export const MembershipGrid: React.FunctionComponent<MembershipGridProps> = ({ userId, collapsible, collapsedSummary }) => {
   const columns = [
     {
       field: 'type',
@@ -147,7 +151,7 @@ export const MembershipGrid: React.FunctionComponent = () => {
       valueGetter: ({ row: { dateStart, dateEnd } }: { row: { dateStart: Date, dateEnd: Date } }) => [dateStart, dateEnd],
       valueFormatter: ({ value: [dateStart, dateEnd] }: { value: [Date, Date] }) => `${formatDateDDsMMsYYYY(dateStart)} au ${formatDateDDsMMsYYYY(dateEnd)}`,
     },
-    usersColumn({ field: 'users', headerName: 'Bénéficiaires', flex: 1 }),
+    usersColumn({ field: 'users', headerName: userId === undefined ? 'Bénéficiaires' : 'Autres bénéficiaires', flex: 1 }, { excludeUserId: userId }),
     {
       field: 'price',
       headerName: `Prix d'achat`,
@@ -168,6 +172,6 @@ export const MembershipGrid: React.FunctionComponent = () => {
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.membership.findAll} input={{ includeDisabled: false }} initialSort={{ field: 'createdAt', sort: 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.membership.findAll} input={{ includeDisabled: false, userId }} initialSort={{ field: 'createdAt', sort: 'desc' }} collapsible={collapsible} collapsedSummary={collapsedSummary} />
   );
 };

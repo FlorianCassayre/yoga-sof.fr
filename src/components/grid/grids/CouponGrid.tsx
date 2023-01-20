@@ -112,13 +112,17 @@ const CouponGridActions = ({ row: coupon }: GridRowParams<Coupon>): React.ReactE
       onConfirm={() => mutateDisable({ id: coupon.id })}
     />,
   ];
+};
+
+interface CouponGridProps {
+  userId?: number;
+  collapsible?: boolean;
+  collapsedSummary?: React.ReactNode;
 }
 
-export const CouponGrid: React.FunctionComponent = () => {
-  const router = useRouter();
-
+export const CouponGrid: React.FunctionComponent<CouponGridProps> = ({ userId, collapsible, collapsedSummary }) => {
   const columns = [
-    userColumn({ field: 'user', headerName: 'Propriétaire', flex: 1 }),
+    ...(userId === undefined ? [userColumn({ field: 'user', headerName: 'Propriétaire', flex: 1 })] : []),
     {
       field: 'courseType',
       headerName: 'Type de séance',
@@ -161,6 +165,6 @@ export const CouponGrid: React.FunctionComponent = () => {
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.coupon.findAll} input={{ includeDisabled: false }} initialSort={{ field: 'createdAt', sort: 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.coupon.findAll} input={{ includeDisabled: false, userId }} initialSort={{ field: 'createdAt', sort: 'desc' }} collapsible={collapsible} collapsedSummary={collapsedSummary} />
   );
 };

@@ -9,7 +9,7 @@ export const userRouter = router({
       id: z.number().int().min(0),
     }))
     .query(async ({ input: { id } }) => {
-      return findUser({ where: { id }, include: { courseRegistrations: { include: { course: true } }, accounts: true } });
+      return findUser({ where: { id }, include: { courseRegistrations: { include: { course: true } }, accounts: true, memberships: true } });
     }),
   findAll: adminProcedure
     .query(async () => findUsers({ where: { disabled: false } })),
