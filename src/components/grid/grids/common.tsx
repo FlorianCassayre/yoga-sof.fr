@@ -22,12 +22,12 @@ export const userColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDe
   ...params,
 });
 
-export const usersColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
+export const usersColumn = (params: PartialGridEnrichedColDef, options?: { excludeUserId?: number }): GridEnrichedColDef => ({
   headerName: 'Utilisateurs',
   sortComparator: ((user1, user2) => displayUserName(user1) < displayUserName(user2) ? -1 : 1) as GridComparatorFn<User>,
   renderCell: ({ value }: GridRenderCellParams<User[]>) => (
     <Stack direction="column">
-      {value && value.map(user => // FIXME
+      {value && value.filter(user => !options || user.id !== options.excludeUserId).map(user =>
         <UserLink user={user} key={user.id} />
       )}
     </Stack>
