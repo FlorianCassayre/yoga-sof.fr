@@ -46,8 +46,8 @@ const dispatchEmail = async (user: Pick<User, 'id' | 'email' | 'customEmail'>, e
   const { id: userId, email, customEmail } = user;
 
   const actualEmail = customEmail || email;
-  if (!actualEmail) {
-    throw new Error('The email cannot be empty: ' + actualEmail);
+  if (!actualEmail) { // Do not create or send the email if there is no destination address, just ignore it
+    return;
   }
 
   const { id: emailRecordId } = await prisma.emailMessage.create({
@@ -83,7 +83,6 @@ export const notifyCourseCanceled = async (course: Prisma.CourseGetPayload<{ inc
   await Promise.all(
     registrations
       .filter(({ isUserCanceled }) => !isUserCanceled)
-      .filter(({ user: { email, customEmail } }) => customEmail || email)
       .map(({ user }) => dispatchEmailFromComponent(EmailMessageTemplateCourseCanceled, { user, course })),
   );
 };
@@ -168,7 +167,6 @@ export const notifyCourseNewcomers = async () => {
 
   return Promise.all(
     actualRegistrations
-      .filter(({ user: { email, customEmail } }) => customEmail || email)
       .map(registration => dispatchEmailFromComponent(
         EmailMessageTemplateCourseAdultReminderNewcomer,
         { user: registration.user, course: registration.course },
