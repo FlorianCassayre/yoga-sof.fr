@@ -25,7 +25,7 @@ export const courseRegistrationRouter = router({
   findAllActive: adminProcedure
     .input(selectorSchema)
     .query(async ({ input: { courseId, userId } }) =>
-      findCourseRegistrations({ where: { courseId, userId, isUserCanceled: false }, include: { course: true, user: true } })),
+      findCourseRegistrations({ where: { courseId, userId, isUserCanceled: false }, include: { course: true, user: { include: { memberships: true } } } })),
   create: adminProcedure
     .input(courseRegistrationCreateSchema)
     .mutation(async ({ input: { courses, users, notify } }) =>

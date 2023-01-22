@@ -20,17 +20,16 @@ export const getUserStatistics = (user: Prisma.UserGetPayload<{ include: { cours
   };
 };
 
-export const getUserLatestMembership = (user: Prisma.UserGetPayload<{ include: { memberships: true } }>) => {
+export const getUserLatestMembership = (user: Prisma.UserGetPayload<{ include: { memberships: true } }>, date = new Date()) => {
   const { memberships } = user;
 
-  const today = new Date();
-  const addOneDay = (date: Date) => {
-    const copy = new Date(date);
+  const addOneDay = (d: Date) => {
+    const copy = new Date(d);
     copy.setDate(copy.getDate() + 1);
     return copy;
   };
   return memberships
     .filter(({ disabled }) => !disabled)
-    .filter(({ dateStart, dateEnd }) => dateStart <= today && today < addOneDay(dateEnd))
+    .filter(({ dateStart, dateEnd }) => dateStart <= date && date < addOneDay(dateEnd))
     .sort(({ dateEnd: a }, { dateEnd: b }) => a < b ? 1 : -1)[0];
 };

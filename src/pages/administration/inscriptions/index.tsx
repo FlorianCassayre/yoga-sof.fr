@@ -26,8 +26,9 @@ export default function AdminCourseRegistrations() {
         Inscriptions actives
       </Typography>
       <Typography paragraph>
-        Liste des inscriptions actives à des séances programmées.
+        Liste des inscriptions actives à des séances programmées (passées ou futures).
         Vous pouvez vous rendre sur la page d'une séance ou d'un utilisateur afin de filtrer ces données.
+        La colonne adhésion indique si l'utilisateur possède un statut d'adhérent le jour de la séance.
       </Typography>
       <CourseRegistrationGrid />
     </BackofficeContent>

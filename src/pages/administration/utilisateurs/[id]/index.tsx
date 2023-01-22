@@ -123,7 +123,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
                 ),
               },
               {
-                header: 'Adhérant',
+                header: 'Adhérent',
                 value: membership ? (
                   <Chip label={`Oui (jusqu'au ${formatDateDDsMMsYYYY(membership.dateEnd)})`} color="success" variant="outlined" icon={<Done />} size="small" />
                 ) : (
