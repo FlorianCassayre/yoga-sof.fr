@@ -31,7 +31,7 @@ export const createCourseRegistrations = async (prisma: Prisma.TransactionClient
     const newRegistrationsForUser: (typeof newRegistrationsPerUser)[0][1] = [];
     for (const courseId of args.data.courses) {
       const course = await prisma.course.findUniqueOrThrow({ where: { id: courseId }, include: { registrations: { where: { isUserCanceled: false } } } });
-      if (course.isCanceled) {
+      const { price } = course;if (course.isCanceled) {
         throw new ServiceError(ServiceErrorCode.CourseCanceledNoRegistration);
       }
       if (course.dateStart.getTime() <= now.getTime()) {
@@ -43,7 +43,7 @@ export const createCourseRegistrations = async (prisma: Prisma.TransactionClient
       if (course.registrations.some(({ userId: registeredUserId }) => userId === registeredUserId)) {
         throw new ServiceError(ServiceErrorCode.UserAlreadyRegistered);
       }
-      const registration = await prisma.courseRegistration.create({ data: { courseId, userId }, include: { course: true } });
+      const registration = await prisma.courseRegistration.create({ data: { courseId, userId, price }, include: { course: true } });
       newRegistrations.push(courseId);
       newRegistrationsForUser.push(registration);
     }
