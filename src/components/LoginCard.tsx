@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 
-import { getProviders, signIn } from 'next-auth/react';
+import { getProviders, signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { AuthProviders } from '../common/providers';
 import { EMAIL_CONTACT } from '../common/config';
@@ -20,6 +20,7 @@ const ErrorMessages: Record<string, string> = {
 
 interface LoginCardLayoutProps {
   title: string;
+  information?: React.ReactNode;
   error?: string;
   onErrorClose: () => void;
   description: string;
@@ -28,10 +29,13 @@ interface LoginCardLayoutProps {
   footer: React.ReactNode;
 }
 
-export const LoginCardLayout: React.FC<LoginCardLayoutProps> = ({ title, error, onErrorClose, description, separator, forms, footer }) => {
+export const LoginCardLayout: React.FC<LoginCardLayoutProps> = ({ title, information, error, onErrorClose, description, separator, forms, footer }) => {
   return (
     <Card variant="outlined">
       <CardContent>
+        {information && (
+          <Alert severity="info" sx={{ mb: 1 }}>{information}</Alert>
+        )}
         <Typography variant="h6" component="div" textAlign="center" sx={{ mb: 2 }}>
           {title}
         </Typography>
@@ -101,19 +105,23 @@ interface LoginCardProps {
 }
 
 export const LoginCard: React.FC<LoginCardProps> = ({ providers }) => {
+  const { data: session } = useSession();
   const emailKey = 'email';
 
   const router = useRouter();
-  const { error } = router.query;
+  const { error, r: redirection } = router.query;
 
   const [{ loading }, callback] = useAsyncFn((providerId: LiteralUnion<BuiltInProviderType>, data?: SignInOptions) =>
-    signIn(providerId, { callbackUrl: `${window.location.origin}/redirection`, ...data }), []);
+    signIn(providerId, { callbackUrl: `${window.location.origin}/redirection` + (redirection && !Array.isArray(redirection) ? `?r=${encodeURIComponent(redirection)}` : ''), ...data }), []);
 
   const handleClearErrors = () => router.replace('/connexion', undefined, { shallow: true });
 
   return (
     <LoginCardLayout
       title="Connexion à Yoga Sof"
+      information={!!session && (
+        <>Vous êtes déjà connecté en tant que <strong>{session.displayName || session.displayEmail || '?'}</strong>. Vous pouvez néanmoins vous re-connecter sur un autre compte.</>
+      )}
       error={error ? ErrorMessages[String(error)] ?? 'Une erreur est survenue.' : undefined}
       onErrorClose={handleClearErrors}
       description="Merci d'utiliser l'un des services ci-dessous pour vous inscrire ou vous connecter."

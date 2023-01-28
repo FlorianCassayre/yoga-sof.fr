@@ -13,6 +13,7 @@ import {
 import { UserType } from '../../../common/all';
 import { IconYoga } from '../../icons';
 import { COMETE_URL, EMAIL_CONTACT, FACEBOOK_PAGE_URL, INSTAGRAM_URL } from '../../../common/config';
+import { useRouter } from 'next/router';
 
 interface FrontsiteContainerProps {
   children: React.ReactNode;
@@ -28,6 +29,7 @@ const commonSections = [
 
 export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children }) => {
   const { data: session, status } = useSession();
+  const router = useRouter();
 
   const profile = useMemo(() => {
     if (status === 'loading') {
@@ -66,7 +68,7 @@ export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children
       url="/"
       sections={commonSections}
       profile={profile}
-      signInUrl="/connexion"
+      signInUrl={`/connexion?r=${encodeURIComponent(router.asPath)}`}
       footerSections={[
         ...commonSections,
         { title: 'Règlement intérieur', url: '/reglement-interieur' },

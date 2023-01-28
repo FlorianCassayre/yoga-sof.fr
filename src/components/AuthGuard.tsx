@@ -2,6 +2,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import React, { useEffect, useMemo } from 'react';
 import { UserType } from '../common/all';
+import { CssBaseline, LinearProgress } from '@mui/material';
 
 interface AuthGuardProps {
   allowedUserTypes: UserType[];
@@ -16,8 +17,8 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ allowedUserTypes, children
 
   useEffect(() => {
     if (!loading && (!session || !hasPermission)) {
-      // TODO redirection
-      router.push('/connexion');
+      // Redirect the user only if they are unauthenticated
+      router.replace({ pathname: '/connexion', query: !session ? { r: router.asPath } : undefined });
     }
   }, [session, loading, hasPermission, router]);
 
@@ -27,7 +28,12 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ allowedUserTypes, children
   }
 
   if (loading || !session || !hasPermission) {
-    return null;
+    return (
+      <>
+        <CssBaseline />
+        <LinearProgress />
+      </>
+    );
   }
 
   return (
