@@ -153,7 +153,7 @@ model CourseRegistration {
   reminderSent   Boolean   @default(false) @map("reminder_sent")
   attended       Boolean?
   orders         Order[]   @relation("order_course_registration")
-  creditCourseRegistration CreditCourseRegistration?
+  creditOrders   Order[]   @relation("credit_course_registration")
   createdAt      DateTime  @default(now()) @map("created_at")
   canceledAt     DateTime? @map("canceled_at")
 
@@ -270,16 +270,6 @@ model CreditCoupon {
   @@map("credit_coupon")
 }
 
-model CreditCourseRegistration {
-  orderId        Int                @map("order_id")
-  order          Order              @relation(fields: [orderId], references: [id])
-  registrationId Int                @unique @map("registration_id")
-  registration   CourseRegistration @relation(fields: [registrationId], references: [id])
-
-  @@id([orderId, registrationId])
-  @@map("credit_course_registration")
-}
-
 enum CreditOfferType {
   TRIAL
 }
@@ -301,12 +291,14 @@ model Order {
   courseRegistrations       CourseRegistration[] @relation("order_course_registration")
   memberships               Membership[]         @relation("order_membership")
   coupons                   Coupon[]             @relation("order_coupon")
+  intent                    Boolean
   refunded                  Boolean              @default(false)
   transactionCash           TransactionCash?
   transactionHelloAsso      TransactionHelloAsso?
   creditCoupon              CreditCoupon?
-  creditCourseRegistrations CreditCourseRegistration[]
+  creditCourseRegistrations CourseRegistration[] @relation("credit_course_registration")
   creditOffers              CreditOffer[]
 
+  createdAt                 DateTime
   @@map("order")
 }

@@ -45,6 +45,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
         {
           title: 'Comptabilité',
           children: [
+            { title: 'Paiements', icon: <Payments />, url: '/administration/utilisateurs' },
             { title: 'Adhésions', icon: <Groups />, url: '/administration/adhesions' },
             { title: 'Cartes', icon: <CardGiftcard />, url: '/administration/cartes' },
           ],

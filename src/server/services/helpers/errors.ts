@@ -20,6 +20,11 @@ export enum ServiceErrorCode {
   UserCannotControlUser,
   CouponAlreadyDisabled,
   MembershipAlreadyDisabled,
+  OrderCourseCanceled,
+  OrderRegistrationCanceled,
+  OrderRegistrationAlreadyInOrder,
+
+  OrderSimulationMismatch,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -51,4 +56,9 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.UserCannotControlUser]: `L'utilisateur ne peut pas effectuer d'action pour l'utilisateur donné`,
   [ServiceErrorCode.CouponAlreadyDisabled]: `La carte est déjà désactivée`,
   [ServiceErrorCode.MembershipAlreadyDisabled]: `L'adhésion est déjà annulée`,
+  [ServiceErrorCode.OrderCourseCanceled]: `La séance commandée est annulée`,
+  [ServiceErrorCode.OrderRegistrationCanceled]: `L'utilisateur est désinscrit de la séance commandée`,
+  [ServiceErrorCode.OrderRegistrationAlreadyInOrder]: `L'inscription à la séance a déjà été commandée`,
+
+  [ServiceErrorCode.OrderSimulationMismatch]: `La commande n'est plus à jour par rapport à ce qui était prévu`,
 };
