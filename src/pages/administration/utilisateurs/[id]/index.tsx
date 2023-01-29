@@ -158,13 +158,17 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
         </Grid>
       </Grid>
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
-        Inscriptions de cet utilisateur
+        Participations de cet utilisateur
       </Typography>
       <CourseRegistrationGrid userId={user.id} />
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Historique d'inscriptions de cet utilisateur
       </Typography>
       <CourseRegistrationEventGrid userId={user.id} />
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
+        Absences de cet utilisateur
+      </Typography>
+      <CourseRegistrationGrid userId={user.id} attended={false} />
     </BackofficeContent>
   );
 };

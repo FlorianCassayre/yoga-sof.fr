@@ -26,7 +26,13 @@ render: ({ accounts, emailVerified }) => {
             },
  */
 
-export const UserGrid: React.FunctionComponent = () => {
+interface UserGridProps {
+  disabledUsers?: boolean;
+  collapsible?: boolean;
+  collapsedSummary?: React.ReactNode;
+}
+
+export const UserGrid: React.FunctionComponent<UserGridProps> = ({ disabledUsers, collapsible, collapsedSummary }) => {
   const router = useRouter();
 
   const columns = [
@@ -72,6 +78,6 @@ export const UserGrid: React.FunctionComponent = () => {
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.user.findAll} input={undefined} initialSort={{ field: 'lastActivity', sort: 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.user.findAll} input={{ disabled: disabledUsers }} initialSort={{ field: 'lastActivity', sort: 'desc' }} collapsible={collapsible} collapsedSummary={collapsedSummary} />
   );
 };

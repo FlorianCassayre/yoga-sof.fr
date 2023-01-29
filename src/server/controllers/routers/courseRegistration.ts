@@ -13,6 +13,7 @@ import { adminProcedure, router } from '../trpc';
 const selectorSchema = z.strictObject({
   courseId: z.number().int().min(0).optional(),
   userId: z.number().int().min(0).optional(),
+  attended: z.boolean().optional(),
 });
 
 export const courseRegistrationRouter = router({
@@ -20,12 +21,12 @@ export const courseRegistrationRouter = router({
     .query(async () => findCourseRegistrations({ include: { user: true, course: true } })),
   findAllEvents: adminProcedure
     .input(selectorSchema)
-    .query(async ({ input: { courseId, userId } }) =>
-      findCourseRegistrationEvents({ where: { courseId, userId }, include: { course: courseId === undefined, user: userId === undefined } })),
+    .query(async ({ input: { courseId, userId, attended } }) =>
+      findCourseRegistrationEvents({ where: { courseId, userId, attended }, include: { course: courseId === undefined, user: userId === undefined } })),
   findAllActive: adminProcedure
     .input(selectorSchema)
-    .query(async ({ input: { courseId, userId } }) =>
-      findCourseRegistrations({ where: { courseId, userId, isUserCanceled: false }, include: { course: true, user: true } })),
+    .query(async ({ input: { courseId, userId, attended } }) =>
+      findCourseRegistrations({ where: { courseId, userId, isUserCanceled: false, attended }, include: { course: true, user: true } })),
   create: adminProcedure
     .input(courseRegistrationCreateSchema)
     .mutation(async ({ input: { courses, users, notify } }) =>

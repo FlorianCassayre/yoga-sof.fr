@@ -59,9 +59,15 @@ const EmailDetailsDialog: React.FunctionComponent<EmailDetailsDialogProps> = ({ 
       </Dialog>
     </div>
   );
+};
+
+interface EmailMessageGridProps {
+  sent?: boolean;
+  collapsible?: boolean;
+  collapsedSummary?: React.ReactNode;
 }
 
-export const EmailMessageGrid: React.FunctionComponent = () => {
+export const EmailMessageGrid: React.FunctionComponent<EmailMessageGridProps> = ({ sent, collapsible, collapsedSummary }) => {
   const [open, setOpen] = useState(false);
   const [dialogData, setDialogData] = useState<EmailMessage | null>(null);
 
@@ -116,7 +122,7 @@ export const EmailMessageGrid: React.FunctionComponent = () => {
       {dialogData && (
         <EmailDetailsDialog open={open} onClose={() => setOpen(false)} data={dialogData} />
       )}
-      <AsyncGrid columns={columns} procedure={trpc.emailMessage.findAll} input={undefined} initialSort={{ field: 'createdAt', sort: 'desc' }} />
+      <AsyncGrid columns={columns} procedure={trpc.emailMessage.findAll} input={{ sent }} initialSort={{ field: 'createdAt', sort: 'desc' }} collapsible={collapsible} collapsedSummary={collapsedSummary} />
     </>
   );
 };

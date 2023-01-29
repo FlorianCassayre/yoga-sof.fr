@@ -83,11 +83,12 @@ const GridActionCancel: React.FC<GridActionCancelProps> = ({ courseRegistration 
 interface CourseRegistrationGridProps {
   courseId?: number;
   userId?: number;
+  attended?: boolean;
   attendance?: boolean;
   attendanceModifiable?: boolean;
 }
 
-export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationGridProps> = ({ courseId, userId, attendance, attendanceModifiable }) => {
+export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationGridProps> = ({ courseId, userId, attended, attendance, attendanceModifiable }) => {
   const columns: GridColumns = [
     ...(attendance ? [{
       field: 'attendance',
@@ -111,6 +112,6 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.courseRegistration.findAllActive} input={{ courseId, userId }} initialSort={{ field: 'createdAt', sort: 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.courseRegistration.findAllActive} input={{ courseId, userId, attended }} initialSort={{ field: 'createdAt', sort: 'desc' }} />
   );
 };

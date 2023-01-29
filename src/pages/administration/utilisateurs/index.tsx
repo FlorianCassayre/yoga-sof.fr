@@ -17,7 +17,7 @@ export default function AdminAdmins() {
         Liste des comptes utilisateurs. Dès qu'un utilisateur se connecte avec un nouveau service, un nouveau compte est automatiquement créé. De plus, vous avez la possibilité de créer manuellement
         des comptes utilisateurs. Notez que pour les comptes que vous créez vous-même, aucun service n'est lié donc personne ne pourra s'y connecter.
       </Typography>
-      <UserGrid />
+      <UserGrid disabledUsers={false} />
     </BackofficeContent>
   );
 }

@@ -12,7 +12,10 @@ export const userRouter = router({
       return findUser({ where: { id }, include: { courseRegistrations: { include: { course: true } }, accounts: true } });
     }),
   findAll: adminProcedure
-    .query(async () => findUsers({ where: { disabled: false } })),
+    .input(z.strictObject({
+      disabled: z.boolean().optional(),
+    }))
+    .query(async ({ input: { disabled } }) => findUsers({ where: { disabled } })),
   findUpdate: adminProcedure
     .input(z.strictObject({
       id: z.number().int().min(0),
