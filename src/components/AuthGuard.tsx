@@ -22,12 +22,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({ allowedUserTypes, children
     }
   }, [session, loading, hasPermission, router]);
 
-  if (typeof window === 'undefined') {
-    // SSR
-    return null;
-  }
-
-  if (loading || !session || !hasPermission) {
+  if (loading || !session || !hasPermission) { // SSR or loading
     return (
       <>
         <CssBaseline />
