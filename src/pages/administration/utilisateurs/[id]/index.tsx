@@ -19,6 +19,8 @@ import { trpc } from '../../../../common/trpc';
 import { useSnackbar } from 'notistack';
 import { DisableUserDialog } from '../../../../components/DisableUserDialog';
 import { RenableUserDialog } from '../../../../components/RenableUserDialog';
+import { AuthProviders } from '../../../../common/providers';
+import { grey } from '@mui/material/colors';
 
 interface GridItemStatisticProps {
   value: number;
@@ -137,7 +139,24 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
               },
               { header: 'Dernière connexion', value: displayDate(user.lastActivity) },
               { header: 'Première connexion', value: displayDate(user.createdAt) },
-              { header: 'Services de connexion', value: user.accounts.length },
+              {
+                header: 'Services de connexion',
+                value: (() => {
+                  const providers = [...(user.emailVerified !== null ? ['email'] : []), ...user.accounts.map(({ provider }) => provider)];
+                  return providers.length > 0 ? (
+                    <Stack direction="row" spacing={1}>
+                      {providers
+                        .sort()
+                        .map(provider => [provider, AuthProviders[provider] ?? AuthProviders['fallback']] as const)
+                        .map(([provider, { name, icon }]) => (
+                          <Tooltip key={provider} title={name} sx={{ color: grey[600] }}>
+                            {icon}
+                          </Tooltip>
+                        ))}
+                    </Stack>
+                  ) : '(aucun)'
+                })(),
+              },
             ]}
           />
         </Grid>
