@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
 import { Assignment, Block, Info, Edit, Person, Done, Close, Help, QuestionMark } from '@mui/icons-material';
-import { Prisma, User } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { displayUserName } from '../../../../common/display';
 import { userFindTransformSchema } from '../../../../common/schemas/user';
 import { useSchemaQuery } from '../../../../components/hooks/useSchemaQuery';
@@ -21,6 +21,8 @@ import { DisableUserDialog } from '../../../../components/DisableUserDialog';
 import { RenableUserDialog } from '../../../../components/RenableUserDialog';
 import { AuthProviders } from '../../../../common/providers';
 import { grey } from '@mui/material/colors';
+import { UserLink } from '../../../../components/link/UserLink';
+import { BackofficeContentLoading } from '../../../../components/layout/admin/BackofficeContentLoading';
 
 interface GridItemStatisticProps {
   value: number;
@@ -199,5 +201,5 @@ export default function AdminUser() {
 
   return result && result.data ? (
     <AdminUserContent user={result.data as any} />
-  ) : null;
+  ) : <BackofficeContentLoading />;
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BackofficeContent } from '../../../../../components/layout/admin/BackofficeContent';
-import { AddBox, Assignment, Cancel, Delete, Edit, EmojiPeople, Event, Notes } from '@mui/icons-material';
+import { AddBox, Assignment, Cancel, Edit, EmojiPeople, Event, Notes } from '@mui/icons-material';
 import { Prisma } from '@prisma/client';
 import { useRouter } from 'next/router';
 import { useSchemaQuery } from '../../../../../components/hooks/useSchemaQuery';
@@ -11,7 +11,7 @@ import { CourseRegistrationGrid } from '../../../../../components/grid/grids/Cou
 import {
   Alert,
   Box,
-  Card, CardActions, CardContent, Chip, Grid, IconButton,
+  Card, CardActions, CardContent, Grid, IconButton,
   Stack,
   Typography,
   Link as MuiLink,
@@ -24,6 +24,7 @@ import { CourseStatusChip } from '../../../../../components/CourseStatusChip';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../../../common/trpc';
 import { CancelCourseDialog } from '../../../../../components/CancelCourseDialog';
+import { BackofficeContentLoading } from '../../../../../components/layout/admin/BackofficeContentLoading';
 
 interface CourseContentProps {
   course: Prisma.CourseGetPayload<{ include: { registrations: true } }>;
@@ -168,5 +169,5 @@ export default function AdminCourse() {
 
   return result && result.data ? (
     <CourseContent course={result.data as CourseContentProps['course']} />
-  ) : null;
+  ) : <BackofficeContentLoading />;
 }

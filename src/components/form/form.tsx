@@ -5,7 +5,6 @@ import { AppRouter } from '../../server/controllers';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Box, Button, CircularProgress, Grid } from '@mui/material';
 import { AddBox, Cancel, Save } from '@mui/icons-material';
-import { trpc } from '../../common/trpc';
 import { useRouter } from 'next/router';
 import { BackofficeContent } from '../layout/admin/BackofficeContent';
 import { ParsedUrlQuery } from 'querystring';
@@ -14,6 +13,7 @@ import { SnackbarMessage, useSnackbar } from 'notistack';
 import { TRPCClientErrorLike } from '@trpc/client';
 import { AnyMutationProcedure, AnyQueryProcedure, inferProcedureInput, inferProcedureOutput } from '@trpc/server';
 import { DecorateProcedure } from '@trpc/react-query/dist/shared';
+import { BackofficeContentLoading } from '../layout/admin/BackofficeContentLoading';
 
 interface FormErrorAlertItemProps {
   serverError: TRPCClientErrorLike<AppRouter> | null;
@@ -132,9 +132,7 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
       </FormContainer>
     </BackofficeContent>
   ) : ( // TODO skeleton here
-    <Box display="flex" alignItems="center" justifyContent="center">
-      <CircularProgress sx={{ mt: 10 }} />
-    </Box>
+    <BackofficeContentLoading />
   );
 }
 

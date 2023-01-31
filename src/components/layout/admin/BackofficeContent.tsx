@@ -1,8 +1,8 @@
 import React from 'react';
-import { Divider, Typography } from '@mui/material';
+import { Box, Divider, Typography } from '@mui/material';
 import { Stack } from '@mui/system';
 import { BasicSpeedDial } from '../../BasicSpeedDial';
-import { HeadMeta } from '../HeadMeta';
+import { BackofficeContentBase } from './BackofficeContentBase';
 
 interface BackofficeContentProps {
   titleRaw?: string;
@@ -14,19 +14,20 @@ interface BackofficeContentProps {
 
 export const BackofficeContent: React.FC<BackofficeContentProps> = ({ titleRaw, title, icon, actions, children }) => {
   return (
-    <>
-      <HeadMeta title={`${titleRaw ?? title} · Yoga Sof`} />
-      <Stack direction="row" alignItems="center" gap={1} component={'div'}>
-        {icon}
-        <Typography variant="h5">{title}</Typography>
-      </Stack>
-      <Divider sx={{ mt: 1, mb: 2 }} />
-      <main>
-        {children}
-      </main>
-      {actions && (
-        <BasicSpeedDial actions={actions} />
-      )}
-    </>
+    <BackofficeContentBase title={titleRaw ?? String(title)}>
+      <Box sx={{ p: 3 }}>
+        <Stack direction="row" alignItems="center" gap={1} component={'div'}>
+          {icon}
+          <Typography variant="h5">{title}</Typography>
+        </Stack>
+        <Divider sx={{ mt: 1, mb: 2 }} />
+        <main>
+          {children}
+        </main>
+        {actions && (
+          <BasicSpeedDial actions={actions} />
+        )}
+      </Box>
+    </BackofficeContentBase>
   );
 }

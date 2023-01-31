@@ -181,7 +181,7 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
           </ListItem>
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box sx={{ flexGrow: 1 }}>
         <Toolbar />
         {children}
       </Box>
