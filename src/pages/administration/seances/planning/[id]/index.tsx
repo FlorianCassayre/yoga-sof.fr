@@ -55,8 +55,10 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
         { name: 'Modifier mes notes', icon: <Notes />, url: { pathname: `/administration/seances/planning/[id]/notes`, query: { id: course.id } } },
         ...(!course.isCanceled ? [{ name: isCheckingAttendance ? `Ne plus faire l'appel` : `Faire l'appel`, icon: <EmojiPeople />, onClick: () => setCheckingAttendance(!isCheckingAttendance) }] : []),
         ...(!course.isCanceled && status.isBeforeStart ? [{ name: 'Modifier la séance', icon: <Edit />, url: { pathname: `/administration/seances/planning/[id]/edition`, query: { id: course.id } } }] : []),
-        ...(status.canRegister ? [{ name: 'Inscrire des utilisateurs', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { courseId: course.id } } }] : []),
         ...(!course.isCanceled && !status.isAfterEnd ? [{ name: 'Annuler la séance', icon: <Cancel />, onClick: () => setConfirmCancelDialogOpen(true), disabled: isCanceling }] : []),
+      ]}
+      quickActions={[
+        ...(status.canRegister ? [{ name: 'Inscrire des utilisateurs', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { courseId: course.id } } }] : []),
       ]}
     >
       <CancelCourseDialog

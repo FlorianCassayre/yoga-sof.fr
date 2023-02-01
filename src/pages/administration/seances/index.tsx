@@ -91,7 +91,7 @@ const AdminHomeContent: React.FC = () => {
     <BackofficeContent
       title="Séances"
       icon={<DateRange />}
-      actions={[
+      quickActions={[
         { icon: <DateRange />, name: 'Planification de séances', url: '/administration/seances/planning/creation' },
         { icon: <Event />, name: 'Nouveau modèle de séance', url: '/administration/seances/modeles/creation' },
       ]}

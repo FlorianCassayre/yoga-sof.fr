@@ -10,7 +10,7 @@ export default function AdminCourseRegistrations() {
     <BackofficeContent
       title="Inscriptions"
       icon={<Assignment />}
-      actions={[
+      quickActions={[
         { icon: <Assignment />, name: 'Inscrire des utilisateurs à des séances', url: '/administration/inscriptions/creation' }
       ]}
     >

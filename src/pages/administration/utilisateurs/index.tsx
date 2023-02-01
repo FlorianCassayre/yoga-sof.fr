@@ -1,6 +1,6 @@
 import React from 'react';
 import { BackofficeContent } from '../../../components/layout/admin/BackofficeContent';
-import { Event, People, Person } from '@mui/icons-material';
+import { People, Person } from '@mui/icons-material';
 import { Typography } from '@mui/material';
 import { UserGrid } from '../../../components/grid/grids/UserGrid';
 
@@ -9,7 +9,7 @@ export default function AdminAdmins() {
     <BackofficeContent
       title="Utilisateurs"
       icon={<People />}
-      actions={[
+      quickActions={[
         { icon: <Person />, name: 'Nouvel utilisateur', url: '/administration/utilisateurs/creation' }
       ]}
     >

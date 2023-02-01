@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
-import { Assignment, Block, Info, Edit, Person, Done, Close, Help, QuestionMark } from '@mui/icons-material';
+import { Assignment, Block, Info, Edit, Person, Done, Close, QuestionMark } from '@mui/icons-material';
 import { Prisma } from '@prisma/client';
 import { displayUserName } from '../../../../common/display';
 import { userFindTransformSchema } from '../../../../common/schemas/user';
@@ -94,8 +94,10 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       icon={<Person />}
       actions={[
         { name: 'Modifier', icon: <Edit />, url: `/administration/utilisateurs/${user.id}/edition` },
-        { name: 'Inscrire à des séances', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { userId: user.id } } },
         { name: user.disabled ? 'Réactiver le compte' : 'Désactiver le compte', icon: <Block />, onClick: () => setDisableDialogOpen(true), disabled: isDisablingLoading },
+      ]}
+      quickActions={[
+        { name: 'Inscrire à des séances', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { userId: user.id } } },
       ]}
     >
       <DisableUserDialog user={user} open={isDisableDialogOpen && !user.disabled} setOpen={setDisableDialogOpen} onConfirm={() => mutateDisable({ id: user.id, disabled: true })} />
