@@ -37,6 +37,7 @@ import { frontsiteCourseRegistrationSchema } from '../common/schemas/frontsiteCo
 // @ts-ignore
 import { RegistrationNoticePersonalInformation, RegistrationNoticeRecap } from '../../contents/inscription.mdx';
 import { useSnackbar } from 'notistack';
+import { DirtyFormUnloadAlert } from './form/fields/DirtyFormUnloadAlert';
 
 const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'userCourses'>> = ({ courses, userCourses }) => {
   const { watch, setValue } = useFormContext();
@@ -373,6 +374,7 @@ const CourseRegistrationForm: React.FC<CourseRegistrationFormProps> = ({ courses
       resolver={zodResolver(frontsiteCourseRegistrationSchema)}
       defaultValues={{ step: 0, courseIds: [], name: userProfile.name ?? '', email: userProfile.email ?? '', consent: false, notify: true }}
     >
+      {/*<DirtyFormUnloadAlert condition={isSubmitRegisterLoading} disabled={isSubmitRegisterSuccess} message="Vous n'avez pas confirmé vos inscriptions, souhaitez-vous vraiment quitter la page ?" />*/}
       <CourseRegistrationFormStepper done={isSubmitRegisterSuccess} />
       <CourseStepContent courses={courses} userCourses={userCourses} done={isSubmitRegisterSuccess} />
       <CourseRegistrationFormNavigation isLoading={isSubmitRegisterLoading} done={isSubmitRegisterSuccess} />

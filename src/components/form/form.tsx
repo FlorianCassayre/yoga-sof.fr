@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { z } from 'zod';
 import { DeepPartial, FormContainer, useFormState } from 'react-hook-form-mui';
 import { AppRouter } from '../../server/controllers';
@@ -14,6 +14,7 @@ import { TRPCClientErrorLike } from '@trpc/client';
 import { AnyMutationProcedure, AnyQueryProcedure, inferProcedureInput, inferProcedureOutput } from '@trpc/server';
 import { DecorateProcedure } from '@trpc/react-query/dist/shared';
 import { BackofficeContentLoading } from '../layout/admin/BackofficeContentLoading';
+import { DirtyFormUnloadAlert } from './fields/DirtyFormUnloadAlert';
 
 interface FormErrorAlertItemProps {
   serverError: TRPCClientErrorLike<AppRouter> | null;
@@ -107,6 +108,7 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
       icon={icon}
     >
       <FormContainer onSuccess={handleSubmit} resolver={zodResolver(schema)} defaultValues={defaultValues}>
+        <DirtyFormUnloadAlert disabled={isLoading} message="Certaines modifications n'ont pas été sauvegardées, souhaitez-vous vraiment quitter la page ?" />
         {!isLoading ? (
           <Grid container spacing={2}>
             <FormErrorAlertItem serverError={error} />
