@@ -1,5 +1,5 @@
 import { CourseRegistration, Prisma } from '@prisma/client';
-import { prisma } from '../prisma';
+import { prisma, transactionOptions } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { courseRegistrationCreateSchema } from '../../common/schemas/courseRegistration';
 import { notifyCourseRegistration } from '../email';
@@ -23,7 +23,7 @@ export const findCourseRegistrationEvents = async <Where extends Pick<Prisma.Cou
 
 export const createCourseRegistrations = async (args: { data: { courses: number[], users: number[], notify: boolean } }) => {
   courseRegistrationCreateSchema.parse(args.data);
-  return await prisma.$transaction(async () => {
+  return await prisma.$transaction(async (prisma) => {
     const now = new Date();
     const newRegistrations: number[] = [];
     for (const userId of args.data.users) {
@@ -47,33 +47,31 @@ export const createCourseRegistrations = async (args: { data: { courses: number[
     }
     if (args.data.notify) {
       for (const userId of args.data.users) {
-        await notifyCourseRegistration(userId, args.data.courses);
+        await notifyCourseRegistration(prisma, userId, args.data.courses);
       }
     }
     return newRegistrations;
-  });
+  }, transactionOptions);
 };
 
-export const cancelCourseRegistration = async (args: { where: { id: number } }) => {
-  return prisma.$transaction(async () => {
-    const id = args.where.id;
-    const now = new Date();
-    const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id }, include: { course: true } });
-    if (courseRegistration.course.isCanceled) {
-      throw new ServiceError(ServiceErrorCode.CourseCanceledNoUnregistration);
-    }
-    if (courseRegistration.course.dateStart.getTime() <= now.getTime()) {
-      throw new ServiceError(ServiceErrorCode.CoursePassedNoUnregistration);
-    }
-    if (courseRegistration.isUserCanceled) {
-      throw new ServiceError(ServiceErrorCode.UserNotRegistered);
-    }
-    return prisma.courseRegistration.update({ where: { id }, data: { isUserCanceled: true, canceledAt: now } });
-  });
+export const cancelCourseRegistration = async (prisma: Prisma.TransactionClient, args: { where: { id: number } }) => {
+  const id = args.where.id;
+  const now = new Date();
+  const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id }, include: { course: true } });
+  if (courseRegistration.course.isCanceled) {
+    throw new ServiceError(ServiceErrorCode.CourseCanceledNoUnregistration);
+  }
+  if (courseRegistration.course.dateStart.getTime() <= now.getTime()) {
+    throw new ServiceError(ServiceErrorCode.CoursePassedNoUnregistration);
+  }
+  if (courseRegistration.isUserCanceled) {
+    throw new ServiceError(ServiceErrorCode.UserNotRegistered);
+  }
+  return prisma.courseRegistration.update({ where: { id }, data: { isUserCanceled: true, canceledAt: now } });
 };
 
 export const updateCourseRegistrationAttendance = async (args: { where: { id: number }, data: { attended: boolean | null } }) => {
-  return prisma.$transaction(async () => {
+  return prisma.$transaction(async (prisma) => {
     const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id: args.where.id }, include: { course: true } });
     if (courseRegistration.course.isCanceled) {
       throw new ServiceError(ServiceErrorCode.CourseCanceledAttendance);
@@ -82,10 +80,10 @@ export const updateCourseRegistrationAttendance = async (args: { where: { id: nu
       throw new ServiceError(ServiceErrorCode.UserNotRegisteredAttendance);
     }
     return prisma.courseRegistration.update(args);
-  });
+  }, transactionOptions);
 };
 
-export const findCourseRegistrationsPublic = ({ userId, future, userCanceled }: { userId: number, userCanceled: boolean, future: boolean | null }) => {
+export const findCourseRegistrationsPublic = (prisma: Prisma.TransactionClient, { userId, future, userCanceled }: { userId: number, userCanceled: boolean, future: boolean | null }) => {
   const whereCourseFuture = {
     dateEnd: {
       gt: new Date(),

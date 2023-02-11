@@ -7,7 +7,7 @@ import {
   findUserUpdate,
   updateUser, updateUserInformation, validateControlsUser
 } from '../../services';
-import { prisma } from '../../prisma';
+import { prisma, transactionOptions } from '../../prisma';
 import { userSchemaBase, userUpdateSchema, userUpdateSelfSchema } from '../../../common/schemas/user';
 import { frontsiteCourseRegistrationSchema } from '../../../common/schemas/frontsiteCourseRegistration';
 import { router, userProcedure } from '../trpc';
@@ -31,21 +31,21 @@ export const selfRouter = router({
       future: z.boolean().nullable(),
     }))
     .query(async ({ input: { userId, future, userCanceled }, ctx: { session: { userId: requesterId } } }) => {
-      return await prisma.$transaction(async () => {
-        await validateControlsUser({ where: { id: requesterId, userId } });
-        return findCourseRegistrationsPublic({ userId, future, userCanceled });
-      });
+      return await prisma.$transaction(async (prisma) => {
+        await validateControlsUser(prisma, { where: { id: requesterId, userId } });
+        return findCourseRegistrationsPublic(prisma, { userId, future, userCanceled });
+      }, transactionOptions);
     }),
   profile: userProcedure
     .input(z.strictObject({
       userId: z.number().int().min(0),
     }))
     .query(async ({ input: { userId }, ctx: { session: { userId: requesterId } } }) => {
-      return await prisma.$transaction(async () => {
-        await validateControlsUser({ where: { id: requesterId, userId } });
-        const { name, email } = await findUserUpdate({ where: { id: userId } });
+      return await prisma.$transaction(async (prisma) => {
+        await validateControlsUser(prisma, { where: { id: requesterId, userId } });
+        const { name, email } = await findUserUpdate(prisma, { where: { id: userId } });
         return { name, email };
-      });
+      }, transactionOptions);
     }),
   cancelRegistration: userProcedure
     .input(z.strictObject({
@@ -53,34 +53,34 @@ export const selfRouter = router({
       id: z.number().int().min(0),
     }))
     .mutation(async ({ input: { userId, id }, ctx: { session: { userId: requesterId } } }) => {
-      await prisma.$transaction(async () => {
-        await validateControlsUser({ where: { id: requesterId, userId } });
+      await prisma.$transaction(async (prisma) => {
+        await validateControlsUser(prisma, { where: { id: requesterId, userId } });
         await prisma.courseRegistration.findFirstOrThrow({ where: { id, userId } }); // Access control
-        await cancelCourseRegistration({ where: { id } }).then(({ id }) => ({ id }));
-      });
+        await cancelCourseRegistration(prisma, { where: { id } }).then(({ id }) => ({ id }));
+      }, transactionOptions);
       return { id };
     }),
   updateProfile: userProcedure
     .input(userUpdateSelfSchema)
     .mutation(async ({ input: { id, name, email }, ctx: { session: { userId: requesterId } } }) => {
-      await prisma.$transaction(async () => {
-        await validateControlsUser({ where: { id: requesterId, userId: id } });
-        await updateUserInformation({ where: { id }, data: { name, email } });
-      });
+      await prisma.$transaction(async (prisma) => {
+        await validateControlsUser(prisma, { where: { id: requesterId, userId: id } });
+        await updateUserInformation(prisma, { where: { id }, data: { name, email } });
+      }, transactionOptions);
     }),
   register: userProcedure
     .input(frontsiteCourseRegistrationSchema)
     .mutation(async ({ input: { userId, courseIds, notify, name, email }, ctx: { session: { userId: requesterId } } }) => {
-      await prisma.$transaction(async () => {
+      await prisma.$transaction(async (prisma) => {
         if (userId !== null) {
-          await validateControlsUser({ where: { id: requesterId, userId } });
+          await validateControlsUser(prisma, { where: { id: requesterId, userId } });
         }
         // Retrieve the existing user, or create a new user and attach it to the requester
         const nonNullUserId = userId ?? (await createUser({ data: { name, email, managedByUserId: requesterId } })).id;
         if (userId !== null) { // Avoid a useless write
-          await updateUserInformation({ where: { id: nonNullUserId }, data: { name, email } });
+          await updateUserInformation(prisma, { where: { id: nonNullUserId }, data: { name, email } });
         }
         await createCourseRegistrations({ data: { users: [nonNullUserId], courses: courseIds, notify } });
-      });
+      }, transactionOptions);
     }),
 });

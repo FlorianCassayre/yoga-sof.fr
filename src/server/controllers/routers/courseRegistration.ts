@@ -9,6 +9,7 @@ import {
 import { z } from 'zod';
 import { courseRegistrationCreateSchema } from '../../../common/schemas/courseRegistration';
 import { adminProcedure, router } from '../trpc';
+import { prisma, transactionOptions } from '../../prisma';
 
 const selectorSchema = z.strictObject({
   courseId: z.number().int().min(0).optional(),
@@ -34,7 +35,7 @@ export const courseRegistrationRouter = router({
   cancel: adminProcedure
     .input(z.strictObject({ id: z.number().int().min(0) }))
     .mutation(async ({ input: { id } }) =>
-      cancelCourseRegistration({ where: { id } })),
+      prisma.$transaction(async (prisma) => cancelCourseRegistration(prisma, { where: { id } }), transactionOptions)),
   attended: adminProcedure
     .input(z.strictObject({ id: z.number().int().min(0), attended: z.boolean().nullable() }))
     .mutation(async ({ input: { id, attended } }) =>

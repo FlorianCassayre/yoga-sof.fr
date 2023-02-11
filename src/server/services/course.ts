@@ -1,5 +1,5 @@
 import { Course, Prisma } from '@prisma/client';
-import { prisma } from '../prisma';
+import { prisma, transactionOptions } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { Pagination } from './helpers/types';
 import { createPaginated, createPrismaPagination } from './helpers/pagination';
@@ -18,7 +18,7 @@ export const findCoursesPaginated = async <Where extends Prisma.CourseWhereInput
   const [totalElements, data] = await prisma.$transaction([
     prisma.course.count({ where: args.where }),
     prisma.course.findMany({ ...rest, ...createPrismaPagination(args.pagination) })
-  ])
+  ], transactionOptions)
   return createPaginated({
     page,
     elementsPerPage,
@@ -29,7 +29,7 @@ export const findCoursesPaginated = async <Where extends Prisma.CourseWhereInput
 
 export const updateCourse = async <Where extends Prisma.CourseWhereUniqueInput, Data extends Partial<Pick<Course, 'slots' | 'price' | 'notes'>>, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, data: Data, select?: Select, include?: Include }) => {
   const { where: { id }, data: { slots } } = args;
-  return await prisma.$transaction(async () => {
+  return await prisma.$transaction(async (prisma) => {
     if ((args.data.slots !== undefined || args.data.price !== undefined) && (await prisma.course.findUniqueOrThrow({ where: args.where, select: { isCanceled: true } })).isCanceled) {
       throw new ServiceError(ServiceErrorCode.CourseCanceledNoModification);
     }
@@ -45,12 +45,12 @@ export const updateCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
       }
     }
     return prisma.course.update(args);
-  });
+  }, transactionOptions);
 };
 
 export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, Data extends Pick<Course, 'cancelationReason'>, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, data: Data, select?: Select, include?: Include }) => {
   const { where, data, ...rest } = args;
-  return await prisma.$transaction(async () => {
+  return await prisma.$transaction(async (prisma) => {
     const course = await prisma.course.findUniqueOrThrow({ where });
     if (course.isCanceled) {
       throw new ServiceError(ServiceErrorCode.CourseAlreadyCanceled);
@@ -67,9 +67,9 @@ export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
       ...rest
     });
     // FIXME bug <- ??
-    await notifyCourseCanceled({ ...(await prisma.course.findUniqueOrThrow({ where, include: { registrations: { include: { user: { include: { managedByUser: true } } } } } })), cancelationReason: args.data.cancelationReason });
+    await notifyCourseCanceled(prisma, { ...(await prisma.course.findUniqueOrThrow({ where, include: { registrations: { include: { user: { include: { managedByUser: true } } } } } })), cancelationReason: args.data.cancelationReason });
     return returned;
-  });
+  }, transactionOptions);
 };
 
 export const createCourses = async (args: { data: Pick<Course, 'type' | 'price' | 'slots'> & { timeStart: string, timeEnd: string, dates: Date[] } }) => {

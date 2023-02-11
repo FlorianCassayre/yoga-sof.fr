@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { prisma } from './prisma';
+import { prisma, transactionOptions } from './prisma';
 import { CourseType, EmailMessageType, Prisma, User } from '@prisma/client';
 import {
   EmailMessageTemplate
@@ -43,7 +43,7 @@ const sendEmail = async (to: string | null, cc: string | null, subject: string, 
   }
 };
 
-const dispatchEmail = async (user: Pick<User, 'id' | 'email' | 'customEmail'>, managedByUser: Pick<User, 'email' | 'customEmail'> | null, emailType: EmailMessageType, subject: string, contentHtml: string) => {
+const dispatchEmail = async (prisma: Prisma.TransactionClient, user: Pick<User, 'id' | 'email' | 'customEmail'>, managedByUser: Pick<User, 'email' | 'customEmail'> | null, emailType: EmailMessageType, subject: string, contentHtml: string) => {
   const { id: userId } = user;
 
   const actualToEmail = user.customEmail || user.email;
@@ -81,16 +81,16 @@ const dispatchEmailFromComponent = async <
   Args extends { user: Prisma.UserGetPayload<{ select: { id: true, email: true, customEmail: true } }> },
   Props extends Args & { user: Prisma.UserGetPayload<{ select: { managedByUser: { select: { email: true, customEmail: true } } } }> },
 >
-(template: EmailMessageTemplate<Args>, props: Props) => {
-  return dispatchEmail(props.user, props.user.managedByUser, template.type, template.subject(props), renderToStaticMarkup(template.body(props)));
+(prisma: Prisma.TransactionClient, template: EmailMessageTemplate<Args>, props: Props) => {
+  return dispatchEmail(prisma, props.user, props.user.managedByUser, template.type, template.subject(props), renderToStaticMarkup(template.body(props)));
 }
 
-export const notifyCourseCanceled = async (course: Prisma.CourseGetPayload<{ include: { registrations: { include: { user: { include: { managedByUser: true } } } } } }>) => {
+export const notifyCourseCanceled = async (prisma: Prisma.TransactionClient, course: Prisma.CourseGetPayload<{ include: { registrations: { include: { user: { include: { managedByUser: true } } } } } }>) => {
   const { registrations } = course;
   await Promise.all(
     registrations
       .filter(({ isUserCanceled }) => !isUserCanceled)
-      .map(({ user }) => dispatchEmailFromComponent(EmailMessageTemplateCourseCanceled, { user, course })),
+      .map(({ user }) => dispatchEmailFromComponent(prisma, EmailMessageTemplateCourseCanceled, { user, course })),
   );
 };
 
@@ -105,7 +105,7 @@ export const notifyCourseNewcomers = async () => {
   const dayAfterTomorrow = new Date(tomorrow);
   dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 1);
 
-  const actualRegistrations = await prisma.$transaction(async () => {
+  const actualRegistrations = await prisma.$transaction(async (prisma) => {
     const registrations = await prisma.courseRegistration.findMany({
       where: {
         AND: [
@@ -174,18 +174,19 @@ export const notifyCourseNewcomers = async () => {
     await Promise.all(validRegistrations.map(({ id }) => prisma.courseRegistration.update({ where: { id }, data: { reminderSent: true } })));
 
     return validRegistrations;
-  });
+  }, transactionOptions);
 
   return Promise.all(
     actualRegistrations
       .map(registration => dispatchEmailFromComponent(
+        prisma,
         EmailMessageTemplateCourseAdultReminderNewcomer,
         { user: registration.user, course: registration.course },
       )),
   );
 };
 
-export const notifyCourseRegistration = async (userId: number, courseIds: number[]) => {
+export const notifyCourseRegistration = async (prisma: Prisma.TransactionClient, userId: number, courseIds: number[]) => {
   const user = await prisma.user.findUniqueOrThrow({
     where: {
       id: userId,
@@ -208,6 +209,7 @@ export const notifyCourseRegistration = async (userId: number, courseIds: number
   });
 
   return dispatchEmailFromComponent(
+    prisma,
     EmailMessageTemplateCourseAdultRegistrationConfirmation,
     { user, registrations }
   );

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
 // From: https://flaviocopes.com/nextjs-fix-prismaclient-unable-run-browser/
 
@@ -12,6 +12,12 @@ if (process.env.NODE_ENV === 'production') {
     g.prisma = new PrismaClient();
   }
   prisma = g.prisma;
+}
+
+export const transactionOptions: Parameters<(typeof prisma)['$transaction']>[1] = {
+  isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead, // (default for MySQL: RepeatableRead)
+  maxWait: 2000, // (default: 2000)
+  timeout: 5000, // (default: 5000)
 }
 
 export { prisma };
