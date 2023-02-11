@@ -57,7 +57,7 @@ const UserProvidedInformationChip: React.FC<UserProvidedInformationChipProps> = 
 );
 
 interface AdminUserContentProps {
-  user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true } }>;
+  user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true } }>;
 }
 
 const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user }: AdminUserContentProps) => {
@@ -161,6 +161,20 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
                   ) : '(aucun)'
                 })(),
               },
+              ...(user.managedByUser ? [{
+                header: 'Supervisé par',
+                value: <UserLink user={user.managedByUser} />,
+              }] : []),
+              ...(user.managedUsers.length > 0 ? [{
+                header: 'Supervise',
+                value: (
+                  <Stack direction="row" spacing={2}>
+                    {user.managedUsers.map(managedUser => (
+                      <UserLink key={managedUser.id} user={managedUser} />
+                    ))}
+                  </Stack>
+                ),
+              }] : []),
             ]}
           />
         </Grid>

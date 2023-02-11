@@ -66,7 +66,8 @@ export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
       },
       ...rest
     });
-    await notifyCourseCanceled({ ...(await prisma.course.findUniqueOrThrow({ where, include: { registrations: { include: { user: true } } } })), cancelationReason: args.data.cancelationReason }); // FIXME bug
+    // FIXME bug <- ??
+    await notifyCourseCanceled({ ...(await prisma.course.findUniqueOrThrow({ where, include: { registrations: { include: { user: { include: { managedByUser: true } } } } } })), cancelationReason: args.data.cancelationReason });
     return returned;
   });
 };

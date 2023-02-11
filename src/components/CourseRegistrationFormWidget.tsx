@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import {
   Alert,
@@ -11,9 +11,10 @@ import {
   Stack, Step,
   StepLabel,
   Stepper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography,
-  Link as MuiLink,
+  Link as MuiLink, Radio
 } from '@mui/material';
 import {
+  Add,
   ArrowBack,
   ArrowForward,
   ArrowRight,
@@ -21,7 +22,7 @@ import {
   Face2TwoTone,
   Face3TwoTone,
   FaceTwoTone,
-  Login
+  Login, Person, PersonAdd
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { DataGrid, gridClasses, GridRowParams } from '@mui/x-data-grid';
@@ -38,6 +39,122 @@ import { frontsiteCourseRegistrationSchema } from '../common/schemas/frontsiteCo
 import { RegistrationNoticePersonalInformation, RegistrationNoticeRecap } from '../../contents/inscription.mdx';
 import { useSnackbar } from 'notistack';
 import { DirtyFormUnloadAlert } from './form/fields/DirtyFormUnloadAlert';
+import { courses } from './contents/common/courses';
+import { Session } from 'next-auth';
+import { blue } from '@mui/material/colors';
+import { userSchemaBase } from '../common/schemas/user';
+
+const ErrorAlert: React.FC = () => (
+  <Box textAlign="center">
+    <Alert severity="error">Une erreur est survenue, impossible de charger les données pour le moment.</Alert>
+  </Box>
+);
+
+interface UserCardProps {
+  suptitle: string;
+  title?: string;
+  selected: boolean;
+  onSelect: () => void;
+
+}
+
+const UserCard: React.FC<UserCardProps> = ({ suptitle, title, selected, onSelect }) => {
+  return (
+    <Card variant="outlined" onClick={onSelect} sx={{ height: '100%', backgroundColor: selected ? blue[50] : undefined, cursor: 'pointer', border: title || selected ? undefined : '1px dashed lightgrey' }}>
+      <CardContent sx={{ height: '100%' }}>
+        <Stack direction="column" justifyContent="space-between" sx={{ height: '100%' }}>
+          <Box>
+            <Typography textAlign="center" sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+              {suptitle}
+            </Typography>
+            {title ? (
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h5" component="div">
+                  {title}
+                </Typography>
+                <Person fontSize="large" color="action" sx={{ my: 2 }} />
+              </Box>
+            ) : (
+              <Box sx={{ position: 'relative' }}>
+                <Stack direction="column" spacing={1} sx={{ mb: 1, visibility: selected ? undefined : 'hidden' }}>
+                  <TextFieldElement name="name" label="Nom complet" variant="standard" />
+                  <TextFieldElement name="email" label="Adresse e-mail (facultatif)" helperText="(il doit s'agir de l'adresse du proche et non de la vôtre - laisser blanc si non applicable)" variant="standard" />
+                </Stack>
+                <Box sx={{ textAlign: 'center', position: 'absolute', top: 0, width: '100%', visibility: selected ? 'hidden' : undefined }}>
+                  <Typography variant="h5" component="div" sx={{ visibility: 'hidden' }}>
+                    {'.'}
+                  </Typography>
+                  <PersonAdd fontSize="large" color="action" sx={{ my: 2 }} />
+                </Box>
+              </Box>
+            )}
+          </Box>
+          <Box textAlign="center">
+            <Radio
+              checked={selected}
+              onChange={onSelect}
+              sx={{ mb: -2 }}
+            />
+          </Box>
+        </Stack>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface CourseRegistrationFormStep1UserSelectionProps {
+  session: Session;
+}
+
+const CourseRegistrationFormStep1UserSelection: React.FC<CourseRegistrationFormStep1UserSelectionProps> = ({ session }) => {
+  const { watch, setValue } = useFormContext();
+  const watchUserId = watch('userId') as number | null | undefined;
+  const { data: managedUsersData, isError: isManagedUsersError } = trpc.self.managedUsers.useQuery();
+  const cardProps = (userIdValue: number | null) => ({
+    selected: watchUserId === userIdValue,
+    onSelect: () => setValue('userId', userIdValue),
+  });
+  const itemsProps = { item: true, xs: 12, sm: 6, md: 4 };
+  return (
+    <Box>
+      <Box sx={{ mb: 2 }}>
+        Sélectionnez la personne bénéficiaire des séances de Yoga ; il peut s'agit de vous-même ou bien d'un proche :
+      </Box>
+      {managedUsersData ? (
+        <Grid container spacing={2} alignItems="stretch">
+          <Grid {...itemsProps}>
+            <UserCard
+              suptitle="Vous-même"
+              title={session.displayName ?? session.displayEmail ?? '?'}
+              {...cardProps(session.userId)}
+            />
+          </Grid>
+          {managedUsersData.managedUsers.map(user => (
+            <Grid key={user.id} {...itemsProps}>
+              <UserCard
+                suptitle="Un proche déjà enregistré"
+                title={user.name}
+                {...cardProps(user.id)}
+              />
+            </Grid>
+          ))}
+          <Grid {...itemsProps}>
+            <UserCard
+              suptitle="Un nouveau proche"
+              {...cardProps(null)}
+            />
+          </Grid>
+        </Grid>
+      ) : isManagedUsersError ? (
+        <ErrorAlert />
+      ) : (
+        <Box textAlign="center">
+          <CircularProgress sx={{ my: 3 }} />
+        </Box>
+      )}
+    </Box>
+  );
+}
 
 const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'userCourses'>> = ({ courses, userCourses }) => {
   const { watch, setValue } = useFormContext();
@@ -124,21 +241,32 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
   );
 };
 
-const CourseRegistrationFormStep1: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'userCourses'>> = ({ courses, userCourses }) => {
-
-  return (
+const CourseRegistrationFormStep2CoursesSelection: React.FC<CourseRegistrationFormProps & { isLoading: boolean, isError: boolean }> = ({ courses, userCourses, session, isLoading, isError }) => {
+  const { watch } = useFormContext();
+  const watchUserId = watch('userId') as number | null | undefined;
+  const watchName = watch('name') as string;
+  return isError ? (
+    <ErrorAlert />
+  ) : isLoading || !courses || !userCourses ? (
+    <Box textAlign="center">
+      <CircularProgress sx={{ my: 3 }} />
+    </Box>
+  ) : (
     <Box>
       <Box sx={{ mb: 2 }}>
-        Sélectionnez les séances pour lesquelles vous souhaitez vous inscrire :
+        Sélectionnez les séances pour lesquelles vous souhaitez{' '}
+        {watchUserId === session.userId ? 'vous inscrire' : <>inscrire <strong>{watchName}</strong></>}
+        {' '}:
       </Box>
       <CourseSelectionGrid courses={courses} userCourses={userCourses} />
     </Box>
   );
 };
 
-const CourseRegistrationFormStep2: React.FC<Pick<CourseRegistrationFormProps, 'courses'>> = ({ courses }) => {
+const CourseRegistrationFormStep3Confirmation: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'session'>> = ({ courses, session }) => {
   const { watch } = useFormContext();
   const watchSelectedCourseIds = watch('courseIds') as number[];
+  const watchUserId = watch('userId') as number | null | undefined;
   const coursesById = useMemo(() => Object.fromEntries(courses.map(course => [course.id, course])), [courses]);
   const selectedCourses = useMemo(() => watchSelectedCourseIds.map(id => coursesById[id]), [watchSelectedCourseIds, coursesById]);
   const selectedCoursesByTypesSorted = useMemo(() => {
@@ -149,13 +277,14 @@ const CourseRegistrationFormStep2: React.FC<Pick<CourseRegistrationFormProps, 'c
     selectedCourses.forEach(course => typesMap[course.type].push(course));
     return typesSorted.map(type => [type as CourseType, typesMap[type].sort((a, b) => a.dateStart < b.dateStart ? -1 : 1)] as const);
   }, [selectedCourses]);
+  const self = watchUserId === session.userId;
 
   return (
     <>
       <Grid container spacing={4} sx={{ mb: 2 }}>
         <Grid item xs={12} md={6}>
           <Typography variant="h5" component="div" sx={{ mb: 2 }}>
-            Récapitulatif de vos inscriptions
+            Récapitulatif des inscriptions
           </Typography>
           <Card variant="outlined" sx={{ mb: 2 }}>
             <TableContainer>
@@ -211,7 +340,15 @@ const CourseRegistrationFormStep2: React.FC<Pick<CourseRegistrationFormProps, 'c
         </Grid>
         <Grid item xs={12} md={6}>
           <Typography variant="h5" component="div" sx={{ mb: 2 }}>
-            Vos informations personnelles
+            {self ? (
+              <>
+                Vos informations personnelles
+              </>
+            ) : (
+              <>
+                Informations personnelles du proche
+              </>
+            )}
           </Typography>
           <Grid container spacing={2} sx={{ mb: 2 }}>
             <Grid item xs={12}>
@@ -221,20 +358,20 @@ const CourseRegistrationFormStep2: React.FC<Pick<CourseRegistrationFormProps, 'c
               <TextFieldElement variant="standard" name="email" label="Adresse e-mail" fullWidth />
             </Grid>
           </Grid>
-          <RegistrationNoticePersonalInformation />
+          <RegistrationNoticePersonalInformation self={self} />
         </Grid>
       </Grid>
       <Grid container sx={{ mb: 3 }}>
         <Grid item xs={12}>
           <CheckboxElement
             name="notify"
-            label="Recevoir une copie de mes inscriptions par e-mail"
+            label={`Recevoir une copie ${self ? 'de mes' : 'des'} inscriptions par e-mail${self ? '' : ' (le proche recevra également une copie si une adresse est renseignée)'}`}
           />
         </Grid>
         <Grid item xs={12}>
           <CheckboxElement
             name="consent"
-            label="J'ai pris connaissance du règlement intérieur, en outre je m'engage à me désinscrire dans les meilleurs délais (sans frais) si je ne peux plus assister à une ou plusieurs séances"
+            label={`J'ai pris connaissance du règlement intérieur, en outre je m'engage à ${self ? 'me désinscrire' : 'désinscrire le proche'} dans les meilleurs délais (sans frais) si ${self ? 'je ne peux' : 'il ou elle ne peut'} plus assister à une ou plusieurs séances`}
           />
         </Grid>
       </Grid>
@@ -244,7 +381,7 @@ const CourseRegistrationFormStep2: React.FC<Pick<CourseRegistrationFormProps, 'c
 
 interface CourseRegistrationFormStepConfirmedProps {}
 
-const CourseRegistrationFormStepConfirmed: React.FC<CourseRegistrationFormStepConfirmedProps> = () => {
+const CourseRegistrationFormStep3Confirmed: React.FC<CourseRegistrationFormStepConfirmedProps> = () => {
   return (
     <>
       <Box textAlign="center" sx={{ mb: 2 }}>
@@ -277,7 +414,7 @@ const CourseRegistrationFormStepConfirmed: React.FC<CourseRegistrationFormStepCo
 };
 
 const CourseRegistrationFormStepper: React.FC<{ done: boolean }> = ({ done }) => {
-  const stepNames = [`Sélection des séances`, `Confirmation`];
+  const stepNames = [`Choix du bénéficiaire`, `Sélection des séances`, `Confirmation`];
   const { watch } = useFormContext();
   const watchStep = watch('step') as number;
 
@@ -300,9 +437,12 @@ interface CourseRegistrationFormNavigationProps {
 const CourseRegistrationFormNavigation: React.FC<CourseRegistrationFormNavigationProps> = ({ isLoading, done }) => {
   const { watch, setValue } = useFormContext();
   const watchStep = watch('step') as number;
+  const watchUserId = watch('userId') as number | null | undefined;
+  const watchName = watch('name') as string;
+  const watchEmail = watch('email') as string;
   const watchCourseIds = watch('courseIds') as number[];
   const handleNext = () => {
-    if (watchStep !== 1) {
+    if (watchStep !== 2) {
       setValue('step', watchStep + 1);
     }
   };
@@ -313,17 +453,38 @@ const CourseRegistrationFormNavigation: React.FC<CourseRegistrationFormNavigatio
   return !done ? (
     <Stack direction="row" spacing={2} sx={{ mt: 2, justifyContent: 'space-between' }}>
       {/* The `key` attributes here are important, otherwise React considers a click as a submit action */}
-        <Button key={`back-${watchStep}`} variant="outlined" color="inherit" startIcon={<ArrowBack />} onClick={handlePrevious} disabled={isLoading} sx={{ visibility: watchStep <= 0 || watchStep >= 2 ? 'hidden' : undefined }}>
+        <Button
+          key={`back-${watchStep}`}
+          variant="outlined"
+          color="inherit"
+          startIcon={<ArrowBack />}
+          onClick={handlePrevious}
+          disabled={isLoading}
+          sx={{ visibility: watchStep <= 0 || watchStep >= 3 ? 'hidden' : undefined }}
+        >
           Étape précédente
         </Button>
-        <Button key={`next-${watchStep}`} variant="contained" type={watchStep === 1 ? 'submit' : undefined} startIcon={watchStep !== 1 ? <ArrowForward /> : <Check />} disabled={watchCourseIds.length === 0 || isLoading} onClick={handleNext} sx={{ visibility: watchStep >= 2 ? 'hidden' : undefined }}>
-          {watchStep !== 1 ? `Étape suivante` : `Valider ces inscriptions`}
+        <Button
+          key={`next-${watchStep}`}
+          variant="contained"
+          type={watchStep === 2 ? 'submit' : undefined}
+          startIcon={watchStep !== 2 ? <ArrowForward /> : <Check />}
+          disabled={
+            (watchStep === 0 && (watchUserId === undefined || (watchUserId === null && !userSchemaBase.safeParse({ name: watchName, email: watchEmail }).success)))
+            || (watchStep === 1 && watchCourseIds.length === 0)
+            || isLoading
+          }
+          onClick={handleNext}
+          sx={{ visibility: watchStep >= 3 ? 'hidden' : undefined }}
+        >
+          {watchStep !== 2 ? `Étape suivante` : `Valider ces inscriptions`}
         </Button>
     </Stack>
   ) : null;
 };
 
 interface CourseRegistrationFormProps {
+  session: Session;
   courses: { id: number, type: CourseType, slots: number, price: number, dateStart: Date, dateEnd: Date, registrations: number }[];
   userCourses: {
     id: number,
@@ -338,25 +499,53 @@ interface CourseRegistrationFormProps {
       isCanceled: boolean,
     },
   }[];
-  userProfile: {
-    name: string | null;
-    email: string | null;
-  };
 }
 
-const CourseStepContent: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'userCourses'> & { done: boolean }> = ({ courses, userCourses, done }) => {
-  const { watch } = useFormContext();
+const CourseStepContent: React.FC<Pick<CourseRegistrationFormProps, 'session' | 'courses'> & { done: boolean }> = ({ session, courses, done }) => {
+  const { watch, setValue } = useFormContext();
   const watchStep = watch('step') as number;
+  const watchUserId = watch('userId') as number | null | undefined;
+  // In case no user is selected, we just preload the current user
+  const { data: selectedUserCoursesData, isLoading: isSelectedUserCoursesLoading, isError: isSelectedUserCoursesError } =
+    trpc.self.findAllRegisteredCourses.useQuery({ userId: watchUserId ?? session.userId, userCanceled: false, future: true }, {
+      enabled: watchUserId != null,
+    });
+  const { data: selectedUserProfileData, isLoading: isSelectedUserProfileLoading, isError: isSelectedUserProfileError } =
+    trpc.self.profile.useQuery({ userId: watchUserId ?? session.userId }, {
+      enabled: watchUserId != null,
+    });
+  useEffect(() => {
+    if (watchStep === 0) {
+      if (watchUserId !== null) {
+        setValue('name', '');
+        setValue('email', '');
+      }
+      setValue('courseIds', []);
+    } else if (watchStep === 1) {
+      if (watchUserId !== null && selectedUserProfileData) {
+        setValue('name', selectedUserProfileData.name);
+        setValue('email', selectedUserProfileData.email);
+      }
+    }
+  }, [watchStep, selectedUserProfileData, setValue]);
   return watchStep === 0 && !done ? (
-    <CourseRegistrationFormStep1 courses={courses} userCourses={userCourses} />
+    <CourseRegistrationFormStep1UserSelection session={session} />
   ) : watchStep === 1 && !done ? (
-    <CourseRegistrationFormStep2 courses={courses} />
+    <CourseRegistrationFormStep2CoursesSelection
+      courses={courses}
+      userCourses={watchUserId != null ? selectedUserCoursesData as any : []} // TODO
+      session={session}
+      isLoading={watchUserId != null && (isSelectedUserCoursesLoading || isSelectedUserProfileLoading)}
+      isError={isSelectedUserCoursesError || isSelectedUserProfileError}
+    />
+  ) : watchStep === 2 && !done ? (
+    <CourseRegistrationFormStep3Confirmation courses={courses} session={session} />
   ) : done ? (
-    <CourseRegistrationFormStepConfirmed />
+    <CourseRegistrationFormStep3Confirmed />
   ) : null;
 }
 
-const CourseRegistrationForm: React.FC<CourseRegistrationFormProps> = ({ courses, userCourses, userProfile }) => {
+const CourseRegistrationForm: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'session'>> = ({ session, courses }) => {
   const trpcClient = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
   const { mutate: submitRegister, isLoading: isSubmitRegisterLoading, isSuccess: isSubmitRegisterSuccess } = trpc.self.register.useMutation({
@@ -372,11 +561,11 @@ const CourseRegistrationForm: React.FC<CourseRegistrationFormProps> = ({ courses
     <FormContainer
       onSuccess={data => submitRegister(data as any)}
       resolver={zodResolver(frontsiteCourseRegistrationSchema)}
-      defaultValues={{ step: 0, courseIds: [], name: userProfile.name ?? '', email: userProfile.email ?? '', consent: false, notify: true }}
+      defaultValues={{ step: 0, userId: undefined, courseIds: [], name: '', email: '', consent: false, notify: true }}
     >
       {/*<DirtyFormUnloadAlert condition={isSubmitRegisterLoading} disabled={isSubmitRegisterSuccess} message="Vous n'avez pas confirmé vos inscriptions, souhaitez-vous vraiment quitter la page ?" />*/}
       <CourseRegistrationFormStepper done={isSubmitRegisterSuccess} />
-      <CourseStepContent courses={courses} userCourses={userCourses} done={isSubmitRegisterSuccess} />
+      <CourseStepContent session={session} courses={courses} done={isSubmitRegisterSuccess} />
       <CourseRegistrationFormNavigation isLoading={isSubmitRegisterLoading} done={isSubmitRegisterSuccess} />
     </FormContainer>
   );
@@ -385,15 +574,9 @@ const CourseRegistrationForm: React.FC<CourseRegistrationFormProps> = ({ courses
 interface CourseRegistrationFormWidgetProps {}
 
 export const CourseRegistrationFormWidget: React.FC<CourseRegistrationFormWidgetProps> = () => {
-  const { status } = useSession();
+  const { status, data: session } = useSession();
   const isAuthenticated = useMemo(() => status === 'authenticated', [status]);
   const { data: coursesData, isError: isCoursesError } = trpc.public.findAllFutureCourses.useQuery(undefined, {
-    enabled: isAuthenticated,
-  });
-  const { data: userCoursesData, isError: isUserCoursesError } = trpc.self.findAllRegisteredCourses.useQuery({ userCanceled: false, future: true }, {
-    enabled: isAuthenticated,
-  });
-  const { data: userProfileData, isError: isUserProfileError } = trpc.self.profile.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
@@ -416,16 +599,14 @@ export const CourseRegistrationFormWidget: React.FC<CourseRegistrationFormWidget
               (vous devez être connecté pour vous inscrire à des séances)
             </Box>
           </Box>
-        ) : isCoursesError || isUserCoursesError || isUserProfileError ? (
-          <Box textAlign="center">
-            <Alert severity="error">Une erreur est survenue, impossible de charger les données pour le moment.</Alert>
-          </Box>
-        ) : status === 'loading' || !coursesData || !userCoursesData || !userProfileData ? (
+        ) : isCoursesError ? (
+          <ErrorAlert />
+        ) : status === 'loading' || !coursesData || !session ? (
           <Box textAlign="center">
             <CircularProgress sx={{ my: 3 }} />
           </Box>
         ) : (
-          <CourseRegistrationForm courses={coursesData} userCourses={userCoursesData as any} userProfile={userProfileData} />
+          <CourseRegistrationForm session={session} courses={coursesData} />
         )}
       </CardContent>
     </Card>

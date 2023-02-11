@@ -22,7 +22,7 @@ export default function AdminAdmins() {
       <Typography paragraph>
         Vous pouvez intégrer votre calendrier d'enseignant au moyen du lien ci-dessous, veillez à ne pas le partager avec d'autres personnes :
       </Typography>
-      <CalendarLinkButton session={session as Session} coach />
+      <CalendarLinkButton publicAccessToken={(session as Session).publicAccessToken} coach />
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Autres listes
       </Typography>

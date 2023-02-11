@@ -7,9 +7,10 @@ import { displayUserName } from '../../../common/display';
 interface SelectUserProps {
   name: string;
   multiple?: boolean;
+  label?: string;
 }
 
-export const SelectUser: React.FC<SelectUserProps> = ({ name, multiple }) => {
+export const SelectUser: React.FC<SelectUserProps> = ({ name, multiple, label }) => {
   const { data, isLoading } = trpc.user.findAll.useQuery({ disabled: false });
   return (
     <AutocompleteElement
@@ -17,7 +18,7 @@ export const SelectUser: React.FC<SelectUserProps> = ({ name, multiple }) => {
       options={data ?? []}
       multiple={multiple}
       matchId
-      label={`Utilisateur${multiple ? 's' : ''}`}
+      label={label ?? `Utilisateur${multiple ? 's' : ''}`}
       loading={isLoading}
       autocompleteProps={{
         disabled: isLoading,

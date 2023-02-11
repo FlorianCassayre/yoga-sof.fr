@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { Dialog, DialogContent, DialogTitle, Grid, IconButton, TextField, Typography } from '@mui/material';
+import { Box, Dialog, DialogContent, DialogTitle, Grid, IconButton, Stack, TextField, Typography } from '@mui/material';
 import { Close, Visibility } from '@mui/icons-material';
-import { GridRowParams } from '@mui/x-data-grid';
+import { GridRenderCellParams, GridRowModel, GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
-import { EmailMessage, EmailMessageType } from '@prisma/client';
+import { CourseType, EmailMessage, EmailMessageType } from '@prisma/client';
 import { relativeTimestamp, userColumn } from './common';
 import { formatDateDDsMMsYYYYsHHhMMmSSs } from '../../../common/date';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { EmailMessageTypeNames } from '../../../common/emailMessages';
 import { trpc } from '../../../common/trpc';
+import { CourseTypeNames } from '../../../common/course';
 
 interface EmailDetailsDialogProps {
   open: boolean;
@@ -43,9 +44,12 @@ const EmailDetailsDialog: React.FunctionComponent<EmailDetailsDialogProps> = ({ 
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 0 }}>
             <Grid item xs={12} md={6}>
-              <TextField label="Destinataire" variant="outlined" value={data.destinationAddress} InputProps={{ readOnly: true }} fullWidth />
+              <TextField label="Destinataire" variant="outlined" value={data.destinationAddress ?? ' '} InputProps={{ readOnly: true }} fullWidth />
             </Grid>
             <Grid item xs={12} md={6}>
+              <TextField label="Cc" variant="outlined" value={data.ccAddress ?? ' '} InputProps={{ readOnly: true }} fullWidth />
+            </Grid>
+            <Grid item xs={12}>
               <TextField label="Date d'envoi" variant="outlined" value={data.sentAt ? formatDateDDsMMsYYYYsHHhMMmSSs(data.sentAt) : ''} InputProps={{ readOnly: true }} fullWidth />
             </Grid>
             <Grid item xs={12}>
@@ -94,10 +98,18 @@ export const EmailMessageGrid: React.FunctionComponent<EmailMessageGridProps> = 
     },
     userColumn({ field: 'user' }),
     {
-      field: 'destinationAddress',
-      headerName: 'Addresse de destination',
+      field: 'addresses',
+      headerName: 'Adresse(s) de destination',
       minWidth: 250,
       flex: 1.5,
+      valueGetter: ({ row }: { row: EmailMessage }) => [row.destinationAddress, row.ccAddress].filter(a => a),
+      renderCell: ({ value }: GridRenderCellParams<string[]>) => !!value && (
+        <Stack direction="column">
+          {value.map((address, i) => (
+            <Box key={i}>{address}</Box>
+          ))}
+        </Stack>
+      ),
     },
     {
       field: 'subject',

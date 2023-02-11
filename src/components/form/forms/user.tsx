@@ -11,6 +11,7 @@ import { User } from '@prisma/client';
 import { userCreateSchema, userFindTransformSchema, userUpdateSchema } from '../../../common/schemas/user';
 import { displayUserName } from '../../../common/display';
 import { trpc } from '../../../common/trpc';
+import { SelectUser } from '../fields/SelectUser';
 
 const UserFormFields = () => (
   <Grid container spacing={2}>
@@ -20,12 +21,16 @@ const UserFormFields = () => (
     <Grid item xs={12}>
       <TextFieldElement name="email" label="Adresse email de l'utilisateur" fullWidth />
     </Grid>
+    <Grid item xs={12}>
+      <SelectUser name="managedByUserId" label="Compte tuteur" />
+    </Grid>
   </Grid>
 );
 
 const userFormDefaultValues: DeepPartial<z.infer<typeof userCreateSchema>> = {
   name: '',
   email: null,
+  managedByUserId: null,
 };
 
 const useProceduresToInvalidate = () => {

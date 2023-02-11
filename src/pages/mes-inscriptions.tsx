@@ -1,7 +1,19 @@
 import { FrontsiteContent } from '../components/layout/public/FrontsiteContent';
 import Link from 'next/link';
-import { Box, Button, Card, CircularProgress, Grid, Link as MuiLink, TextField, Typography } from '@mui/material';
-import React, { useEffect, useMemo } from 'react';
+import {
+  Alert,
+  Box,
+  Button,
+  Card,
+  CircularProgress,
+  Grid,
+  Link as MuiLink,
+  Tab,
+  Tabs,
+  TextField,
+  Typography
+} from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FrontsiteCourseGrid } from '../components/grid/grids/FrontsiteCourseGrid';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -17,8 +29,12 @@ import { Save } from '@mui/icons-material';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userSchemaBase } from '../common/schemas/user';
 
-const CalendarWidget = () => {
-  const { data, isLoading } = trpc.self.findAllRegisteredCourses.useQuery({ future: null, userCanceled: false });
+interface CalendarWidgetProps {
+  userId: number;
+}
+
+const CalendarWidget: React.FC<CalendarWidgetProps> = ({ userId }) => {
+  const { data, isLoading } = trpc.self.findAllRegisteredCourses.useQuery({ userId, future: null, userCanceled: false });
   const renderDay = (day: Date, selectedDays: Date[], pickersDayProps: PickersDayProps<Date>) => {
     const isSelected = data && data.some(({ course: { dateStart } }: any) => isSameDay(new Date(dateStart), day));
     const isDisabled = !isSameDay(day, new Date()) && day.getTime() < new Date().getTime();
@@ -63,9 +79,13 @@ const CalendarWidget = () => {
   )
 };
 
-const UserDataForm: React.FC = () => {
+interface UserDataFormProps {
+  userId: number;
+}
+
+const UserDataForm: React.FC<UserDataFormProps> = ({ userId }) => {
   const trpcClient = trpc.useContext();
-  const { data: initialData } = trpc.self.profile.useQuery();
+  const { data: initialData } = trpc.self.profile.useQuery({ userId });
   const { enqueueSnackbar } = useSnackbar();
   const { mutate, isLoading: isUpdateLoading } = trpc.self.updateProfile.useMutation({
     onSuccess: async () => {
@@ -82,7 +102,7 @@ const UserDataForm: React.FC = () => {
   return initialData ? (
     <FormContainer
       defaultValues={initialData}
-      onSuccess={({ name, email }) => mutate({ name: name ?? '', email: email ?? null })}
+      onSuccess={({ name, email }) => mutate({ id: userId, name: name ?? '', email: email ?? null })}
       resolver={zodResolver(userSchemaBase)}
     >
       <Grid container spacing={2} sx={{ mt: 1, mb: 2 }}>
@@ -106,41 +126,93 @@ const UserDataForm: React.FC = () => {
   );
 };
 
-interface MesInscriptionsContentProps {
-  session: Session;
+interface UserTabPanelProps {
+  userId: number;
+  publicAccessToken: string;
 }
 
-const MesInscriptionsContent: React.FC<MesInscriptionsContentProps> = ({ session }) => {
+const UserTabPanelContent: React.FC<UserTabPanelProps> = ({ userId, publicAccessToken }) => {
 
   return (
-    <FrontsiteContent title="Mes inscriptions">
-      Cette page liste l'ensemble de vos inscriptions aux séances de Yoga.
-      Ces inscriptions se font au moyen de <Link href="/inscription" passHref><MuiLink>ce formulaire</MuiLink></Link>.
+    <>
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Séances à venir
       </Typography>
-      <FrontsiteCourseGrid future={true} userCanceled={false} />
+      <FrontsiteCourseGrid userId={userId} future={true} userCanceled={false} />
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Séances passées
       </Typography>
-      <FrontsiteCourseGrid future={false} userCanceled={false} />
+      <FrontsiteCourseGrid userId={userId} future={false} userCanceled={false} />
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Désinscriptions
       </Typography>
-      <FrontsiteCourseGrid future={null} userCanceled={true} />
+      <FrontsiteCourseGrid userId={userId} future={null} userCanceled={true} />
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Données personnelles
       </Typography>
       Votre adresse email nous permet notamment de vous informer en cas d'annulation de séance.
-      <UserDataForm />
+      <UserDataForm userId={userId} />
       Vos données personnelles sont traitées conformément à notre <Link href="/confidentialite" passHref><MuiLink>politique de confidentialité</MuiLink></Link>,
       en particulier celles-ci ne sont utilisées que dans le but d'assurer l'inscription et l'organisation des séances de Yoga.
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Calendrier personnel
       </Typography>
       Vous retrouverez sur ce calendrier toutes vos séances passées et futures :
-      <CalendarWidget />
-      <CalendarLinkButton session={session} />
+      <CalendarWidget userId={userId} />
+      <CalendarLinkButton publicAccessToken={publicAccessToken} />
+    </>
+  );
+};
+
+interface MesInscriptionsContentProps {
+  session: Session;
+}
+
+const MesInscriptionsContent: React.FC<MesInscriptionsContentProps> = ({ session }) => {
+  const [tab, setTab] = useState(0);
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => setTab(newValue);
+
+  const { data, isLoading } = trpc.self.managedUsers.useQuery();
+  const managedUsersIncludingSelf = useMemo(() =>
+    data ? [
+      { id: session.userId, name: `${session.displayName ?? session.displayEmail} (vous)`, publicAccessToken: session.publicAccessToken },
+      ...data.managedUsers,
+    ] : undefined,
+    [data]
+  );
+
+  return (
+    <FrontsiteContent title="Mes inscriptions">
+      Cette page liste l'ensemble de vos inscriptions aux séances de Yoga (ainsi que celles de vos proches le cas échéant).
+      <br />
+      Ces inscriptions se font au moyen de <Link href="/inscription" passHref><MuiLink>ce formulaire</MuiLink></Link>.
+      {data && data.managedByUser && (
+        <Alert severity="info" sx={{ mt: 2 }}>
+          Votre compte est actuellement relié à celui de <strong>{data.managedByUser.name}</strong>, ce qui lui offre la possibilité de gérer vos inscriptions à votre place.
+        </Alert>
+      )}
+      <Box>
+        {data && managedUsersIncludingSelf ? (
+          <>
+            {managedUsersIncludingSelf.length !== 1 && (
+              <Box sx={{ borderBottom: 1, borderColor: 'divider', mt: 2 }}>
+                <Tabs value={tab} onChange={handleTabChange}>
+                  {managedUsersIncludingSelf.map(user => (
+                    <Tab key={user.id} label={user.name} />
+                  ))}
+                </Tabs>
+              </Box>
+            )}
+            {managedUsersIncludingSelf.filter((_, i) => i === tab).map(user => (
+              <UserTabPanelContent key={user.id} userId={user.id} publicAccessToken={user.publicAccessToken} />
+            ))}
+          </>
+        ) : isLoading ? (
+          <Box textAlign="center" sx={{ my: 4 }}>
+            <CircularProgress />
+          </Box>
+        ) : null}
+      </Box>
     </FrontsiteContent>
   )
 };

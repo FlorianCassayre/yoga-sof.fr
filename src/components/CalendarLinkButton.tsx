@@ -44,14 +44,14 @@ const CalendarDialog: React.FC<CalendarDialogProps> = ({ open, setOpen }) => {
 }
 
 interface CalendarLinkButtonProps {
-  session: Session;
+  publicAccessToken: string;
   coach?: boolean;
 }
 
-export const CalendarLinkButton: React.FC<CalendarLinkButtonProps> = ({ session, coach }) => {
+export const CalendarLinkButton: React.FC<CalendarLinkButtonProps> = ({ publicAccessToken, coach }) => {
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const url = `${window.location.origin}/api/calendar.ics?token=${session.publicAccessToken}${coach ? '&coach' : ''}`;
+  const url = `${window.location.origin}/api/calendar.ics?token=${publicAccessToken}${coach ? '&coach' : ''}`;
   const ref = useRef<HTMLInputElement>();
   const selectInput = () => {
     if (ref.current) {

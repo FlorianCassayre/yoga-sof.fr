@@ -29,9 +29,13 @@ export const RegistrationNoticeRecap = () => (
   </>
 );
 
-export const RegistrationNoticePersonalInformation = () => (
+export const RegistrationNoticePersonalInformation = ({ self }) => self ? (
   <>
     À compléter ou corriger au besoin, votre adresse e-mail est nécessaire pour communiquer avec vous.
+  </>
+) : (
+  <>
+    À compléter ou corriger au besoin. L'adresse email du proche est facultative.
   </>
 );
 

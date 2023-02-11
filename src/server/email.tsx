@@ -25,11 +25,12 @@ export const NODEMAILER_CONFIGURATION = {
 
 const transporter = nodemailer.createTransport(NODEMAILER_CONFIGURATION);
 
-const sendEmail = async (recipient: string, subject: string, contentHtml: string) => {
+const sendEmail = async (to: string | null, cc: string | null, subject: string, contentHtml: string) => {
   const parameters = {
     from: `"${NAME_FROM}" <${process.env.EMAIL_FROM}>`,
     replyTo: `${NAME_FROM}" <${process.env.EMAIL_REPLY_TO}>`,
-    to: recipient,
+    to: to ?? undefined,
+    cc: cc ?? undefined,
     subject,
     html: contentHtml,
   };
@@ -42,11 +43,12 @@ const sendEmail = async (recipient: string, subject: string, contentHtml: string
   }
 };
 
-const dispatchEmail = async (user: Pick<User, 'id' | 'email' | 'customEmail'>, emailType: EmailMessageType, subject: string, contentHtml: string) => {
-  const { id: userId, email, customEmail } = user;
+const dispatchEmail = async (user: Pick<User, 'id' | 'email' | 'customEmail'>, managedByUser: Pick<User, 'email' | 'customEmail'> | null, emailType: EmailMessageType, subject: string, contentHtml: string) => {
+  const { id: userId } = user;
 
-  const actualEmail = customEmail || email;
-  if (!actualEmail) { // Do not create or send the email if there is no destination address, just ignore it
+  const actualToEmail = user.customEmail || user.email;
+  const actualCcEmail = managedByUser ? managedByUser.customEmail || managedByUser.email : null;
+  if (!actualToEmail && !actualCcEmail) { // Do not create or send the email if there are no destination addresses, just ignore it
     return;
   }
 
@@ -54,14 +56,15 @@ const dispatchEmail = async (user: Pick<User, 'id' | 'email' | 'customEmail'>, e
     data: {
       userId,
       type: emailType,
-      destinationAddress: actualEmail,
+      destinationAddress: actualToEmail,
+      ccAddress: actualCcEmail,
       subject,
       message: contentHtml,
     },
   });
 
   try {
-    await sendEmail(actualEmail, subject, contentHtml);
+    await sendEmail(actualToEmail, actualCcEmail, subject, contentHtml);
   } catch (e) {
     console.warn(`Warning, could not send email with id ${emailRecordId}`);
     console.error(e);
@@ -74,11 +77,15 @@ const dispatchEmail = async (user: Pick<User, 'id' | 'email' | 'customEmail'>, e
   });
 };
 
-const dispatchEmailFromComponent = async <Props extends { user: Pick<User, 'id' | 'email' | 'customEmail'> },>(template: EmailMessageTemplate<Props>, props: Props) => {
-  return dispatchEmail(props.user, template.type, template.subject(props), renderToStaticMarkup(template.body(props)));
+const dispatchEmailFromComponent = async <
+  Args extends { user: Prisma.UserGetPayload<{ select: { id: true, email: true, customEmail: true } }> },
+  Props extends Args & { user: Prisma.UserGetPayload<{ select: { managedByUser: { select: { email: true, customEmail: true } } } }> },
+>
+(template: EmailMessageTemplate<Args>, props: Props) => {
+  return dispatchEmail(props.user, props.user.managedByUser, template.type, template.subject(props), renderToStaticMarkup(template.body(props)));
 }
 
-export const notifyCourseCanceled = async (course: Prisma.CourseGetPayload<{ include: { registrations: { include: { user: true } } } }>) => {
+export const notifyCourseCanceled = async (course: Prisma.CourseGetPayload<{ include: { registrations: { include: { user: { include: { managedByUser: true } } } } } }>) => {
   const { registrations } = course;
   await Promise.all(
     registrations
@@ -128,7 +135,11 @@ export const notifyCourseNewcomers = async () => {
       },
       include: {
         course: true,
-        user: true,
+        user: {
+          include: {
+            managedByUser: true,
+          },
+        },
       },
     });
 
@@ -178,6 +189,9 @@ export const notifyCourseRegistration = async (userId: number, courseIds: number
   const user = await prisma.user.findUniqueOrThrow({
     where: {
       id: userId,
+    },
+    include: {
+      managedByUser: true,
     },
   });
   const registrations = await prisma.courseRegistration.findMany({

@@ -84,3 +84,33 @@ export const updateCourseRegistrationAttendance = async (args: { where: { id: nu
     return prisma.courseRegistration.update(args);
   });
 };
+
+export const findCourseRegistrationsPublic = ({ userId, future, userCanceled }: { userId: number, userCanceled: boolean, future: boolean | null }) => {
+  const whereCourseFuture = {
+    dateEnd: {
+      gt: new Date(),
+    },
+  };
+  return findCourseRegistrations({
+    where: {
+      userId,
+      isUserCanceled: userCanceled,
+      course: future == null ? {} : future ? whereCourseFuture : { NOT: whereCourseFuture },
+    },
+    select: {
+      id: true,
+      isUserCanceled: true,
+      createdAt: true,
+      canceledAt: true,
+      course: {
+        select: {
+          id: true,
+          type: true,
+          dateStart: true,
+          dateEnd: true,
+          isCanceled: true,
+        },
+      },
+    },
+  });
+}

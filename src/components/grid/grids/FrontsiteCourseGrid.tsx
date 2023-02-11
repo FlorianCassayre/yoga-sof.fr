@@ -19,10 +19,11 @@ import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 
 interface GridActionCancelRegistrationProps {
+  userId: number;
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>;
 }
 
-const GridActionCancelRegistration: React.FC<GridActionCancelRegistrationProps> = ({ courseRegistration }) => {
+const GridActionCancelRegistration: React.FC<GridActionCancelRegistrationProps> = ({ userId, courseRegistration }) => {
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const trpcClient = trpc.useContext();
@@ -39,18 +40,19 @@ const GridActionCancelRegistration: React.FC<GridActionCancelRegistrationProps> 
   });
   return (
     <>
-      <FrontsiteCancelCourseRegistrationDialog courseRegistration={courseRegistration} open={open} setOpen={setOpen} onConfirm={() => mutateCancel({ id: courseRegistration.id })} />
+      <FrontsiteCancelCourseRegistrationDialog courseRegistration={courseRegistration} open={open} setOpen={setOpen} onConfirm={() => mutateCancel({ userId, id: courseRegistration.id })} />
       <GridActionsCellItemTooltip icon={<Cancel />} onClick={() => setOpen(true)} label="Annuler" disabled={isCanceling} />
     </>
   );
 };
 
 interface FrontsiteCourseGrid {
+  userId: number;
   userCanceled: boolean;
   future: boolean | null;
 }
 
-export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> = ({ userCanceled, future }) => {
+export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> = ({ userId, userCanceled, future }) => {
   const columns: GridColumns = [
     ...(userCanceled ? [] : [{
       field: 'status',
@@ -93,12 +95,12 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
       headerName: 'Désinscription',
       minWidth: 120,
       getActions: ({ row }: GridRowParams<Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>>) => !row.course.isCanceled && future ? [
-        <GridActionCancelRegistration courseRegistration={row} />,
+        <GridActionCancelRegistration userId={userId} courseRegistration={row} />,
       ] : [],
     } as GridEnrichedColDef] : []),
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.self.findAllRegisteredCourses} input={{ userCanceled, future }} initialSort={{ field: 'createdAt', sort: future ? 'asc' : 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.self.findAllRegisteredCourses} input={{ userId, userCanceled, future }} initialSort={{ field: 'createdAt', sort: future ? 'asc' : 'desc' }} />
   );
 };
