@@ -19,19 +19,22 @@ const selectorSchema = z.strictObject({
 
 export const courseRegistrationRouter = router({
   findAll: adminProcedure
-    .query(async () => findCourseRegistrations({ include: { user: true, course: true } })),
+    .query(async () => prisma.$transaction(async (prisma) => findCourseRegistrations(prisma, { include: { user: true, course: true } }), transactionOptions)),
   findAllEvents: adminProcedure
     .input(selectorSchema)
     .query(async ({ input: { courseId, userId, attended } }) =>
-      findCourseRegistrationEvents({ where: { courseId, userId, attended }, include: { course: courseId === undefined, user: userId === undefined } })),
+      prisma.$transaction(async (prisma) => findCourseRegistrationEvents(prisma, { where: { courseId, userId, attended }, include: { course: courseId === undefined, user: userId === undefined } }), transactionOptions)),
   findAllActive: adminProcedure
     .input(selectorSchema)
     .query(async ({ input: { courseId, userId, attended } }) =>
-      findCourseRegistrations({ where: { courseId, userId, isUserCanceled: false, attended }, include: { course: true, user: true } })),
+        prisma.$transaction(async (prisma) => findCourseRegistrations(prisma, { where: { courseId, userId, isUserCanceled: false, attended }, include: { course: true, user: true } }), transactionOptions)),
   create: adminProcedure
     .input(courseRegistrationCreateSchema)
-    .mutation(async ({ input: { courses, users, notify } }) =>
-      createCourseRegistrations({ data: { courses, users, notify } })),
+    .mutation(async ({ input: { courses, users, notify } }) => {
+        const [result, sendMailsCallback] = await prisma.$transaction(async (prisma) => createCourseRegistrations(prisma, { data: { courses, users, notify } }), transactionOptions);
+        await sendMailsCallback();
+        return result;
+    }),
   cancel: adminProcedure
     .input(z.strictObject({ id: z.number().int().min(0) }))
     .mutation(async ({ input: { id } }) =>

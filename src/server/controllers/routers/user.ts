@@ -26,7 +26,7 @@ export const userRouter = router({
     }),
   create: adminProcedure
     .input(userCreateSchema)
-    .mutation(async ({ input }) => createUser({ data: input })),
+    .mutation(async ({ input }) => prisma.$transaction(async (prisma) => createUser(prisma, { data: input }), transactionOptions)),
   update: adminProcedure
     .input(userUpdateSchema)
     .mutation(async ({ input: { id, ...data } }) => updateUser({ where: { id }, data })),

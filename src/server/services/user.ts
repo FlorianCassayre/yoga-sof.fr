@@ -34,7 +34,7 @@ export const validateControlsUser = async (prisma: Prisma.TransactionClient, arg
   }
 };
 
-export const createUser = async <Select extends Prisma.UserSelect, Include extends Prisma.UserInclude>(args: { data: z.infer<typeof userCreateSchema>, select?: Select, include?: Include }) => {
+export const createUser = async <Select extends Prisma.UserSelect, Include extends Prisma.UserInclude>(prisma: Prisma.TransactionClient, args: { data: z.infer<typeof userCreateSchema>, select?: Select, include?: Include }) => {
   userCreateSchema.parse(args.data);
   // No need to validate the user manager in create, it is correct is all cases wrt to the current logic
   return prisma.user.create({ data: { customName: args.data.name, customEmail: args.data.email, managedByUserId: args.data.managedByUserId } });

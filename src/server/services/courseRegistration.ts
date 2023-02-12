@@ -15,54 +15,50 @@ const registrationsToEvent = <T extends CourseRegistration>(registrations: T[]) 
     registration,
   }] : [])]).sort(({ date: date1 }, { date: date2 }) => date2.getTime() - date1.getTime());
 
-export const findCourseRegistrations = async <Where extends Prisma.CourseRegistrationWhereInput, Select extends Prisma.CourseRegistrationSelect, Include extends Prisma.CourseRegistrationInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseRegistrationOrderByWithRelationInput>>(args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
+export const findCourseRegistrations = async <Where extends Prisma.CourseRegistrationWhereInput, Select extends Prisma.CourseRegistrationSelect, Include extends Prisma.CourseRegistrationInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseRegistrationOrderByWithRelationInput>>(prisma: Prisma.TransactionClient, args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
   prisma.courseRegistration.findMany(args);
 
-export const findCourseRegistrationEvents = async <Where extends Pick<Prisma.CourseRegistrationWhereInput, 'courseId' | 'userId'>, Select extends Prisma.CourseRegistrationSelect, Include extends Prisma.CourseRegistrationInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseRegistrationOrderByWithRelationInput>>(args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
- registrationsToEvent(await findCourseRegistrations(args))
+export const findCourseRegistrationEvents = async <Where extends Pick<Prisma.CourseRegistrationWhereInput, 'courseId' | 'userId'>, Select extends Prisma.CourseRegistrationSelect, Include extends Prisma.CourseRegistrationInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseRegistrationOrderByWithRelationInput>>(prisma: Prisma.TransactionClient, args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
+ registrationsToEvent(await findCourseRegistrations(prisma, args))
 
-export const createCourseRegistrations = async (args: { data: { courses: number[], users: number[], notify: boolean } }) => {
+export const createCourseRegistrations = async (prisma: Prisma.TransactionClient, args: { data: { courses: number[], users: number[], notify: boolean } }) => {
   courseRegistrationCreateSchema.parse(args.data);
-  const [result, sendMailsCallback] = await prisma.$transaction(async (prisma) => {
-    const now = new Date();
-    const newRegistrations: number[] = [];
-    const newRegistrationsPerUser: [Prisma.UserGetPayload<{ include: { managedByUser: true } }>, Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>[]][] = [];
-    for (const userId of args.data.users) {
-      const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, include: { managedByUser: true } });
-      const newRegistrationsForUser: (typeof newRegistrationsPerUser)[0][1] = [];
-      for (const courseId of args.data.courses) {
-        const course = await prisma.course.findUniqueOrThrow({ where: { id: courseId }, include: { registrations: { where: { isUserCanceled: false } } } });
-        if (course.isCanceled) {
-          throw new ServiceError(ServiceErrorCode.CourseCanceledNoRegistration);
-        }
-        if (course.dateStart.getTime() <= now.getTime()) {
-          throw new ServiceError(ServiceErrorCode.CoursePassedNoRegistration);
-        }
-        if (course.registrations.length >= course.slots) {
-          throw new ServiceError(ServiceErrorCode.CourseFullNoRegistration);
-        }
-        if (course.registrations.some(({ userId: registeredUserId }) => userId === registeredUserId)) {
-          throw new ServiceError(ServiceErrorCode.UserAlreadyRegistered);
-        }
-        const registration = await prisma.courseRegistration.create({ data: { courseId, userId }, include: { course: true } });
-        newRegistrations.push(courseId);
-        newRegistrationsForUser.push(registration);
+  const now = new Date();
+  const newRegistrations: number[] = [];
+  const newRegistrationsPerUser: [Prisma.UserGetPayload<{ include: { managedByUser: true } }>, Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>[]][] = [];
+  for (const userId of args.data.users) {
+    const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, include: { managedByUser: true } });
+    const newRegistrationsForUser: (typeof newRegistrationsPerUser)[0][1] = [];
+    for (const courseId of args.data.courses) {
+      const course = await prisma.course.findUniqueOrThrow({ where: { id: courseId }, include: { registrations: { where: { isUserCanceled: false } } } });
+      if (course.isCanceled) {
+        throw new ServiceError(ServiceErrorCode.CourseCanceledNoRegistration);
       }
-      newRegistrationsPerUser.push([user, newRegistrationsForUser]);
+      if (course.dateStart.getTime() <= now.getTime()) {
+        throw new ServiceError(ServiceErrorCode.CoursePassedNoRegistration);
+      }
+      if (course.registrations.length >= course.slots) {
+        throw new ServiceError(ServiceErrorCode.CourseFullNoRegistration);
+      }
+      if (course.registrations.some(({ userId: registeredUserId }) => userId === registeredUserId)) {
+        throw new ServiceError(ServiceErrorCode.UserAlreadyRegistered);
+      }
+      const registration = await prisma.courseRegistration.create({ data: { courseId, userId }, include: { course: true } });
+      newRegistrations.push(courseId);
+      newRegistrationsForUser.push(registration);
     }
-    let sendMailsCallback;
-    if (args.data.notify) {
-      const callbacks = await Promise.all(newRegistrationsPerUser.map(([user, registrations]) => notifyCourseRegistration(prisma, user, registrations)));
-      sendMailsCallback = async () => {
-        await Promise.all(callbacks.map(callback => callback()));
-      };
-    } else {
-      sendMailsCallback = async () => {};
-    }
-    return [newRegistrations, sendMailsCallback];
-  }, transactionOptions);
-  await sendMailsCallback();
-  return result;
+    newRegistrationsPerUser.push([user, newRegistrationsForUser]);
+  }
+  let sendMailsCallback;
+  if (args.data.notify) {
+    const callbacks = await Promise.all(newRegistrationsPerUser.map(([user, registrations]) => notifyCourseRegistration(prisma, user, registrations)));
+    sendMailsCallback = async () => {
+      await Promise.all(callbacks.map(callback => callback()));
+    };
+  } else {
+    sendMailsCallback = async () => {};
+  }
+  return [newRegistrations, sendMailsCallback] as const;
 };
 
 export const cancelCourseRegistration = async (prisma: Prisma.TransactionClient, args: { where: { id: number } }) => {
@@ -100,7 +96,7 @@ export const findCourseRegistrationsPublic = (prisma: Prisma.TransactionClient, 
       gt: new Date(),
     },
   };
-  return findCourseRegistrations({
+  return findCourseRegistrations(prisma, {
     where: {
       userId,
       isUserCanceled: userCanceled,

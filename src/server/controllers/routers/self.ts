@@ -71,16 +71,18 @@ export const selfRouter = router({
   register: userProcedure
     .input(frontsiteCourseRegistrationSchema)
     .mutation(async ({ input: { userId, courseIds, notify, name, email }, ctx: { session: { userId: requesterId } } }) => {
-      await prisma.$transaction(async (prisma) => {
+      const sendMailCallback = await prisma.$transaction(async (prisma) => {
         if (userId !== null) {
           await validateControlsUser(prisma, { where: { id: requesterId, userId } });
         }
         // Retrieve the existing user, or create a new user and attach it to the requester
-        const nonNullUserId = userId ?? (await createUser({ data: { name, email, managedByUserId: requesterId } })).id;
-        await createCourseRegistrations({ data: { users: [nonNullUserId], courses: courseIds, notify } });
+        const nonNullUserId = userId ?? (await createUser(prisma, { data: { name, email, managedByUserId: requesterId } })).id;
         if (userId !== null) { // Avoid a useless write
           await updateUserInformation(prisma, { where: { id: nonNullUserId }, data: { name, email } });
         }
+        const [, sendMailCallback] = await createCourseRegistrations(prisma, { data: { users: [nonNullUserId], courses: courseIds, notify } });
+        return sendMailCallback;
       }, transactionOptions);
+      await sendMailCallback();
     }),
 });
