@@ -548,9 +548,14 @@ const CourseStepContent: React.FC<Pick<CourseRegistrationFormProps, 'session' | 
 const CourseRegistrationForm: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'session'>> = ({ session, courses }) => {
   const trpcClient = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
+  const reloadSession = () => {
+    const event = new Event('visibilitychange');
+    document.dispatchEvent(event);
+  };
   const { mutate: submitRegister, isLoading: isSubmitRegisterLoading, isSuccess: isSubmitRegisterSuccess } = trpc.self.register.useMutation({
     onSuccess: async () => {
-      await Promise.all(([trpcClient.self.findAllRegisteredCourses, trpcClient.self.profile, trpcClient.public.findAllModels, trpcClient.public.findAllFutureCourses]).map(procedure => procedure.invalidate()));
+      await Promise.all(([trpcClient.self.managedUsers, trpcClient.self.findAllRegisteredCourses, trpcClient.self.profile, trpcClient.public.findAllModels, trpcClient.public.findAllFutureCourses]).map(procedure => procedure.invalidate()));
+      reloadSession();
       enqueueSnackbar(`Vos inscriptions ont bien été prises en compte`, { variant: 'success' });
     },
     onError: () => {

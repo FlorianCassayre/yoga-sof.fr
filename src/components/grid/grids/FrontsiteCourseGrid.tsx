@@ -101,6 +101,6 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.self.findAllRegisteredCourses} input={{ userId, userCanceled, future }} initialSort={{ field: 'createdAt', sort: future ? 'asc' : 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.self.findAllRegisteredCourses} input={{ userId, userCanceled, future }} initialSort={{ field: 'date', sort: future ? 'asc' : 'desc' }} />
   );
 };

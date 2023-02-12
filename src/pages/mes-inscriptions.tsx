@@ -87,9 +87,16 @@ const UserDataForm: React.FC<UserDataFormProps> = ({ userId }) => {
   const trpcClient = trpc.useContext();
   const { data: initialData } = trpc.self.profile.useQuery({ userId });
   const { enqueueSnackbar } = useSnackbar();
+  const reloadSession = () => {
+    const event = new Event('visibilitychange');
+    document.dispatchEvent(event);
+  };
   const { mutate, isLoading: isUpdateLoading } = trpc.self.updateProfile.useMutation({
     onSuccess: async () => {
-      await trpcClient.self.profile.invalidate();
+      await Promise.all((
+        [trpcClient.self.managedUsers, trpcClient.self.profile]
+      ).map(procedure => procedure.invalidate()));
+      reloadSession();
       enqueueSnackbar('Vos données ont été mises à jour', { variant: 'success' });
     },
     onError: () => {
@@ -178,7 +185,7 @@ const MesInscriptionsContent: React.FC<MesInscriptionsContentProps> = ({ session
       { id: session.userId, name: `${session.displayName ?? session.displayEmail} (vous)`, publicAccessToken: session.publicAccessToken },
       ...data.managedUsers,
     ] : undefined,
-    [data]
+    [data, session]
   );
 
   return (
