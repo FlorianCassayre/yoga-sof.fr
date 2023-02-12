@@ -77,10 +77,10 @@ export const selfRouter = router({
         }
         // Retrieve the existing user, or create a new user and attach it to the requester
         const nonNullUserId = userId ?? (await createUser({ data: { name, email, managedByUserId: requesterId } })).id;
+        await createCourseRegistrations({ data: { users: [nonNullUserId], courses: courseIds, notify } });
         if (userId !== null) { // Avoid a useless write
           await updateUserInformation(prisma, { where: { id: nonNullUserId }, data: { name, email } });
         }
-        await createCourseRegistrations({ data: { users: [nonNullUserId], courses: courseIds, notify } });
       }, transactionOptions);
     }),
 });

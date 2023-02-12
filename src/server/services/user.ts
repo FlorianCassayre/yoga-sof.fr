@@ -48,7 +48,7 @@ export const updateUser = async <Where extends Prisma.UserWhereUniqueInput, Sele
   }
   return await prisma.$transaction(async (prisma) => {
     const user = await prisma.user.findUniqueOrThrow({ where: args.where, include: { managedUsers: true } });
-    if (user.managedUsers.length > 0) {
+    if (args.data.managedByUserId !== null && user.managedUsers.length > 0) {
       throw new ServiceError(ServiceErrorCode.UserAlreadyManages);
     }
     await updateUserInformation(prisma, { where: args.where, data: { name: args.data.name, email: args.data.email } });

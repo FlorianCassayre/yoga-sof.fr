@@ -58,16 +58,16 @@ export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
     if (course.dateEnd < new Date()) {
       throw new ServiceError(ServiceErrorCode.CourseHasPassed);
     }
-    const returned = prisma.course.update({
+    const newCourse = await prisma.course.update({
       where,
       data: {
         isCanceled: true,
         ...(data as Pick<Course, 'cancelationReason'>),
       },
-      ...rest
+      include: { registrations: { include: { user: { include: { managedByUser: true } } } } }
     });
-    const sendMailsCallback = await notifyCourseCanceled(prisma, { ...(await prisma.course.findUniqueOrThrow({ where, include: { registrations: { include: { user: { include: { managedByUser: true } } } } } })), cancelationReason: args.data.cancelationReason });
-    return [returned, sendMailsCallback];
+    const sendMailsCallback = await notifyCourseCanceled(prisma, { ...newCourse, cancelationReason: args.data.cancelationReason });
+    return [newCourse, sendMailsCallback];
   }, transactionOptions);
   await sendMailCallback();
   return result;
