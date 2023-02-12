@@ -50,7 +50,7 @@ export const updateCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
 
 export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, Data extends Pick<Course, 'cancelationReason'>, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, data: Data, select?: Select, include?: Include }) => {
   const { where, data, ...rest } = args;
-  return await prisma.$transaction(async (prisma) => {
+  const [result, sendMailCallback] = await prisma.$transaction(async (prisma) => {
     const course = await prisma.course.findUniqueOrThrow({ where });
     if (course.isCanceled) {
       throw new ServiceError(ServiceErrorCode.CourseAlreadyCanceled);
@@ -66,10 +66,11 @@ export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
       },
       ...rest
     });
-    // FIXME bug <- ??
-    await notifyCourseCanceled(prisma, { ...(await prisma.course.findUniqueOrThrow({ where, include: { registrations: { include: { user: { include: { managedByUser: true } } } } } })), cancelationReason: args.data.cancelationReason });
-    return returned;
+    const sendMailsCallback = await notifyCourseCanceled(prisma, { ...(await prisma.course.findUniqueOrThrow({ where, include: { registrations: { include: { user: { include: { managedByUser: true } } } } } })), cancelationReason: args.data.cancelationReason });
+    return [returned, sendMailsCallback];
   }, transactionOptions);
+  await sendMailCallback();
+  return result;
 };
 
 export const createCourses = async (args: { data: Pick<Course, 'type' | 'price' | 'slots'> & { timeStart: string, timeEnd: string, dates: Date[] } }) => {

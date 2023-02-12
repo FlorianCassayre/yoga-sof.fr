@@ -43,16 +43,16 @@ const sendEmail = async (to: string | null, cc: string | null, subject: string, 
   }
 };
 
-const dispatchEmail = async (prisma: Prisma.TransactionClient, user: Pick<User, 'id' | 'email' | 'customEmail'>, managedByUser: Pick<User, 'email' | 'customEmail'> | null, emailType: EmailMessageType, subject: string, contentHtml: string) => {
+const dispatchEmail = async (tx: Prisma.TransactionClient, user: Pick<User, 'id' | 'email' | 'customEmail'>, managedByUser: Pick<User, 'email' | 'customEmail'> | null, emailType: EmailMessageType, subject: string, contentHtml: string): Promise<() => Promise<void>> => {
   const { id: userId } = user;
 
   const actualToEmail = user.customEmail || user.email;
   const actualCcEmail = managedByUser ? managedByUser.customEmail || managedByUser.email : null;
   if (!actualToEmail && !actualCcEmail) { // Do not create or send the email if there are no destination addresses, just ignore it
-    return;
+    return async () => {};
   }
 
-  const { id: emailRecordId } = await prisma.emailMessage.create({
+  const { id: emailRecordId } = await tx.emailMessage.create({
     data: {
       userId,
       type: emailType,
@@ -63,18 +63,20 @@ const dispatchEmail = async (prisma: Prisma.TransactionClient, user: Pick<User, 
     },
   });
 
-  try {
-    await sendEmail(actualToEmail, actualCcEmail, subject, contentHtml);
-  } catch (e) {
-    console.warn(`Warning, could not send email with id ${emailRecordId}`);
-    console.error(e);
-    return;
-  }
+  return async () => {
+    try {
+      await sendEmail(actualToEmail, actualCcEmail, subject, contentHtml);
+    } catch (e) {
+      console.warn(`Warning, could not send email with id ${emailRecordId}`);
+      console.error(e);
+      return;
+    }
 
-  await prisma.emailMessage.update({
-    where: { id: emailRecordId },
-    data: { sentAt: new Date().toISOString() },
-  });
+    await prisma.emailMessage.update({
+      where: { id: emailRecordId },
+      data: { sentAt: new Date().toISOString() },
+    });
+  }
 };
 
 const dispatchEmailFromComponent = async <
@@ -87,11 +89,14 @@ const dispatchEmailFromComponent = async <
 
 export const notifyCourseCanceled = async (prisma: Prisma.TransactionClient, course: Prisma.CourseGetPayload<{ include: { registrations: { include: { user: { include: { managedByUser: true } } } } } }>) => {
   const { registrations } = course;
-  await Promise.all(
+  const callbacks = await Promise.all(
     registrations
       .filter(({ isUserCanceled }) => !isUserCanceled)
       .map(({ user }) => dispatchEmailFromComponent(prisma, EmailMessageTemplateCourseCanceled, { user, course })),
   );
+  return async () => {
+    await Promise.all(callbacks.map(callback => callback()));
+  }
 };
 
 export const notifyCourseNewcomers = async () => {
@@ -176,7 +181,7 @@ export const notifyCourseNewcomers = async () => {
     return validRegistrations;
   }, transactionOptions);
 
-  return Promise.all(
+  const callbacks = await Promise.all(
     actualRegistrations
       .map(registration => dispatchEmailFromComponent(
         prisma,
@@ -184,30 +189,16 @@ export const notifyCourseNewcomers = async () => {
         { user: registration.user, course: registration.course },
       )),
   );
+  return async () => {
+    await Promise.all(callbacks.map(callback => callback()));
+  }
 };
 
-export const notifyCourseRegistration = async (prisma: Prisma.TransactionClient, userId: number, courseIds: number[]) => {
-  const user = await prisma.user.findUniqueOrThrow({
-    where: {
-      id: userId,
-    },
-    include: {
-      managedByUser: true,
-    },
-  });
-  const registrations = await prisma.courseRegistration.findMany({
-    where: {
-      userId: user.id,
-      courseId: {
-        in: courseIds,
-      },
-      isUserCanceled: false,
-    },
-    include: {
-      course: true,
-    },
-  });
-
+export const notifyCourseRegistration = async (
+  prisma: Prisma.TransactionClient,
+  user: Prisma.UserGetPayload<{ include: { managedByUser: true } }>,
+  registrations: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>[],
+) => {
   return dispatchEmailFromComponent(
     prisma,
     EmailMessageTemplateCourseAdultRegistrationConfirmation,
