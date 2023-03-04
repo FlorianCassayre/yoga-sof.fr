@@ -26,7 +26,7 @@ export const coursesExplicit: Record<CourseType, CourseDataExplicit> = {
     price: `90€/ trimestre et cotisation 10€/an pour l'association Yoga-Sof, coupons sport acceptés mais pas les pass'sport`,
     location: <Link href={LocationComete.googleUrl} target="_blank" rel="noreferrer nofollow">La Comète Salle Orion 16 Rue du 20 Novembre, 68220 Hésingue</Link>,
     stuff: `Venir directement après la classe en tenue souple et confortable qui ne serre pas au niveau de l'abdomen ; tapis, accessoires et autre matériel fournis`,
-    registration: `Informations ou inscriptions me contacter pour faire connaissance avant la séance d'essai offerte`,
+    registration: `Informations ou inscriptions me contacter pour faire connaissance avant la séance d'essai`,
   },
   [CourseType.YOGA_ADULT_CHILD]: {
     notStarted: true, // Pas encore commencé
