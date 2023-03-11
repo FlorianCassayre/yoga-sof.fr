@@ -56,7 +56,7 @@ export const selfRouter = router({
       await prisma.$transaction(async (prisma) => {
         await validateControlsUser(prisma, { where: { id: requesterId, userId } });
         await prisma.courseRegistration.findFirstOrThrow({ where: { id, userId } }); // Access control
-        await cancelCourseRegistration(prisma, { where: { id } }).then(({ id }) => ({ id }));
+        await cancelCourseRegistration(prisma, { where: { id }, data: { admin: false } }).then(({ id }) => ({ id }));
       }, transactionOptions);
       return { id };
     }),
@@ -80,7 +80,7 @@ export const selfRouter = router({
         if (userId !== null) { // Avoid a useless write
           await updateUserInformation(prisma, { where: { id: nonNullUserId }, data: { name, email } });
         }
-        const [, sendMailCallback] = await createCourseRegistrations(prisma, { data: { users: [nonNullUserId], courses: courseIds, notify } });
+        const [, sendMailCallback] = await createCourseRegistrations(prisma, { data: { users: [nonNullUserId], courses: courseIds, notify, admin: false } });
         return sendMailCallback;
       }, transactionOptions);
       await sendMailCallback();

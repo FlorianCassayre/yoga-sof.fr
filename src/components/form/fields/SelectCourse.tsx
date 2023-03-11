@@ -10,7 +10,7 @@ interface SelectCourseProps {
 }
 
 export const SelectCourse: React.FC<SelectCourseProps> = ({ name, multiple }) => {
-  const { data, isLoading } = trpc.course.findAll.useQuery({ future: true, canceled: false });
+  const { data, isLoading } = trpc.course.findAll.useQuery({ future: true, canceled: false, extended: true });
   return (
     <AutocompleteElement
       name={name}

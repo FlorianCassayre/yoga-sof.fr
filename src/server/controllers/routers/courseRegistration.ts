@@ -31,14 +31,14 @@ export const courseRegistrationRouter = router({
   create: adminProcedure
     .input(courseRegistrationCreateSchema)
     .mutation(async ({ input: { courses, users, notify } }) => {
-        const [result, sendMailsCallback] = await prisma.$transaction(async (prisma) => createCourseRegistrations(prisma, { data: { courses, users, notify } }), transactionOptions);
+        const [result, sendMailsCallback] = await prisma.$transaction(async (prisma) => createCourseRegistrations(prisma, { data: { courses, users, notify, admin: true } }), transactionOptions);
         await sendMailsCallback();
         return result;
     }),
   cancel: adminProcedure
     .input(z.strictObject({ id: z.number().int().min(0) }))
     .mutation(async ({ input: { id } }) =>
-      prisma.$transaction(async (prisma) => cancelCourseRegistration(prisma, { where: { id } }), transactionOptions)),
+      prisma.$transaction(async (prisma) => cancelCourseRegistration(prisma, { where: { id }, data: { admin: true } }), transactionOptions)),
   attended: adminProcedure
     .input(z.strictObject({ id: z.number().int().min(0), attended: z.boolean().nullable() }))
     .mutation(async ({ input: { id, attended } }) =>

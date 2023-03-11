@@ -14,7 +14,7 @@ import {
   Card, CardActions, CardContent, Grid, IconButton,
   Stack,
   Typography,
-  Link as MuiLink,
+  Link as MuiLink, Tooltip
 } from '@mui/material';
 import { InformationTableCard } from '../../../../../components/InformationTableCard';
 import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../../../common/course';
@@ -54,8 +54,8 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
       actions={[
         { name: 'Modifier mes notes', icon: <Notes />, url: { pathname: `/administration/seances/planning/[id]/notes`, query: { id: course.id } } },
         ...(!course.isCanceled ? [{ name: isCheckingAttendance ? `Ne plus faire l'appel` : `Faire l'appel`, icon: <EmojiPeople />, onClick: () => setCheckingAttendance(!isCheckingAttendance) }] : []),
-        ...(!course.isCanceled && status.isBeforeStart ? [{ name: 'Modifier la séance', icon: <Edit />, url: { pathname: `/administration/seances/planning/[id]/edition`, query: { id: course.id } } }] : []),
-        ...(!course.isCanceled && !status.isAfterEnd ? [{ name: 'Annuler la séance', icon: <Cancel />, onClick: () => setConfirmCancelDialogOpen(true), disabled: isCanceling }] : []),
+        ...(!course.isCanceled && (status.isBeforeStart || status.isInExtendedPeriod) ? [{ name: 'Modifier la séance', icon: <Edit />, url: { pathname: `/administration/seances/planning/[id]/edition`, query: { id: course.id } } }] : []),
+        ...(!course.isCanceled && (!status.isAfterEnd || status.isInExtendedPeriod) ? [{ name: 'Annuler la séance', icon: <Cancel />, onClick: () => setConfirmCancelDialogOpen(true), disabled: isCanceling }] : []),
       ]}
       quickActions={[
         ...(status.canRegister ? [{ name: 'Inscrire des utilisateurs', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { courseId: course.id } } }] : []),
@@ -112,7 +112,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
                   Inscrits / Quota
                 </Typography>
               </Box>
-              {!status.isBeforeStart && status.presenceNotFilled && (
+              {!course.isCanceled && !status.isBeforeStart && status.presenceNotFilled && (
                 <Alert severity="warning" sx={{ mt: 2 }}>
                   La présence n'a pas encore été entièrement remplie.
                   {!isCheckingAttendance && (
@@ -125,11 +125,15 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
                 </Alert>
               )}
             </CardContent>
-            <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Link href={{ pathname: '/administration/inscriptions/creation', query: { courseId: course.id } }} passHref>
-                <IconButton size="small" aria-label="Inscrire des utilisateurs" disabled={!status.canRegister}><AddBox /></IconButton>
-              </Link>
-            </CardActions>
+            {status.canRegister && (
+              <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Link href={{ pathname: '/administration/inscriptions/creation', query: { courseId: course.id } }} passHref>
+                  <Tooltip title="Inscrire des utilisateurs">
+                    <IconButton size="small"><AddBox /></IconButton>
+                  </Tooltip>
+                </Link>
+              </CardActions>
+            )}
           </Card>
         </Grid>
         <Grid item xs={12} md={4}>
@@ -138,13 +142,24 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
               <Typography variant="h6" component="div">
                 Notes
               </Typography>
+              {!course.notes && (
+                <Alert severity="info" sx={{ mt: 1 }}>
+                  Aucune note pour cette séance.
+                  {' '}
+                  <Link href={`/administration/seances/planning/${course.id}/notes`} passHref>
+                    <MuiLink>Écrire une note ?</MuiLink>
+                  </Link>
+                </Alert>
+              )}
               <Typography paragraph sx={{ fontStyle: 'italic', mb: 0 }}>
                 {course.notes}
               </Typography>
             </CardContent>
             <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Link href={`/administration/seances/planning/${course.id}/notes`} passHref>
-                <IconButton size="small" aria-label="Modifier"><Edit /></IconButton>
+                <Tooltip title="Modifier">
+                  <IconButton size="small"><Edit /></IconButton>
+                </Tooltip>
               </Link>
             </CardActions>
           </Card>
@@ -154,7 +169,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Inscrits à cette séance
       </Typography>
-      <CourseRegistrationGrid courseId={course.id} attendance={!course.isCanceled && !status.isBeforeStart} attendanceModifiable={isCheckingAttendance} />
+      <CourseRegistrationGrid courseId={course.id} attendance={!course.isCanceled && (!status.isBeforeStart || status.isInExtendedPeriod)} attendanceModifiable={isCheckingAttendance} />
 
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Historique d'inscriptions à cette séance

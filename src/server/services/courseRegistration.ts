@@ -4,6 +4,12 @@ import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { courseRegistrationCreateSchema } from '../../common/schemas/courseRegistration';
 import { notifyCourseRegistration } from '../email';
 
+const addDays = (date: Date, days: number): Date => {
+  const copy = new Date(date);
+  copy.setDate(date.getDate() + days);
+  return copy;
+};
+
 const registrationsToEvent = <T extends CourseRegistration>(registrations: T[]) =>
   registrations.flatMap(registration => [{
     isEventTypeUserCanceled: false,
@@ -21,8 +27,9 @@ export const findCourseRegistrations = async <Where extends Prisma.CourseRegistr
 export const findCourseRegistrationEvents = async <Where extends Pick<Prisma.CourseRegistrationWhereInput, 'courseId' | 'userId'>, Select extends Prisma.CourseRegistrationSelect, Include extends Prisma.CourseRegistrationInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseRegistrationOrderByWithRelationInput>>(prisma: Prisma.TransactionClient, args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
  registrationsToEvent(await findCourseRegistrations(prisma, args))
 
-export const createCourseRegistrations = async (prisma: Prisma.TransactionClient, args: { data: { courses: number[], users: number[], notify: boolean } }) => {
-  courseRegistrationCreateSchema.parse(args.data);
+export const createCourseRegistrations = async (prisma: Prisma.TransactionClient, args: { data: { courses: number[], users: number[], notify: boolean, admin: boolean } }) => {
+  const { admin, ...data } = args.data;
+  courseRegistrationCreateSchema.parse(data);
   const now = new Date();
   const newRegistrations: number[] = [];
   const newRegistrationsPerUser: [Prisma.UserGetPayload<{ include: { managedByUser: true } }>, Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>[]][] = [];
@@ -34,7 +41,7 @@ export const createCourseRegistrations = async (prisma: Prisma.TransactionClient
       if (course.isCanceled) {
         throw new ServiceError(ServiceErrorCode.CourseCanceledNoRegistration);
       }
-      if (course.dateStart.getTime() <= now.getTime()) {
+      if (course.dateStart.getTime() <= now.getTime() && (!admin || now >= addDays(course.dateEnd, 1))) {
         throw new ServiceError(ServiceErrorCode.CoursePassedNoRegistration);
       }
       if (course.registrations.length >= course.slots) {
@@ -61,14 +68,16 @@ export const createCourseRegistrations = async (prisma: Prisma.TransactionClient
   return [newRegistrations, sendMailsCallback] as const;
 };
 
-export const cancelCourseRegistration = async (prisma: Prisma.TransactionClient, args: { where: { id: number } }) => {
+export const cancelCourseRegistration = async (prisma: Prisma.TransactionClient, args: { where: { id: number }, data: { admin: boolean } }) => {
   const id = args.where.id;
   const now = new Date();
+  const nowEarlier = new Date(now);
+  nowEarlier.setDate(nowEarlier.getDate() - 1);
   const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id }, include: { course: true } });
   if (courseRegistration.course.isCanceled) {
     throw new ServiceError(ServiceErrorCode.CourseCanceledNoUnregistration);
   }
-  if (courseRegistration.course.dateStart.getTime() <= now.getTime()) {
+  if (courseRegistration.course.dateStart.getTime() <= now.getTime() && (!args.data.admin || courseRegistration.course.dateEnd.getTime() <= nowEarlier.getTime())) {
     throw new ServiceError(ServiceErrorCode.CoursePassedNoUnregistration);
   }
   if (courseRegistration.isUserCanceled) {

@@ -8,9 +8,15 @@ export const CourseTypeNames: { [K in CourseType]: string } = {
 
 export const getCourseStatus = (course: Course) => {
   const currentTime = new Date().getTime();
+  const addDays = (date: Date, days: number): Date => {
+    const copy = new Date(date);
+    copy.setDate(date.getDate() + days);
+    return copy;
+  };
   return {
     isBeforeStart: currentTime < new Date(course.dateStart).getTime(),
     isAfterEnd: currentTime > new Date(course.dateEnd).getTime(),
+    isInExtendedPeriod: currentTime > addDays(new Date(course.dateStart), -1).getTime() && currentTime < addDays(new Date(course.dateEnd), 1).getTime(),
   };
 };
 
@@ -24,6 +30,6 @@ export const getCourseStatusWithRegistrations = (course: Prisma.CourseGetPayload
     registered,
     attended,
     presenceNotFilled,
-    canRegister: !course.isCanceled && status.isBeforeStart && registered < course.slots,
+    canRegister: !course.isCanceled && (status.isBeforeStart || status.isInExtendedPeriod) && registered < course.slots,
   };
 };

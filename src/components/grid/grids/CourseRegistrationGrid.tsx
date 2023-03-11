@@ -73,7 +73,7 @@ const GridActionCancel: React.FC<GridActionCancelProps> = ({ courseRegistration 
   return (
     <>
       <CancelCourseRegistrationDialog courseRegistration={courseRegistration} open={open} setOpen={setOpen} onConfirm={() => mutateCancel({ id: courseRegistration.id })} />
-      {!courseRegistration.course.isCanceled && status.isBeforeStart && (
+      {!courseRegistration.course.isCanceled && (status.isBeforeStart || status.isInExtendedPeriod) && (
         <GridActionsCellItemTooltip icon={<Cancel />} onClick={() => setOpen(true)} label="Annuler" disabled={isCanceling} />
       )}
     </>

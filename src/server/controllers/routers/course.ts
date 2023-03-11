@@ -34,10 +34,14 @@ export const courseRouter = router({
   findAll: adminProcedure
     .input(z.strictObject({
       future: z.boolean().nullable(),
+      extended: z.boolean().nullable(),
       canceled: z.boolean(),
     }))
-    .query(async ({ input: { future, canceled } }) => {
+    .query(async ({ input: { future, canceled, extended } }) => {
       const now = new Date();
+      if (extended) {
+        now.setDate(now.getDate() + (future ? -1 : 1));
+      }
       return findCourses({
         where: { ...(future === null ? {} : future ? { dateEnd: { gt: now } } : { dateEnd: { lte: now } }), isCanceled: canceled },
         include: { registrations: true },
