@@ -65,6 +65,7 @@ model User {
   managedByUserId     Int?                 @map("managed_by_user_id")
   managedByUser       User?                @relation("user_manage_user", fields: [managedByUserId], references: [id])
   managedUsers        User[]               @relation("user_manage_user")
+  transactions        Transaction[]
 
   createdAt           DateTime             @default(now()) @map("created_at")
   lastActivity        DateTime?            @map("last_activity")
@@ -184,4 +185,22 @@ model EmailMessage {
   sentAt             DateTime?        @map("sent_at")
 
   @@map("email_message")
+}
+
+enum TransactionType {
+  CASH
+  HELLO_ASSO
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  amount    Int      @db.UnsignedInt
+  date      DateTime @db.Date
+  type      TransactionType
+  comment   String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("transaction")
 }

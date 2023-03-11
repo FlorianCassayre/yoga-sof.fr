@@ -6,9 +6,8 @@ import {
   Dashboard,
   DateRange,
   Email,
-  Euro,
   Home,
-  Logout,
+  Logout, Payments,
   People, Settings
 } from '@mui/icons-material';
 import { signOut, useSession } from 'next-auth/react';
@@ -40,8 +39,13 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
             { title: 'Séances', icon: <DateRange />, url: '/administration/seances' },
             { title: 'Inscriptions', icon: <Assignment />, url: '/administration/inscriptions' },
             { title: 'Utilisateurs', icon: <People />, url: '/administration/utilisateurs' },
-            { title: 'Comptabilité', icon: <Euro />, disabled: true },
           ]
+        },
+        {
+          title: 'Comptabilité',
+          children: [
+            { title: 'Paiements', icon: <Payments />, url: '/administration/paiements' },
+          ],
         },
         {
           title: 'Administration',

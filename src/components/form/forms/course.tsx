@@ -34,6 +34,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { formatDateDDsMMsYYYY } from '../../../common/date';
 import { trpc } from '../../../common/trpc';
 import { useRouter } from 'next/router';
+import { grey } from '@mui/material/colors';
 
 const AddCourseSubmitButton = ({ onSubmit }: { onSubmit: any }) => {
   const { handleSubmit } = useFormContext();
@@ -103,7 +104,7 @@ const RangeSelectionDialog: React.FC<RangeSelectionDialogProps> = ({ open, onClo
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button color="inherit" onClick={onClose}>Annuler</Button>
+          <Button color="inherit" onClick={onClose} sx={{ color: grey[600] }}>Annuler</Button>
           <AddCourseSubmitButton onSubmit={onSelect} />
         </DialogActions>
       </FormContainer>

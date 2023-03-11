@@ -6,16 +6,17 @@ import { Euro } from '@mui/icons-material';
 interface InputPriceProps {
   name: string;
   disabled?: boolean;
+  label?: string;
 }
 
-export const InputPrice: React.FC<InputPriceProps> = ({ name, disabled }) => {
+export const InputPrice: React.FC<InputPriceProps> = ({ name, disabled, label }) => {
   const { field } = useController({ name });
   return (
     <TextFieldElement
       name={name}
       type="number"
       onChange={(event) => field.onChange(+event.target.value)}
-      inputProps={{ min: 0, max: 50 }}
+      inputProps={{ min: 0, max: 999 }}
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">
@@ -23,7 +24,7 @@ export const InputPrice: React.FC<InputPriceProps> = ({ name, disabled }) => {
           </InputAdornment>
         )
       }}
-      label="Prix par séance en euros"
+      label={label ?? 'Prix par séance en euros'}
       disabled={disabled}
       fullWidth
     />

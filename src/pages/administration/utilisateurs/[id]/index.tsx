@@ -23,17 +23,19 @@ import { AuthProviders } from '../../../../common/providers';
 import { grey } from '@mui/material/colors';
 import { UserLink } from '../../../../components/link/UserLink';
 import { BackofficeContentLoading } from '../../../../components/layout/admin/BackofficeContentLoading';
+import { TransactionGrid } from '../../../../components/grid/grids/TransactionGrid';
 
 interface GridItemStatisticProps {
   value: number;
+  valueFormatter?: (value: number) => string;
   title: string;
   good?: boolean;
 }
 
-const GridItemStatistic: React.FC<GridItemStatisticProps> = ({ value, title, good }) => (
+const GridItemStatistic: React.FC<GridItemStatisticProps> = ({ value, valueFormatter, title, good }) => (
   <Grid item xs={6} sm={3} textAlign="center">
     <Typography variant="h4" component="div" sx={{ mt: 1, mb: 1 }} color={value > 0 ? (good === undefined ? 'black' : good ? 'green' : 'red') : 'text.secondary'}>
-      {value}
+      {valueFormatter ? valueFormatter(value) : value}
     </Typography>
     <Typography color="text.secondary">
       {title}
@@ -57,7 +59,7 @@ const UserProvidedInformationChip: React.FC<UserProvidedInformationChipProps> = 
 );
 
 interface AdminUserContentProps {
-  user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true } }>;
+  user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, transactions: true } }>;
 }
 
 const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user }: AdminUserContentProps) => {
@@ -184,28 +186,34 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
               <Typography variant="h6" component="div">
                 Statistiques
               </Typography>
-              <Grid container spacing={2}>
+              <Grid container spacing={2} justifyContent="center">
                 <GridItemStatistic value={statistics.coursesPast} title="Séances passées" />
                 <GridItemStatistic value={statistics.coursesFuture} title="Séances à venir" good />
                 <GridItemStatistic value={statistics.courseUnregistrations} title="Séances désinscrites" good={false} />
                 <GridItemStatistic value={statistics.courseAbsences} title="Absences" good={false} />
+                <GridItemStatistic value={statistics.totalTransactionsAmount} title="Total payé" valueFormatter={v => `${v} €`} />
+                <GridItemStatistic value={statistics.totalCoursesAmount} title="Valeur des séances" valueFormatter={v => `${v} €`} />
               </Grid>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
-        Participations de cet utilisateur
+        Participations
       </Typography>
       <CourseRegistrationGrid userId={user.id} />
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
-        Historique d'inscriptions de cet utilisateur
+        Historique d'inscriptions
       </Typography>
       <CourseRegistrationEventGrid userId={user.id} />
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
-        Absences de cet utilisateur
+        Absences
       </Typography>
       <CourseRegistrationGrid userId={user.id} attended={false} />
+      <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
+        Paiements
+      </Typography>
+      <TransactionGrid userId={user.id} />
     </BackofficeContent>
   );
 };

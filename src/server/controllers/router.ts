@@ -9,6 +9,7 @@ import {
 import { selfRouter } from './routers/self';
 import { publicRouter } from './routers/public';
 import { router } from './trpc';
+import { transactionRouter } from './routers/transaction';
 
 export const appRouter =
   router({
@@ -20,6 +21,7 @@ export const appRouter =
     public: publicRouter,
     self: selfRouter,
     user: userRouter,
+    transaction: transactionRouter,
   });
 
 export type AppRouter = typeof appRouter;

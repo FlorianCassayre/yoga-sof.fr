@@ -18,6 +18,7 @@ import { AnyRootConfig } from '@trpc/server/src/core/internals/config';
 import { DecorateProcedure } from '@trpc/react-query/shared';
 import { Serialize } from '@trpc/server/dist/shared/internal/serialize';
 import { useRouter } from 'next/router';
+import { grey } from '@mui/material/colors';
 
 type InputIdentifier = { id: number };
 
@@ -47,7 +48,7 @@ const ConfirmDeleteDialog: React.FunctionComponent<ConfirmDeleteDialogProps> = (
       </DialogContentText>
     </DialogContent>
     <DialogActions>
-      <Button onClick={onCancel} color="inherit">Annuler</Button>
+      <Button onClick={onCancel} color="inherit" sx={{ color: grey[600] }}>Annuler</Button>
       <Button onClick={onConfirm}>
         Supprimer
       </Button>

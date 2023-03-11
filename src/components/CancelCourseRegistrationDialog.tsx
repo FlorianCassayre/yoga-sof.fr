@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from '@mui/material';
 import { displayCourseName, displayUserName } from '../common/display';
+import { grey } from '@mui/material/colors';
 
 interface CancelCourseRegistrationDialogProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>;
@@ -40,7 +41,7 @@ export const CancelCourseRegistrationDialog: React.FC<CancelCourseRegistrationDi
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button color="inherit" onClick={handleClose}>Annuler</Button>
+        <Button color="inherit" onClick={handleClose} sx={{ color: grey[600] }}>Annuler</Button>
         <Button onClick={handleConfirm} autoFocus>
           Confirmer
         </Button>

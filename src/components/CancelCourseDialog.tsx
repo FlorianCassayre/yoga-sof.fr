@@ -10,6 +10,7 @@ import {
   Typography
 } from '@mui/material';
 import { displayCourseName } from '../common/display';
+import { grey } from '@mui/material/colors';
 
 interface CancelCourseDialogProps {
   course: Course;
@@ -50,7 +51,7 @@ export const CancelCourseDialog: React.FC<CancelCourseDialogProps> = ({ course, 
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button color="inherit" onClick={handleClose}>Ignorer</Button>
+        <Button color="inherit" onClick={handleClose} sx={{ color: grey[600] }}>Ignorer</Button>
         <Button onClick={handleConfirm} autoFocus>
           Confirmer
         </Button>
