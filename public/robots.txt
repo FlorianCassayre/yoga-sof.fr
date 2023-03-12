@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /api/
+Disallow: /administration$
+Disallow: /administration/
+Disallow: /connexion$
+Disallow: /connexion?
+Disallow: /redirection$
+Disallow: /redirection?
+Disallow: /verification$
