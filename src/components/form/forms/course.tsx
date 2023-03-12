@@ -300,7 +300,7 @@ export const CourseUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) =
       queryParams={queryData}
       successMessage={() => 'Les caractéristiques de la séance ont été mises à jour'}
       defaultValues={{}}
-      urlSuccessFor={() => `/administration/seances`}
+      urlSuccessFor={({ id }) => `/administration/seances/planning/${id}`}
       invalidate={useProceduresToInvalidate()}
     >
       <Grid container spacing={2}>
@@ -333,7 +333,7 @@ export const CourseUpdateNotesForm = ({ queryData }: { queryData: ParsedUrlQuery
       queryParams={queryData}
       successMessage={() => 'Les notes de la séance ont été mises à jour'}
       defaultValues={{ notes: null }}
-      urlSuccessFor={() => `/administration/seances`}
+      urlSuccessFor={({ id }) => `/administration/seances/planning/${id}`}
       invalidate={useProceduresToInvalidate()}
     >
       <TextFieldElement name="notes" label="Notes (visibles seulement par vous)" multiline rows={4} fullWidth />

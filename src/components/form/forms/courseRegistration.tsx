@@ -45,8 +45,8 @@ const useProceduresToInvalidate = () => {
 
 const commonFormProps = {
   icon: <Person />,
-  urlSuccessFor: () => `/administration/seances`,
-  urlCancel: `/administration/seances`,
+  urlSuccessFor: () => `/administration/inscriptions`,
+  urlCancel: `/administration/inscriptions`,
 };
 
 const querySchema = z.object({
