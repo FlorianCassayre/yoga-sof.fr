@@ -29,17 +29,22 @@ interface GridItemStatisticProps {
   value: number;
   valueFormatter?: (value: number) => string;
   title: string;
+  label: React.ReactNode;
   good?: boolean;
 }
 
-const GridItemStatistic: React.FC<GridItemStatisticProps> = ({ value, valueFormatter, title, good }) => (
+const GridItemStatistic: React.FC<GridItemStatisticProps> = ({ value, valueFormatter, title, label, good }) => (
   <Grid item xs={6} sm={3} textAlign="center">
-    <Typography variant="h4" component="div" sx={{ mt: 1, mb: 1 }} color={value > 0 ? (good === undefined ? 'black' : good ? 'green' : 'red') : 'text.secondary'}>
-      {valueFormatter ? valueFormatter(value) : value}
-    </Typography>
-    <Typography color="text.secondary">
-      {title}
-    </Typography>
+    <Tooltip title={<Box textAlign="center">{label}</Box>}>
+      <Box sx={{ cursor: 'help' }}>
+        <Typography variant="h4" component="div" sx={{ mt: 1, mb: 1 }} color={value > 0 ? (good === undefined ? 'black' : good ? 'green' : 'red') : 'text.secondary'}>
+          {valueFormatter ? valueFormatter(value) : value}
+        </Typography>
+        <Typography color="text.secondary">
+          {title}
+        </Typography>
+      </Box>
+    </Tooltip>
   </Grid>
 );
 
@@ -187,12 +192,41 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
                 Statistiques
               </Typography>
               <Grid container spacing={2} justifyContent="center">
-                <GridItemStatistic value={statistics.coursesPast} title="Séances passées" />
-                <GridItemStatistic value={statistics.coursesFuture} title="Séances à venir" good />
-                <GridItemStatistic value={statistics.courseUnregistrations} title="Séances désinscrites" good={false} />
-                <GridItemStatistic value={statistics.courseAbsences} title="Absences" good={false} />
-                <GridItemStatistic value={statistics.totalTransactionsAmount} title="Total payé" valueFormatter={v => `${v} €`} />
-                <GridItemStatistic value={statistics.totalCoursesAmount} title="Valeur des séances" valueFormatter={v => `${v} €`} />
+                <GridItemStatistic
+                  value={statistics.coursesPast}
+                  title="Séances passées"
+                  label="Nombre total de séances non annulées passées pour lesquelles l'utilisateur était inscrit. Les absences sont comptabilisées. Une séance est considérée comme passée dès lors que la date de fin est atteinte."
+                />
+                <GridItemStatistic
+                  value={statistics.coursesFuture}
+                  title="Séances à venir"
+                  label="Nombre total de séances non annulées à venir pour lesquelles l'utilisateur est inscrit. Une séance est considérée comme étant à venir tant que la date fin n'a pas été atteinte."
+                  good
+                />
+                <GridItemStatistic
+                  value={statistics.courseUnregistrations}
+                  title="Séances désinscrites"
+                  label="Nombre total de séances pour lesquelles l'utilisateur s'était inscrit au moins une fois, mais s'est finalement désinscrit. Les séances annulées sont exclues."
+                  good={false}
+                />
+                <GridItemStatistic
+                  value={statistics.courseAbsences}
+                  title="Absences"
+                  label="Nombre total d'absences. Une désinscription n'est pas comptabilisée comme une absence. Les séances annulées sont également exclues."
+                  good={false}
+                />
+                <GridItemStatistic
+                  value={statistics.totalTransactionsAmount}
+                  title="Total payé"
+                  label="Montant total payé par l'utilisateur. Cela inclut les paiement pour des séances annulées ou désinscrites."
+                  valueFormatter={v => `${v} €`}
+                />
+                <GridItemStatistic
+                  value={statistics.totalCoursesAmount}
+                  title="Valeur des séances"
+                  label="La somme des prix des séances inscrites passées et futures. Les séances annulées ou désinscrites ne sont pas considérées. Ce montant ne prend pas en compte les éventuelles réductions (séances d'essai, cartes)."
+                  valueFormatter={v => `${v} €`}
+                />
               </Grid>
             </CardContent>
           </Card>

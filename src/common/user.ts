@@ -10,12 +10,12 @@ export const getUserStatistics = (user: Prisma.UserGetPayload<{ include: { cours
   const coursesPast = notCanceled.filter(({ course: { isCanceled, dateEnd } }) => !isCanceled && new Date(dateEnd).getTime() <= today.getTime()).length;
   const coursesFuture = notCanceled.length - coursesPast;
   const coursesWithLastUnregistrations = new Set<number>();
-  courseRegistrations.forEach(({ courseId }) => coursesWithLastUnregistrations.add(courseId));
+  courseRegistrations.filter(({ course: { isCanceled } }) => !isCanceled).forEach(({ courseId }) => coursesWithLastUnregistrations.add(courseId));
   notCanceled.forEach(({ courseId }) => coursesWithLastUnregistrations.delete(courseId));
   const courseUnregistrations = coursesWithLastUnregistrations.size;
   const courseAbsences = notCanceled.filter(({ attended }) => attended === false).length;
   const totalTransactionsAmount = sum(user.transactions.map(({ amount }) => amount));
-  const totalCoursesAmount = sum(user.courseRegistrations.filter(({ isUserCanceled }) => !isUserCanceled).map(({ course }) => course.price));
+  const totalCoursesAmount = sum(user.courseRegistrations.filter(({ isUserCanceled, course: { isCanceled } }) => !isUserCanceled && !isCanceled).map(({ course }) => course.price));
   return {
     coursesPast,
     coursesFuture,
