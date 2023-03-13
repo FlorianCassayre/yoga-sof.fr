@@ -25,6 +25,7 @@ import { useSnackbar } from 'notistack';
 import { trpc } from '../../../../../common/trpc';
 import { CancelCourseDialog } from '../../../../../components/CancelCourseDialog';
 import { BackofficeContentLoading } from '../../../../../components/layout/admin/BackofficeContentLoading';
+import { BackofficeContentError } from '../../../../../components/layout/admin/BackofficeContentError';
 
 interface CourseContentProps {
   course: Prisma.CourseGetPayload<{ include: { registrations: true } }>;
@@ -186,5 +187,5 @@ export default function AdminCourse() {
 
   return result && result.data ? (
     <CourseContent course={result.data as CourseContentProps['course']} />
-  ) : <BackofficeContentLoading />;
+  ) : result?.isLoading ? <BackofficeContentLoading /> : <BackofficeContentError error={result?.error} />;
 }

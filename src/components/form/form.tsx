@@ -15,6 +15,7 @@ import { AnyMutationProcedure, AnyQueryProcedure, inferProcedureInput, inferProc
 import { DecorateProcedure } from '@trpc/react-query/dist/shared';
 import { BackofficeContentLoading } from '../layout/admin/BackofficeContentLoading';
 import { DirtyFormUnloadAlert } from './fields/DirtyFormUnloadAlert';
+import { BackofficeContentError } from '../layout/admin/BackofficeContentError';
 
 interface FormErrorAlertItemProps {
   serverError: TRPCClientErrorLike<AppRouter> | null;
@@ -66,6 +67,7 @@ interface UpdateFormContentProps<TQueryProcedure extends AnyQueryProcedure, TMut
 interface InternalFormContentProps<TMutationProcedure extends AnyMutationProcedure, TData> extends FormContentProps<TMutationProcedure, TData> {
   edit: boolean;
   isLoading: boolean;
+  error?: any;
 }
 
 const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
@@ -81,6 +83,7 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
   successMessage,
   edit,
   isLoading: isQueryLoading,
+  error: queryError,
 }: InternalFormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>>) => {
   const router = useRouter();
 
@@ -133,8 +136,10 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
         )}
       </FormContainer>
     </BackofficeContent>
-  ) : ( // TODO skeleton here
+  ) : isLoading ? ( // TODO skeleton here
     <BackofficeContentLoading />
+  ) : (
+    <BackofficeContentError error={queryError} />
   );
 }
 
@@ -159,13 +164,13 @@ export const UpdateFormContent = <TQueryProcedure extends AnyQueryProcedure, TMu
   ...props
 }: UpdateFormContentProps<TQueryProcedure, TMutationProcedure, TQueryInputSchema>): JSX.Element => {
   const parsed = querySchema.parse(queryParams); // TODO error handling
-  const { data, isLoading, isError } = queryProcedure.useQuery(parsed)
-  // TODO error
+  const { data, isLoading, error } = queryProcedure.useQuery(parsed)
   return (
     <InternalFormContent
       {...props}
       edit={true}
       isLoading={isLoading}
+      error={error}
       defaultValues={{ ...defaultValues, ...data }}
     >
       {children}

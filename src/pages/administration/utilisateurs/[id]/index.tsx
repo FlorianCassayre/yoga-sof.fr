@@ -25,6 +25,7 @@ import { UserLink } from '../../../../components/link/UserLink';
 import { BackofficeContentLoading } from '../../../../components/layout/admin/BackofficeContentLoading';
 import { TransactionGrid } from '../../../../components/grid/grids/TransactionGrid';
 import { DeleteUserDialog } from '../../../../components/DeleteUserDialog';
+import { BackofficeContentError } from '../../../../components/layout/admin/BackofficeContentError';
 
 interface GridItemStatisticProps {
   value: number;
@@ -282,5 +283,5 @@ export default function AdminUser() {
 
   return result && result.data ? (
     <AdminUserContent user={result.data as any} />
-  ) : <BackofficeContentLoading />;
+  ) : result?.isLoading ? <BackofficeContentLoading /> : <BackofficeContentError error={result?.error} />;
 }
