@@ -18,6 +18,7 @@ export enum ServiceErrorCode {
   UserCannotManageThemselves,
   UserAlreadyManages,
   UserCannotControlUser,
+  UserCannotBeDeleted,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -47,4 +48,5 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.UserCannotManageThemselves]: `L'utilisateur ne peut pas être supervisé par lui-même`,
   [ServiceErrorCode.UserAlreadyManages]: `L'utilisateur supervise un utilisateur et ne peut donc pas être supervisé à son tour`,
   [ServiceErrorCode.UserCannotControlUser]: `L'utilisateur ne peut pas effectuer d'action pour l'utilisateur donné`,
+  [ServiceErrorCode.UserCannotBeDeleted]: `L'utilisateur ne peut pas être supprimé car certaines données liées à son compte seraient perdues`,
 };

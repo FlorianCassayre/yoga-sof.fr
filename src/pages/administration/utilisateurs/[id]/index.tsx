@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
-import { Assignment, Block, Info, Edit, Person, Done, Close, QuestionMark } from '@mui/icons-material';
+import { Assignment, Block, Info, Edit, Person, Done, Close, QuestionMark, Delete } from '@mui/icons-material';
 import { Prisma } from '@prisma/client';
 import { displayUserName } from '../../../../common/display';
 import { userFindTransformSchema } from '../../../../common/schemas/user';
@@ -24,6 +24,7 @@ import { grey } from '@mui/material/colors';
 import { UserLink } from '../../../../components/link/UserLink';
 import { BackofficeContentLoading } from '../../../../components/layout/admin/BackofficeContentLoading';
 import { TransactionGrid } from '../../../../components/grid/grids/TransactionGrid';
+import { DeleteUserDialog } from '../../../../components/DeleteUserDialog';
 
 interface GridItemStatisticProps {
   value: number;
@@ -55,8 +56,14 @@ interface UserProvidedInformationChipProps {
 const UserProvidedInformationChip: React.FC<UserProvidedInformationChipProps> = ({ original }) => (
   <Tooltip title={(
     <>
-      <Box>Cette donnée a été modifiée par l'utilisateur.</Box>
-      <Box>La valeur originale était : <strong>{original}</strong></Box>
+      <Box>Cette donnée a été modifiée par l'utilisateur ou vous.</Box>
+      <Box>
+        La valeur originale était {original ? (
+        <>
+          : <strong>{original}</strong>
+        </>
+      ) : 'vide.'}
+      </Box>
     </>
   )}>
     <Info color="action" />
@@ -72,6 +79,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
   const displayDate = (date: Date | string | undefined | null) => !!date && `${formatDateDDsMMsYYYYsHHhMMmSSs(date)} (${formatTimestampRelative(date).toLowerCase()})`;
   const statistics = getUserStatistics(user);
   const trpcClient = trpc.useContext();
+  const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const { mutate: mutateDisable, isLoading: isDisablingLoading } = trpc.user.disabled.useMutation({
     onSuccess: async (_, { disabled }) => {
@@ -85,6 +93,19 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
     },
   });
   const [isDisableDialogOpen, setDisableDialogOpen] = useState(false);
+  const { mutate: mutateDelete, isLoading: isDeleteLoading } = trpc.user.delete.useMutation({
+    onSuccess: async () => {
+      await Promise.all((
+        [trpcClient.user.find, trpcClient.user.findAll]
+      ).map(procedure => procedure.invalidate()));
+      enqueueSnackbar(`L'utilisateur a été supprimé`, { variant: 'success' });
+      return router.push('/administration/utilisateurs');
+    },
+    onError: () => {
+      enqueueSnackbar(`Une erreur est survenue lors de la suppression de l'utilisateur ; il est possible que l'utilisateur ne soit pas suppressible`, { variant: 'error' });
+    },
+  });
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   return (
     <BackofficeContent
       titleRaw={title}
@@ -102,6 +123,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       actions={[
         { name: 'Modifier', icon: <Edit />, url: `/administration/utilisateurs/${user.id}/edition` },
         { name: user.disabled ? 'Réactiver le compte' : 'Désactiver le compte', icon: <Block />, onClick: () => setDisableDialogOpen(true), disabled: isDisablingLoading },
+        { name: 'Supprimer', icon: <Delete />, onClick: () => setDeleteDialogOpen(true), disabled: isDeleteLoading },
       ]}
       quickActions={[
         { name: 'Inscrire à des séances', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { userId: user.id } } },
@@ -109,6 +131,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
     >
       <DisableUserDialog user={user} open={isDisableDialogOpen && !user.disabled} setOpen={setDisableDialogOpen} onConfirm={() => mutateDisable({ id: user.id, disabled: true })} />
       <RenableUserDialog user={user} open={isDisableDialogOpen && user.disabled} setOpen={setDisableDialogOpen} onConfirm={() => mutateDisable({ id: user.id, disabled: false })} />
+      <DeleteUserDialog user={user} open={isDeleteDialogOpen} setOpen={setDeleteDialogOpen} onConfirm={() => mutateDelete({ id: user.id })} />
       <Typography variant="h6" component="div" sx={{ mt: 2, mb: 1 }}>
         Informations sur l'utilisateur
       </Typography>
@@ -149,7 +172,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
                 ),
               },
               { header: 'Dernière connexion', value: displayDate(user.lastActivity) },
-              { header: 'Première connexion', value: displayDate(user.createdAt) },
+              { header: user.lastActivity ? 'Première connexion' : 'Date de création', value: displayDate(user.createdAt) },
               {
                 header: 'Services de connexion',
                 value: (() => {

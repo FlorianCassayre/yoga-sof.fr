@@ -76,3 +76,24 @@ export const updateUserDisable = async (args: { where: Prisma.UserWhereUniqueInp
     await prisma.user.update({ where: args.where, data: { disabled: args.data.disabled } });
   }, transactionOptions);
 };
+
+export const deleteUser = async (args: { where: Prisma.UserWhereUniqueInput }) => {
+  await prisma.$transaction(async (prisma) => {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: args.where,
+      include: {
+        accounts: true,
+        sessions: true,
+        managedUsers: true,
+        transactions: true,
+        emailsReceived: true,
+        courseRegistrations: true,
+      },
+    });
+    const hasNonEmptyRelation = [user.accounts, user.sessions, user.managedUsers, user.transactions, user.emailsReceived, user.courseRegistrations].some(array => array.length > 0);
+    if (hasNonEmptyRelation || user.managedByUserId !== null || user.emailVerified !== null) {
+      throw new ServiceError(ServiceErrorCode.UserCannotBeDeleted);
+    }
+    return prisma.user.delete(args);
+  });
+};

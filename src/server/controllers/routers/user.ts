@@ -1,6 +1,14 @@
 import { z } from 'zod';
-import { createUser, findUser, findUsers, findUserUpdate, updateUser, updateUserDisable } from '../../services';
-import { userCreateSchema, userDisableSchema, userUpdateSchema } from '../../../common/schemas/user';
+import {
+  createUser,
+  deleteUser,
+  findUser,
+  findUsers,
+  findUserUpdate,
+  updateUser,
+  updateUserDisable
+} from '../../services';
+import { userCreateSchema, userDisableSchema, userFindSchema, userUpdateSchema } from '../../../common/schemas/user';
 import { adminProcedure, router } from '../trpc';
 import { prisma, transactionOptions } from '../../prisma';
 
@@ -33,4 +41,7 @@ export const userRouter = router({
   disabled: adminProcedure
     .input(userDisableSchema)
     .mutation(async ({ input: { id, ...data } }) => updateUserDisable({ where: { id }, data })),
+  delete: adminProcedure
+    .input(userFindSchema)
+    .mutation(async ({ input: { id } }) => deleteUser({ where: { id } })),
 });
