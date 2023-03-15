@@ -21,9 +21,10 @@ import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 interface GridActionCancelRegistrationProps {
   userId: number;
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>;
+  disabled?: boolean;
 }
 
-const GridActionCancelRegistration: React.FC<GridActionCancelRegistrationProps> = ({ userId, courseRegistration }) => {
+const GridActionCancelRegistration: React.FC<GridActionCancelRegistrationProps> = ({ userId, courseRegistration, disabled }) => {
   const [open, setOpen] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
   const trpcClient = trpc.useContext();
@@ -41,7 +42,7 @@ const GridActionCancelRegistration: React.FC<GridActionCancelRegistrationProps> 
   return (
     <>
       <FrontsiteCancelCourseRegistrationDialog courseRegistration={courseRegistration} open={open} setOpen={setOpen} onConfirm={() => mutateCancel({ userId, id: courseRegistration.id })} />
-      <GridActionsCellItemTooltip icon={<Cancel />} onClick={() => setOpen(true)} label="Annuler" disabled={isCanceling} />
+      <GridActionsCellItemTooltip icon={<Cancel />} onClick={() => setOpen(true)} label={!disabled ? 'Annuler' : `La désinscription n'est plus possible`} disabled={isCanceling || disabled} />
     </>
   );
 };
@@ -53,6 +54,8 @@ interface FrontsiteCourseGrid {
 }
 
 export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> = ({ userId, userCanceled, future }) => {
+  const nowLater = new Date();
+  nowLater.setDate(nowLater.getDate() + 1);
   const columns: GridColumns = [
     ...(userCanceled ? [] : [{
       field: 'status',
@@ -94,8 +97,8 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
       type: 'actions',
       headerName: 'Désinscription',
       minWidth: 120,
-      getActions: ({ row }: GridRowParams<Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>>) => !row.course.isCanceled && future ? [
-        <GridActionCancelRegistration userId={userId} courseRegistration={row} />,
+      getActions: ({ row }: GridRowParams<Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>>) => !row.course.isCanceled ? [
+        <GridActionCancelRegistration userId={userId} courseRegistration={row} disabled={nowLater.getTime() >= row.course.dateStart.getTime()} />,
       ] : [],
     } as GridEnrichedColDef] : []),
   ];

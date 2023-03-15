@@ -5,7 +5,9 @@ import { Tooltip } from '@mui/material';
 export const GridActionsCellItemTooltip = ({ ...props }: GridActionsCellItemProps & { icon: React.ReactElement }): React.ReactElement => {
   return (
     <Tooltip title={props.label}>
-      <GridActionsCellItem {...props as any} />
+      <span>
+        <GridActionsCellItem {...props as any} />
+      </span>
     </Tooltip>
   );
 };

@@ -71,13 +71,17 @@ export const createCourseRegistrations = async (prisma: Prisma.TransactionClient
 export const cancelCourseRegistration = async (prisma: Prisma.TransactionClient, args: { where: { id: number }, data: { admin: boolean } }) => {
   const id = args.where.id;
   const now = new Date();
-  const nowEarlier = new Date(now);
+  const nowEarlier = new Date(now), nowLater = new Date(now);
   nowEarlier.setDate(nowEarlier.getDate() - 1);
+  nowLater.setDate(nowLater.getDate() + 1);
   const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id }, include: { course: true } });
   if (courseRegistration.course.isCanceled) {
     throw new ServiceError(ServiceErrorCode.CourseCanceledNoUnregistration);
   }
-  if (courseRegistration.course.dateStart.getTime() <= now.getTime() && (!args.data.admin || courseRegistration.course.dateEnd.getTime() <= nowEarlier.getTime())) {
+  if (!(
+    (!args.data.admin && nowLater.getTime() < courseRegistration.course.dateStart.getTime())
+    || (args.data.admin && nowEarlier.getTime() < courseRegistration.course.dateEnd.getTime())
+  )) {
     throw new ServiceError(ServiceErrorCode.CoursePassedNoUnregistration);
   }
   if (courseRegistration.isUserCanceled) {

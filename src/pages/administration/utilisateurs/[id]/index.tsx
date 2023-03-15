@@ -242,13 +242,13 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
                 <GridItemStatistic
                   value={statistics.totalTransactionsAmount}
                   title="Total payé"
-                  label="Montant total payé par l'utilisateur. Cela inclut les paiement pour des séances annulées ou désinscrites."
+                  label="Montant total payé par l'utilisateur. Cela inclut les paiements pour des séances annulées ou désinscrites."
                   valueFormatter={v => `${v} €`}
                 />
                 <GridItemStatistic
                   value={statistics.totalCoursesAmount}
                   title="Valeur des séances"
-                  label="La somme des prix des séances inscrites passées et futures. Les séances annulées ou désinscrites ne sont pas considérées. Ce montant ne prend pas en compte les éventuelles réductions (séances d'essai, cartes)."
+                  label="La somme des prix des séances inscrites passées et futures. Les séances annulées ou désinscrites ne sont pas considérées. Ce montant ne prend pas en compte les éventuelles réductions (séances d'essai, cartes) ou frais (cotisation)."
                   valueFormatter={v => `${v} €`}
                 />
               </Grid>
