@@ -15,7 +15,7 @@ export const SelectUser: React.FC<SelectUserProps> = ({ name, multiple, label })
   return (
     <AutocompleteElement
       name={name}
-      options={data ?? []}
+      options={data ? data.map(v => [displayUserName(v).toLowerCase(), v]).sort(([a,], [b,]) => a >= b ? 1 : -1).map(([_, v]) => v) : []}
       multiple={multiple}
       matchId
       label={label ?? `Utilisateur${multiple ? 's' : ''}`}
@@ -23,6 +23,11 @@ export const SelectUser: React.FC<SelectUserProps> = ({ name, multiple, label })
       autocompleteProps={{
         disabled: isLoading,
         getOptionLabel: (option: User | undefined) => option ? displayUserName(option) : '...',
+        renderOption: (props, option: User | undefined) => option ? (
+          <li {...props} key={option.id}>
+            {displayUserName(option)}
+          </li>
+        ) : '...',
       }}
     />
   );

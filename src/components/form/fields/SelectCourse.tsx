@@ -14,7 +14,7 @@ export const SelectCourse: React.FC<SelectCourseProps> = ({ name, multiple }) =>
   return (
     <AutocompleteElement
       name={name}
-      options={data ?? []}
+      options={data ? data.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime()) : []}
       multiple={multiple}
       matchId
       label={`Séance${multiple ? 's' : ''}`}
@@ -22,6 +22,11 @@ export const SelectCourse: React.FC<SelectCourseProps> = ({ name, multiple }) =>
       autocompleteProps={{
         disabled: isLoading,
         getOptionLabel: (option: Course | undefined) => option ? displayCourseName(option) : '...',
+        renderOption: (props, option: Course | undefined) => option ? (
+          <li {...props} key={option.id}>
+            {displayCourseName(option)}
+          </li>
+        ) : '...',
       }}
     />
   );
