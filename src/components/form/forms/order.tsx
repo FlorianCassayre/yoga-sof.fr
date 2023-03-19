@@ -38,6 +38,9 @@ import { SelectTransactionType } from '../fields/SelectTransactionType';
 import { orderCreateSchema } from '../../../common/schemas/order';
 import { useRouter } from 'next/router';
 import { BackofficeContentLoading } from '../../layout/admin/BackofficeContentLoading';
+import { SelectCoupon } from '../fields/SelectCoupon';
+import { SelectMembership } from '../fields/SelectMembership';
+import { InputYear } from '../fields/InputYear';
 
 interface BinaryDialogProps {
   open: boolean;
@@ -148,8 +151,8 @@ const OptionalField: React.FC<OptionalFieldProps> = ({ children, onDelete }) => 
       </Box>
       <Box>
         <Tooltip title="Supprimer">
-          <IconButton>
-            <Delete onClick={() => onDelete()} />
+          <IconButton onClick={() => onDelete()}>
+            <Delete />
           </IconButton>
         </Tooltip>
       </Box>
@@ -164,7 +167,9 @@ const OrderFormFields: React.FC = () => {
 
   const watchCourseRegistrations = watch('purchases.courseRegistrations');
   const watchNewCoupons = watch('purchases.newCoupons');
-  const watchMemberships = watch('purchases.newMemberships');
+  const watchNewMemberships = watch('purchases.newMemberships');
+  const watchExistingCoupons = watch('purchases.existingCoupons');
+  const watchExistingMemberships = watch('purchases.existingMemberships');
 
   const watchTrialCourseRegistration = watch('billing.trialCourseRegistration');
   const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
@@ -177,8 +182,10 @@ const OrderFormFields: React.FC = () => {
   const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
   const [couponUseDialogOpen, setCouponUseDialogOpen] = useState(false);
 
-  const { fields: newCouponFields, append: addNewCoupon, remove: removeNewCoupon } = useFieldArray({ control, name: 'purchases.newCoupons' });
-  const { fields: newMembershipFields, append: addNewMembership, remove: removeNewMembership } = useFieldArray({ control, name: 'purchases.newMemberships' });
+  const { fields: purchasedNewCouponFields, append: addPurchasedNewCoupon, remove: removePurchasedNewCoupon } = useFieldArray({ control, name: 'purchases.newCoupons' });
+  const { fields: purchasedNewMembershipFields, append: addPurchasedNewMembership, remove: removePurchasedNewMembership } = useFieldArray({ control, name: 'purchases.newMemberships' });
+  const { fields: billingExistingCouponFields, append: addBillingExistingCoupon, remove: removeBillingExistingCoupon } = useFieldArray({ control, name: 'billing.newCoupons' });
+  const { fields: billingNewCouponFields, append: addBillingNewCoupon, remove: removeBillingNewCoupon } = useFieldArray({ control, name: 'billing.existingCoupons' });
 
   return (
     <Grid container spacing={2}>
@@ -204,17 +211,38 @@ const OrderFormFields: React.FC = () => {
           </OptionalField>
         </Grid>
       )}
-      {newCouponFields.map((field, index) => (
+      {watchExistingCoupons !== undefined && watchUser != null && (
+        <Grid item xs={12}>
+          <OptionalField onDelete={() => setValue('purchases.existingCoupons', undefined)}>
+            <SelectCoupon name="purchases.existingCoupons" userId={watchUser.id} label="Cartes existantes" multiple />
+          </OptionalField>
+        </Grid>
+      )}
+      {purchasedNewCouponFields.map((field, index) => (
         <Grid item xs={12} key={field.id}>
-          <OptionalField onDelete={() => removeNewCoupon(index)}>
+          <OptionalField onDelete={() => removePurchasedNewCoupon(index)}>
             <SelectCouponModel name={`newCoupons.${index}.couponModelId`} label="Nouvelle carte" />
           </OptionalField>
         </Grid>
       ))}
-      {newMembershipFields.map((field, index) => (
+      {watchExistingMemberships !== undefined && watchUser != null && (
+        <Grid item xs={12}>
+          <OptionalField onDelete={() => setValue('purchases.existingMemberships', undefined)}>
+            <SelectMembership name="purchases.existingMemberships" userId={watchUser.id} label="Cotisations existantes" multiple />
+          </OptionalField>
+        </Grid>
+      )}
+      {purchasedNewMembershipFields.map((field, index) => (
         <Grid item xs={12} key={field.id}>
-          <OptionalField onDelete={() => removeNewMembership(index)}>
-            <SelectMembershipModel name={`purchases.newMemberships.${index}.membershipModelId`} label="Nouvelle cotisation" />
+          <OptionalField onDelete={() => removePurchasedNewMembership(index)}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={8} lg={9} xl={10}>
+                <SelectMembershipModel name={`purchases.newMemberships.${index}.membershipModelId`} label="Nouvelle cotisation" />
+              </Grid>
+              <Grid item xs={12} sm={4} lg={3} xl={2}>
+                <InputYear name={`purchases.newMemberships.${index}.year`} label="Année de début de validité" />
+              </Grid>
+            </Grid>
           </OptionalField>
         </Grid>
       ))}
@@ -224,34 +252,82 @@ const OrderFormFields: React.FC = () => {
         </Grid>
       )}
       <Grid item xs={12}>
-        <CreateButton label="Ajouter une carte" disabled={watchUser === undefined} onClick={() => setCouponDialogOpen(true)} />
+        <CreateButton label="Ajouter une carte" disabled={watchUser === undefined} onClick={() => watchExistingCoupons === undefined ? setCouponDialogOpen(true) : addPurchasedNewCoupon({})} />
       </Grid>
+      <BinaryDialog
+        title="Ajout d'une carte" labelA="Lier une carte" labelB="Nouvelle carte"
+        open={couponDialogOpen} setOpen={setCouponDialogOpen} onChooseA={() => setValue('purchases.existingCoupons', [])} onChooseB={() => addPurchasedNewCoupon({})}>
+        Souhaitez lier une carte existante, ou bien en créer une nouvelle ?
+      </BinaryDialog>
       <Grid item xs={12}>
-        <CreateButton label="Ajouter une cotisation" disabled={watchUser === undefined} onClick={() => setMembershipDialogOpen(true)} />
+        <CreateButton label="Ajouter une cotisation" disabled={watchUser === undefined} onClick={() => watchExistingMemberships === undefined ? setMembershipDialogOpen(true) : addPurchasedNewMembership({})} />
       </Grid>
+      <BinaryDialog
+        title="Ajout d'une cotisation" labelA="Lier une cotisation" labelB="Nouvelle cotisation"
+        open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => setValue('purchases.existingMemberships', [])} onChooseB={() => addPurchasedNewMembership({})}
+      >
+        Souhaitez lier une cotisation existante, ou bien en créer une nouvelle ?
+      </BinaryDialog>
 
       <Grid item xs={12}>
         <Typography variant="h6" component="div">
           3. Réductions
         </Typography>
       </Grid>
-      {watchCourseRegistrations !== undefined && watchTrialCourseRegistration !== undefined && (
-        <Grid item xs={12}>
-          <OptionalField onDelete={() => setValue('billing.trialCourseRegistration', undefined)}>
-            <SelectDependentCourseRegistration name="billing.trialCourseRegistration" fromName="purchases.courseRegistrations" label="Séance d'essai" />
-          </OptionalField>
-        </Grid>
-      )}
-      {watchCourseRegistrations !== undefined && watchReplacementCourseRegistrations !== undefined && watchUser != null && (
-        <Grid item xs={12}>
-          <OptionalField onDelete={() => setValue('billing.replacementCourseRegistrations', undefined)}>
-            <SelectCourseRegistration name="billing.replacementCourseRegistrations" userId={watchUser.id} noMatchId multiple label="Séances à rattraper" />
-          </OptionalField>
-        </Grid>
+      {watchCourseRegistrations !== undefined && watchUser != null && (
+        <>
+          {billingExistingCouponFields.map((field, index) => (
+            <Grid item xs={12} key={field.id}>
+              <OptionalField onDelete={() => removeBillingExistingCoupon(index)}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <SelectCoupon name={`billing.existingCoupons.${index}.couponId`} userId={watchUser.id} label="Carte existante" />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <SelectDependentCourseRegistration name={`billing.existingCoupons.${index}.courseRegistrationIds`} fromName="purchases.courseRegistrations" multiple label="Séances" />
+                  </Grid>
+                </Grid>
+              </OptionalField>
+            </Grid>
+          ))}
+          {billingNewCouponFields.map((field, index) => (
+            <Grid item xs={12} key={field.id}>
+              <OptionalField onDelete={() => removeBillingNewCoupon(index)}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    {/* TODO */}
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <SelectDependentCourseRegistration name={`billing.newCoupons.${index}.courseRegistrationIds`} fromName="purchases.courseRegistrations" multiple label="Séances" />
+                  </Grid>
+                </Grid>
+              </OptionalField>
+            </Grid>
+          ))}
+          {watchTrialCourseRegistration !== undefined && (
+            <Grid item xs={12}>
+              <OptionalField onDelete={() => setValue('billing.trialCourseRegistration', undefined)}>
+                <SelectDependentCourseRegistration name="billing.trialCourseRegistration" fromName="purchases.courseRegistrations" label="Séance d'essai" />
+              </OptionalField>
+            </Grid>
+          )}
+          {watchReplacementCourseRegistrations !== undefined && watchUser != null && (
+            <Grid item xs={12}>
+              <OptionalField onDelete={() => setValue('billing.replacementCourseRegistrations', undefined)}>
+                <SelectCourseRegistration name="billing.replacementCourseRegistrations" userId={watchUser.id} noMatchId multiple label="Séances à rattraper" />
+              </OptionalField>
+            </Grid>
+          )}
+        </>
       )}
       <Grid item xs={12}>
-        <CreateButton label="Ajouter une carte" disabled={watchUser === undefined} onClick={() => setCouponUseDialogOpen(true)} />
+        <CreateButton label="Ajouter une carte" disabled={watchCourseRegistrations === undefined} onClick={() => setCouponUseDialogOpen(true)} />
       </Grid>
+      <BinaryDialog
+        title="Ajout d'une carte" labelA="Lier une carte existante" labelB="Lier une nouvelle carte"
+        open={couponUseDialogOpen} setOpen={setCouponUseDialogOpen} onChooseA={() => addBillingExistingCoupon({})} onChooseB={() => addBillingNewCoupon({})}>
+        Souhaitez lier une carte existante, ou bien lier une nouvelle carte ?
+      </BinaryDialog>
       {watchTrialCourseRegistration === undefined && (
         <Grid item xs={12}>
           <CreateButton label="Ajouter une séance d'essai" disabled={watchCourseRegistrations === undefined || watchCourseRegistrations.length === 0} onClick={() => setValue('billing.trialCourseRegistration', null)} />
@@ -326,23 +402,6 @@ const OrderFormFields: React.FC = () => {
       <Grid item xs={12}>
         <CheckboxElement name="billing.force" label="Accepter le paiement malgré la disparité" />
       </Grid>
-
-      <BinaryDialog
-        title="Ajout d'une carte" labelA="Lier une carte" labelB="Nouvelle carte"
-        open={couponDialogOpen} setOpen={setCouponDialogOpen} onChooseA={() => {}} onChooseB={() => addNewCoupon({})}>
-        Souhaitez lier une carte existante, ou bien en créer une nouvelle ?
-      </BinaryDialog>
-      <BinaryDialog
-        title="Ajout d'une cotisation" labelA="Lier une cotisation" labelB="Nouvelle cotisation"
-        open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => {}} onChooseB={() => addNewMembership({})}
-      >
-        Souhaitez lier une cotisation existante, ou bien en créer une nouvelle ?
-      </BinaryDialog>
-      <BinaryDialog
-        title="Ajout d'une carte" labelA="Lier une carte existante" labelB="Lier une nouvelle carte"
-        open={couponUseDialogOpen} setOpen={setCouponUseDialogOpen} onChooseA={() => {}} onChooseB={() => {}}>
-        Souhaitez lier une carte existante, ou bien lier une nouvelle carte ?
-      </BinaryDialog>
     </Grid>
   );
 }

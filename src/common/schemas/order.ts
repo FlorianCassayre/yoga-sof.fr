@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { MembershipType, TransactionType } from '@prisma/client';
-import { objectInputType, objectOutputType, ZodTypeAny } from 'zod/lib/types';
 
 const checkUniqueIds = [(array: number[]) => new Set(array).size === array.length, { message: `Les éléments doivent être distincts` }] as const;
 const checkUniqueRefIds = [(array: { id: number }[]) => new Set(array.map(({ id }) => id)).size === array.length, { message: `Les éléments doivent être distincts` }] as const;
@@ -22,9 +21,7 @@ export const orderCreateSchema = z.strictObject({
       id: z.number().int().min(0),
     })).min(1).optional(),
     newMemberships: z.array(z.strictObject({
-      membershipModel: z.object({
-        id: z.number().int().min(0),
-      }),
+      membershipModelId: z.nativeEnum(MembershipType),
       year: z.number().int().min(2021).max(2100),
     })).optional(),
     existingMemberships: z.array(z.object({
@@ -34,13 +31,11 @@ export const orderCreateSchema = z.strictObject({
   billing: z.strictObject({
     newCoupons: z.array(z.strictObject({
       newCouponIndex: z.number().int().min(0),
-      courseRegistrationIds: z.array(z.number().int().min(0)),
+      courseRegistrationIds: z.array(z.number().int().min(0)).min(1),
     })).min(1).optional(),
     existingCoupons: z.array(z.strictObject({
-      coupon: z.object({
-        id: z.number().int().min(0),
-      }),
-      courseRegistrationIds: z.array(z.number().int().min(0)),
+      couponId: z.number().int().min(0),
+      courseRegistrationIds: z.array(z.number().int().min(0)).min(1),
     })).min(1).optional(),
     trialCourseRegistrationId: z.number().int().min(0).optional(),
     replacementCourseRegistrations: z.array(z.strictObject({
