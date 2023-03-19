@@ -1,13 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   AutocompleteElement,
   DatePickerElement,
   DeepPartial,
-  TextFieldElement,
+  TextFieldElement, useFieldArray,
   useFormContext
 } from 'react-hook-form-mui';
 import { z } from 'zod';
-import { Box, Button, Grid, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Dialog, DialogActions,
+  DialogContent, DialogContentText,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import { InputPrice } from '../fields';
 import { AddBox, Delete, Event, ShoppingCart } from '@mui/icons-material';
 import { CreateFormContent } from '../form';
@@ -16,9 +27,63 @@ import { SelectUser } from '../fields/SelectUser';
 import { transactionCreateSchema } from '../../../common/schemas/transaction';
 import { SelectCourse } from '../fields/SelectCourse';
 import { SelectCourseRegistration } from '../fields/SelectCourseRegistration';
-import { Course, CourseRegistration } from '@prisma/client';
-import { displayCourseName } from '../../../common/display';
+import { Course, CourseRegistration, Transaction, User } from '@prisma/client';
+import { displayCourseName, displayTransactionWithUserName } from '../../../common/display';
 import { SelectTransaction } from '../fields/SelectTransaction';
+import { SelectMembershipModel } from '../fields/SelectMembershipModel';
+import { SelectCouponModel } from '../fields/SelectCouponModel';
+import { grey } from '@mui/material/colors';
+import { SelectTransactionType } from '../fields/SelectTransactionType';
+
+interface BinaryDialogProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  title: string;
+  children: React.ReactNode;
+  labelA: string;
+  labelB: string;
+  onChooseA: () => void;
+  onChooseB: () => void;
+}
+
+export const BinaryDialog: React.FC<BinaryDialogProps> = ({ open, setOpen, title, children, labelA, labelB, onChooseA, onChooseB }) => {
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const handleChooseA = () => {
+    onChooseA();
+    handleClose();
+  };
+  const handleChooseB = () => {
+    onChooseB();
+    handleClose();
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onClose={handleClose}
+    >
+      <DialogTitle>
+        {title}
+      </DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          {children}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button color="inherit" onClick={handleClose} sx={{ color: grey[600] }}>Annuler</Button>
+        <Button onClick={handleChooseA}>
+          {labelA}
+        </Button>
+        <Button onClick={handleChooseB}>
+          {labelB}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 interface SelectDependentCourseRegistrationProps {
   name: string;
@@ -89,13 +154,27 @@ const OptionalField: React.FC<OptionalFieldProps> = ({ children, onDelete }) => 
 };
 
 const OrderFormFields: React.FC = () => {
-  const { watch, setValue } = useFormContext();
+  const { watch, setValue, control } = useFormContext();
 
   const watchUser = watch('user');
+
   const watchCourseRegistrations = watch('courseRegistrations');
+  const watchNewCoupons = watch('newCoupons');
+  const watchMemberships = watch('memberships');
+
   const watchTrialCourseRegistration = watch('trialCourseRegistration');
   const watchReplacementCourseRegistrations = watch('replacementCourseRegistrations');
   const watchTransaction = watch('transaction');
+  const watchPayment = watch('payment');
+
+  //
+
+  const [couponDialogOpen, setCouponDialogOpen] = useState(false);
+  const [membershipDialogOpen, setMembershipDialogOpen] = useState(false);
+  const [couponUseDialogOpen, setCouponUseDialogOpen] = useState(false);
+
+  const { fields: newCouponFields, append: addNewCoupon, remove: removeNewCoupon } = useFieldArray({ control, name: 'newCoupons' });
+  const { fields: newMembershipFields, append: addNewMembership, remove: removeNewMembership } = useFieldArray({ control, name: 'newMemberships' });
 
   return (
     <Grid container spacing={2}>
@@ -120,16 +199,30 @@ const OrderFormFields: React.FC = () => {
           </OptionalField>
         </Grid>
       )}
+      {newCouponFields.map((field, index) => (
+        <Grid item xs={12} key={field.id}>
+          <OptionalField onDelete={() => removeNewCoupon(index)}>
+            <SelectCouponModel name={`newCoupons.${index}.couponModelId`} label="Nouvelle carte" />
+          </OptionalField>
+        </Grid>
+      ))}
+      {newMembershipFields.map((field, index) => (
+        <Grid item xs={12} key={field.id}>
+          <OptionalField onDelete={() => removeNewMembership(index)}>
+            <SelectMembershipModel name={`newMemberships.${index}.membershipModelId`} label="Nouvelle cotisation" />
+          </OptionalField>
+        </Grid>
+      ))}
       {watchCourseRegistrations === undefined && (
         <Grid item xs={12}>
           <CreateButton label="Ajouter des séances" disabled={watchUser === undefined} onClick={() => setValue('courseRegistrations', [])} />
         </Grid>
       )}
       <Grid item xs={12}>
-        <CreateButton label="Ajouter une carte" disabled={watchUser === undefined} onClick={() => {}} />
+        <CreateButton label="Ajouter une carte" disabled={watchUser === undefined} onClick={() => setCouponDialogOpen(true)} />
       </Grid>
       <Grid item xs={12}>
-        <CreateButton label="Ajouter une cotisation" disabled={watchUser === undefined} onClick={() => {}} />
+        <CreateButton label="Ajouter une cotisation" disabled={watchUser === undefined} onClick={() => setMembershipDialogOpen(true)} />
       </Grid>
 
       <Grid item xs={12}>
@@ -152,7 +245,7 @@ const OrderFormFields: React.FC = () => {
         </Grid>
       )}
       <Grid item xs={12}>
-        <CreateButton label="Ajouter une carte" disabled={watchUser === undefined} onClick={() => {}} />
+        <CreateButton label="Ajouter une carte" disabled={watchUser === undefined} onClick={() => setCouponUseDialogOpen(true)} />
       </Grid>
       {watchTrialCourseRegistration === undefined && (
         <Grid item xs={12}>
@@ -170,20 +263,37 @@ const OrderFormFields: React.FC = () => {
           4. Paiement
         </Typography>
       </Grid>
-      {watchTransaction !== undefined && watchUser != null && (
-        <Grid item xs={12}>
-          <OptionalField onDelete={() => setValue('transaction', undefined)}>
-            <SelectTransaction name="transaction" userId={watchUser.id} />
-          </OptionalField>
-        </Grid>
-      )}
-      {watchTransaction === undefined && (
+      {watchUser != null && (
+        watchTransaction !== undefined ? (
+          <Grid item xs={12}>
+            <OptionalField onDelete={() => setValue('transaction', undefined)}>
+              <SelectTransaction name="transaction" userId={watchUser.id} />
+            </OptionalField>
+          </Grid>
+        ) : watchPayment !== undefined ? (
+          <Grid item xs={12}>
+            <OptionalField onDelete={() => setValue('payment', undefined)}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <InputPrice name="amount" label="Montant en euros" />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <SelectTransactionType name="type" />
+                </Grid>
+                <Grid item xs={12}>
+                  <DatePickerElement name="date" label="Date" inputProps={{ fullWidth: true }} />
+                </Grid>
+              </Grid>
+            </OptionalField>
+          </Grid>
+        ) : null)}
+      {watchTransaction === undefined && watchPayment === undefined && (
         <>
           <Grid item xs={12}>
             <CreateButton label="Lier à un ancien paiement" onClick={() => setValue('transaction', null)} />
           </Grid>
           <Grid item xs={12}>
-            <CreateButton label="Créer un nouveau paiement" onClick={() => {}} />
+            <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('payment', {})} />
           </Grid>
         </>
       )}
@@ -195,6 +305,23 @@ const OrderFormFields: React.FC = () => {
       <Grid item xs={12}>
         <TextFieldElement name="notes" label="Notes" fullWidth />
       </Grid>
+
+      <BinaryDialog
+        title="Ajout d'une carte" labelA="Lier une carte" labelB="Nouvelle carte"
+        open={couponDialogOpen} setOpen={setCouponDialogOpen} onChooseA={() => {}} onChooseB={() => addNewCoupon({})}>
+        Souhaitez lier une carte existante, ou bien en créer une nouvelle ?
+      </BinaryDialog>
+      <BinaryDialog
+        title="Ajout d'une cotisation" labelA="Lier une cotisation" labelB="Nouvelle cotisation"
+        open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => {}} onChooseB={() => addNewMembership({})}
+      >
+        Souhaitez lier une cotisation existante, ou bien en créer une nouvelle ?
+      </BinaryDialog>
+      <BinaryDialog
+        title="Ajout d'une carte" labelA="Lier une carte existante" labelB="Lier une nouvelle carte"
+        open={couponUseDialogOpen} setOpen={setCouponUseDialogOpen} onChooseA={() => {}} onChooseB={() => {}}>
+        Souhaitez lier une carte existante, ou bien lier une nouvelle carte ?
+      </BinaryDialog>
     </Grid>
   );
 }

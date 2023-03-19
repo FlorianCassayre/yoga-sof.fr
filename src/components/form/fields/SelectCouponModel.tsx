@@ -7,14 +7,15 @@ import { CouponModel } from '@prisma/client';
 interface SelectCouponModelProps {
   name: string;
   multiple?: boolean;
+  label?: string;
 }
 
-export const SelectCouponModel: React.FC<SelectCouponModelProps> = ({ name, multiple }) => {
+export const SelectCouponModel: React.FC<SelectCouponModelProps> = ({ name, multiple, label }) => {
   return (
     <AsyncSelect
       name={name}
       multiple={multiple}
-      label={`Type${multiple ? 's' : ''} de carte${multiple ? 's' : ''}`}
+      label={label ?? `Type${multiple ? 's' : ''} de carte${multiple ? 's' : ''}`}
       renderOptionLabel={(option: CouponModel) => displayCouponModelName(option)}
       procedure={trpc.couponModel.findAll}
       input={undefined}
