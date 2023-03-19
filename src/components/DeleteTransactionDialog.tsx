@@ -9,7 +9,7 @@ import {
   DialogTitle,
   Typography
 } from '@mui/material';
-import { displayTransactionName } from '../common/display';
+import { displayTransactionWithUserName } from '../common/display';
 import { grey } from '@mui/material/colors';
 
 interface DeleteTransactionDialogProps {
@@ -39,7 +39,7 @@ export const DeleteTransactionDialog: React.FC<DeleteTransactionDialogProps> = (
       <DialogContent>
         <DialogContentText>
           <Typography paragraph>
-            Souhaitez-vous vraiment supprimer le paiement de <strong>{displayTransactionName(transaction)}</strong> ?
+            Souhaitez-vous vraiment supprimer le paiement de <strong>{displayTransactionWithUserName(transaction)}</strong> ?
             Cette opération n'est pas réversible.
           </Typography>
         </DialogContentText>

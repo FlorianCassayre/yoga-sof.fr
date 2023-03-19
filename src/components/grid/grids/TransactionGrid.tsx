@@ -104,7 +104,7 @@ export const TransactionGrid: React.FunctionComponent<TransactionGridProps> = ({
       columns={columns}
       procedure={trpc.transaction.findAll}
       input={{ userId }}
-      initialSort={{ field: 'date', sort: 'desc' }}
+      initialSort={{ field: 'date', sort: 'asc' }}
     />
   );
 };
