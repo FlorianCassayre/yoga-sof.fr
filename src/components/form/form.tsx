@@ -111,7 +111,9 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
       icon={icon}
     >
       <FormContainer onSuccess={handleSubmit} resolver={zodResolver(schema)} defaultValues={defaultValues}>
-        <DirtyFormUnloadAlert disabled={isLoading} message="Certaines modifications n'ont pas été sauvegardées, souhaitez-vous vraiment quitter la page ?" />
+        {process.env.NODE_ENV === 'production' && ( // Disable this feature in development, as it slows down testing
+          <DirtyFormUnloadAlert disabled={isLoading} message="Certaines modifications n'ont pas été sauvegardées, souhaitez-vous vraiment quitter la page ?" />
+        )}
         {!isLoading ? (
           <Grid container spacing={2}>
             <FormErrorAlertItem serverError={error} />

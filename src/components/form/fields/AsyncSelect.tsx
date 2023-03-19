@@ -15,16 +15,17 @@ interface AsyncSelectProps<TOutputElement extends InputIdentifier, TProcedure ex
   input: inferProcedureInput<TProcedure>;
   procedure: DecorateProcedure<TProcedure, any, any>;
   multiple?: boolean;
+  noMatchId?: boolean;
   disabled?: boolean;
 }
 
-export const AsyncSelect = <TOutputElement extends InputIdentifier, TProcedure extends ProcedureQueryArray<TOutputElement, unknown>>({ name, label, renderOptionLabel, input, procedure, multiple, disabled }: AsyncSelectProps<TOutputElement, TProcedure>): React.ReactElement => {
+export const AsyncSelect = <TOutputElement extends InputIdentifier, TProcedure extends ProcedureQueryArray<TOutputElement, unknown>>({ name, label, renderOptionLabel, input, procedure, multiple, noMatchId, disabled }: AsyncSelectProps<TOutputElement, TProcedure>): React.ReactElement => {
   const { data, isLoading } = procedure.useQuery(input);
   return (
     <AutocompleteElement
       name={name}
       options={data ?? []}
-      matchId
+      matchId={!noMatchId}
       multiple={multiple}
       label={label}
       loading={isLoading}

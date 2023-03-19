@@ -21,6 +21,16 @@ export enum ServiceErrorCode {
   UserCannotBeDeleted,
   CouponAlreadyDisabled,
   MembershipAlreadyDisabled,
+  OrderTransactionDifferentUser,
+  OrderTransactionAlreadyLinked,
+  OrderCourseRegistrationNotRegistered,
+  OrderCourseRegistrationAlreadyOrdered,
+  OrderCourseRegistrationReplacementNotOrdered,
+  OrderCourseRegistrationReplacementAlreadyReplaced,
+  OrderCourseRegistrationReplacementNotCancelled,
+  OrderCourseRegistrationCouponFull,
+  OrderCouponAlreadyOrdered,
+  OrderMembershipAlreadyOrdered,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -53,4 +63,14 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.UserCannotBeDeleted]: `L'utilisateur ne peut pas être supprimé car certaines données liées à son compte seraient perdues`,
   [ServiceErrorCode.CouponAlreadyDisabled]: `La carte est déjà désactivée`,
   [ServiceErrorCode.MembershipAlreadyDisabled]: `L'adhésion est déjà annulée`,
+  [ServiceErrorCode.OrderTransactionDifferentUser]: `L'utilisateur de la transaction est différent de celui de la commande`,
+  [ServiceErrorCode.OrderTransactionAlreadyLinked]: `La transaction est déjà associée à une commande`,
+  [ServiceErrorCode.OrderCourseRegistrationNotRegistered]: `L'utilisateur est désinscrit de la séance`,
+  [ServiceErrorCode.OrderCourseRegistrationAlreadyOrdered]: `La séance fait déjà partie d'une commande`,
+  [ServiceErrorCode.OrderCourseRegistrationReplacementNotOrdered]: `La séance à remplacer ne fait pas partie d'une commande`,
+  [ServiceErrorCode.OrderCourseRegistrationReplacementAlreadyReplaced]: `La séance à remplacer a déjà été remplacée`,
+  [ServiceErrorCode.OrderCourseRegistrationReplacementNotCancelled]: `La séance à remplacer n'a pas été annulée et l'inscription est toujours active`,
+  [ServiceErrorCode.OrderCourseRegistrationCouponFull]: `La coupon est plein`,
+  [ServiceErrorCode.OrderCouponAlreadyOrdered]: `La carte fait déjà partie d'une commande`,
+  [ServiceErrorCode.OrderMembershipAlreadyOrdered]: `L'adhésion fait déjà partie d'une commande`,
 };

@@ -1,8 +1,8 @@
 import React from 'react';
 import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { Cancel, CheckCircle, ContentPaste, ContentPasteOff, Login, Logout } from '@mui/icons-material';
+import { ContentPaste, ContentPasteOff, EventAvailable } from '@mui/icons-material';
 import { CourseRegistration } from '@prisma/client';
-import { GridActionsCellItem, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
+import { GridRenderCellParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { courseColumn, relativeTimestamp, userColumn } from './common';
 import { Tooltip } from '@mui/material';
@@ -38,7 +38,9 @@ export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistra
       headerName: '',
       sortable: false,
       renderCell: ({ row }: GridRenderCellParams<{ registration: CourseRegistration }>) => !row.registration.isUserCanceled && (
-        <CheckCircle color="success" fontSize="small" />
+        <Tooltip title="Inscription active">
+          <EventAvailable color="success" />
+        </Tooltip>
       ),
       align: 'center',
     } as GridEnrichedColDef]),

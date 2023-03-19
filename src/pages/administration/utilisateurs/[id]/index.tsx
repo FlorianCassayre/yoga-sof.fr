@@ -29,6 +29,7 @@ import { DeleteUserDialog } from '../../../../components/DeleteUserDialog';
 import { BackofficeContentError } from '../../../../components/layout/admin/BackofficeContentError';
 import { CouponGrid } from '../../../../components/grid/grids/CouponGrid';
 import { MembershipGrid } from '../../../../components/grid/grids/MembershipGrid';
+import { OrderGrid } from '../../../../components/grid/grids/OrderGrid';
 
 interface GridItemStatisticProps {
   value: number;
@@ -283,6 +284,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
         Comptabilité
       </Typography>
       <Stack direction="column" gap={2}>
+        <OrderGrid userId={user.id} />
         <TransactionGrid userId={user.id} />
         <MembershipGrid collapsible collapsedSummary="Adhésions de l'utilisateur" userId={user.id} />
         <CouponGrid collapsible collapsedSummary="Cartes possédées par cet utilisateur" userId={user.id} />

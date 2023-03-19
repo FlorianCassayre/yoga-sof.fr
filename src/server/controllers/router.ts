@@ -13,6 +13,7 @@ import {
 import { router } from './trpc';
 import { transactionRouter } from './routers/transaction';
 import { membershipRouter } from './routers/membership';
+import { orderModelRouter } from './routers/order';
 
 export const appRouter =
   router({
@@ -29,6 +30,7 @@ export const appRouter =
     coupon: couponRouter,
     membershipModel: membershipModelRouter,
     membership: membershipRouter,
+    order: orderModelRouter,
   });
 
 export type AppRouter = typeof appRouter;

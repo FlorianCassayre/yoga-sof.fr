@@ -6,7 +6,7 @@ import {
 } from '../../../common/schemas/transaction';
 import { Grid } from '@mui/material';
 import { InputPrice } from '../fields';
-import { Event } from '@mui/icons-material';
+import { Payments } from '@mui/icons-material';
 import { CreateFormContent, UpdateFormContent } from '../form';
 import { Transaction } from '@prisma/client';
 import { trpc } from '../../../common/trpc';
@@ -44,7 +44,7 @@ const useProceduresToInvalidate = () => {
 };
 
 const commonFormProps = () => ({
-  icon: <Event />,
+  icon: <Payments />,
   defaultValues: transactionFormDefaultValues(),
   urlSuccessFor: (data: Transaction) => `/administration/paiements`,
   urlCancel: `/administration/paiements`,

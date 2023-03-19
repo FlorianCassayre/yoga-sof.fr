@@ -1,8 +1,9 @@
 import React from 'react';
 import { BackofficeContent } from '../../../components/layout/admin/BackofficeContent';
-import { Payments } from '@mui/icons-material';
+import { Payments, ShoppingCart } from '@mui/icons-material';
 import { Alert, Typography } from '@mui/material';
 import { TransactionGrid } from '../../../components/grid/grids/TransactionGrid';
+import { OrderGrid } from '../../../components/grid/grids/OrderGrid';
 
 export default function AdminPayments() {
   return (
@@ -10,18 +11,30 @@ export default function AdminPayments() {
       title="Paiements"
       icon={<Payments />}
       quickActions={[
-        { icon: <Payments />, name: 'Enregister un paiement', url: '/administration/paiements/creation' }
+        { icon: <Payments />, name: 'Enregistrer un paiement', url: '/administration/paiements/creation' },
+        { icon: <ShoppingCart />, name: 'Enregistrer une commande', url: '/administration/paiements/commandes/creation' },
       ]}
     >
       <Alert severity="info">
         Le système de paiements est en cours d'élaboration.
-        Pour le moment vous avez la possibilité d'entrer les paiements reçus de la part des pratiquants, mais vous ne pouvez pas encore les lier aux séances.
+        Lors de cette deuxième phase il n'est plus possible de créer des paiements : ceux-ci sont remplacés par des <strong>commandes</strong>.
+        Tous les anciens paiements doivent être liés à une commande.
       </Alert>
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
-        Derniers paiements
+        Commandes
       </Typography>
       <Typography paragraph>
-        Liste des paiements enregistrés.
+        Les commandes associent un paiement (espèces ou HelloAsso) à des articles (séances, cotisations et cartes), elles remplacent l'ancien système de paiements.
+      </Typography>
+      <OrderGrid />
+      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
+        Paiements sans commande
+      </Typography>
+      <Typography paragraph>
+        Les paiements suivants n'ont pas encore de commande associée.
+        Pour chacun d'entre eux, vous devrez créer une commande afin d'indiquer quelles séances, cotisations et cartes ont été payées.
+        Il est recommandé de traiter ces données pour chaque utilisateur, et de procéder du paiement le plus ancien au plus récent.
+        Vous aurez terminé la migration lorsque la liste sera vide.
       </Typography>
       <TransactionGrid />
     </BackofficeContent>

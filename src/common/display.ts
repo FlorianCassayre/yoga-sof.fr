@@ -57,7 +57,7 @@ export const displayUserName = ({ customName, name, customEmail, email, id }: Pi
 export const displayUserEmail = ({ customEmail, email }: Pick<User, 'customEmail' | 'email'>) =>
   customEmail || email;
 
-export const displayTransactionName = ({ amount, user }: Pick<Transaction, 'amount'> & { user: Parameters<typeof displayUserName>[0] }) =>
+export const displayTransactionWithUserName = ({ amount, user }: Pick<Transaction, 'amount'> & { user: Parameters<typeof displayUserName>[0] }) =>
   `${amount} € de l'utilisateur ${displayUserName(user)}`;
 
 export const displayTransactionWithDate = ({ amount, date, comment }: Pick<Transaction, 'amount' | 'date' | 'comment'>) =>

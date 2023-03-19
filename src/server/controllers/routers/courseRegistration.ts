@@ -15,6 +15,7 @@ const selectorSchema = z.strictObject({
   courseId: z.number().int().min(0).optional(),
   userId: z.number().int().min(0).optional(),
   attended: z.boolean().optional(),
+  isCanceled: z.boolean().optional(),
 });
 
 export const courseRegistrationRouter = router({
@@ -22,12 +23,34 @@ export const courseRegistrationRouter = router({
     .query(async () => prisma.$transaction(async (prisma) => findCourseRegistrations(prisma, { include: { user: true, course: true } }), transactionOptions)),
   findAllEvents: adminProcedure
     .input(selectorSchema)
-    .query(async ({ input: { courseId, userId, attended } }) =>
-      prisma.$transaction(async (prisma) => findCourseRegistrationEvents(prisma, { where: { courseId, userId, attended }, include: { course: courseId === undefined, user: userId === undefined } }), transactionOptions)),
+    .query(async ({ input: { courseId, userId, attended, isCanceled } }) =>
+      prisma.$transaction(async (prisma) => findCourseRegistrationEvents(prisma, { where: { courseId, userId, attended, course: { isCanceled } }, include: { course: courseId === undefined, user: userId === undefined } }), transactionOptions)),
   findAllActive: adminProcedure
-    .input(selectorSchema)
-    .query(async ({ input: { courseId, userId, attended } }) =>
-        prisma.$transaction(async (prisma) => findCourseRegistrations(prisma, { where: { courseId, userId, isUserCanceled: false, attended }, include: { course: true, user: { include: { memberships: true } } } }), transactionOptions)),
+    .input(selectorSchema.merge(z.object({ noOrder: z.boolean().optional() })))
+    .query(async ({ input: { courseId, userId, noOrder, attended, isCanceled } }) => {
+      // TODO extract this logic
+      const activeArgs = { active: true }, inactiveArgs = { active: false };
+      const whereActiveOrders = { where: { order: activeArgs }, select: { order: { select: { id: true } } } };
+      const baseWhere = { courseId, userId, isUserCanceled: false, attended, course: { isCanceled } };
+      const otherWhere = noOrder ? [
+        { orderUsedCoupons: { every: { order: inactiveArgs } } },
+        { orderTrial: { every: { order: inactiveArgs } } },
+        { orderReplacementTo: { every: { order: inactiveArgs } } },
+        { orderPurchased: { every: inactiveArgs } },
+      ] : [];
+      return prisma.$transaction(async (prisma) => prisma.courseRegistration.findMany({
+        where: { AND: [baseWhere, ...otherWhere] },
+        include: {
+          course: true,
+          user: { include: { memberships: true } },
+          orderUsedCoupons: whereActiveOrders,
+          orderTrial: whereActiveOrders,
+          orderReplacementFrom: whereActiveOrders,
+          orderReplacementTo: whereActiveOrders,
+          orderPurchased: { where: activeArgs, select: { id: true } },
+        },
+      }), transactionOptions);
+    }),
   create: adminProcedure
     .input(courseRegistrationCreateSchema)
     .mutation(async ({ input: { courses, users, notify } }) => {

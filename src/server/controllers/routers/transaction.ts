@@ -21,7 +21,7 @@ export const transactionRouter = router({
     .input(z.object({
       userId: z.number().int().min(0).optional(),
     }))
-    .query(async ({ input: { userId } }) => findTransactions({ where: { userId } })),
+    .query(async ({ input: { userId } }) => findTransactions({ where: { userId, notMigrated: true } })),
   create: adminProcedure
     .input(transactionCreateSchema)
     .mutation(async ({ input }) => createTransaction({ data: input })),
