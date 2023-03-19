@@ -2,10 +2,11 @@ import React from 'react';
 import { BackofficeContainerLayout } from './BackofficeContainerLayout';
 import {
   AdminPanelSettings,
-  Assignment,
+  Assignment, CardGiftcard,
   Dashboard,
   DateRange,
   Email,
+  Euro, Groups,
   Home,
   Logout, Payments,
   People, Settings
@@ -31,7 +32,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
         {
           children: [
             { title: 'Aperçu', icon: <Dashboard />, url: '/administration' }
-          ]
+          ],
         },
         {
           title: 'Organisation',
@@ -45,6 +46,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
           title: 'Comptabilité',
           children: [
             { title: 'Paiements', icon: <Payments />, url: '/administration/paiements' },
+            { title: 'Cartes', icon: <CardGiftcard />, url: '/administration/cartes' },
           ],
         },
         {

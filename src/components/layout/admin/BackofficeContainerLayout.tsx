@@ -11,7 +11,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { useLocation, useMedia } from 'react-use';
+import { useMedia } from 'react-use';
 import { Fragment, useCallback, useMemo, useState } from 'react';
 import { Avatar, IconButton, ListSubheader, Menu, MenuItem } from '@mui/material';
 import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material';

@@ -1,4 +1,4 @@
-import { Course, CourseModel, Transaction, User } from '@prisma/client';
+import { Coupon, CouponModel, Course, CourseModel, Transaction, User } from '@prisma/client';
 import { CourseTypeNames } from './course';
 import {
   formatColonTimeHHhMM,
@@ -49,3 +49,10 @@ export const displayUserEmail = ({ customEmail, email }: Pick<User, 'customEmail
 
 export const displayTransactionName = ({ amount, user }: Pick<Transaction, 'amount'> & { user: Parameters<typeof displayUserName>[0] }) =>
   `${amount} € de l'utilisateur ${displayUserName(user)}`;
+
+export const displayTransactionWithDate = ({ amount, date, comment }: Pick<Transaction, 'amount' | 'date' | 'comment'>) =>
+  `${amount} € du ${formatDateDDsmmYYYY(date)} (${comment})`;
+
+export const displayCouponModelName = ({ courseType, quantity }: Pick<CouponModel, 'courseType' | 'quantity'>) => `Carte de ${quantity} séance${quantity > 1 ? 's' : ''} ${CourseTypeNames[courseType]}`;
+
+export const displayCouponName = ({ courseType, quantity }: Pick<Coupon, 'courseType' | 'quantity'>, capitalize = true) => `${capitalize ? 'Carte' : 'carte'} de ${quantity} séance${quantity > 1 ? 's' : ''} ${CourseTypeNames[courseType]}`;
