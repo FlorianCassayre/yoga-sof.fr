@@ -16,7 +16,8 @@ export default function AdminPayments() {
     >
       <Alert severity="info">
         Le système de paiements est en cours d'élaboration.
-        Pour le moment vous avez la possibilité d'entrer les paiements reçus de la part des pratiquants, mais vous ne pouvez pas encore les lier aux séances.
+        Lors de cette deuxième phase il n'est plus possible de créer des paiements : ceux-ci sont remplacés par des commandes.
+        Tous les anciens paiements doivent être liés à une commande.
       </Alert>
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
         Paiements sans commande

@@ -7,10 +7,22 @@ import { TransactionTypeNames } from '../../../common/transaction';
 import { formatDateDDsmmYYYY } from '../../../common/date';
 import { useSnackbar } from 'notistack';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
-import { Delete, Edit } from '@mui/icons-material';
+import { Delete, Edit, ShoppingCartCheckout } from '@mui/icons-material';
 import { DeleteTransactionDialog } from '../../DeleteTransactionDialog';
 import { GridRowParams } from '@mui/x-data-grid';
 import { useRouter } from 'next/router';
+
+interface GridActionCreateOrderProps {
+  transaction: Pick<Transaction, 'id' | 'userId'>;
+}
+
+const GridActionCreateOrder: React.FC<GridActionCreateOrderProps> = ({ transaction }) => {
+  const { id: transactionId, userId } = transaction;
+  const router = useRouter();
+  return (
+    <GridActionsCellItemTooltip icon={<ShoppingCartCheckout />} onClick={() => router.push({ pathname: '/administration/paiements/commandes/creation', query: { userId, transactionId } })} label="Créer une commande" />
+  );
+};
 
 interface GridActionEditTransactionProps {
   transaction: Pick<Transaction, 'id'>;
@@ -93,6 +105,7 @@ export const TransactionGrid: React.FunctionComponent<TransactionGridProps> = ({
       sortable: false,
       minWidth: 50,
       getActions: ({ row }: GridRowParams) => [
+        <GridActionCreateOrder transaction={row as any} />,
         <GridActionEditTransaction transaction={row as any} />,
         <GridActionDeleteTransaction transaction={row as any} />,
       ],
