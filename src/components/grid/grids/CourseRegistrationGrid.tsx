@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { Cancel, CheckCircle, Help } from '@mui/icons-material';
+import { Cancel, CheckCircle, Close, Done, Help } from '@mui/icons-material';
 import { Prisma } from '@prisma/client';
 import { GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
@@ -10,6 +10,8 @@ import { useSnackbar } from 'notistack';
 import { trpc } from '../../../common/trpc';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { getCourseStatus } from '../../../common/course';
+import { getUserLatestMembership } from '../../../common/user';
+import { Chip } from '@mui/material';
 
 interface GridActionsAttendanceProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>;
@@ -102,6 +104,19 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
     ...(userId !== undefined ? [] : [userColumn({ field: 'user', flex: 1 })]),
     ...(courseId !== undefined ? [] : [courseColumn({ field: 'course', flex: 1 })]),
     relativeTimestamp({ field: 'createdAt', headerName: `Date d'inscription`, flex: 1 }),
+    {
+      field: 'membership',
+      headerName: 'Adhésion',
+      minWidth: 100,
+      valueGetter: ({ row }: { row: Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: { include: { memberships: true } } } }> }) =>
+        !!getUserLatestMembership(row.user, row.course.dateStart),
+      renderCell: ({ value }) =>
+        value ? (
+          <Chip label="Oui" color="success" variant="outlined" icon={<Done />} />
+        ) : (
+          <Chip label="Non" color="default" variant="outlined" icon={<Close />} />
+        ),
+    },
     {
       field: 'actions',
       type: 'actions',

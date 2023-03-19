@@ -27,7 +27,7 @@ export const courseRegistrationRouter = router({
   findAllActive: adminProcedure
     .input(selectorSchema)
     .query(async ({ input: { courseId, userId, attended } }) =>
-        prisma.$transaction(async (prisma) => findCourseRegistrations(prisma, { where: { courseId, userId, isUserCanceled: false, attended }, include: { course: true, user: true } }), transactionOptions)),
+        prisma.$transaction(async (prisma) => findCourseRegistrations(prisma, { where: { courseId, userId, isUserCanceled: false, attended }, include: { course: true, user: { include: { memberships: true } } } }), transactionOptions)),
   create: adminProcedure
     .input(courseRegistrationCreateSchema)
     .mutation(async ({ input: { courses, users, notify } }) => {
