@@ -455,7 +455,7 @@ export const OrderCreateForm: React.FC = () => {
 
   return userData.length === 0 || (userData[0].data && !userData[0].isLoading) ? (
     <CreateFormContent
-      {...commonFormProps({ user: userData[0].data as any, transactionId: queryInitialValues.transactionId })}
+      {...commonFormProps(userData.length === 0 ? {} : { user: userData[0].data as any, transactionId: queryInitialValues.transactionId })}
       title="Création d'une commande"
       schema={orderCreateSchema}
       mutationProcedure={trpc.transaction.create as any} // TODO
