@@ -136,7 +136,7 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
         )}
       </FormContainer>
     </BackofficeContent>
-  ) : isLoading ? ( // TODO skeleton here
+  ) : !error ? ( // TODO skeleton here
     <BackofficeContentLoading />
   ) : (
     <BackofficeContentError error={queryError} />
@@ -164,7 +164,7 @@ export const UpdateFormContent = <TQueryProcedure extends AnyQueryProcedure, TMu
   ...props
 }: UpdateFormContentProps<TQueryProcedure, TMutationProcedure, TQueryInputSchema>): JSX.Element => {
   const parsed = querySchema.parse(queryParams); // TODO error handling
-  const { data, isLoading, error } = queryProcedure.useQuery(parsed)
+  const { data, isLoading, error } = queryProcedure.useQuery(parsed);
   return (
     <InternalFormContent
       {...props}

@@ -1,6 +1,16 @@
 import { adminProcedure, router } from '../trpc';
-import { transactionCreateSchema, transactionFindSchema } from '../../../common/schemas/transaction';
-import { createTransaction, deleteTransaction, findTransaction, findTransactions } from '../../services/transaction';
+import {
+  transactionCreateSchema,
+  transactionFindSchema,
+  transactionUpdateSchema
+} from '../../../common/schemas/transaction';
+import {
+  createTransaction,
+  deleteTransaction,
+  findTransaction,
+  findTransactions,
+  updateTransaction
+} from '../../services/transaction';
 import { z } from 'zod';
 
 export const transactionRouter = router({
@@ -15,6 +25,9 @@ export const transactionRouter = router({
   create: adminProcedure
     .input(transactionCreateSchema)
     .mutation(async ({ input }) => createTransaction({ data: input })),
+  update: adminProcedure
+    .input(transactionUpdateSchema)
+    .mutation(async ({ input: { id, ...data } }) => updateTransaction({ where: { id }, data })),
   delete: adminProcedure
     .input(transactionFindSchema)
     .mutation(async ({ input: { id } }) => deleteTransaction({ where: { id } })),

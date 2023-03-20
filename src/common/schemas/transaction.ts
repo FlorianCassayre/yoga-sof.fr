@@ -13,6 +13,8 @@ export const transactionCreateSchema = z.object({
   comment: z.string().nullable(),
 });
 
+export const transactionUpdateSchema = transactionCreateSchema.merge(transactionFindSchema);
+
 export const transactionGetTransformSchema = z.object({
   id: z.preprocess(
     (a) => parseInt(z.string().parse(a), 10),

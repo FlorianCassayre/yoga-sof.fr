@@ -2,16 +2,17 @@ import React from 'react';
 import { DatePickerElement, DeepPartial, TextFieldElement } from 'react-hook-form-mui';
 import { z } from 'zod';
 import {
-  transactionCreateSchema
+  transactionCreateSchema, transactionGetTransformSchema, transactionUpdateSchema
 } from '../../../common/schemas/transaction';
 import { Grid } from '@mui/material';
 import { InputPrice } from '../fields';
 import { Event } from '@mui/icons-material';
-import { CreateFormContent } from '../form';
+import { CreateFormContent, UpdateFormContent } from '../form';
 import { Transaction } from '@prisma/client';
 import { trpc } from '../../../common/trpc';
 import { SelectTransactionType } from '../fields/SelectTransactionType';
 import { SelectUser } from '../fields/SelectUser';
+import { ParsedUrlQuery } from 'querystring';
 
 const TransactionFormFields = () => (
   <Grid container spacing={2}>
@@ -61,5 +62,27 @@ export const TransactionCreateForm = () => {
     >
       <TransactionFormFields />
     </CreateFormContent>
+  );
+};
+
+interface TransactionUpdateFormProps {
+  queryData: ParsedUrlQuery;
+}
+
+export const TransactionUpdateForm: React.FC<TransactionUpdateFormProps> = ({ queryData }) => {
+  return (
+    <UpdateFormContent
+      {...commonFormProps()}
+      title="Modification d'un paiement perçu"
+      schema={transactionUpdateSchema}
+      mutationProcedure={trpc.transaction.update}
+      queryProcedure={trpc.transaction.find}
+      querySchema={transactionGetTransformSchema}
+      queryParams={queryData}
+      successMessage={(data) => `Le paiement a été enregistré.`}
+      invalidate={useProceduresToInvalidate()}
+    >
+      <TransactionFormFields />
+    </UpdateFormContent>
   );
 };

@@ -7,9 +7,21 @@ import { TransactionTypeNames } from '../../../common/transaction';
 import { formatDateDDsmmYYYY } from '../../../common/date';
 import { useSnackbar } from 'notistack';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
-import { Delete } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 import { DeleteTransactionDialog } from '../../DeleteTransactionDialog';
 import { GridRowParams } from '@mui/x-data-grid';
+import { useRouter } from 'next/router';
+
+interface GridActionEditTransactionProps {
+  transaction: Pick<Transaction, 'id'>;
+}
+
+const GridActionEditTransaction: React.FC<GridActionEditTransactionProps> = ({ transaction }) => {
+  const router = useRouter();
+  return (
+    <GridActionsCellItemTooltip icon={<Edit />} onClick={() => router.push(`/administration/paiements/${transaction.id}/edition`)} label="Modifier" />
+  );
+};
 
 interface GridActionDeleteTransactionProps {
   transaction: Transaction & { user: User };
@@ -81,6 +93,7 @@ export const TransactionGrid: React.FunctionComponent<TransactionGridProps> = ({
       sortable: false,
       minWidth: 50,
       getActions: ({ row }: GridRowParams) => [
+        <GridActionEditTransaction transaction={row as any} />,
         <GridActionDeleteTransaction transaction={row as any} />,
       ],
     },
