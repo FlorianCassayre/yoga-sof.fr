@@ -74,6 +74,7 @@ model User {
   courseRegistrations CourseRegistration[]
   coupons             Coupon[]
   memberships         Membership[]         @relation("user_membership")
+  orders              Order[]
 
   disabled            Boolean              @default(false)
 
@@ -154,6 +155,12 @@ model CourseRegistration {
   createdAt      DateTime  @default(now()) @map("created_at")
   canceledAt     DateTime? @map("canceled_at")
 
+  orderUsedCoupons OrderUsedCouponCourseRegistration[]
+  orderTrial OrderTrialCourseRegistration[]
+  orderReplacementFrom OrderReplacementCourseRegistration[] @relation("order_replacement_from_course_registration")
+  orderReplacementTo OrderReplacementCourseRegistration[] @relation("order_replacement_to_course_registration")
+  orderPurchased Order[] @relation("order_purchased_course_registration")
+
   @@map("course_registration")
 }
 
@@ -203,6 +210,8 @@ model Transaction {
   type      TransactionType
   comment   String?  @db.Text
   createdAt DateTime @default(now()) @map("created_at")
+  orderId   Int?     @unique @map("order_id")
+  order     Order?   @relation(fields: [orderId], references: [id])
 
   @@map("transaction")
 }
@@ -226,6 +235,9 @@ model Coupon {
   userId     Int        @map("user_id")
   user       User       @relation(fields: [userId], references: [id])
   createdAt  DateTime   @default(now()) @map("created_at")
+
+  orderCourseRegistrations OrderUsedCouponCourseRegistration[]
+  ordersPurchased Order[] @relation("order_purchased_coupon")
 
   @@map("coupon")
 }
@@ -252,5 +264,74 @@ model Membership {
   createdAt DateTime @default(now()) @map("created_at")
   users     User[]   @relation("user_membership")
 
+  ordersPurchased Order[] @relation("order_purchased_membership")
+
   @@map("membership")
+}
+
+model OrderUsedCouponCourseRegistration {
+  orderId              Int    @map("order_id")
+  order                Order  @relation(fields: [orderId], references: [id])
+  couponId             Int    @map("coupon_id")
+  coupon               Coupon @relation(fields: [couponId], references: [id])
+  courseRegistrationId Int    @unique @map("course_registration_id")
+  courseRegistration   CourseRegistration @relation(fields: [courseRegistrationId], references: [id])
+
+  @@id([orderId, couponId, courseRegistrationId])
+  @@map("order_purchased_coupon_course_registration")
+}
+
+model OrderTrialCourseRegistration {
+  orderId              Int   @map("order_id")
+  order                Order @relation(fields: [orderId], references: [id])
+  courseRegistrationId Int   @unique @map("course_registration_id")
+  courseRegistration   CourseRegistration @relation(fields: [courseRegistrationId], references: [id])
+  price                Int   @db.UnsignedInt
+
+  @@id([orderId, courseRegistrationId])
+  @@map("order_trial_course_registration")
+}
+
+model OrderReplacementCourseRegistration {
+  orderId                  Int   @map("order_id")
+  order                    Order @relation(fields: [orderId], references: [id])
+  fromCourseRegistrationId Int   @unique @map("from_course_registration_id")
+  fromCourseRegistration   CourseRegistration @relation(name: "order_replacement_from_course_registration", fields: [fromCourseRegistrationId], references: [id])
+  toCourseRegistrationId   Int   @unique @map("to_course_registration_id")
+  toCourseRegistration     CourseRegistration @relation(name: "order_replacement_to_course_registration", fields: [toCourseRegistrationId], references: [id])
+
+  @@id([orderId, fromCourseRegistrationId, toCourseRegistrationId])
+  @@map("order_replacement_course_registration")
+}
+
+model OrderPayment {
+  orderId Int   @id @map("order_id")
+  order   Order @relation(fields: [orderId], references: [id])
+  amount  Int   @db.UnsignedInt
+  type    TransactionType
+
+  @@map("order_payment")
+}
+
+model Order {
+  id     Int      @id @default(autoincrement())
+  userId Int      @map("user_id")
+  user   User     @relation(fields: [userId], references: [id])
+  active Boolean  @default(true)
+  date   DateTime @db.Date
+  notes  String?  @db.Text
+  computedAmount Int @db.UnsignedInt @map("computed_amount")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  usedCouponCourseRegistrations OrderUsedCouponCourseRegistration[]
+  purchasedCoupons Coupon[] @relation("order_purchased_coupon")
+  purchasedMemberships Membership[] @relation("order_purchased_membership")
+  trialCourseRegistrations OrderTrialCourseRegistration[]
+  replacementCourseRegistrations OrderReplacementCourseRegistration[]
+  purchasedCourseRegistrations CourseRegistration[] @relation("order_purchased_course_registration")
+  payment OrderPayment?
+
+  transaction Transaction?
+
+  @@map("order")
 }
