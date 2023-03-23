@@ -1,6 +1,17 @@
 import { z } from 'zod';
 import { MembershipType, TransactionType } from '@prisma/client';
 
+export const orderFindSchema = z.object({
+  id: z.number().int().min(0),
+});
+
+export const orderFindTransformSchema = z.object({
+  id: z.preprocess(
+    (a) => parseInt(z.string().parse(a), 10),
+    z.number().int().min(0)
+  ),
+});
+
 const checkUniqueFor = <T>(idGetter: (e: T) => number, message: string = `Les éléments doivent être distincts`) =>
   [
     (array: T[]) => new Set(array.map(e => idGetter(e))).size === array.length,
@@ -75,7 +86,7 @@ export const orderCreateSchema = z.strictObject({
     ],
     // purchases.newCoupons -> [billing.newCoupons.newCouponIndex]
     [
-      data.purchases.newCoupons?.map((_, index) => ({ id: index, path: ['purchases', 'newCoupons', index, 'couponModel'] })) ?? [], // <- Not exactly this field but fine
+      data.purchases.newCoupons?.map((_, index) => ({ id: index, path: ['purchases', 'newCoupons', index, 'couponModel'] })) ?? [], // <- The error is not exactly this field but fine
       data.billing.newCoupons?.map(({ newCouponIndex }, index) => ({ id: newCouponIndex, path: ['billing', 'newCoupons', index, 'newCouponIndex'] })) ?? []
     ],
   ];
@@ -141,5 +152,14 @@ export const orderCreateSchema = z.strictObject({
     });
   }
 
-  // TODO
+  if (data.billing.transactionId !== undefined && data.billing.newPayment !== undefined) {
+    [['data', 'billing', 'transactionId'], ['billing', 'newPayment']].forEach(path =>
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ctx.path,
+        message: `Il ne peut y avoir qu'un seul paiement par commande`,
+      })
+    );
+  }
+
 });

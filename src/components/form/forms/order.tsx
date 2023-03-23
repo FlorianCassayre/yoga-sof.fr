@@ -21,7 +21,7 @@ import {
   Typography
 } from '@mui/material';
 import { InputPrice } from '../fields';
-import { AddBox, Delete, Event, ShoppingCart } from '@mui/icons-material';
+import { AddBox, Calculate, Delete, Discount, Euro, Event, Person, ShoppingCart } from '@mui/icons-material';
 import { CreateFormContent } from '../form';
 import { trpc } from '../../../common/trpc';
 import { SelectUser } from '../fields/SelectUser';
@@ -160,6 +160,22 @@ const OptionalField: React.FC<OptionalFieldProps> = ({ children, onDelete }) => 
   );
 };
 
+interface StepTitleProps {
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}
+
+const StepTitle: React.FC<StepTitleProps> = ({ icon, children }) => (
+  <Typography variant="h6" component="div">
+    <Stack direction="row" alignItems="center" spacing={1}>
+      {icon}
+      <span>
+        {children}
+      </span>
+    </Stack>
+  </Typography>
+);
+
 const OrderFormFields: React.FC = () => {
   const { watch, setValue, control, getValues, formState } = useFormContext();
 
@@ -169,7 +185,7 @@ const OrderFormFields: React.FC = () => {
   const watchNewCoupons = watch('purchases.newCoupons');
   const watchNewMemberships = watch('purchases.newMemberships');
   const watchExistingCoupons = watch('purchases.existingCoupons');
-  const watchExistingMemberships = watch('purchases.existingMemberships');
+  const watchExistingMemberships = watch('purchases.existingMembershipIds');
 
   const watchTrialCourseRegistration = watch('billing.trialCourseRegistration');
   const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
@@ -187,22 +203,40 @@ const OrderFormFields: React.FC = () => {
   const { fields: billingExistingCouponFields, append: addBillingExistingCoupon, remove: removeBillingExistingCoupon } = useFieldArray({ control, name: 'billing.newCoupons' });
   const { fields: billingNewCouponFields, append: addBillingNewCoupon, remove: removeBillingNewCoupon } = useFieldArray({ control, name: 'billing.existingCoupons' });
 
+  const tempFormatValues = () => {
+    const values = getValues();
+    return {
+      ...values,
+      user: values.user ? { id: values.user.id } : undefined,
+      purchases: {
+        ...values.purchases,
+        courseRegistrations: values.purchases.courseRegistrations?.map((d: any) => ({ id: d.id })),
+      },
+    };
+  };
+
   return (
     <Grid container spacing={2}>
-      <span>{JSON.stringify(formState.errors)}</span>
+      <Grid item xs={6}>
+      <div style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(tempFormatValues(), null, 2)}</div>
+      </Grid>
+      <Grid item xs={6}>
+      <div style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(formState.errors, null, 2)}</div>
+      </Grid>
+
       <Grid item xs={12}>
-        <Typography variant="h6" component="div">
+        <StepTitle icon={<Person />}>
           1. Utilisateur
-        </Typography>
+        </StepTitle>
       </Grid>
       <Grid item xs={12}>
         <SelectUser name="user" noMatchId />
       </Grid>
 
       <Grid item xs={12}>
-        <Typography variant="h6" component="div">
+        <StepTitle icon={<ShoppingCart />}>
           2. Achats
-        </Typography>
+        </StepTitle>
       </Grid>
       {watchCourseRegistrations !== undefined && watchUser != null && (
         <Grid item xs={12}>
@@ -221,14 +255,14 @@ const OrderFormFields: React.FC = () => {
       {purchasedNewCouponFields.map((field, index) => (
         <Grid item xs={12} key={field.id}>
           <OptionalField onDelete={() => removePurchasedNewCoupon(index)}>
-            <SelectCouponModel name={`newCoupons.${index}.couponModelId`} label="Nouvelle carte" />
+            <SelectCouponModel name={`purchases.newCoupons.${index}.couponModel`} label="Nouvelle carte" />
           </OptionalField>
         </Grid>
       ))}
       {watchExistingMemberships !== undefined && watchUser != null && (
         <Grid item xs={12}>
-          <OptionalField onDelete={() => setValue('purchases.existingMemberships', undefined)}>
-            <SelectMembership name="purchases.existingMemberships" userId={watchUser.id} label="Cotisations existantes" multiple />
+          <OptionalField onDelete={() => setValue('purchases.existingMembershipIds', undefined)}>
+            <SelectMembership name="purchases.existingMembershipIds" userId={watchUser.id} label="Cotisations existantes" multiple />
           </OptionalField>
         </Grid>
       )}
@@ -264,15 +298,15 @@ const OrderFormFields: React.FC = () => {
       </Grid>
       <BinaryDialog
         title="Ajout d'une cotisation" labelA="Lier une cotisation" labelB="Nouvelle cotisation"
-        open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => setValue('purchases.existingMemberships', [])} onChooseB={() => addPurchasedNewMembership({})}
+        open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => setValue('purchases.existingMembershipIds', [])} onChooseB={() => addPurchasedNewMembership({})}
       >
         Souhaitez lier une cotisation existante, ou bien en créer une nouvelle ?
       </BinaryDialog>
 
       <Grid item xs={12}>
-        <Typography variant="h6" component="div">
+        <StepTitle icon={<Discount />}>
           3. Réductions
-        </Typography>
+        </StepTitle>
       </Grid>
       {watchCourseRegistrations !== undefined && watchUser != null && (
         <>
@@ -340,9 +374,9 @@ const OrderFormFields: React.FC = () => {
       )}
 
       <Grid item xs={12}>
-        <Typography variant="h6" component="div">
+        <StepTitle icon={<Euro />}>
           4. Paiement
-        </Typography>
+        </StepTitle>
       </Grid>
       {watchUser != null && (
         watchTransactionId !== undefined ? (
@@ -385,10 +419,11 @@ const OrderFormFields: React.FC = () => {
           </Grid>
         </>
       )}
+
       <Grid item xs={12}>
-        <Typography variant="h6" component="div">
+        <StepTitle icon={<Calculate />}>
           5. Récapitulatif
-        </Typography>
+        </StepTitle>
       </Grid>
       <Grid item xs={12}>
         <TextFieldElement name="notes" label="Notes" fullWidth />
@@ -414,9 +449,8 @@ const orderFormDefaultValues: DeepPartial<z.infer<typeof orderCreateSchema>> = {
 };
 
 const useProceduresToInvalidate = () => {
-  //const { order } = trpc.useContext();
-  //return [order.find, order.findAll]; // TODO
-  return [];
+  const { order } = trpc.useContext();
+  return [order.find, order.findAll];
 };
 
 const commonFormProps = ({ user, transactionId }: { user?: User, transactionId?: number }) => ({
@@ -451,6 +485,8 @@ export const OrderCreateForm: React.FC = () => {
     }
   }, [router]);
 
+  const invalidate = useProceduresToInvalidate();
+
   const userData = trpc.useQueries(t => queryInitialValues.userId !== undefined ? [t.user.find({ id: queryInitialValues.userId })] : ([] as any[]));
 
   return userData.length === 0 || (userData[0].data && !userData[0].isLoading) ? (
@@ -458,9 +494,9 @@ export const OrderCreateForm: React.FC = () => {
       {...commonFormProps(userData.length === 0 ? {} : { user: userData[0].data as any, transactionId: queryInitialValues.transactionId })}
       title="Création d'une commande"
       schema={orderCreateSchema}
-      mutationProcedure={trpc.transaction.create as any} // TODO
+      mutationProcedure={trpc.order.create}
       successMessage={(data) => `La commande a été enregistrée.`}
-      invalidate={useProceduresToInvalidate()}
+      invalidate={invalidate}
     >
       <OrderFormFields />
     </CreateFormContent>
