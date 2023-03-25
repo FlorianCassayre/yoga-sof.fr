@@ -1,6 +1,7 @@
 import { adminProcedure, router } from '../trpc';
 import { orderCreateSchema, orderFindSchema } from '../../../common/schemas/order';
 import { createOrder, findOrder, findOrders } from '../../services/order';
+import { z } from 'zod';
 
 export const orderModelRouter = router({
   find: adminProcedure
@@ -9,7 +10,8 @@ export const orderModelRouter = router({
       return findOrder({ where: { id } });
     }),
   findAll: adminProcedure
-    .query(async () => findOrders({ where: { includeDisabled: false } })),
+    .input(z.strictObject({ userId: z.number().int().min(0).optional() }))
+    .query(async ({ input: { userId } }) => findOrders({ where: { userId, includeDisabled: false } })),
   create: adminProcedure
     .input(orderCreateSchema)
     .mutation(async ({ input }) => createOrder({ data: input })),

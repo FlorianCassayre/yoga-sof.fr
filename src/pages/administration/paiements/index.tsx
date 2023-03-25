@@ -3,6 +3,7 @@ import { BackofficeContent } from '../../../components/layout/admin/BackofficeCo
 import { Payments, ShoppingCart } from '@mui/icons-material';
 import { Alert, Typography } from '@mui/material';
 import { TransactionGrid } from '../../../components/grid/grids/TransactionGrid';
+import { OrderGrid } from '../../../components/grid/grids/OrderGrid';
 
 export default function AdminPayments() {
   return (
@@ -16,15 +17,22 @@ export default function AdminPayments() {
     >
       <Alert severity="info">
         Le système de paiements est en cours d'élaboration.
-        Lors de cette deuxième phase il n'est plus possible de créer des paiements : ceux-ci sont remplacés par des commandes.
+        Lors de cette deuxième phase il n'est plus possible de créer des paiements : ceux-ci sont remplacés par des <strong>commandes</strong>.
         Tous les anciens paiements doivent être liés à une commande.
       </Alert>
+      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
+        Commandes
+      </Typography>
+      <Typography paragraph>
+        Les commandes associent un paiement (espèces ou HelloAsso) à des articles (séances, cotisations et cartes), elles remplacent l'ancien système de paiements.
+      </Typography>
+      <OrderGrid />
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
         Paiements sans commande
       </Typography>
       <Typography paragraph>
         Les paiements suivants n'ont pas encore de commande associée.
-        Pour chacun d'entre eux, vous devrez créer une commande afin d'indiquer quelles séances, cotisations et cartes ont été payés.
+        Pour chacun d'entre eux, vous devrez créer une commande afin d'indiquer quelles séances, cotisations et cartes ont été payées.
         Il est recommandé de traiter ces données pour chaque utilisateur, et de procéder du paiement le plus ancien au plus récent.
         Vous aurez terminé la migration lorsque la liste sera vide.
       </Typography>
