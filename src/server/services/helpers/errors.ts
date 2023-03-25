@@ -29,6 +29,8 @@ export enum ServiceErrorCode {
   OrderCourseRegistrationReplacementAlreadyReplaced,
   OrderCourseRegistrationReplacementNotCancelled,
   OrderCourseRegistrationCouponFull,
+  OrderCouponAlreadyOrdered,
+  OrderMembershipAlreadyOrdered,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -69,4 +71,6 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.OrderCourseRegistrationReplacementAlreadyReplaced]: `La séance à remplacer a déjà été remplacée`,
   [ServiceErrorCode.OrderCourseRegistrationReplacementNotCancelled]: `La séance à remplacer n'a pas été annulée et l'inscription est toujours active`,
   [ServiceErrorCode.OrderCourseRegistrationCouponFull]: `La coupon est plein`,
+  [ServiceErrorCode.OrderCouponAlreadyOrdered]: `La carte fait déjà partie d'une commande`,
+  [ServiceErrorCode.OrderMembershipAlreadyOrdered]: `L'adhésion fait déjà partie d'une commande`,
 };
