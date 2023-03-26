@@ -249,3 +249,8 @@ export const createOrder = async (args: { data: z.infer<typeof orderCreateSchema
     return order;
   }, transactionOptions);
 };
+
+export const deleteOrder = async (args: { where: Prisma.OrderWhereUniqueInput }) => prisma.$transaction(async prisma =>
+  prisma.order.update({ where: args.where, data: { active: false, transaction: { disconnect: true } } }),
+  transactionOptions
+);

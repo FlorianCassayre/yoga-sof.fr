@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
-import { ArrowRightAlt, InfoOutlined, QuestionMark, ShoppingCart } from '@mui/icons-material';
+import { ArrowRightAlt, Delete, InfoOutlined, ShoppingCart } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { useSchemaQuery } from '../../../../components/hooks/useSchemaQuery';
 import { trpc } from '../../../../common/trpc';
@@ -16,12 +16,29 @@ import { TransactionTypeNames } from '../../../../common/transaction';
 import { InformationTableCard } from '../../../../components/InformationTableCard';
 import { formatDateDDsMMsYYYYsHHhMMmSSs, formatDateDDsmmYYYY } from '../../../../common/date';
 import { UserLink } from '../../../../components/link/UserLink';
+import { DeleteOrderDialog } from '../../../../components/DeleteOrderDialog';
+import { useSnackbar } from 'notistack';
 
 interface OrderViewContentProps {
   order: RouterOutput['order']['find'];
 }
 
 const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const trpcClient = trpc.useContext();
+  const { enqueueSnackbar } = useSnackbar();
+  const router = useRouter();
+  const { mutate: mutateDelete, isLoading: isDeleteLoading } = trpc.order.delete.useMutation({
+    onSuccess: async () => {
+      await Promise.all(([trpcClient.order.find, trpcClient.order.findAll, trpcClient.transaction.find, trpcClient.transaction.findAll]).map(procedure => procedure.invalidate()));
+      enqueueSnackbar(`La commande a été supprimée`, { variant: 'success' });
+      return router.push('/administration/paiements');
+    },
+    onError: () => {
+      enqueueSnackbar(`Une erreur est survenue lors de la suppression de la commande`, { variant: 'error' });
+    },
+  });
+
   type PurchaseTableItem = { item: React.ReactNode, oldPrice?: number, price: number, discount?: React.ReactNode };
   const makeCourseRegistrationsTableData =
     (items: (Omit<PurchaseTableItem, 'item'> & { courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }> })[]): PurchaseTableItem[] =>
@@ -82,6 +99,9 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
     <BackofficeContent
       title={`Commande du ${formatDateDDsmmYYYY(order.date)} pour ${displayUserName(order.user)}`}
       icon={<ShoppingCart />}
+      actions={[
+        { name: 'Supprimer', icon: <Delete />, onClick: () => setDeleteDialogOpen(true), disabled: isDeleteLoading },
+      ]}
     >
       <Grid container spacing={2} justifyContent="center">
         <Grid item xs={12} lg={3} xl={3}>
@@ -105,7 +125,7 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
               },
               ...(order.transaction ? [{
                 header: 'Autre',
-                value: <Chip label="Migré" color="default" variant="outlined" icon={<InfoOutlined />} size="small" />,
+                value: <Chip label={`Migré : ${order.transaction.comment}`} color="default" variant="outlined" icon={<InfoOutlined />} size="small" />,
               }] : []),
             ]}
           />
@@ -153,6 +173,7 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
           </Card>
         </Grid>
       </Grid>
+      <DeleteOrderDialog order={order} open={deleteDialogOpen} setOpen={setDeleteDialogOpen} onConfirm={() => mutateDelete({ id: order.id })} />
     </BackofficeContent>
   );
 };
