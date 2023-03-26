@@ -22,7 +22,7 @@ export const HeadMeta: React.FC<HeadMetaProps> = ({ title }) => {
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       <meta name="apple-mobile-web-app-title" content="Yoga Sof" />
 
-      <meta name="keywords" content="yoga, hésingue, comète, hégenheim, saint-louis, alsace" />
+      <meta name="keywords" content="cours, yoga, hésingue, comète, hégenheim, saint-louis agglomération, alsace, De Gasquet, renforcement musculaire, essai, à la carte, hatha" />
     </Head>
   );
 }
