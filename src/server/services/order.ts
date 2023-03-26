@@ -37,14 +37,26 @@ export const findOrder = async (args: { where: Prisma.OrderWhereUniqueInput }) =
           toCourseRegistration: courseRegistrationArgs,
         },
       },
+      purchasedCourseRegistrations: courseRegistrationArgs,
       payment: true,
+      transaction: true,
     },
   });
 };
 
 
 export const findOrders = async (args: { where: { includeDisabled: boolean, userId?: number } }) => {
-  const orderArgs = { where: { active: args.where.includeDisabled ? undefined : true }, include: { user: true, payment: true } };
+  const orderArgs = { where: { active: args.where.includeDisabled ? undefined : true }, include: {
+      user: true,
+      payment: true,
+      usedCouponCourseRegistrations: { select: { courseRegistrationId: true } },
+      purchasedCoupons: { select: { id: true } },
+      purchasedMemberships: { select: { id: true } },
+      trialCourseRegistrations: { select: { courseRegistrationId: true } },
+      replacementCourseRegistrations: { select: { fromCourseRegistrationId: true } },
+      purchasedCourseRegistrations: { select: { id: true } },
+    },
+  };
   return args.where.userId === undefined
     ? prisma.order.findMany(orderArgs)
     : prisma.user.findUniqueOrThrow({ where: { id: args.where.userId } }).orders(orderArgs);

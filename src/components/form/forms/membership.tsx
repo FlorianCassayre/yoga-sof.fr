@@ -6,7 +6,7 @@ import { trpc } from '../../../common/trpc';
 import { z } from 'zod';
 import { useRouter } from 'next/router';
 import { SelectMembershipModel } from '../fields/SelectMembershipModel';
-import { membershipCreateSchema } from '../../../common/schemas/membership';
+import { membershipCreateLegacySchema } from '../../../common/schemas/membership';
 import { MembershipType } from '@prisma/client';
 import { SelectUser } from '../fields/SelectUser';
 import { DatePickerElement } from 'react-hook-form-mui';
@@ -65,7 +65,7 @@ export const MembershipCreateForm = () => {
       urlSuccessFor={(data) => `/administration/adhesions`}
       urlCancel="/administration/adhesions"
       title="Création d'une ou plusieurs adhésions"
-      schema={membershipCreateSchema}
+      schema={membershipCreateLegacySchema}
       mutationProcedure={trpc.membership.create}
       successMessage={(data) => `La ou les adhésions ont été enregistrées.`}
       invalidate={[membership.find, membership.findAll]}

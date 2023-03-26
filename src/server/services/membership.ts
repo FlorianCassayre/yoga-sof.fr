@@ -1,7 +1,7 @@
 import { MembershipType, Prisma } from '@prisma/client';
 import { prisma, transactionOptions } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
-import { membershipCreateSchema } from '../../common/schemas/membership';
+import { membershipCreateLegacySchema, membershipSchema } from '../../common/schemas/membership';
 
 export const findMembership = async (args: { where: Prisma.MembershipWhereUniqueInput }) =>
   prisma.membership.findUniqueOrThrow(args);
@@ -14,7 +14,7 @@ export const findMemberships = async (args: { where: { includeDisabled: boolean,
 };
 
 export const createMembership = async (prisma: Prisma.TransactionClient, args: { data: { membershipModelId: MembershipType, yearStart: number, users: number[] } }) => {
-  membershipCreateSchema.parse(args.data);
+  membershipSchema.parse(args.data);
   const { id: type, price } = await prisma.membershipModel.findUniqueOrThrow({ where: { id: args.data.membershipModelId } });
   const dateStart = new Date();
   dateStart.setFullYear(args.data.yearStart, 9 - 1, 1); // 1st September ("09" => `8`)
@@ -28,7 +28,7 @@ export const createMembership = async (prisma: Prisma.TransactionClient, args: {
  * @deprecated use {@link createMembership} instead
  */
 export const createMembershipLegacy = async (args: { data: { membershipModelId: MembershipType, dateStart: Date, users: number[] } }) => prisma.$transaction(async (prisma) => {
-  membershipCreateSchema.parse(args.data);
+  membershipCreateLegacySchema.parse(args.data);
   const { id: type, price } = await prisma.membershipModel.findUniqueOrThrow({ where: { id: args.data.membershipModelId } });
   const dateEnd = new Date(args.data.dateStart);
   dateEnd.setFullYear(dateEnd.getFullYear() + 1);

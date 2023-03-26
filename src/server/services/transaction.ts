@@ -3,8 +3,8 @@ import { z } from 'zod';
 import { prisma } from '../prisma';
 import { transactionCreateSchema } from '../../common/schemas/transaction';
 
-export const findTransactions = async (args?: { where?: { userId?: number } }) =>
-  prisma.transaction.findMany({ ...args, include: { user: true } });
+export const findTransactions = async (args?: { where?: { userId?: number, notMigrated?: boolean } }) =>
+  prisma.transaction.findMany({ where: { userId: args?.where?.userId, order: args?.where?.notMigrated ? null : undefined }, include: { user: true } });
 
 export const findTransaction = async (args: { where: Prisma.TransactionWhereUniqueInput }) => prisma.transaction.findUniqueOrThrow(args);
 

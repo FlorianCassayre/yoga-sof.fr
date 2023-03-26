@@ -4,11 +4,12 @@ import { trpc } from '../../../common/trpc';
 import { userColumn } from './common';
 import { formatDateDDsmmYYYY } from '../../../common/date';
 import { TransactionTypeNames } from '../../../common/transaction';
-import { TransactionType } from '@prisma/client';
+import { TransactionType, OrderPayment } from '@prisma/client';
 import { GridRowParams } from '@mui/x-data-grid';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { Visibility } from '@mui/icons-material';
 import { useRouter } from 'next/router';
+import { RouterOutput } from '../../../server/controllers/types';
 
 interface OrderGridProps {
   userId?: number;
@@ -31,16 +32,31 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       flex: 1,
     })] : []),
     {
+      field: 'articles',
+      headerName: 'Articles',
+      renderCell: ({ row }: { row: RouterOutput['order']['findAll'][0] }) => {
+        const totalCourses = row.usedCouponCourseRegistrations.length + row.trialCourseRegistrations.length + row.replacementCourseRegistrations.length + row.purchasedCourseRegistrations.length;
+        const totalCoupons = row.purchasedCoupons.length;
+        const totalMemberships = row.purchasedMemberships.length;
+        const categories = [[totalMemberships, 'adhésion'], [totalCoupons, 'carte'], [totalCourses, 'séance']];
+        return categories.filter(([count]) => count > 0).map(([count, name]) => `${count} ${name}${count > 1 ? 's' : ''}`).join(', ');
+      },
+      minWidth: 150,
+      flex: 1.5,
+    },
+    {
       field: 'payment.amount',
       headerName: 'Montant payé',
-      valueFormatter: ({ value }: { value: number | undefined }) => `${value ?? 0} €`,
+      valueGetter: ({ row: { payment } }: { row: { payment: OrderPayment | null } }) => payment?.amount,
+      valueFormatter: ({ value }: { value: number | null }) => `${value ?? 0} €`,
       minWidth: 100,
       flex: 1,
     },
     {
       field: 'payment.type',
       headerName: 'Moyen de paiement',
-      valueFormatter: ({ value }: { value: TransactionType | undefined }) => value !== undefined ? TransactionTypeNames[value] : undefined,
+      valueGetter: ({ row: { payment } }: { row: { payment: OrderPayment | null } }) => payment?.type,
+      valueFormatter: ({ value }: { value: TransactionType | null }) => value !== null ? TransactionTypeNames[value] : undefined,
       minWidth: 200,
       flex: 1,
     },
@@ -53,7 +69,7 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
     },
     {
       field: 'notes',
-      headerName: 'Commentaires',
+      headerName: 'Notes',
       minWidth: 500,
       flex: 1,
     },

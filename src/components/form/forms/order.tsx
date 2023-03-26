@@ -203,6 +203,8 @@ const OrderFormFields: React.FC = () => {
   const { fields: billingExistingCouponFields, append: addBillingExistingCoupon, remove: removeBillingExistingCoupon } = useFieldArray({ control, name: 'billing.newCoupons' });
   const { fields: billingNewCouponFields, append: addBillingNewCoupon, remove: removeBillingNewCoupon } = useFieldArray({ control, name: 'billing.existingCoupons' });
 
+  const purchasedNewMembershipDefaultValue = { year: new Date().getFullYear() };
+
   const tempFormatValues = () => {
     const values = getValues();
     return {
@@ -294,11 +296,11 @@ const OrderFormFields: React.FC = () => {
         Souhaitez lier une carte existante, ou bien en créer une nouvelle ?
       </BinaryDialog>
       <Grid item xs={12}>
-        <CreateButton label="Ajouter une cotisation" disabled={watchUser === undefined} onClick={() => watchExistingMemberships === undefined ? setMembershipDialogOpen(true) : addPurchasedNewMembership({})} />
+        <CreateButton label="Ajouter une cotisation" disabled={watchUser === undefined} onClick={() => watchExistingMemberships === undefined ? setMembershipDialogOpen(true) : addPurchasedNewMembership(purchasedNewMembershipDefaultValue)} />
       </Grid>
       <BinaryDialog
         title="Ajout d'une cotisation" labelA="Lier une cotisation" labelB="Nouvelle cotisation"
-        open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => setValue('purchases.existingMembershipIds', [])} onChooseB={() => addPurchasedNewMembership({})}
+        open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => setValue('purchases.existingMembershipIds', [])} onChooseB={() => addPurchasedNewMembership(purchasedNewMembershipDefaultValue)}
       >
         Souhaitez lier une cotisation existante, ou bien en créer une nouvelle ?
       </BinaryDialog>

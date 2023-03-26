@@ -1,5 +1,5 @@
 import { adminProcedure, router } from '../trpc';
-import { membershipCreateSchema, membershipFindSchema } from '../../../common/schemas/membership';
+import { membershipCreateLegacySchema, membershipFindSchema } from '../../../common/schemas/membership';
 import { z } from 'zod';
 import {
   createMembershipLegacy,
@@ -19,7 +19,7 @@ export const membershipRouter = router({
     }))
     .query(async ({ input: { includeDisabled, userId } }) => findMemberships({ where: { includeDisabled: !!includeDisabled, userId } })),
   create: adminProcedure
-    .input(membershipCreateSchema)
+    .input(membershipCreateLegacySchema)
     .mutation(async ({ input: { membershipModelId, dateStart, users }, ctx: { session } }) =>
       createMembershipLegacy({ data: { membershipModelId, dateStart, users } })
     ),

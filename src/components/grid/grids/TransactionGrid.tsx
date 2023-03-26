@@ -68,6 +68,15 @@ interface TransactionGridProps {
 
 export const TransactionGrid: React.FunctionComponent<TransactionGridProps> = ({ userId }) => {
   const columns = [
+    {
+      field: 'migrate',
+      type: 'actions',
+      sortable: false,
+      minWidth: 50,
+      getActions: ({ row }: GridRowParams) => [
+        <GridActionCreateOrder transaction={row as any} />,
+      ],
+    },
     ...(userId === undefined ? [userColumn({
       field: 'user',
       flex: 1,
@@ -100,12 +109,11 @@ export const TransactionGrid: React.FunctionComponent<TransactionGridProps> = ({
       flex: 1,
     },
     {
-      field: 'delete',
+      field: 'actions',
       type: 'actions',
       sortable: false,
-      minWidth: 50,
+      minWidth: 70,
       getActions: ({ row }: GridRowParams) => [
-        <GridActionCreateOrder transaction={row as any} />,
         <GridActionEditTransaction transaction={row as any} />,
         <GridActionDeleteTransaction transaction={row as any} />,
       ],
