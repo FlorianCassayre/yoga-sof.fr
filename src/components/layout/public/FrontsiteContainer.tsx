@@ -7,12 +7,12 @@ import {
   DateRange,
   EmailTwoTone,
   FacebookTwoTone, FlareTwoTone,
-  Instagram,
+  Instagram, LinkedIn,
   Logout
 } from '@mui/icons-material';
 import { UserType } from '../../../common/all';
 import { IconYoga } from '../../icons';
-import { COMETE_URL, EMAIL_CONTACT, FACEBOOK_PAGE_URL, INSTAGRAM_URL } from '../../../common/config';
+import { COMETE_URL, EMAIL_CONTACT, FACEBOOK_PAGE_URL, INSTAGRAM_URL, LINKEDIN_URL } from '../../../common/config';
 import { useRouter } from 'next/router';
 
 interface FrontsiteContainerProps {
@@ -83,6 +83,10 @@ export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children
         {
           url: INSTAGRAM_URL,
           icon: <Instagram fontSize="large" />,
+        },
+        {
+          url: LINKEDIN_URL,
+          icon: <LinkedIn fontSize="large" />,
         },
         {
           url: COMETE_URL,

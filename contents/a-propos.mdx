@@ -1,10 +1,10 @@
-import { EmailTwoTone, FacebookTwoTone, FlareTwoTone, Instagram } from '@mui/icons-material';
+import { EmailTwoTone, FacebookTwoTone, FlareTwoTone, Instagram, LinkedIn } from '@mui/icons-material';
 import { AboutPerson } from '../src/components/contents/about/AboutPerson';
 import { AboutQuoted } from '../src/components/contents/about/AboutQuoted'; import { IconEye, IconFidhy, IconLaComete } from '../src/components/icons';
 import {
   FrontsiteContent
 } from '../src/components/layout/public/FrontsiteContent';
-import { COMETE_URL, EMAIL_CONTACT, FACEBOOK_PAGE_URL, INSTAGRAM_URL } from '../src/common/config';
+import { COMETE_URL, EMAIL_CONTACT, FACEBOOK_PAGE_URL, INSTAGRAM_URL, LINKEDIN_URL } from '../src/common/config';
 
 export const meta = {
   title: 'À propos',
@@ -27,6 +27,11 @@ export const iconsHeight = '100px';
       label: 'yoga.sof.hesingue',
       url: INSTAGRAM_URL,
       icon: <Instagram />,
+    },
+    {
+      label: 'SoDigital',
+      url: LINKEDIN_URL,
+      icon: <LinkedIn />,
     },
     {
       label: 'Page association',

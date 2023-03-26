@@ -11,6 +11,8 @@ export const COMETE_URL = 'https://www.lacometehesingue.fr/les-associations/yoga
 
 export const INSTAGRAM_URL = 'https://www.instagram.com/yoga.sof.hesingue';
 
+export const LINKEDIN_URL = 'https://www.linkedin.com/in/sodigital';
+
 interface Location {
   name: string;
   coordinates: { latitude: number, longitude: number };
