@@ -3,9 +3,10 @@ import React from 'react';
 
 interface HeadMetaProps {
   title?: string;
+  description?: string;
 }
 
-export const HeadMeta: React.FC<HeadMetaProps> = ({ title }) => {
+export const HeadMeta: React.FC<HeadMetaProps> = ({ title, description }) => {
   return (
     <Head>
       <title>{title}</title>
@@ -22,6 +23,9 @@ export const HeadMeta: React.FC<HeadMetaProps> = ({ title }) => {
       <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       <meta name="apple-mobile-web-app-title" content="Yoga Sof" />
 
+      {description !== undefined && (
+        <meta name="description" content={description} />
+      )}
       <meta name="keywords" content="cours, yoga, hésingue, comète, hégenheim, saint-louis agglomération, alsace, De Gasquet, renforcement musculaire, essai, à la carte, hatha" />
     </Head>
   );
