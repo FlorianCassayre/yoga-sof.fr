@@ -110,7 +110,7 @@ const MembershipGridActions = ({ row: membership }: GridRowParams<Membership>): 
 
   return [
     ...(!membership.disabled ? [
-      <GridActionsCellItemTooltip icon={<Cancel />} onClick={() => setConfirmDisableDialogOpen(true)} disabled={isDisabling} label="Désactiver la carte" />
+      <GridActionsCellItemTooltip icon={<Cancel />} onClick={() => setConfirmDisableDialogOpen(true)} disabled={isDisabling} label="Désactiver l'adhésion" />
     ] : []),
     <DisableMembershipDialog
       membership={membership}

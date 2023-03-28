@@ -6,8 +6,17 @@ import { membershipCreateLegacySchema, membershipSchema } from '../../common/sch
 export const findMembership = async (args: { where: Prisma.MembershipWhereUniqueInput }) =>
   prisma.membership.findUniqueOrThrow(args);
 
-export const findMemberships = async (args: { where: { includeDisabled: boolean, userId?: number } }) => {
-  const membershipArgs = { where: { disabled: args.where.includeDisabled ? undefined : false }, include: { users: true, ordersPurchased: { where: { active: true }, select: { id: true } } } };
+export const findMemberships = async (args: { where: { includeDisabled: boolean, userId?: number, noOrder?: boolean } }) => {
+  const membershipArgs = {
+    where: {
+      disabled: args.where.includeDisabled ? undefined : false,
+      ...(args.where.noOrder ? { ordersPurchased: { every: { active: false } } } : {})
+    },
+    include: {
+      users: true,
+      ordersPurchased: { where: { active: true }, select: { id: true } },
+    }
+  };
   return args.where.userId === undefined
     ? prisma.membership.findMany(membershipArgs)
     : prisma.user.findUniqueOrThrow({ where: { id: args.where.userId } }).memberships(membershipArgs);

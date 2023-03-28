@@ -7,12 +7,13 @@ import { CouponModel } from '@prisma/client';
 interface SelectCouponProps {
   name: string;
   userId: number;
+  noOrder?: boolean;
   multiple?: boolean;
   noMatchId?: boolean;
   label?: string;
 }
 
-export const SelectCoupon: React.FC<SelectCouponProps> = ({ name, userId, multiple, noMatchId, label }) => {
+export const SelectCoupon: React.FC<SelectCouponProps> = ({ name, userId, noOrder, multiple, noMatchId, label }) => {
   return (
     <AsyncSelect
       name={name}
@@ -21,7 +22,7 @@ export const SelectCoupon: React.FC<SelectCouponProps> = ({ name, userId, multip
       label={label ?? `Carte${multiple ? 's' : ''}`}
       renderOptionLabel={(option: CouponModel) => displayCouponName(option)}
       procedure={trpc.coupon.findAll}
-      input={{ userId }}
+      input={{ userId, noOrder }}
     />
   );
 };

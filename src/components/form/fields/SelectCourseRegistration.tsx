@@ -7,13 +7,14 @@ import { displayCourseName } from '../../../common/display';
 interface SelectCourseRegistrationProps {
   name: string;
   userId: number;
+  noOrder?: boolean;
   label?: string;
   multiple?: boolean;
   noMatchId?: boolean;
 }
 
-export const SelectCourseRegistration: React.FC<SelectCourseRegistrationProps> = ({ name, userId, label, multiple, noMatchId }) => {
-  const { data, isLoading } = trpc.courseRegistration.findAllActive.useQuery({ userId, isCanceled: false });
+export const SelectCourseRegistration: React.FC<SelectCourseRegistrationProps> = ({ name, userId, noOrder, label, multiple, noMatchId }) => {
+  const { data, isLoading } = trpc.courseRegistration.findAllActive.useQuery({ userId, isCanceled: false, noOrder });
   return (
     <AutocompleteElement
       name={name}

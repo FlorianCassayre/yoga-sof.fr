@@ -14,8 +14,9 @@ export const couponRouter = router({
     .input(z.object({
       includeDisabled: z.boolean().optional(),
       userId: z.number().int().min(0).optional(),
+      noOrder: z.boolean().optional(),
     }))
-    .query(async ({ input: { includeDisabled, userId } }) => findCoupons({ where: { includeDisabled: !!includeDisabled, userId } })),
+    .query(async ({ input: { includeDisabled, userId, noOrder } }) => findCoupons({ where: { includeDisabled: !!includeDisabled, userId, noOrder } })),
   create: adminProcedure
     .input(couponCreateSchema)
     .mutation(async ({ input: { couponModelId, userId }, ctx: { session } }) =>

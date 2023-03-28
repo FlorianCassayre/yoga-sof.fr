@@ -16,8 +16,9 @@ export const membershipRouter = router({
     .input(z.object({
       includeDisabled: z.boolean().optional(),
       userId: z.number().int().min(0).optional(),
+      noOrder: z.boolean().optional(),
     }))
-    .query(async ({ input: { includeDisabled, userId } }) => findMemberships({ where: { includeDisabled: !!includeDisabled, userId } })),
+    .query(async ({ input: { includeDisabled, userId, noOrder } }) => findMemberships({ where: { includeDisabled: !!includeDisabled, userId, noOrder } })),
   create: adminProcedure
     .input(membershipCreateLegacySchema)
     .mutation(async ({ input: { membershipModelId, dateStart, users }, ctx: { session } }) =>

@@ -7,13 +7,14 @@ import { Membership } from '@prisma/client';
 interface SelectMembershipProps {
   name: string;
   userId?: number;
+  noOrder?: boolean;
   multiple?: boolean;
   label?: string;
   noMatchId?: boolean;
   disabled?: boolean;
 }
 
-export const SelectMembership: React.FC<SelectMembershipProps> = ({ name, userId, multiple, label, noMatchId, disabled }) => {
+export const SelectMembership: React.FC<SelectMembershipProps> = ({ name, userId, noOrder, multiple, label, noMatchId, disabled }) => {
   return (
     <AsyncSelect
       name={name}
@@ -23,7 +24,7 @@ export const SelectMembership: React.FC<SelectMembershipProps> = ({ name, userId
       label={label ?? `Cotisation${multiple ? 's' : ''}`}
       renderOptionLabel={(option: any) => displayMembershipName(option)}
       procedure={trpc.membership.findAll}
-      input={{ userId }}
+      input={{ userId, noOrder }}
     />
   );
 };

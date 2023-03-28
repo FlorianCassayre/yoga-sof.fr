@@ -18,8 +18,17 @@ const generateSecureRandomCouponId = (): string => {
 export const findCoupon = async (args: { where: Prisma.CouponWhereUniqueInput }) =>
   prisma.coupon.findUniqueOrThrow(args);
 
-export const findCoupons = async (args: { where: { includeDisabled: boolean, userId?: number } }) =>
-  prisma.coupon.findMany({ where: { disabled: args.where.includeDisabled ? undefined : false, userId: args.where.userId }, include: { user: true,  ordersPurchased: { where: { active: true }, select: { id: true } } } });
+export const findCoupons = async (args: { where: { includeDisabled: boolean, userId?: number, noOrder?: boolean } }) =>
+  prisma.coupon.findMany({
+    where: {
+      disabled: args.where.includeDisabled ? undefined : false,
+      userId: args.where.userId, ...(args.where.noOrder ? { ordersPurchased: { every: { active: false } } } : {}),
+    },
+    include: {
+      user: true,
+      ordersPurchased: { where: { active: true }, select: { id: true } },
+    }
+  });
 
 export const createCoupon = async (prisma: Prisma.TransactionClient, args: { data: { couponModelId: number, userId: number, free?: boolean } }) => {
   couponCreateSchema.parse(args.data);

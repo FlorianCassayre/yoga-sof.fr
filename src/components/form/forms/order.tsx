@@ -243,14 +243,14 @@ const OrderFormFields: React.FC = () => {
       {watchCourseRegistrations !== undefined && watchUser != null && (
         <Grid item xs={12}>
           <OptionalField onDelete={() => setValue('purchases.courseRegistrations', undefined)}>
-            <SelectCourseRegistration name="purchases.courseRegistrations" userId={watchUser.id} multiple noMatchId />
+            <SelectCourseRegistration name="purchases.courseRegistrations" userId={watchUser.id} noOrder multiple noMatchId />
           </OptionalField>
         </Grid>
       )}
       {watchExistingCoupons !== undefined && watchUser != null && (
         <Grid item xs={12}>
           <OptionalField onDelete={() => setValue('purchases.existingCoupons', undefined)}>
-            <SelectCoupon name="purchases.existingCoupons" userId={watchUser.id} label="Cartes existantes" multiple />
+            <SelectCoupon name="purchases.existingCoupons" userId={watchUser.id} noOrder label="Cartes existantes" multiple />
           </OptionalField>
         </Grid>
       )}
@@ -264,7 +264,7 @@ const OrderFormFields: React.FC = () => {
       {watchExistingMemberships !== undefined && watchUser != null && (
         <Grid item xs={12}>
           <OptionalField onDelete={() => setValue('purchases.existingMembershipIds', undefined)}>
-            <SelectMembership name="purchases.existingMembershipIds" userId={watchUser.id} label="Cotisations existantes" multiple />
+            <SelectMembership name="purchases.existingMembershipIds" userId={watchUser.id} noOrder label="Cotisations existantes" multiple />
           </OptionalField>
         </Grid>
       )}
