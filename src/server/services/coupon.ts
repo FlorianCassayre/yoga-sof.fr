@@ -19,7 +19,7 @@ export const findCoupon = async (args: { where: Prisma.CouponWhereUniqueInput })
   prisma.coupon.findUniqueOrThrow(args);
 
 export const findCoupons = async (args: { where: { includeDisabled: boolean, userId?: number } }) =>
-  prisma.coupon.findMany({ where: { disabled: args.where.includeDisabled ? undefined : false, userId: args.where.userId }, include: { user: true } });
+  prisma.coupon.findMany({ where: { disabled: args.where.includeDisabled ? undefined : false, userId: args.where.userId }, include: { user: true,  ordersPurchased: { where: { active: true }, select: { id: true } } } });
 
 export const createCoupon = async (prisma: Prisma.TransactionClient, args: { data: { couponModelId: number, userId: number, free?: boolean } }) => {
   couponCreateSchema.parse(args.data);

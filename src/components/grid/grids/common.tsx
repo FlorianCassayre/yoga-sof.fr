@@ -1,7 +1,7 @@
 import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { GridRenderCellParams } from '@mui/x-data-grid';
-import { Course, User } from '@prisma/client';
-import { Box, Stack } from '@mui/material';
+import { Course, Prisma, User } from '@prisma/client';
+import { Box, Chip, Stack } from '@mui/material';
 import { UserLink } from '../../link/UserLink';
 import { formatDateDDsMMsYYYYsHHhMMmSSs, formatTimeHHhMM, formatTimestampRelative } from '../../../common/date';
 import { GridValidRowModel } from '@mui/x-data-grid/models/gridRows';
@@ -9,6 +9,10 @@ import { CourseLink } from '../../link/CourseLink';
 import { CourseStatusChip } from '../../CourseStatusChip';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 import { displayUserName } from '../../../common/display';
+import { getUserLatestMembership } from '../../../common/user';
+import { Close, Done } from '@mui/icons-material';
+import React from 'react';
+import { ChipLink } from '../../ChipLink';
 
 type PartialGridEnrichedColDef<R extends GridValidRowModel = any> = Pick<GridEnrichedColDef<R>, 'field'> & Partial<GridEnrichedColDef<R>>
 
@@ -61,5 +65,17 @@ export const relativeTimestamp = (params: PartialGridEnrichedColDef, compact: bo
     </time>
   ),
   minWidth: 185,
+  ...params,
+});
+
+export const orderColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
+  headerName: 'Payé',
+  minWidth: 100,
+  renderCell: ({ value: id }) => // number | undefined
+    id !== undefined ? (
+      <ChipLink label="Oui" color="success" variant="outlined" icon={<Done />} href={`/administration/paiements/commandes/${id}`} />
+    ) : (
+      <Chip label="Non" color="default" variant="outlined" icon={<Close />} />
+    ),
   ...params,
 });

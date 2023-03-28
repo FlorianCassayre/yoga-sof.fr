@@ -7,7 +7,7 @@ export const findMembership = async (args: { where: Prisma.MembershipWhereUnique
   prisma.membership.findUniqueOrThrow(args);
 
 export const findMemberships = async (args: { where: { includeDisabled: boolean, userId?: number } }) => {
-  const membershipArgs = { where: { disabled: args.where.includeDisabled ? undefined : false }, include: { users: true } };
+  const membershipArgs = { where: { disabled: args.where.includeDisabled ? undefined : false }, include: { users: true, ordersPurchased: { where: { active: true }, select: { id: true } } } };
   return args.where.userId === undefined
     ? prisma.membership.findMany(membershipArgs)
     : prisma.user.findUniqueOrThrow({ where: { id: args.where.userId } }).memberships(membershipArgs);

@@ -29,7 +29,7 @@ export default function AdminMemberships() {
         Adhésions
       </Typography>
       <Typography paragraph>
-        Les adhésions sont valables pour une durée d'un an ; ci-dessous toutes les adhésions à l'association.
+        Les adhésions sont valables pour une durée d'un an à compter du 1er septembre. Ci-dessous toutes les adhésions à l'association.
       </Typography>
       <MembershipGrid />
     </BackofficeContent>

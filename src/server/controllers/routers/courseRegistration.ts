@@ -27,8 +27,23 @@ export const courseRegistrationRouter = router({
       prisma.$transaction(async (prisma) => findCourseRegistrationEvents(prisma, { where: { courseId, userId, attended, course: { isCanceled } }, include: { course: courseId === undefined, user: userId === undefined } }), transactionOptions)),
   findAllActive: adminProcedure
     .input(selectorSchema)
-    .query(async ({ input: { courseId, userId, attended, isCanceled } }) =>
-        prisma.$transaction(async (prisma) => prisma.courseRegistration.findMany({ where: { courseId, userId, isUserCanceled: false, attended, course: { isCanceled } }, include: { course: true, user: { include: { memberships: true } } } }), transactionOptions)),
+    .query(async ({ input: { courseId, userId, attended, isCanceled } }) => {
+      // TODO extract this logic
+      const activeArgs = { active: true };
+      const whereActiveOrders = { where: { order: activeArgs }, select: { order: { select: { id: true } } } };
+      return prisma.$transaction(async (prisma) => prisma.courseRegistration.findMany({
+        where: { courseId, userId, isUserCanceled: false, attended, course: { isCanceled } },
+        include: {
+          course: true,
+          user: { include: { memberships: true } },
+          orderUsedCoupons: whereActiveOrders,
+          orderTrial: whereActiveOrders,
+          orderReplacementFrom: whereActiveOrders,
+          orderReplacementTo: whereActiveOrders,
+          orderPurchased: { where: activeArgs, select: { id: true } },
+        },
+      }), transactionOptions);
+    }),
   create: adminProcedure
     .input(courseRegistrationCreateSchema)
     .mutation(async ({ input: { courses, users, notify } }) => {

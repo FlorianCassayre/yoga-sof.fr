@@ -4,7 +4,7 @@ import { Cancel, CheckCircle, Close, Done, Help } from '@mui/icons-material';
 import { Prisma } from '@prisma/client';
 import { GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
-import { courseColumn, relativeTimestamp, userColumn } from './common';
+import { courseColumn, orderColumn, relativeTimestamp, userColumn } from './common';
 import { CancelCourseRegistrationDialog } from '../../CancelCourseRegistrationDialog';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../common/trpc';
@@ -12,6 +12,7 @@ import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { getCourseStatus } from '../../../common/course';
 import { getUserLatestMembership } from '../../../common/user';
 import { Chip } from '@mui/material';
+import { RouterOutput } from '../../../server/controllers/types';
 
 interface GridActionsAttendanceProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>;
@@ -117,10 +118,17 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
           <Chip label="Non" color="default" variant="outlined" icon={<Close />} />
         ),
     },
+    orderColumn({
+      field: 'order',
+      headerName: 'Payée',
+      valueGetter: ({ row }: { row: RouterOutput['courseRegistration']['findAllActive'][0] }) =>
+        [row.orderUsedCoupons.map(o => o.order), row.orderTrial.map(o => o.order), row.orderReplacementTo.map(o => o.order), row.orderPurchased]
+          .flat().map(({ id }) => id)[0],
+    }),
     {
       field: 'actions',
       type: 'actions',
-      getActions: ({ row }: GridRowParams<Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>>) => !row.isUserCanceled ? [ // TODO
+      getActions: ({ row }: GridRowParams<Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>>) => !row.isUserCanceled ? [ // TODO (<- what?)
         <GridActionCancel courseRegistration={row} />,
       ] : [],
     },

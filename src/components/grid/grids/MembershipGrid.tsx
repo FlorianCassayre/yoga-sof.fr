@@ -8,8 +8,7 @@ import {
 } from '@mui/icons-material';
 import { GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
-import { useRouter } from 'next/router';
-import { relativeTimestamp, usersColumn } from './common';
+import { orderColumn, relativeTimestamp, usersColumn } from './common';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { trpc } from '../../../common/trpc';
 import { Membership, MembershipType } from '@prisma/client';
@@ -28,6 +27,7 @@ import { displayMembershipName } from '../../../common/display';
 import { formatDateDDsMMsYYYY } from '../../../common/date';
 import { MembershipTypeNames } from '../../../common/membership';
 import { grey } from '@mui/material/colors';
+import { RouterOutput } from '../../../server/controllers/types';
 
 interface MembershipCodeProps {
   code: string;
@@ -163,6 +163,11 @@ export const MembershipGrid: React.FunctionComponent<MembershipGridProps> = ({ u
       field: 'createdAt',
       headerName: `Date d'émission`,
       flex: 1,
+    }),
+    orderColumn({
+      field: 'order',
+      headerName: 'Payée',
+      valueGetter: ({ row }: { row: RouterOutput['membership']['findAll'][0] }) => row.ordersPurchased.map(({ id }) => id)[0],
     }),
     {
       field: 'actions',

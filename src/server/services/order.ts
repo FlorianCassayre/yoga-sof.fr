@@ -86,6 +86,7 @@ export const createOrder = async (args: { data: z.infer<typeof orderCreateSchema
           orderTrial: whereActiveOrders,
           orderReplacementFrom: whereActiveOrders,
           orderReplacementTo: whereActiveOrders,
+          orderPurchased: { where: activeArgs },
         } }))
     )));
     // Any other course registration is assumed to be paid cash
@@ -121,7 +122,7 @@ export const createOrder = async (args: { data: z.infer<typeof orderCreateSchema
     if (anyPurchasedCourseRegistrationIds.map(id => courseRegistrations[id]).some(({ isUserCanceled }) => isUserCanceled)) {
       throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationNotRegistered);
     }
-    const isPartOfOrder = (r: (typeof courseRegistrations)[number]): boolean => [r.orderUsedCoupons, r.orderTrial, r.orderReplacementTo].flat().length > 0;
+    const isPartOfOrder = (r: (typeof courseRegistrations)[number]): boolean => [r.orderUsedCoupons, r.orderTrial, r.orderReplacementTo, r.orderPurchased].flat().length > 0;
     if (anyPurchasedCourseRegistrationIds.map(id => courseRegistrations[id]).some(r => isPartOfOrder(r))) {
       throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationAlreadyOrdered);
     }

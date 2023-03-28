@@ -3,7 +3,7 @@ import { Cancel, Visibility, VisibilityOff } from '@mui/icons-material';
 import { GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useRouter } from 'next/router';
-import { relativeTimestamp, userColumn } from './common';
+import { orderColumn, relativeTimestamp, userColumn } from './common';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { trpc } from '../../../common/trpc';
 import { Coupon, CourseType } from '@prisma/client';
@@ -20,6 +20,7 @@ import {
 import { CourseTypeNames } from '../../../common/course';
 import { useSnackbar } from 'notistack';
 import { displayCouponName } from '../../../common/display';
+import { RouterOutput } from '../../../server/controllers/types';
 
 interface CouponCodeProps {
   code: string;
@@ -156,6 +157,11 @@ export const CouponGrid: React.FunctionComponent<CouponGridProps> = ({ userId, c
       field: 'createdAt',
       headerName: `Date d'émission`,
       flex: 1,
+    }),
+    orderColumn({
+      field: 'order',
+      headerName: 'Payée',
+      valueGetter: ({ row }: { row: RouterOutput['coupon']['findAll'][0] }) => row.ordersPurchased.map(({ id }) => id)[0],
     }),
     {
       field: 'actions',
