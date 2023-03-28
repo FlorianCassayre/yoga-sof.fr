@@ -93,21 +93,21 @@ export const orderCreateSchema = z.strictObject({
 
   subsetChecksData.forEach(([superset, subsets]) => {
     // Check for duplicate values
-    const counts: Record<number, FieldPath[]> = {};
     [superset, subsets.flat()].forEach(expectedDistinct => {
+      const counts: Record<number, FieldPath[]> = {};
       expectedDistinct.forEach(({ id, path }) => {
         if (counts[id] === undefined) {
           counts[id] = [];
         }
         counts[id].push(path);
       });
-    });
-    Object.values(counts).filter((array) => array.length > 1).forEach((array) => {
-      distinctPaths(array).forEach(path => {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path,
-          message: 'Les éléments doivent être distincts',
+      Object.values(counts).filter((array) => array.length > 1).forEach((array) => {
+        distinctPaths(array).forEach(path => {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path,
+            message: 'Les éléments doivent être distincts',
+          });
         });
       });
     });

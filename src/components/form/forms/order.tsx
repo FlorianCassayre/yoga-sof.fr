@@ -25,11 +25,12 @@ import { AddBox, Calculate, Delete, Discount, Euro, Event, Person, ShoppingCart 
 import { CreateFormContent } from '../form';
 import { trpc } from '../../../common/trpc';
 import { SelectUser } from '../fields/SelectUser';
-import { transactionCreateSchema } from '../../../common/schemas/transaction';
-import { SelectCourse } from '../fields/SelectCourse';
 import { SelectCourseRegistration } from '../fields/SelectCourseRegistration';
-import { Course, CourseRegistration, Transaction, User } from '@prisma/client';
-import { displayCourseName, displayTransactionWithUserName } from '../../../common/display';
+import { CouponModel, Course, CourseModel, CourseRegistration, Transaction, User } from '@prisma/client';
+import {
+  displayCouponModelName,
+  displayCourseName,
+} from '../../../common/display';
 import { SelectTransaction } from '../fields/SelectTransaction';
 import { SelectMembershipModel } from '../fields/SelectMembershipModel';
 import { SelectCouponModel } from '../fields/SelectCouponModel';
@@ -41,6 +42,7 @@ import { BackofficeContentLoading } from '../../layout/admin/BackofficeContentLo
 import { SelectCoupon } from '../fields/SelectCoupon';
 import { SelectMembership } from '../fields/SelectMembership';
 import { InputYear } from '../fields/InputYear';
+import PatchedAutocompleteElement from '../fields/PatchedAutocompleteElement';
 
 interface BinaryDialogProps {
   open: boolean;
@@ -110,11 +112,42 @@ export const SelectDependentCourseRegistration: React.FC<SelectDependentCourseRe
       options={watchFrom ? watchFrom : []}
       multiple={multiple}
       label={label}
+      matchId
       autocompleteProps={{
         getOptionLabel: (option: (CourseRegistration & { course: Course }) | undefined) => option ? displayCourseName(option.course) : '...',
         renderOption: (props, option: (CourseRegistration & { course: Course }) | undefined) => option ? (
           <li {...props} key={option.id}>
             {displayCourseName(option.course)}
+          </li>
+        ) : '...',
+      }}
+    />
+  );
+};
+
+interface SelectDependentCouponModelProps {
+  name: string;
+  fromName: string;
+  label: string;
+  multiple?: boolean;
+}
+
+export const SelectDependentCouponModel: React.FC<SelectDependentCouponModelProps> = ({ name, fromName, label, multiple }) => {
+  const { watch } = useFormContext();
+  const watchFrom = watch(fromName);
+  const options = useMemo(() => watchFrom ? (watchFrom as any[]).map((option, index) => ({ id: index, ...option })) : [], [watchFrom]);
+  return (
+    <PatchedAutocompleteElement
+      name={name}
+      options={options}
+      multiple={multiple}
+      label={label}
+      matchId
+      autocompleteProps={{
+        getOptionLabel: (option: { id: number, couponModel?: CouponModel } | undefined) => option?.couponModel ? displayCouponModelName(option.couponModel) : '...',
+        renderOption: (props, option: { id: number, couponModel?: CouponModel } | undefined) => option ? (
+          <li {...props} key={option.id}>
+            {option.couponModel ? displayCouponModelName(option.couponModel) : '...'}
           </li>
         ) : '...',
       }}
@@ -182,15 +215,15 @@ const OrderFormFields: React.FC = () => {
   const watchUser = watch('user');
 
   const watchCourseRegistrations = watch('purchases.courseRegistrations');
-  const watchNewCoupons = watch('purchases.newCoupons');
-  const watchNewMemberships = watch('purchases.newMemberships');
+  //const watchNewCoupons = watch('purchases.newCoupons');
+  //const watchNewMemberships = watch('purchases.newMemberships');
   const watchExistingCoupons = watch('purchases.existingCoupons');
   const watchExistingMemberships = watch('purchases.existingMembershipIds');
 
-  const watchTrialCourseRegistration = watch('billing.trialCourseRegistration');
-  const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
+  const watchTrialCourseRegistration = watch('billing.trialCourseRegistrationId');
+  //const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
   const watchTransactionId = watch('billing.transactionId');
-  const watchPayment = watch('newPayment');
+  const watchPayment = watch('billing.newPayment');
 
   //
 
@@ -200,8 +233,9 @@ const OrderFormFields: React.FC = () => {
 
   const { fields: purchasedNewCouponFields, append: addPurchasedNewCoupon, remove: removePurchasedNewCoupon } = useFieldArray({ control, name: 'purchases.newCoupons' });
   const { fields: purchasedNewMembershipFields, append: addPurchasedNewMembership, remove: removePurchasedNewMembership } = useFieldArray({ control, name: 'purchases.newMemberships' });
-  const { fields: billingExistingCouponFields, append: addBillingExistingCoupon, remove: removeBillingExistingCoupon } = useFieldArray({ control, name: 'billing.newCoupons' });
-  const { fields: billingNewCouponFields, append: addBillingNewCoupon, remove: removeBillingNewCoupon } = useFieldArray({ control, name: 'billing.existingCoupons' });
+  const { fields: billingNewCouponFields, append: addBillingNewCoupon, remove: removeBillingNewCoupon } = useFieldArray({ control, name: 'billing.newCoupons' });
+  const { fields: billingExistingCouponFields, append: addBillingExistingCoupon, remove: removeBillingExistingCoupon } = useFieldArray({ control, name: 'billing.existingCoupons' });
+  const { fields: billingReplacementCourseRegistrationFields, append: addBillingReplacementCourseRegistration, remove: removeBillingReplacementCourseRegistration } = useFieldArray({ control, name: 'billing.replacementCourseRegistrations' });
 
   const purchasedNewMembershipDefaultValue = { year: new Date().getFullYear() };
 
@@ -250,14 +284,14 @@ const OrderFormFields: React.FC = () => {
       {watchExistingCoupons !== undefined && watchUser != null && (
         <Grid item xs={12}>
           <OptionalField onDelete={() => setValue('purchases.existingCoupons', undefined)}>
-            <SelectCoupon name="purchases.existingCoupons" userId={watchUser.id} noOrder label="Cartes existantes" multiple />
+            <SelectCoupon name="purchases.existingCoupons" userId={watchUser.id} noOrder label="Cartes existantes" noMatchId multiple />
           </OptionalField>
         </Grid>
       )}
       {purchasedNewCouponFields.map((field, index) => (
         <Grid item xs={12} key={field.id}>
           <OptionalField onDelete={() => removePurchasedNewCoupon(index)}>
-            <SelectCouponModel name={`purchases.newCoupons.${index}.couponModel`} label="Nouvelle carte" />
+            <SelectCouponModel name={`purchases.newCoupons.${index}.couponModel`} label="Nouvelle carte" noMatchId />
           </OptionalField>
         </Grid>
       ))}
@@ -331,7 +365,7 @@ const OrderFormFields: React.FC = () => {
               <OptionalField onDelete={() => removeBillingNewCoupon(index)}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={6}>
-                    {/* TODO */}
+                    <SelectDependentCouponModel name={`billing.newCoupons.${index}.newCouponIndex`} fromName="purchases.newCoupons" label="Nouvelle carte" />
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <SelectDependentCourseRegistration name={`billing.newCoupons.${index}.courseRegistrationIds`} fromName="purchases.courseRegistrations" multiple label="Séances" />
@@ -342,18 +376,25 @@ const OrderFormFields: React.FC = () => {
           ))}
           {watchTrialCourseRegistration !== undefined && (
             <Grid item xs={12}>
-              <OptionalField onDelete={() => setValue('billing.trialCourseRegistration', undefined)}>
-                <SelectDependentCourseRegistration name="billing.trialCourseRegistration" fromName="purchases.courseRegistrations" label="Séance d'essai" />
+              <OptionalField onDelete={() => setValue('billing.trialCourseRegistrationId', undefined)}>
+                <SelectDependentCourseRegistration name="billing.trialCourseRegistrationId" fromName="purchases.courseRegistrations" label="Séance d'essai" />
               </OptionalField>
             </Grid>
           )}
-          {watchReplacementCourseRegistrations !== undefined && watchUser != null && (
-            <Grid item xs={12}>
-              <OptionalField onDelete={() => setValue('billing.replacementCourseRegistrations', undefined)}>
-                <SelectCourseRegistration name="billing.replacementCourseRegistrations" userId={watchUser.id} noMatchId multiple label="Séances à rattraper" />
+          {billingReplacementCourseRegistrationFields.map((field, index) => (
+            <Grid item xs={12} key={field.id}>
+              <OptionalField onDelete={() => removeBillingReplacementCourseRegistration(index)}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <SelectCourseRegistration name={`billing.replacementCourseRegistrations.${index}.fromCourseRegistrationId`} userId={watchUser.id} label="Séance à rattraper" />
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <SelectDependentCourseRegistration name={`billing.replacementCourseRegistrations.${index}.toCourseRegistrationId`} fromName="purchases.courseRegistrations" label="Séance de rattrapage" />
+                  </Grid>
+                </Grid>
               </OptionalField>
             </Grid>
-          )}
+          ))}
         </>
       )}
       <Grid item xs={12}>
@@ -366,14 +407,12 @@ const OrderFormFields: React.FC = () => {
       </BinaryDialog>
       {watchTrialCourseRegistration === undefined && (
         <Grid item xs={12}>
-          <CreateButton label="Ajouter une séance d'essai" disabled={watchCourseRegistrations === undefined || watchCourseRegistrations.length === 0} onClick={() => setValue('billing.trialCourseRegistration', null)} />
+          <CreateButton label="Ajouter une séance d'essai" disabled={watchCourseRegistrations === undefined || watchCourseRegistrations.length === 0} onClick={() => setValue('billing.trialCourseRegistrationId', null)} />
         </Grid>
       )}
-      {watchReplacementCourseRegistrations === undefined && (
-        <Grid item xs={12}>
-          <CreateButton label="Ajouter des séances à rattraper" disabled={watchCourseRegistrations === undefined || watchCourseRegistrations.length === 0} onClick={() => setValue('billing.replacementCourseRegistrations', [])} />
-        </Grid>
-      )}
+      <Grid item xs={12}>
+        <CreateButton label="Ajouter des séances à rattraper" disabled={watchCourseRegistrations === undefined || watchCourseRegistrations.length === 0} onClick={() => addBillingReplacementCourseRegistration({})} />
+      </Grid>
 
       <Grid item xs={12}>
         <StepTitle icon={<Euro />}>
@@ -396,16 +435,16 @@ const OrderFormFields: React.FC = () => {
           </>
         ) : watchPayment !== undefined ? (
           <Grid item xs={12}>
-            <OptionalField onDelete={() => setValue('purchases.newPayment', undefined)}>
+            <OptionalField onDelete={() => setValue('billing.newPayment', undefined)}>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
-                  <InputPrice name="purchases.newPayment.amount" label="Montant en euros" />
+                  <InputPrice name="billing.newPayment.amount" label="Montant en euros" />
                 </Grid>
                 <Grid item xs={12} sm={6}>
-                  <SelectTransactionType name="purchases.newPayment.type" />
+                  <SelectTransactionType name="billing.newPayment.type" />
                 </Grid>
                 <Grid item xs={12}>
-                  <DatePickerElement name="purchases.newPayment.date" label="Date" inputProps={{ fullWidth: true }} />
+                  <DatePickerElement name="billing.newPayment.date" label="Date" inputProps={{ fullWidth: true }} />
                 </Grid>
               </Grid>
             </OptionalField>
@@ -417,7 +456,7 @@ const OrderFormFields: React.FC = () => {
             <CreateButton label="Lier à un ancien paiement" onClick={() => setValue('billing.transactionId', null)} />
           </Grid>
           <Grid item xs={12}>
-            <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('purchases.newPayment', {})} />
+            <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date() })} />
           </Grid>
         </>
       )}
