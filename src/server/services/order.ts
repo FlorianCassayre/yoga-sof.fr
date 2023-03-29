@@ -62,7 +62,7 @@ export const findOrders = async (args: { where: { includeDisabled: boolean, user
     : prisma.user.findUniqueOrThrow({ where: { id: args.where.userId } }).orders(orderArgs);
 };
 
-export const createOrder = async (args: { data: z.infer<typeof orderCreateSchema> }) => {
+export const createOrderRequest = async (prisma: Prisma.TransactionClient, args: { data: z.infer<typeof orderCreateSchema> }) => {
   orderCreateSchema.parse(args.data);
 
   // Remark: we don't check if the registration belong to the user because it is allowed (even though the UI doesn't permit it yet)
@@ -70,124 +70,126 @@ export const createOrder = async (args: { data: z.infer<typeof orderCreateSchema
   const makeRecord = <T extends number | string, O extends { id: T }>(array: O[]): Record<T, O> =>
     Object.fromEntries(array.map(o => [o.id, o])) as any;
 
-  return prisma.$transaction(async (prisma) => {
-    const { data } = args;
-    const user = await prisma.user.findUniqueOrThrow({ where: { id: data.user.id } });
-    const transaction = data.billing.transactionId !== undefined ? await prisma.transaction.findUniqueOrThrow({ where: { id: data.billing.transactionId } }) : null;
+  const { data } = args;
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: data.user.id } });
+  const transaction = data.billing.transactionId !== undefined ? await prisma.transaction.findUniqueOrThrow({ where: { id: data.billing.transactionId } }) : null;
 
-    // We keep only the orders that are active (= not deleted)
-    const activeArgs = { active: true };
-    const whereActiveOrders = { where: { order: activeArgs } };
-    const anyPurchasedCourseRegistrationIds = data.purchases.courseRegistrations?.map(({ id }) => id) ?? [];
-    const courseRegistrations = makeRecord(await Promise.all(anyPurchasedCourseRegistrationIds.concat(data.billing.replacementCourseRegistrations?.map(r => r.fromCourseRegistrationId) ?? []).map((id) =>
-      prisma.courseRegistration.findUniqueOrThrow(({ where: { id }, include: {
-          course: true,
-          orderUsedCoupons: whereActiveOrders,
-          orderTrial: whereActiveOrders,
-          orderReplacementFrom: whereActiveOrders,
-          orderReplacementTo: whereActiveOrders,
-          orderPurchased: { where: activeArgs },
-        } }))
-    )));
-    // Any other course registration is assumed to be paid cash
-    const paidCourseRegistrationIds = anyPurchasedCourseRegistrationIds.filter(id =>
-      !(data.billing.existingCoupons?.some(c => c.courseRegistrationIds.includes(id))
-        || data.billing.newCoupons?.some(c => c.courseRegistrationIds.includes(id))
-        || data.billing.replacementCourseRegistrations?.some(r => r.toCourseRegistrationId === id)
-        || data.billing.trialCourseRegistrationId === id)
-    );
+  // We keep only the orders that are active (= not deleted)
+  const activeArgs = { active: true };
+  const whereActiveOrders = { where: { order: activeArgs } };
+  const anyPurchasedCourseRegistrationIds = data.purchases.courseRegistrations?.map(({ id }) => id) ?? [];
+  const courseRegistrations = makeRecord(await Promise.all(anyPurchasedCourseRegistrationIds.concat(data.billing.replacementCourseRegistrations?.map(r => r.fromCourseRegistrationId) ?? []).map((id) =>
+    prisma.courseRegistration.findUniqueOrThrow(({ where: { id }, include: {
+        course: true,
+        orderUsedCoupons: whereActiveOrders,
+        orderTrial: whereActiveOrders,
+        orderReplacementFrom: whereActiveOrders,
+        orderReplacementTo: whereActiveOrders,
+        orderPurchased: { where: activeArgs },
+      } }))
+  )));
+  // Any other course registration is assumed to be paid cash
+  const paidCourseRegistrationIds = anyPurchasedCourseRegistrationIds.filter(id =>
+    !(data.billing.existingCoupons?.some(c => c.courseRegistrationIds.includes(id))
+      || data.billing.newCoupons?.some(c => c.courseRegistrationIds.includes(id))
+      || data.billing.replacementCourseRegistrations?.some(r => r.toCourseRegistrationId === id)
+      || data.billing.trialCourseRegistrationId === id)
+  );
 
-    const coupons = makeRecord(await Promise.all(
-      (data.purchases.existingCoupons?.map(({ id }) => id) ?? []).concat(data.billing.existingCoupons?.map(a => a.couponId) ?? [])
-    .map(id => prisma.coupon.findUniqueOrThrow({ where: { id }, include: { orderCourseRegistrations: whereActiveOrders, ordersPurchased: { where: activeArgs } } }))));
-    const couponModels = makeRecord(await Promise.all(
-      data.purchases.newCoupons?.map(({ couponModel: { id } }) => prisma.couponModel.findUniqueOrThrow({ where: { id } })) ?? []
-    ));
-    const membershipModels = makeRecord(await Promise.all(
-      data.purchases.newMemberships?.map(({ membershipModelId: id }) => prisma.membershipModel.findUniqueOrThrow({ where: { id } })) ?? []
-    ));
-    const memberships = makeRecord(await Promise.all((data.purchases.existingMembershipIds ?? []).map(id => prisma.membership.findUniqueOrThrow({ where: { id }, include: { ordersPurchased: { where: activeArgs } } }))));
+  const coupons = makeRecord(await Promise.all(
+    (data.purchases.existingCoupons?.map(({ id }) => id) ?? []).concat(data.billing.existingCoupons?.map(a => a.couponId) ?? [])
+  .map(id => prisma.coupon.findUniqueOrThrow({ where: { id }, include: { orderCourseRegistrations: whereActiveOrders, ordersPurchased: { where: activeArgs } } }))));
+  const couponModels = makeRecord(await Promise.all(
+    data.purchases.newCoupons?.map(({ couponModel: { id } }) => prisma.couponModel.findUniqueOrThrow({ where: { id } })) ?? []
+  ));
+  const membershipModels = makeRecord(await Promise.all(
+    data.purchases.newMemberships?.map(({ membershipModelId: id }) => prisma.membershipModel.findUniqueOrThrow({ where: { id } })) ?? []
+  ));
+  const memberships = makeRecord(await Promise.all((data.purchases.existingMembershipIds ?? []).map(id => prisma.membership.findUniqueOrThrow({ where: { id }, include: { ordersPurchased: { where: activeArgs } } }))));
 
-    // Transaction
-    if (transaction !== null) {
-      if (user.id !== transaction.userId) {
-        throw new ServiceError(ServiceErrorCode.OrderTransactionDifferentUser);
-      }
-      if (transaction.orderId !== null) {
-        throw new ServiceError(ServiceErrorCode.OrderTransactionAlreadyLinked);
-      }
+  // Transaction
+  if (transaction !== null) {
+    if (user.id !== transaction.userId) {
+      throw new ServiceError(ServiceErrorCode.OrderTransactionDifferentUser);
     }
+    if (transaction.orderId !== null) {
+      throw new ServiceError(ServiceErrorCode.OrderTransactionAlreadyLinked);
+    }
+  }
 
-    // Course registrations (general)
-    if (anyPurchasedCourseRegistrationIds.map(id => courseRegistrations[id]).some(({ isUserCanceled }) => isUserCanceled)) {
-      throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationNotRegistered);
-    }
-    const isPartOfOrder = (r: (typeof courseRegistrations)[number]): boolean => [r.orderUsedCoupons, r.orderTrial, r.orderReplacementTo, r.orderPurchased].flat().length > 0;
-    if (anyPurchasedCourseRegistrationIds.map(id => courseRegistrations[id]).some(r => isPartOfOrder(r))) {
-      throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationAlreadyOrdered);
-    }
+  // Course registrations (general)
+  if (anyPurchasedCourseRegistrationIds.map(id => courseRegistrations[id]).some(({ isUserCanceled }) => isUserCanceled)) {
+    throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationNotRegistered);
+  }
+  const isPartOfOrder = (r: (typeof courseRegistrations)[number]): boolean => [r.orderUsedCoupons, r.orderTrial, r.orderReplacementTo, r.orderPurchased].flat().length > 0;
+  if (anyPurchasedCourseRegistrationIds.map(id => courseRegistrations[id]).some(r => isPartOfOrder(r))) {
+    throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationAlreadyOrdered);
+  }
 
     // Replacements
-    const replacedFrom = data.billing.replacementCourseRegistrations?.map(({ fromCourseRegistrationId: id }) => courseRegistrations[id]) ?? [];
-    if (replacedFrom.some(r => !isPartOfOrder(r))) {
-      throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationReplacementNotOrdered);
+  const replacedFrom = data.billing.replacementCourseRegistrations?.map(({ fromCourseRegistrationId: id }) => courseRegistrations[id]) ?? [];
+  if (replacedFrom.some(r => !isPartOfOrder(r))) {
+    throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationReplacementNotOrdered);
+  }
+  if (replacedFrom.some(r => r.orderReplacementFrom.length > 0)) {
+    throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationReplacementAlreadyReplaced);
+  }
+  if (replacedFrom.some(r => !r.course.isCanceled && !r.isUserCanceled)) {
+    throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationReplacementNotCancelled);
+  }
+
+  // Coupons (use)
+  if (data.billing.newCoupons?.some(c => c.courseRegistrationIds.length > couponModels[(data.purchases.newCoupons ?? [])[c.newCouponIndex].couponModel.id].quantity)) {
+    throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationCouponFull);
+  }
+  if (data.billing.existingCoupons?.some(c => coupons[c.couponId].orderCourseRegistrations.length + c.courseRegistrationIds.length > coupons[c.couponId].quantity)) {
+    throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationCouponFull);
+  }
+
+  // Coupons (purchase)
+  if (data.purchases.existingCoupons?.some(c => coupons[c.id].ordersPurchased.length > 0)) {
+    throw new ServiceError(ServiceErrorCode.OrderCouponAlreadyOrdered);
+  }
+
+  // Membership (purchase)
+  if (data.purchases.existingMembershipIds?.some(id => memberships[id].ordersPurchased.length > 0)) {
+    throw new ServiceError(ServiceErrorCode.OrderMembershipAlreadyOrdered);
+  }
+
+  // ---
+
+  // Total
+  const sum = (array: number[]): number => array.reduce((a, b) => a + b, 0);
+
+  const totalAmountCourses = sum(anyPurchasedCourseRegistrationIds.map(id => {
+    if (data.billing.existingCoupons?.some(c => c.courseRegistrationIds.includes(id)) || data.billing.newCoupons?.some(c => c.courseRegistrationIds.includes(id))) {
+      return 0; // Use coupon
+    } else if (data.billing.replacementCourseRegistrations?.some(r => r.toCourseRegistrationId === id)) {
+      return 0; // Use paid course as a replacement
+    } else if (data.billing.trialCourseRegistrationId === id) {
+      return 0; // Trial TODO custom price
+    } else {
+      return courseRegistrations[id].course.price;
     }
-    if (replacedFrom.some(r => r.orderReplacementFrom.length > 0)) {
-      throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationReplacementAlreadyReplaced);
-    }
-    if (replacedFrom.some(r => !r.course.isCanceled && !r.isUserCanceled)) {
-      throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationReplacementNotCancelled);
-    }
+  }));
+  const totalAmountCoupons = sum(
+    (data.purchases.existingCoupons?.map(({ id }) => coupons[id].price) ?? [])
+      .concat(data.purchases.newCoupons?.map(c => couponModels[c.couponModel.id].price) ?? [])
+  );
+  const totalAmountMemberships = sum(
+    (data.purchases.existingMembershipIds?.map(id => memberships[id].price) ?? [])
+      .concat(data.purchases.newMemberships?.map(m => membershipModels[m.membershipModelId].price) ?? [])
+  )
+  const computedAmount = totalAmountCourses + totalAmountCoupons + totalAmountMemberships;
 
-    // Coupons (use)
-    if (data.billing.newCoupons?.some(c => c.courseRegistrationIds.length > couponModels[(data.purchases.newCoupons ?? [])[c.newCouponIndex].couponModel.id].quantity)) {
-      throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationCouponFull);
-    }
-    if (data.billing.existingCoupons?.some(c => coupons[c.couponId].orderCourseRegistrations.length + c.courseRegistrationIds.length > coupons[c.couponId].quantity)) {
-      throw new ServiceError(ServiceErrorCode.OrderCourseRegistrationCouponFull);
-    }
+  // If there are no payments there will be no dates, in that case it makes sense to set it to the current day
+  const date = transaction?.date ?? data.billing.newPayment?.date ?? new Date();
 
-    // Coupons (purchase)
-    if (data.purchases.existingCoupons?.some(c => coupons[c.id].ordersPurchased.length > 0)) {
-      throw new ServiceError(ServiceErrorCode.OrderCouponAlreadyOrdered);
-    }
+  // ---
 
-    // Membership (purchase)
-    if (data.purchases.existingMembershipIds?.some(id => memberships[id].ordersPurchased.length > 0)) {
-      throw new ServiceError(ServiceErrorCode.OrderMembershipAlreadyOrdered);
-    }
+  const preview = {};
 
-    // ---
-
-    // Total
-    const sum = (array: number[]): number => array.reduce((a, b) => a + b, 0);
-
-    const totalAmountCourses = sum(anyPurchasedCourseRegistrationIds.map(id => {
-      if (data.billing.existingCoupons?.some(c => c.courseRegistrationIds.includes(id)) || data.billing.newCoupons?.some(c => c.courseRegistrationIds.includes(id))) {
-        return 0; // Use coupon
-      } else if (data.billing.replacementCourseRegistrations?.some(r => r.toCourseRegistrationId === id)) {
-        return 0; // Use paid course as a replacement
-      } else if (data.billing.trialCourseRegistrationId === id) {
-        return 0; // Trial TODO custom price
-      } else {
-        return courseRegistrations[id].course.price;
-      }
-    }));
-    const totalAmountCoupons = sum(
-      (data.purchases.existingCoupons?.map(({ id }) => coupons[id].price) ?? [])
-        .concat(data.purchases.newCoupons?.map(c => couponModels[c.couponModel.id].price) ?? [])
-    );
-    const totalAmountMemberships = sum(
-      (data.purchases.existingMembershipIds?.map(id => memberships[id].price) ?? [])
-        .concat(data.purchases.newMemberships?.map(m => membershipModels[m.membershipModelId].price) ?? [])
-    )
-    const computedAmount = totalAmountCourses + totalAmountCoupons + totalAmountMemberships;
-
-    // If there are no payments there will be no dates, in that case it makes sense to set it to the current day
-    const date = transaction?.date ?? data.billing.newPayment?.date ?? new Date();
-
-    // ---
-
+  return [preview, async () => {
     const newCouponsCreated = await Promise.all(data.purchases.newCoupons?.map(c => createCoupon(prisma, { data: { couponModelId: c.couponModel.id, userId: user.id } })) ?? []);
     const newMembershipsCreated = await Promise.all(data.purchases.newMemberships?.map(m => createMembership(prisma, { data: { membershipModelId: m.membershipModelId, yearStart: m.year, users: [user.id] } })) ?? []);
 
@@ -248,8 +250,14 @@ export const createOrder = async (args: { data: z.infer<typeof orderCreateSchema
     });
 
     return order;
-  }, transactionOptions);
+  }] as const;
 };
+
+export const createOrder = async (args: { data: z.infer<typeof orderCreateSchema> }) =>
+  prisma.$transaction(async prisma => (await createOrderRequest(prisma, args))[1]());
+
+export const previewCreateOrder = async (args: { data: z.infer<typeof orderCreateSchema> }) =>
+  prisma.$transaction(async prisma => (await createOrderRequest(prisma, args))[0]);
 
 export const deleteOrder = async (args: { where: Prisma.OrderWhereUniqueInput }) => prisma.$transaction(async prisma =>
   prisma.order.update({ where: args.where, data: { active: false, transaction: { disconnect: true } } }),

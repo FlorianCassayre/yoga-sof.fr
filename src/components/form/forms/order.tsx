@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   AutocompleteElement, CheckboxElement,
   DatePickerElement,
@@ -13,15 +13,26 @@ import {
   Button,
   Dialog, DialogActions,
   DialogContent, DialogContentText,
-  DialogTitle,
+  DialogTitle, Divider,
   Grid,
   IconButton,
-  Stack,
+  Stack, Step, StepLabel, Stepper,
   Tooltip,
-  Typography
+  Typography, useMediaQuery, useTheme
 } from '@mui/material';
 import { InputPrice } from '../fields';
-import { AddBox, Calculate, Delete, Discount, Euro, Event, Person, ShoppingCart } from '@mui/icons-material';
+import {
+  AddBox,
+  ArrowBack,
+  ArrowForward,
+  Calculate,
+  Delete,
+  Discount,
+  Euro,
+  Event,
+  Person,
+  ShoppingCart
+} from '@mui/icons-material';
 import { CreateFormContent } from '../form';
 import { trpc } from '../../../common/trpc';
 import { SelectUser } from '../fields/SelectUser';
@@ -210,13 +221,18 @@ const StepTitle: React.FC<StepTitleProps> = ({ icon, children }) => (
 );
 
 const OrderFormFields: React.FC = () => {
+  const theme = useTheme();
+  const isSmall = useMediaQuery(theme.breakpoints.down('md'));
+
   const { watch, setValue, control, getValues, formState } = useFormContext();
+
+  const watchStep = watch('step');
 
   const watchUser = watch('user');
 
   const watchCourseRegistrations = watch('purchases.courseRegistrations');
-  //const watchNewCoupons = watch('purchases.newCoupons');
-  //const watchNewMemberships = watch('purchases.newMemberships');
+  const watchNewCoupons = watch('purchases.newCoupons');
+  const watchNewMemberships = watch('purchases.newMemberships');
   const watchExistingCoupons = watch('purchases.existingCoupons');
   const watchExistingMemberships = watch('purchases.existingMembershipIds');
 
@@ -237,248 +253,355 @@ const OrderFormFields: React.FC = () => {
   const { fields: billingExistingCouponFields, append: addBillingExistingCoupon, remove: removeBillingExistingCoupon } = useFieldArray({ control, name: 'billing.existingCoupons' });
   const { fields: billingReplacementCourseRegistrationFields, append: addBillingReplacementCourseRegistration, remove: removeBillingReplacementCourseRegistration } = useFieldArray({ control, name: 'billing.replacementCourseRegistrations' });
 
+  useEffect(() => {
+    setValue('purchases', {});
+    setValue('billing', { transactionId: watchTransactionId });
+    setValue('notes', undefined);
+  }, [watchUser]);
+
   const purchasedNewMembershipDefaultValue = { year: new Date().getFullYear() };
 
-  const tempFormatValues = () => {
-    const values = getValues();
-    return {
-      ...values,
-      user: values.user ? { id: values.user.id } : undefined,
-      purchases: {
-        ...values.purchases,
-        courseRegistrations: values.purchases.courseRegistrations?.map((d: any) => ({ id: d.id })),
-      },
-    };
+  const errors = formState.errors as any;
+
+  const steps: { title: string, subtitle?: string, next?: boolean, error?: boolean, onBack?: () => void }[] = [
+    {
+      title: 'Utilisateur',
+      next: !!watchUser,
+      error: !!errors?.user || !!errors?.billing?.transactionId,
+    },
+    {
+      title: 'Achats',
+      next:
+        (watchCourseRegistrations && watchCourseRegistrations.length > 0)
+        || (watchNewCoupons && watchNewCoupons.length > 0)
+        || (watchExistingCoupons && watchExistingCoupons.length > 0)
+        || (watchNewMemberships && watchNewMemberships.length > 0)
+        || (watchExistingMemberships && watchExistingMemberships.length > 0),
+      error: !!errors?.purchases,
+    },
+    {
+      title: 'Réductions',
+      next: true,
+      error: !!errors?.billing?.newCoupons || !!errors?.billing?.existingCoupons || !!errors?.billing?.trialCourseRegistrationId || !!errors?.billing?.replacementCourseRegistrations,
+    },
+    {
+      title: 'Paiement',
+      error: !!errors?.billing?.newPayment || !!errors?.billing?.force,
+    },
+  ];
+
+  const resetScroll = () => {
+    window.scrollTo(0, 0);
   };
+  const onNextStep = () => {
+    setValue('step', watchStep + 1);
+    resetScroll();
+  };
+  const onPreviousStep = () => {
+    setValue('step', watchStep - 1);
+    resetScroll();
+  };
+  const onChangeStep = (step: number) => {
+    setValue('step', step);
+    resetScroll();
+  }
 
-  return (
+  const renderForm = () => (
     <Grid container spacing={2}>
-      <Grid item xs={6}>
-      <div style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(tempFormatValues(), null, 2)}</div>
-      </Grid>
-      <Grid item xs={6}>
-      <div style={{ whiteSpace: 'pre-wrap' }}>{JSON.stringify(formState.errors, null, 2)}</div>
-      </Grid>
-
-      <Grid item xs={12}>
-        <StepTitle icon={<Person />}>
-          1. Utilisateur
-        </StepTitle>
-      </Grid>
-      <Grid item xs={12}>
-        <SelectUser name="user" noMatchId />
-      </Grid>
-
-      <Grid item xs={12}>
-        <StepTitle icon={<ShoppingCart />}>
-          2. Achats
-        </StepTitle>
-      </Grid>
-      {watchCourseRegistrations !== undefined && watchUser != null && (
-        <Grid item xs={12}>
-          <OptionalField onDelete={() => setValue('purchases.courseRegistrations', undefined)}>
-            <SelectCourseRegistration name="purchases.courseRegistrations" userId={watchUser.id} noOrder multiple noMatchId />
-          </OptionalField>
-        </Grid>
-      )}
-      {watchExistingCoupons !== undefined && watchUser != null && (
-        <Grid item xs={12}>
-          <OptionalField onDelete={() => setValue('purchases.existingCoupons', undefined)}>
-            <SelectCoupon name="purchases.existingCoupons" userId={watchUser.id} noOrder label="Cartes existantes" noMatchId multiple />
-          </OptionalField>
-        </Grid>
-      )}
-      {purchasedNewCouponFields.map((field, index) => (
-        <Grid item xs={12} key={field.id}>
-          <OptionalField onDelete={() => removePurchasedNewCoupon(index)}>
-            <SelectCouponModel name={`purchases.newCoupons.${index}.couponModel`} label="Nouvelle carte" noMatchId />
-          </OptionalField>
-        </Grid>
-      ))}
-      {watchExistingMemberships !== undefined && watchUser != null && (
-        <Grid item xs={12}>
-          <OptionalField onDelete={() => setValue('purchases.existingMembershipIds', undefined)}>
-            <SelectMembership name="purchases.existingMembershipIds" userId={watchUser.id} noOrder label="Cotisations existantes" multiple />
-          </OptionalField>
-        </Grid>
-      )}
-      {purchasedNewMembershipFields.map((field, index) => (
-        <Grid item xs={12} key={field.id}>
-          <OptionalField onDelete={() => removePurchasedNewMembership(index)}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={8} lg={9} xl={10}>
-                <SelectMembershipModel name={`purchases.newMemberships.${index}.membershipModelId`} label="Nouvelle cotisation" />
-              </Grid>
-              <Grid item xs={12} sm={4} lg={3} xl={2}>
-                <InputYear name={`purchases.newMemberships.${index}.year`} label="Année de début de validité" />
-              </Grid>
-            </Grid>
-          </OptionalField>
-        </Grid>
-      ))}
-      {watchCourseRegistrations === undefined && (
-        <Grid item xs={12}>
-          <CreateButton label="Ajouter des séances" disabled={watchUser === undefined} onClick={() => setValue('purchases.courseRegistrations', [])} />
-        </Grid>
-      )}
-      <Grid item xs={12}>
-        <CreateButton label="Ajouter une carte" disabled={watchUser === undefined} onClick={() => watchExistingCoupons === undefined ? setCouponDialogOpen(true) : addPurchasedNewCoupon({})} />
-      </Grid>
-      <BinaryDialog
-        title="Ajout d'une carte" labelA="Lier une carte" labelB="Nouvelle carte"
-        open={couponDialogOpen} setOpen={setCouponDialogOpen} onChooseA={() => setValue('purchases.existingCoupons', [])} onChooseB={() => addPurchasedNewCoupon({})}>
-        Souhaitez lier une carte existante, ou bien en créer une nouvelle ?
-      </BinaryDialog>
-      <Grid item xs={12}>
-        <CreateButton label="Ajouter une cotisation" disabled={watchUser === undefined} onClick={() => watchExistingMemberships === undefined ? setMembershipDialogOpen(true) : addPurchasedNewMembership(purchasedNewMembershipDefaultValue)} />
-      </Grid>
-      <BinaryDialog
-        title="Ajout d'une cotisation" labelA="Lier une cotisation" labelB="Nouvelle cotisation"
-        open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => setValue('purchases.existingMembershipIds', [])} onChooseB={() => addPurchasedNewMembership(purchasedNewMembershipDefaultValue)}
-      >
-        Souhaitez lier une cotisation existante, ou bien en créer une nouvelle ?
-      </BinaryDialog>
-
-      <Grid item xs={12}>
-        <StepTitle icon={<Discount />}>
-          3. Réductions
-        </StepTitle>
-      </Grid>
-      {watchCourseRegistrations !== undefined && watchUser != null && (
+      {watchStep === 0 && (
         <>
-          {billingExistingCouponFields.map((field, index) => (
-            <Grid item xs={12} key={field.id}>
-              <OptionalField onDelete={() => removeBillingExistingCoupon(index)}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <SelectCoupon name={`billing.existingCoupons.${index}.couponId`} userId={watchUser.id} label="Carte existante" />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <SelectDependentCourseRegistration name={`billing.existingCoupons.${index}.courseRegistrationIds`} fromName="purchases.courseRegistrations" multiple label="Séances" />
-                  </Grid>
-                </Grid>
-              </OptionalField>
-            </Grid>
-          ))}
-          {billingNewCouponFields.map((field, index) => (
-            <Grid item xs={12} key={field.id}>
-              <OptionalField onDelete={() => removeBillingNewCoupon(index)}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <SelectDependentCouponModel name={`billing.newCoupons.${index}.newCouponIndex`} fromName="purchases.newCoupons" label="Nouvelle carte" />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <SelectDependentCourseRegistration name={`billing.newCoupons.${index}.courseRegistrationIds`} fromName="purchases.courseRegistrations" multiple label="Séances" />
-                  </Grid>
-                </Grid>
-              </OptionalField>
-            </Grid>
-          ))}
-          {watchTrialCourseRegistration !== undefined && (
+          <Grid item xs={12}>
+            <StepTitle icon={<Person />}>
+              1. Utilisateur
+            </StepTitle>
+            <Typography paragraph>
+              Choisissez l'utilisateur qui bénéficiera de la commande.
+              Optionnellement vous pouvez indiquer un ancien paiement (celui-ci doit alors correspondre à l'utilisateur).
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <SelectUser name="user" noMatchId />
+          </Grid>
+          {watchUser != null && watchTransactionId !== undefined && (
+            <>
+              <Grid item xs={12}>
+                <Alert severity="info">
+                  Lorsque la commande aura été créée l'ancien paiement disparaitra automatiquement de la liste.
+                </Alert>
+              </Grid>
+              <Grid item xs={12}>
+                <OptionalField onDelete={() => setValue('billing.transactionId', undefined)}>
+                  <SelectTransaction name="billing.transactionId" userId={watchUser.id} />
+                </OptionalField>
+              </Grid>
+            </>
+          )}
+          {watchTransactionId === undefined && watchPayment === undefined && (
             <Grid item xs={12}>
-              <OptionalField onDelete={() => setValue('billing.trialCourseRegistrationId', undefined)}>
-                <SelectDependentCourseRegistration name="billing.trialCourseRegistrationId" fromName="purchases.courseRegistrations" label="Séance d'essai" />
+              <CreateButton label="Lier à un ancien paiement" onClick={() => setValue('billing.transactionId', null)} />
+            </Grid>
+          )}
+        </>
+      )}
+
+      {watchStep === 1 && (
+        <>
+          <Grid item xs={12}>
+            <StepTitle icon={<ShoppingCart />}>
+              2. Achats
+            </StepTitle>
+            <Typography paragraph>
+              Choisissez au moins un article à acheter pour cet utilisateur.
+              Seules les séances pour lesquelles l'utilisateur est inscrit sont disponibles.
+            </Typography>
+          </Grid>
+          {watchCourseRegistrations !== undefined && watchUser != null && (
+            <Grid item xs={12}>
+              <OptionalField onDelete={() => setValue('purchases.courseRegistrations', undefined)}>
+                <SelectCourseRegistration name="purchases.courseRegistrations" userId={watchUser.id} noOrder multiple noMatchId />
               </OptionalField>
             </Grid>
           )}
-          {billingReplacementCourseRegistrationFields.map((field, index) => (
+          {watchExistingCoupons !== undefined && watchUser != null && (
+            <Grid item xs={12}>
+              <OptionalField onDelete={() => setValue('purchases.existingCoupons', undefined)}>
+                <SelectCoupon name="purchases.existingCoupons" userId={watchUser.id} noOrder label="Cartes existantes" noMatchId multiple />
+              </OptionalField>
+            </Grid>
+          )}
+          {purchasedNewCouponFields.map((field, index) => (
             <Grid item xs={12} key={field.id}>
-              <OptionalField onDelete={() => removeBillingReplacementCourseRegistration(index)}>
+              <OptionalField onDelete={() => removePurchasedNewCoupon(index)}>
+                <SelectCouponModel name={`purchases.newCoupons.${index}.couponModel`} label="Nouvelle carte" noMatchId />
+              </OptionalField>
+            </Grid>
+          ))}
+          {watchExistingMemberships !== undefined && watchUser != null && (
+            <Grid item xs={12}>
+              <OptionalField onDelete={() => setValue('purchases.existingMembershipIds', undefined)}>
+                <SelectMembership name="purchases.existingMembershipIds" userId={watchUser.id} noOrder label="Cotisations existantes" multiple />
+              </OptionalField>
+            </Grid>
+          )}
+          {purchasedNewMembershipFields.map((field, index) => (
+            <Grid item xs={12} key={field.id}>
+              <OptionalField onDelete={() => removePurchasedNewMembership(index)}>
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <SelectCourseRegistration name={`billing.replacementCourseRegistrations.${index}.fromCourseRegistrationId`} userId={watchUser.id} label="Séance à rattraper" />
+                  <Grid item xs={12} sm={8} lg={9} xl={10}>
+                    <SelectMembershipModel name={`purchases.newMemberships.${index}.membershipModelId`} label="Nouvelle cotisation" />
                   </Grid>
-                  <Grid item xs={12} md={6}>
-                    <SelectDependentCourseRegistration name={`billing.replacementCourseRegistrations.${index}.toCourseRegistrationId`} fromName="purchases.courseRegistrations" label="Séance de rattrapage" />
+                  <Grid item xs={12} sm={4} lg={3} xl={2}>
+                    <InputYear name={`purchases.newMemberships.${index}.year`} label="Année de début de validité" />
                   </Grid>
                 </Grid>
               </OptionalField>
             </Grid>
           ))}
+          {watchCourseRegistrations === undefined && (
+            <Grid item xs={12}>
+              <CreateButton label="Ajouter des séances" disabled={watchUser === undefined} onClick={() => setValue('purchases.courseRegistrations', [])} />
+            </Grid>
+          )}
+          <Grid item xs={12}>
+            <CreateButton label="Ajouter une carte" disabled={watchUser === undefined} onClick={() => watchExistingCoupons === undefined ? setCouponDialogOpen(true) : addPurchasedNewCoupon({})} />
+          </Grid>
+          <BinaryDialog
+            title="Ajout d'une carte" labelA="Lier une carte" labelB="Nouvelle carte"
+            open={couponDialogOpen} setOpen={setCouponDialogOpen} onChooseA={() => setValue('purchases.existingCoupons', [])} onChooseB={() => addPurchasedNewCoupon({})}>
+            Souhaitez lier une carte existante, ou bien en créer une nouvelle ?
+          </BinaryDialog>
+          <Grid item xs={12}>
+            <CreateButton label="Ajouter une cotisation" disabled={watchUser === undefined} onClick={() => watchExistingMemberships === undefined ? setMembershipDialogOpen(true) : addPurchasedNewMembership(purchasedNewMembershipDefaultValue)} />
+          </Grid>
+          <BinaryDialog
+            title="Ajout d'une cotisation" labelA="Lier une cotisation" labelB="Nouvelle cotisation"
+            open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => setValue('purchases.existingMembershipIds', [])} onChooseB={() => addPurchasedNewMembership(purchasedNewMembershipDefaultValue)}
+          >
+            Souhaitez lier une cotisation existante, ou bien en créer une nouvelle ?
+          </BinaryDialog>
         </>
       )}
-      <Grid item xs={12}>
-        <CreateButton label="Ajouter une carte" disabled={watchCourseRegistrations === undefined} onClick={() => setCouponUseDialogOpen(true)} />
-      </Grid>
-      <BinaryDialog
-        title="Ajout d'une carte" labelA="Lier une carte existante" labelB="Lier une nouvelle carte"
-        open={couponUseDialogOpen} setOpen={setCouponUseDialogOpen} onChooseA={() => addBillingExistingCoupon({})} onChooseB={() => addBillingNewCoupon({})}>
-        Souhaitez lier une carte existante, ou bien lier une nouvelle carte ?
-      </BinaryDialog>
-      {watchTrialCourseRegistration === undefined && (
-        <Grid item xs={12}>
-          <CreateButton label="Ajouter une séance d'essai" disabled={watchCourseRegistrations === undefined || watchCourseRegistrations.length === 0} onClick={() => setValue('billing.trialCourseRegistrationId', null)} />
-        </Grid>
-      )}
-      <Grid item xs={12}>
-        <CreateButton label="Ajouter des séances à rattraper" disabled={watchCourseRegistrations === undefined || watchCourseRegistrations.length === 0} onClick={() => addBillingReplacementCourseRegistration({})} />
-      </Grid>
 
-      <Grid item xs={12}>
-        <StepTitle icon={<Euro />}>
-          4. Paiement
-        </StepTitle>
-      </Grid>
-      {watchUser != null && (
-        watchTransactionId !== undefined ? (
-          <>
-            <Grid item xs={12}>
-              <Alert severity="info">
-                Lorsque la commande aura été créée l'ancien paiement disparaitra automatiquement de la liste.
-              </Alert>
-            </Grid>
-            <Grid item xs={12}>
-              <OptionalField onDelete={() => setValue('billing.transactionId', undefined)}>
-                <SelectTransaction name="billing.transactionId" userId={watchUser.id} />
-              </OptionalField>
-            </Grid>
-          </>
-        ) : watchPayment !== undefined ? (
-          <Grid item xs={12}>
-            <OptionalField onDelete={() => setValue('billing.newPayment', undefined)}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <InputPrice name="billing.newPayment.amount" label="Montant en euros" />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <SelectTransactionType name="billing.newPayment.type" />
-                </Grid>
-                <Grid item xs={12}>
-                  <DatePickerElement name="billing.newPayment.date" label="Date" inputProps={{ fullWidth: true }} />
-                </Grid>
-              </Grid>
-            </OptionalField>
-          </Grid>
-        ) : null)}
-      {watchTransactionId === undefined && watchPayment === undefined && (
+      {watchStep === 2 && (
         <>
           <Grid item xs={12}>
-            <CreateButton label="Lier à un ancien paiement" onClick={() => setValue('billing.transactionId', null)} />
+            <StepTitle icon={<Discount />}>
+              3. Réductions
+            </StepTitle>
+            <Typography paragraph>
+              Dans le cas où l'utilisateur peut bénéficier de réductions partielles ou complètes (carte de séances, séance d'essai ou rattrapage de séance), il faut les renseigner ici.
+            </Typography>
           </Grid>
-          <Grid item xs={12}>
-            <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date() })} />
-          </Grid>
+          {watchCourseRegistrations !== undefined && watchUser != null && (
+            <>
+              {billingExistingCouponFields.map((field, index) => (
+                <Grid item xs={12} key={field.id}>
+                  <OptionalField onDelete={() => removeBillingExistingCoupon(index)}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <SelectCoupon name={`billing.existingCoupons.${index}.couponId`} userId={watchUser.id} label="Carte existante" />
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <SelectDependentCourseRegistration name={`billing.existingCoupons.${index}.courseRegistrationIds`} fromName="purchases.courseRegistrations" multiple label="Séances" />
+                      </Grid>
+                    </Grid>
+                  </OptionalField>
+                </Grid>
+              ))}
+              {billingNewCouponFields.map((field, index) => (
+                <Grid item xs={12} key={field.id}>
+                  <OptionalField onDelete={() => removeBillingNewCoupon(index)}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <SelectDependentCouponModel name={`billing.newCoupons.${index}.newCouponIndex`} fromName="purchases.newCoupons" label="Nouvelle carte" />
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <SelectDependentCourseRegistration name={`billing.newCoupons.${index}.courseRegistrationIds`} fromName="purchases.courseRegistrations" multiple label="Séances" />
+                      </Grid>
+                    </Grid>
+                  </OptionalField>
+                </Grid>
+              ))}
+              {watchTrialCourseRegistration !== undefined && (
+                <Grid item xs={12}>
+                  <OptionalField onDelete={() => setValue('billing.trialCourseRegistrationId', undefined)}>
+                    <SelectDependentCourseRegistration name="billing.trialCourseRegistrationId" fromName="purchases.courseRegistrations" label="Séance d'essai" />
+                  </OptionalField>
+                </Grid>
+              )}
+              {billingReplacementCourseRegistrationFields.map((field, index) => (
+                <Grid item xs={12} key={field.id}>
+                  <OptionalField onDelete={() => removeBillingReplacementCourseRegistration(index)}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <SelectCourseRegistration name={`billing.replacementCourseRegistrations.${index}.fromCourseRegistrationId`} userId={watchUser.id} label="Séance à rattraper" />
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <SelectDependentCourseRegistration name={`billing.replacementCourseRegistrations.${index}.toCourseRegistrationId`} fromName="purchases.courseRegistrations" label="Séance de rattrapage" />
+                      </Grid>
+                    </Grid>
+                  </OptionalField>
+                </Grid>
+              ))}
+            </>
+          )}
+          {!(watchCourseRegistrations === undefined || watchCourseRegistrations.length === 0) ? (
+            <>
+              <Grid item xs={12}>
+                <CreateButton label="Ajouter une carte" onClick={() => setCouponUseDialogOpen(true)} />
+              </Grid>
+              <BinaryDialog
+                title="Ajout d'une carte" labelA="Lier une carte existante" labelB="Lier une nouvelle carte"
+                open={couponUseDialogOpen} setOpen={setCouponUseDialogOpen} onChooseA={() => addBillingExistingCoupon({})} onChooseB={() => addBillingNewCoupon({})}>
+                Souhaitez lier une carte existante, ou bien lier une nouvelle carte ?
+              </BinaryDialog>
+              {watchTrialCourseRegistration === undefined && (
+                <Grid item xs={12}>
+                  <CreateButton label="Ajouter une séance d'essai" onClick={() => setValue('billing.trialCourseRegistrationId', null)} />
+                </Grid>
+              )}
+              <Grid item xs={12}>
+                <CreateButton label="Ajouter des séances à rattraper" onClick={() => addBillingReplacementCourseRegistration({})} />
+              </Grid>
+            </>
+          ) : (
+            <Grid item xs={12}>
+              <Alert severity="info">
+                Aucune réduction n'est applicable, vous pouvez passer à l'étape suivante.
+              </Alert>
+            </Grid>
+          )}
         </>
       )}
 
-      <Grid item xs={12}>
-        <StepTitle icon={<Calculate />}>
-          5. Récapitulatif
-        </StepTitle>
+      {watchStep === 3 && (
+        <>
+          <Grid item xs={12}>
+            <StepTitle icon={<Euro />}>
+              5. Paiement
+            </StepTitle>
+            <Typography paragraph>
+              Si toutes les données sont correctes vous pouvez procéder à la validation et si applicable à l'encaissement de la part de l'utilisateur.
+            </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            <TextFieldElement name="notes" label="Notes" fullWidth />
+          </Grid>
+          <Grid item xs={12}>
+            <Alert severity="warning">
+              Attention, le paiement ne correspond pas à ce qui est attendu.
+              Si cela est volontaire, vous devez confirmer en cochant la case ci-dessous.
+            </Alert>
+          </Grid>
+          <Grid item xs={12}>
+            <CheckboxElement name="billing.force" label="Accepter le paiement malgré la disparité" />
+          </Grid>
+
+          {watchUser != null && (
+            watchTransactionId !== undefined ? (
+              <>
+                <Grid item xs={12}>
+                  <OptionalField onDelete={() => setValue('billing.transactionId', undefined)}>
+                    <SelectTransaction name="billing.transactionId" userId={watchUser.id} disabled />
+                  </OptionalField>
+                </Grid>
+              </>
+            ) : watchPayment !== undefined ? (
+              <Grid item xs={12}>
+                <OptionalField onDelete={() => setValue('billing.newPayment', undefined)}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <InputPrice name="billing.newPayment.amount" label="Montant en euros" />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <SelectTransactionType name="billing.newPayment.type" />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <DatePickerElement name="billing.newPayment.date" label="Date" inputProps={{ fullWidth: true }} />
+                    </Grid>
+                  </Grid>
+                </OptionalField>
+              </Grid>
+            ) : null)}
+          {watchTransactionId === undefined && watchPayment === undefined && (
+            <Grid item xs={12}>
+              <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date() })} />
+            </Grid>
+          )}
+        </>
+      )}
+
+      <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        {watchStep > 0 ? (
+          <Button variant="outlined" size="large" startIcon={<ArrowBack />} onClick={onPreviousStep}>
+            Précédent
+          </Button>
+        ) : <Box />}
+        {watchStep < steps.length - 1 ? (
+          <Button variant="contained" size="large" endIcon={<ArrowForward />} onClick={onNextStep} disabled={!steps[watchStep].next}>
+            Suivant
+          </Button>
+        ) : <Box />}
       </Grid>
       <Grid item xs={12}>
-        <TextFieldElement name="notes" label="Notes" fullWidth />
-      </Grid>
-      <Grid item xs={12}>
-        <Alert severity="warning">
-          Attention, le paiement ne correspond pas à ce qui est attendu.
-          Si cela est volontaire, vous devez confirmer en cochant la case ci-dessous.
-        </Alert>
-      </Grid>
-      <Grid item xs={12}>
-        <CheckboxElement name="billing.force" label="Accepter le paiement malgré la disparité" />
+        <Divider />
       </Grid>
     </Grid>
+  );
+
+  return (
+    <>
+      <Box sx={{ mt: 1, mb: 3 }}>
+        <Stepper activeStep={watchStep} alternativeLabel>
+          {steps.map(({ title, error }, index) => (
+            <Step key={index} completed={watchStep > index}>
+              <StepLabel error={error}>{(!isSmall || watchStep === index) ? title : null}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      </Box>
+      {renderForm()}
+    </>
   );
 }
 
@@ -487,6 +610,7 @@ const orderFormDefaultValues: DeepPartial<z.infer<typeof orderCreateSchema>> = {
   billing: {
     force: false,
   },
+  step: 0,
 };
 
 const useProceduresToInvalidate = () => {

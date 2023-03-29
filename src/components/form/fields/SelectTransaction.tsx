@@ -9,9 +9,10 @@ interface SelectTransactionProps {
   userId?: number;
   multiple?: boolean;
   noMatchId?: boolean;
+  disabled?: boolean;
 }
 
-export const SelectTransaction: React.FC<SelectTransactionProps> = ({ name, userId, multiple, noMatchId }) => {
+export const SelectTransaction: React.FC<SelectTransactionProps> = ({ name, userId, multiple, noMatchId, disabled }) => {
   const { data, isLoading } = trpc.transaction.findAll.useQuery({ userId });
   return (
     <AutocompleteElement
@@ -22,7 +23,7 @@ export const SelectTransaction: React.FC<SelectTransactionProps> = ({ name, user
       label={`Ancien${multiple ? 's' : ''} paiement${multiple ? 's' : ''}`}
       loading={isLoading}
       autocompleteProps={{
-        disabled: isLoading,
+        disabled: isLoading || disabled,
         getOptionLabel: (option: Transaction | undefined) => option ? displayTransactionWithDate(option) : '...',
         renderOption: (props, option: Transaction | undefined) => option ? (
           <li {...props} key={option.id}>

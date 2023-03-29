@@ -67,6 +67,7 @@ export const orderCreateSchema = z.strictObject({
     force: z.boolean().refine(value => value, { message: 'Vous devez cocher cette case pour continuer' }),
   }),
   notes: z.string().optional(),
+  step: z.number().optional(),
 }).superRefine((data, ctx) => {
   type FieldPath = (string | number)[];
   const distinctPaths = (paths: FieldPath[]): FieldPath[] =>
