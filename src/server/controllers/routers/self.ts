@@ -14,6 +14,7 @@ import { router, userProcedure } from '../trpc';
 import { User } from '@prisma/client';
 import { displayUserName } from '../../../common/display';
 import { ServiceError, ServiceErrorCode } from '../../services/helpers/errors';
+import { findCouponsPublic } from '../../services/coupon';
 
 // It is important to control the data that we return from this router, since it is accessible to any logged-in user
 
@@ -34,6 +35,16 @@ export const selfRouter = router({
       return await prisma.$transaction(async (prisma) => {
         await validateControlsUser(prisma, { where: { id: requesterId, userId } });
         return findCourseRegistrationsPublic(prisma, { userId, future, userCanceled });
+      }, transactionOptions);
+    }),
+  findAllCoupons: userProcedure
+    .input(z.strictObject({
+      userId: z.number().int().min(0),
+    }))
+    .query(async ({ input: { userId }, ctx: { session: { userId: requesterId } } }) => {
+      return await prisma.$transaction(async (prisma) => {
+        await validateControlsUser(prisma, { where: { id: requesterId, userId } });
+        return findCouponsPublic(prisma, { where: { userId } });
       }, transactionOptions);
     }),
   profile: userProcedure

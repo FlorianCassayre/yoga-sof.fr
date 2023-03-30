@@ -28,6 +28,7 @@ import { useSnackbar } from 'notistack';
 import { Save } from '@mui/icons-material';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userSchemaBase } from '../common/schemas/user';
+import { FrontsiteCouponGrid } from '../components/grid/grids/FrontsiteCouponGrid';
 
 interface CalendarWidgetProps {
   userId: number;
@@ -154,6 +155,13 @@ const UserTabPanelContent: React.FC<UserTabPanelProps> = ({ userId, publicAccess
         Désinscriptions
       </Typography>
       <FrontsiteCourseGrid userId={userId} future={null} userCanceled={true} />
+      <Typography variant="h5" component="div" sx={{ my: 2 }}>
+        Cartes
+      </Typography>
+      <Typography paragraph>
+        Si vous avez acheté des cartes de séances, leur solde s'affichera ci-dessous.
+      </Typography>
+      <FrontsiteCouponGrid userId={userId} />
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Données personnelles
       </Typography>
