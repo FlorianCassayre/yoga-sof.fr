@@ -27,7 +27,8 @@ export const findCoupons = async (args: { where: { includeDisabled: boolean, use
     include: {
       user: true,
       ordersPurchased: { where: { active: true }, select: { id: true } },
-    }
+      orderCourseRegistrations: { where: { order: { active: true } }, select: { courseRegistrationId: true } },
+    },
   });
 
 export const createCoupon = async (prisma: Prisma.TransactionClient, args: { data: { couponModelId: number, userId: number, free?: boolean } }) => {
@@ -45,4 +46,15 @@ export const disableCoupon = async (args: { where: Prisma.CouponWhereUniqueInput
     }
     return await prisma.coupon.update({ where: args.where, data: { disabled: true } });
   }, transactionOptions);
+};
+
+export const findCouponsPublic = async (prisma: Prisma.TransactionClient, args: { where: { userId: number } }) => {
+  return (await findCoupons({ where: { userId: args.where.userId, includeDisabled: false } })).map(({ id, courseType, code, quantity, orderCourseRegistrations, createdAt }) => ({
+    id,
+    courseType,
+    code,
+    quantity,
+    remaining: quantity - orderCourseRegistrations.length,
+    createdAt,
+  }));
 };

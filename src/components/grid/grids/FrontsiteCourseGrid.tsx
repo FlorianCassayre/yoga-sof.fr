@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { Cancel } from '@mui/icons-material';
+import { Cancel, Close, Done, QuestionMark } from '@mui/icons-material';
 import {
   formatDateDDsmmYYYY,
   formatTimeHHhMM,
@@ -17,6 +17,8 @@ import { CourseStatusChip } from '../../CourseStatusChip';
 import { relativeTimestamp } from './common';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
+import { ChipLink } from '../../ChipLink';
+import { Chip } from '@mui/material';
 
 interface GridActionCancelRegistrationProps {
   userId: number;
@@ -92,6 +94,19 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
       headerName: `Désinscription`,
       flex: 1.5,
     })] : []),
+    {
+      field: 'paid',
+      headerName: 'Réglée',
+      minWidth: 150,
+      flex: 1,
+      valueGetter: ({ row }: { row: { paid: boolean } }) => row.paid,
+      renderCell: ({ value }) =>
+        value ? (
+          <Chip label="Oui" color="success" variant="outlined" icon={<Done />} />
+        ) : (
+          <Chip label="Pas encore" color="default" variant="outlined" icon={<QuestionMark />} />
+        ),
+    },
     ...(future ? [{
       field: 'actions',
       type: 'actions',

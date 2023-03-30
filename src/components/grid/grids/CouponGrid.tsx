@@ -133,10 +133,18 @@ export const CouponGrid: React.FunctionComponent<CouponGridProps> = ({ userId, c
     },
     {
       field: 'quantity',
-      headerName: 'Nombre de séances',
+      headerName: 'Séances restantes',
       flex: 1,
       minWidth: 150,
-    },
+      valueGetter: ({ row }: { row: RouterOutput['coupon']['findAll'][0] }) => [row.quantity, row.quantity - row.orderCourseRegistrations.length],
+      renderCell: ({ value: [quantity, remaining] }: { value: [number, number] }) => (
+        <Box>
+          <Box display="inline" color={remaining > 3 ? 'green' : remaining > 0 ? 'orange' : 'red'}>{remaining}</Box>
+          {' / '}
+          <Box display="inline">{quantity}</Box>
+        </Box>
+      )
+    } as any, // TODO
     {
       field: 'price',
       headerName: `Prix d'achat`,

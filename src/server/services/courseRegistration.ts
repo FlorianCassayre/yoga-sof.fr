@@ -103,13 +103,15 @@ export const updateCourseRegistrationAttendance = async (args: { where: { id: nu
   }, transactionOptions);
 };
 
-export const findCourseRegistrationsPublic = (prisma: Prisma.TransactionClient, { userId, future, userCanceled }: { userId: number, userCanceled: boolean, future: boolean | null }) => {
+export const findCourseRegistrationsPublic = async (prisma: Prisma.TransactionClient, { userId, future, userCanceled }: { userId: number, userCanceled: boolean, future: boolean | null }) => {
   const whereCourseFuture = {
     dateEnd: {
       gt: new Date(),
     },
   };
-  return findCourseRegistrations(prisma, {
+  const activeArgs = { active: true };
+  const whereActiveOrders = { where: { order: activeArgs }, select: { order: { select: { id: true } } } };
+  const result = await prisma.courseRegistration.findMany({
     where: {
       userId,
       isUserCanceled: userCanceled,
@@ -129,6 +131,15 @@ export const findCourseRegistrationsPublic = (prisma: Prisma.TransactionClient, 
           isCanceled: true,
         },
       },
+      orderUsedCoupons: whereActiveOrders,
+      orderTrial: whereActiveOrders,
+      orderReplacementTo: whereActiveOrders,
+      orderPurchased: { where: activeArgs, select: { id: true } },
     },
   });
+
+  return result.map(({ orderUsedCoupons, orderTrial, orderReplacementTo, orderPurchased, ...rest }) => ({
+    ...rest,
+    paid: [orderUsedCoupons, orderTrial, orderReplacementTo, orderPurchased].flat().length > 0,
+  }));
 }
