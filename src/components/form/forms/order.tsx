@@ -10,7 +10,7 @@ import { z } from 'zod';
 import {
   Alert,
   Box,
-  Button,
+  Button, CircularProgress,
   Dialog, DialogActions,
   DialogContent, DialogContentText,
   DialogTitle, Divider,
@@ -37,7 +37,15 @@ import { CreateFormContent } from '../form';
 import { trpc } from '../../../common/trpc';
 import { SelectUser } from '../fields/SelectUser';
 import { SelectCourseRegistration } from '../fields/SelectCourseRegistration';
-import { CouponModel, Course, CourseModel, CourseRegistration, Transaction, User } from '@prisma/client';
+import {
+  CouponModel,
+  Course,
+  CourseModel,
+  CourseRegistration,
+  Transaction,
+  TransactionType,
+  User
+} from '@prisma/client';
 import {
   displayCouponModelName,
   displayCourseName,
@@ -224,7 +232,7 @@ const OrderFormFields: React.FC = () => {
   const theme = useTheme();
   const isSmall = useMediaQuery(theme.breakpoints.down('md'));
 
-  const { watch, setValue, control, getValues, formState } = useFormContext();
+  const { watch, setValue, control, getValues, formState, trigger } = useFormContext();
 
   const watchStep = watch('step');
 
@@ -289,6 +297,23 @@ const OrderFormFields: React.FC = () => {
       error: !!errors?.billing?.newPayment || !!errors?.billing?.force,
     },
   ];
+
+  const values = useMemo(() => getValues(), [watchStep]);
+  const previewOrderCreate = trpc.useQueries(t => watchStep === steps.length - 1 ? [
+    t.order.previewCreate({ ...values, billing: { ...values?.billing, force: true } } as any)
+  ] : ([] as any[]));
+  // TODO all of this is garbage
+  useEffect(() => {
+    if (previewOrderCreate[0]?.isError) {
+      //trigger();
+    }
+  }, [previewOrderCreate[0]?.isError as any]);
+  const computedAmountToPay: number | null = (previewOrderCreate[0]?.data as any)?.computedAmount ?? null;
+  const needForce: boolean = (previewOrderCreate[0]?.data as any)?.needForce ?? false;
+  const amountPaid: number = (previewOrderCreate[0]?.data as any)?.amountPaid ?? 0;
+  useEffect(() => {
+    setValue('billing.force', !needForce);
+  }, [needForce]);
 
   const resetScroll = () => {
     window.scrollTo(0, 0);
@@ -521,22 +546,27 @@ const OrderFormFields: React.FC = () => {
               5. Paiement
             </StepTitle>
             <Typography paragraph>
-              Si toutes les données sont correctes vous pouvez procéder à la validation et si applicable à l'encaissement de la part de l'utilisateur.
+              Si toutes les données vous semblent correctes vous pouvez procéder à la validation et si applicable à l'encaissement de la part de l'utilisateur.
             </Typography>
+          </Grid>
+          <Grid item xs={12}>
+            {previewOrderCreate.length === 1 && (previewOrderCreate[0].isLoading ? (
+              <Box textAlign="center" sx={{ my: 3 }}>
+                <CircularProgress />
+              </Box>
+            ) : previewOrderCreate[0].data ? (
+              <Alert severity="info">
+                L'utilisateur doit payer <strong>{computedAmountToPay} €</strong>.
+              </Alert>
+            ) : (
+              <Alert severity="error">
+                Une erreur est survenue lors du calcul de l'aperçu ; un des champs est peut-être erroné.
+              </Alert>
+            ))}
           </Grid>
           <Grid item xs={12}>
             <TextFieldElement name="notes" label="Notes" fullWidth />
           </Grid>
-          <Grid item xs={12}>
-            <Alert severity="warning">
-              Attention, le paiement ne correspond pas à ce qui est attendu.
-              Si cela est volontaire, vous devez confirmer en cochant la case ci-dessous.
-            </Alert>
-          </Grid>
-          <Grid item xs={12}>
-            <CheckboxElement name="billing.force" label="Accepter le paiement malgré la disparité" />
-          </Grid>
-
           {watchUser != null && (
             watchTransactionId !== undefined ? (
               <>
@@ -567,6 +597,19 @@ const OrderFormFields: React.FC = () => {
             <Grid item xs={12}>
               <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date() })} />
             </Grid>
+          )}
+          {needForce && (
+            <>
+              <Grid item xs={12}>
+                <Alert severity="warning">
+                  Attention, le paiement ne correspond pas à ce qui est attendu : la commande s'élève à <strong>{computedAmountToPay} €</strong> tandis que les paiements déclarés s'élèvent à <strong>{amountPaid} €</strong>.
+                  Si vous souhaitez tout de même valider le paiement vous pouvez prendre la main en cochant la case ci-dessous.
+                </Alert>
+              </Grid>
+              <Grid item xs={12}>
+                <CheckboxElement name="billing.force" label="Accepter le paiement malgré la disparité" />
+              </Grid>
+            </>
           )}
         </>
       )}

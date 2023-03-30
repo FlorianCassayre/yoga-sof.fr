@@ -185,9 +185,15 @@ export const createOrderRequest = async (prisma: Prisma.TransactionClient, args:
   // If there are no payments there will be no dates, in that case it makes sense to set it to the current day
   const date = transaction?.date ?? data.billing.newPayment?.date ?? new Date();
 
+  const amountPaid = transaction?.amount ?? data.billing?.newPayment?.amount ?? 0;
+
   // ---
 
-  const preview = {};
+  const preview = {
+    computedAmount,
+    amountPaid,
+    needForce: computedAmount !== amountPaid,
+  };
 
   return [preview, async () => {
     const newCouponsCreated = await Promise.all(data.purchases.newCoupons?.map(c => createCoupon(prisma, { data: { couponModelId: c.couponModel.id, userId: user.id } })) ?? []);
