@@ -12,12 +12,6 @@ export const orderFindTransformSchema = z.object({
   ),
 });
 
-const checkUniqueFor = <T>(idGetter: (e: T) => number, message: string = `Les éléments doivent être distincts`) =>
-  [
-    (array: T[]) => new Set(array.map(e => idGetter(e))).size === array.length,
-    { message }
-  ] as const;
-
 export const orderCreateStep1UserSchema = z.object({
   user: z.object({
     id: z.number().int().min(0),
@@ -81,7 +75,9 @@ const orderCreateStep3DiscountsBase = orderCreateStep2PurchasesSchemaBase.merge(
       courseRegistrationIds: z.array(z.number().int().min(0)).min(1),
     })).optional(),
     existingCoupons: z.array(z.strictObject({
-      couponId: z.number().int().min(0),
+      coupon: z.object({
+        id: z.number().int().min(0),
+      }),
       courseRegistrationIds: z.array(z.number().int().min(0)).min(1),
     })).optional(),
     trialCourseRegistration: z.strictObject({
@@ -91,9 +87,7 @@ const orderCreateStep3DiscountsBase = orderCreateStep2PurchasesSchemaBase.merge(
     replacementCourseRegistrations: z.array(z.strictObject({
       fromCourseRegistrationId: z.number().int().min(0),
       toCourseRegistrationId: z.number().int().min(0),
-    }))
-      .refine(...checkUniqueFor((e: { fromCourseRegistrationId: number }) => e.fromCourseRegistrationId))
-      .optional(),
+    })).optional(),
   })),
 }));
 
@@ -118,6 +112,14 @@ export const refineBilling: z.RefinementEffect<z.infer<typeof orderCreateStep3Di
     [
       data.purchases.newCoupons?.map((_, index) => ({ id: index, path: ['purchases', 'newCoupons', index, 'couponModel'] })) ?? [], // <- The error is not exactly this field but fine
       data.billing.newCoupons?.map(({ newCouponIndex }, index) => ({ id: newCouponIndex, path: ['billing', 'newCoupons', index, 'newCouponIndex'] })) ?? []
+    ],
+    [
+      data.billing.existingCoupons?.map(({ coupon }, index) => ({ id: coupon.id, path: ['billing', 'existingCoupons', index, 'coupon'] })) ?? [],
+      [],
+    ],
+    [
+      data.billing.replacementCourseRegistrations?.map((r, index) => ({ id: r.fromCourseRegistrationId, path: ['billing', 'replacementCourseRegistrations', index, 'fromCourseRegistrationId'] })) ?? [],
+      [],
     ],
   ];
 

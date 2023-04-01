@@ -10,7 +10,7 @@ import { z } from 'zod';
 import {
   Alert,
   Box,
-  Button, CircularProgress,
+  Button, Card, CircularProgress,
   Dialog, DialogActions,
   DialogContent, DialogContentText,
   DialogTitle,
@@ -36,14 +36,20 @@ import { trpc } from '../../../common/trpc';
 import { SelectUser } from '../fields/SelectUser';
 import { SelectCourseRegistration } from '../fields/SelectCourseRegistration';
 import {
+  Coupon,
   CouponModel,
   Course,
-  CourseRegistration, Transaction,
+  CourseRegistration, Membership, MembershipModel, Transaction,
   User
 } from '@prisma/client';
 import {
   displayCouponModelName,
+  displayCouponName,
   displayCourseName,
+  displayMembershipModelName,
+  displayMembershipModelNameWithoutPrice,
+  displayMembershipName,
+  displayUserName
 } from '../../../common/display';
 import { SelectTransaction } from '../fields/SelectTransaction';
 import { SelectMembershipModel } from '../fields/SelectMembershipModel';
@@ -61,6 +67,7 @@ import { SelectCoupon } from '../fields/SelectCoupon';
 import { SelectMembership } from '../fields/SelectMembership';
 import { InputYear } from '../fields/InputYear';
 import PatchedAutocompleteElement from '../fields/PatchedAutocompleteElement';
+import { PurchasesTable } from '../../PurchasesTable';
 
 interface BinaryDialogProps {
   open: boolean;
@@ -246,7 +253,7 @@ const OrderFormFields: React.FC = () => {
   const watchExistingMemberships = watch('purchases.existingMemberships');
 
   const watchTrialCourseRegistration = watch('billing.trialCourseRegistration');
-  //const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
+  const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
   const watchTransaction = watch('billing.transaction');
   const watchPayment = watch('billing.newPayment');
 
@@ -299,9 +306,81 @@ const OrderFormFields: React.FC = () => {
     if (watchStep !== steps.length - 1) {
       return;
     }
+    const values = getValues() as any as (z.infer<typeof orderCreateStep3Discounts> & { user: User, billing: { transaction?: Transaction } });
 
-    return {};
-  }, [watchStep]);
+    type PurchaseTableItem = Parameters<typeof PurchasesTable>[0]['rows'][0];
+
+    const items: PurchaseTableItem[] = (values.purchases.existingMemberships?.map(m => {
+      const membership = m as Membership;
+      return {
+        item: displayMembershipName(membership),
+        price: membership.price,
+      };
+    }) ?? []).concat(values.purchases.newMemberships?.map(m => {
+      const membershipModel = m.membershipModel as MembershipModel;
+      return {
+        item: displayMembershipModelNameWithoutPrice(membershipModel),
+        price: membershipModel.price,
+      };
+    }) ?? []).concat(values.purchases.existingCoupons?.map(c => {
+      const coupon = c as Coupon;
+      return {
+        item: displayCouponName(coupon),
+        price: coupon.price,
+      };
+    }) ?? []).concat(values.purchases.newCoupons?.map(c => {
+      const couponModel = c.couponModel as CouponModel;
+      return {
+        item: displayCouponModelName(couponModel),
+        price: couponModel.price,
+      };
+    }) ?? []).concat(values.purchases.courseRegistrations?.map((courseRegistration) => {
+      const { id, course } = courseRegistration as CourseRegistration & { course: Course };
+      const existingCoupon = values.billing.existingCoupons?.filter(c => c.courseRegistrationIds.includes(id))[0];
+      const newCoupon = values.billing.newCoupons?.filter(c => c.courseRegistrationIds.includes(id))[0];
+      const replacement = values.billing.replacementCourseRegistrations?.filter(r => r.toCourseRegistrationId === id)[0];
+
+      if (existingCoupon !== undefined) { // Existing coupon
+        return {
+          item: displayCourseName(course),
+          discount: displayCouponName(existingCoupon.coupon as Coupon),
+          oldPrice: course.price,
+          price: 0,
+        };
+      } else if (values.purchases.newCoupons !== undefined && newCoupon !== undefined) { // New coupon
+        return {
+          item: displayCourseName(course),
+          discount: displayCouponModelName(values.purchases.newCoupons[newCoupon.newCouponIndex].couponModel as CouponModel),
+          oldPrice: course.price,
+          price: 0,
+        };
+      } else if (replacement !== undefined) { // Replacement
+        return {
+          item: displayCourseName(course),
+          discount: 'Remplacement de séance', // TODO
+          oldPrice: course.price,
+          price: 0,
+        };
+      } else if (values.billing.trialCourseRegistration !== undefined && values.billing.trialCourseRegistration?.courseRegistrationId === id) { // Trial
+        return {
+          item: displayCourseName(course),
+          discount: `Séance d'essai`,
+          oldPrice: course.price,
+          price: values.billing.trialCourseRegistration.newPrice,
+        };
+      } else { // Normal purchase
+        return {
+          item: displayCourseName(course),
+          price: course.price,
+        };
+      }
+    }) ?? []);
+
+    return {
+      items,
+      computedAmount: items.map(({ price }) => price).reduce((a, b) => a + b, 0),
+    };
+  }, [watchStep, getValues]);
 
   const resetScroll = () => {
     window.scrollTo(0, 0);
@@ -320,7 +399,7 @@ const OrderFormFields: React.FC = () => {
   }
 
   const renderForm = () => (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} justifyContent="center">
       {watchStep === 0 && (
         <>
           <Grid item xs={12}>
@@ -452,7 +531,7 @@ const OrderFormFields: React.FC = () => {
                   <OptionalField onDelete={() => removeBillingExistingCoupon(index)}>
                     <Grid container spacing={2}>
                       <Grid item xs={12} md={6}>
-                        <SelectCoupon name={`billing.existingCoupons.${index}.couponId`} userId={watchUser.id} label="Carte existante" />
+                        <SelectCoupon name={`billing.existingCoupons.${index}.coupon`} userId={watchUser.id} label="Carte existante" noMatchId />
                       </Grid>
                       <Grid item xs={12} md={6}>
                         <SelectDependentCourseRegistration name={`billing.existingCoupons.${index}.courseRegistrationIds`} fromName="purchases.courseRegistrations" multiple label="Séances" />
@@ -544,12 +623,13 @@ const OrderFormFields: React.FC = () => {
               Si toutes les données vous semblent correctes vous pouvez procéder à la validation et si applicable à l'encaissement de la part de l'utilisateur.
             </Typography>
           </Grid>
-          <Grid item xs={12}>
-            TODO FIXME
-          </Grid>
-          <Grid item xs={12}>
-            <TextFieldElement name="notes" label="Notes" fullWidth />
-          </Grid>
+          {orderPreview && (
+            <Grid item xs={12} lg={10} xl={8}>
+              <Card variant="outlined" sx={{ borderBottom: 'none' }}>
+                <PurchasesTable rows={orderPreview.items} totalToPay={orderPreview.computedAmount} small />
+              </Card>
+            </Grid>
+          )}
           {watchUser != null && (
             watchTransaction !== undefined ? (
               <>
@@ -581,23 +661,20 @@ const OrderFormFields: React.FC = () => {
               <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date() })} />
             </Grid>
           )}
-
           <Grid item xs={12}>
-            <CheckboxElement name="billing.force" label="Accepter le paiement malgré la disparité" />
+            <CheckboxElement name="billing.force" label="Définir un autre prix pour cette commande" />
           </Grid>
-          {/*{needForce && (
-            <>
-              <Grid item xs={12}>
-                <Alert severity="warning">
-                  Attention, le paiement ne correspond pas à ce qui est attendu : la commande s'élève à <strong>{computedAmountToPay} €</strong> tandis que les paiements déclarés s'élèvent à <strong>{amountPaid} €</strong>.
-                  Si vous souhaitez tout de même valider le paiement vous pouvez prendre la main en cochant la case ci-dessous.
-                </Alert>
-              </Grid>
-              <Grid item xs={12}>
-                <CheckboxElement name="billing.force" label="Accepter le paiement malgré la disparité" />
-              </Grid>
-            </>
-          )}*/}
+          <Grid item xs={12}>
+            <TextFieldElement name="notes" label="Notes" fullWidth />
+          </Grid>
+
+          {!!orderPreview && (
+            <Grid item xs={12}>
+              <Alert severity="info">
+                En cliquant sur "créer" vous confirmez avoir reçu un paiement de <strong>{orderPreview.computedAmount} €</strong> de la part de <strong>{displayUserName(watchUser)}</strong>.
+              </Alert>
+            </Grid>
+          )}
         </>
       )}
 
