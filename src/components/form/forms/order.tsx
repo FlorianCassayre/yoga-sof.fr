@@ -10,7 +10,7 @@ import { z } from 'zod';
 import {
   Alert,
   Box,
-  Button, Card, CircularProgress,
+  Button, Card,
   Dialog, DialogActions,
   DialogContent, DialogContentText,
   DialogTitle,
@@ -46,7 +46,6 @@ import {
   displayCouponModelName,
   displayCouponName,
   displayCourseName,
-  displayMembershipModelName,
   displayMembershipModelNameWithoutPrice,
   displayMembershipName,
   displayUserName
@@ -247,8 +246,8 @@ const OrderFormFields: React.FC = () => {
   const watchUser = watch('user');
 
   const watchCourseRegistrations = watch('purchases.courseRegistrations');
-  const watchNewCoupons = watch('purchases.newCoupons');
-  const watchNewMemberships = watch('purchases.newMemberships');
+  //const watchNewCoupons = watch('purchases.newCoupons');
+  //const watchNewMemberships = watch('purchases.newMemberships');
   const watchExistingCoupons = watch('purchases.existingCoupons');
   const watchExistingMemberships = watch('purchases.existingMemberships');
 
@@ -256,6 +255,8 @@ const OrderFormFields: React.FC = () => {
   const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
   const watchTransaction = watch('billing.transaction');
   const watchPayment = watch('billing.newPayment');
+  const watchBillingExistingCoupons = watch('billing.existingCoupons');
+  const watchBillingNewCoupons = watch('billing.newCoupons');
 
   //
 
@@ -265,15 +266,9 @@ const OrderFormFields: React.FC = () => {
 
   const { fields: purchasedNewCouponFields, append: addPurchasedNewCoupon, remove: removePurchasedNewCoupon } = useFieldArray({ control, name: 'purchases.newCoupons' });
   const { fields: purchasedNewMembershipFields, append: addPurchasedNewMembership, remove: removePurchasedNewMembership } = useFieldArray({ control, name: 'purchases.newMemberships' });
-  const { fields: billingNewCouponFields, append: addBillingNewCoupon, remove: removeBillingNewCoupon } = useFieldArray({ control, name: 'billing.newCoupons' });
-  const { fields: billingExistingCouponFields, append: addBillingExistingCoupon, remove: removeBillingExistingCoupon } = useFieldArray({ control, name: 'billing.existingCoupons' });
+  const { fields: billingNewCouponFields, append: addBillingNewCoupon, remove: removeBillingNewCoupon, update: updateBillingNewCoupon } = useFieldArray({ control, name: 'billing.newCoupons' });
+  const { fields: billingExistingCouponFields, append: addBillingExistingCoupon, remove: removeBillingExistingCoupon, update: updateBillingExistingCoupon } = useFieldArray({ control, name: 'billing.existingCoupons' });
   const { fields: billingReplacementCourseRegistrationFields, append: addBillingReplacementCourseRegistration, remove: removeBillingReplacementCourseRegistration } = useFieldArray({ control, name: 'billing.replacementCourseRegistrations' });
-
-  useEffect(() => {
-    setValue('purchases', {});
-    setValue('billing', { transaction: watchTransaction });
-    setValue('notes', undefined);
-  }, [watchUser]);
 
   const purchasedNewMembershipDefaultValue = { year: new Date().getFullYear() };
 
@@ -298,7 +293,7 @@ const OrderFormFields: React.FC = () => {
     {
       title: 'Paiement',
       schema: orderCreateStep4Payment,
-      error: !!errors?.billing?.newPayment || !!errors?.billing?.force,
+      error: !!errors?.billing?.newPayment && !!errors?.notes,
     },
   ];
 
@@ -357,7 +352,7 @@ const OrderFormFields: React.FC = () => {
       } else if (replacement !== undefined) { // Replacement
         return {
           item: displayCourseName(course),
-          discount: 'Remplacement de séance', // TODO
+          discount: 'Remplacement de séance', // TODO include name
           oldPrice: course.price,
           price: 0,
         };
@@ -382,6 +377,71 @@ const OrderFormFields: React.FC = () => {
     };
   }, [watchStep, getValues]);
 
+  // Synchronize dependent fields
+
+  // Step 1
+  useEffect(() => {
+    if (watchUser && watchTransaction && watchUser.id !== watchTransaction.userId || !watchUser && watchTransaction) {
+      setValue('billing.transaction', undefined);
+    }
+  }, [watchUser]);
+
+  // Step 2
+  useEffect(() => {
+    if (!watchUser) {
+      setValue('purchases.courseRegistrations', watchCourseRegistrations ? (watchCourseRegistrations.length > 0 ? [] : watchCourseRegistrations) : undefined);
+      setValue('purchases.existingCoupons', watchExistingCoupons ? (watchExistingCoupons.length > 0 ? [] : watchExistingCoupons) : undefined);
+      setValue('purchases.existingMemberships', watchExistingMemberships ? (watchExistingMemberships.length > 0 ? [] : watchExistingMemberships) : undefined);
+    } else {
+      if (watchCourseRegistrations) {
+        const filteredCourseRegistrations = (watchCourseRegistrations as CourseRegistration[]).filter(({ userId }) => watchUser.id === userId);
+        if (filteredCourseRegistrations.length !== watchCourseRegistrations.length) {
+          setValue('purchases.courseRegistrations', filteredCourseRegistrations);
+        }
+      }
+      if (watchExistingCoupons) {
+        const filteredExistingCoupons = (watchExistingCoupons as Coupon[]).filter(({ userId }) => watchUser.id === userId);
+        if (filteredExistingCoupons.length !== watchExistingCoupons.length) {
+          setValue('purchases.existingCoupons', filteredExistingCoupons);
+        }
+      }
+      if (watchExistingMemberships) {
+        const filteredExistingMemberships = (watchExistingMemberships as (Membership & { users: User[] })[]).filter(({ users }) => users.some(({ id }) => id === watchUser.id));
+        if (filteredExistingMemberships.length !== watchExistingMemberships.length) {
+          setValue('purchases.existingMemberships', filteredExistingMemberships);
+        }
+      }
+    }
+  }, [watchStep]);
+
+  // Step 3
+  useEffect(() => {
+    if (!watchCourseRegistrations) {
+      [[watchBillingExistingCoupons, updateBillingExistingCoupon], [watchBillingNewCoupons, updateBillingNewCoupon]].forEach(([watchBillingCoupons, updateBillingCoupons]) =>
+        (watchBillingCoupons as any[] | undefined)?.forEach((o, i) => {
+          const courseRegistrationIds = o.courseRegistrationIds;
+          updateBillingCoupons(i, { ...o, courseRegistrationIds: courseRegistrationIds ? (courseRegistrationIds.length > 0 ? [] : courseRegistrationIds) : undefined });
+        })
+      );
+    } else {
+      [[watchBillingExistingCoupons, updateBillingExistingCoupon], [watchBillingNewCoupons, updateBillingNewCoupon]].forEach(([watchBillingCoupons, updateBillingCoupons]) =>
+        (watchBillingCoupons as any[] | undefined)?.forEach((o, i) => {
+          const courseRegistrations = o.courseRegistrationsIds as number[] | undefined;
+          if (courseRegistrations) {
+            const filteredCourseRegistrations = courseRegistrations.filter(id => watchCourseRegistrations.some((c: any) => c.id === id));
+            if (filteredCourseRegistrations.length !== courseRegistrations.length) {
+              updateBillingCoupons(i, { ...o, courseRegistrationIds: filteredCourseRegistrations });
+            }
+          }
+        })
+      );
+    }
+    if (watchTrialCourseRegistration && (!watchCourseRegistrations || !watchCourseRegistrations.some((c: any) => c.id === watchTrialCourseRegistration.courseRegistrationId))) {
+      setValue('billing.trialCourseRegistration.courseRegistrationId', undefined);
+    }
+    // TODO replacement
+  }, [watchStep]); // Infinite loop with more dependencies... honestly fed up with this crap
+
   const resetScroll = () => {
     window.scrollTo(0, 0);
   };
@@ -393,10 +453,6 @@ const OrderFormFields: React.FC = () => {
     setValue('step', watchStep - 1);
     resetScroll();
   };
-  const onChangeStep = (step: number) => {
-    setValue('step', step);
-    resetScroll();
-  }
 
   const renderForm = () => (
     <Grid container spacing={2} justifyContent="center">
@@ -418,7 +474,7 @@ const OrderFormFields: React.FC = () => {
             <>
               <Grid item xs={12}>
                 <Alert severity="info">
-                  Lorsque la commande aura été créée l'ancien paiement disparaitra automatiquement de la liste.
+                  L'ancien paiement disparaitra automatiquement de la liste lorsque la commande aura été créée.
                 </Alert>
               </Grid>
               <Grid item xs={12}>
@@ -430,7 +486,7 @@ const OrderFormFields: React.FC = () => {
           )}
           {watchTransaction === undefined && watchPayment === undefined && (
             <Grid item xs={12}>
-              <CreateButton label="Lier à un ancien paiement" onClick={() => setValue('billing.transaction', null)} />
+              <CreateButton label="Lier à un ancien paiement" onClick={() => setValue('billing.transaction', null)} disabled={!watchUser} />
             </Grid>
           )}
         </>
@@ -606,7 +662,7 @@ const OrderFormFields: React.FC = () => {
           ) : (
             <Grid item xs={12}>
               <Alert severity="info">
-                Aucune réduction n'est applicable, vous pouvez passer à l'étape suivante.
+                Aucune réduction n'est applicable, vous pouvez directement passer à l'étape suivante.
               </Alert>
             </Grid>
           )}
@@ -624,7 +680,7 @@ const OrderFormFields: React.FC = () => {
             </Typography>
           </Grid>
           {orderPreview && (
-            <Grid item xs={12} lg={10} xl={8}>
+            <Grid item xs={12} lg={10} xl={8} sx={{ mb: 2 }}>
               <Card variant="outlined" sx={{ borderBottom: 'none' }}>
                 <PurchasesTable rows={orderPreview.items} totalToPay={orderPreview.computedAmount} small />
               </Card>
@@ -643,14 +699,19 @@ const OrderFormFields: React.FC = () => {
               <Grid item xs={12}>
                 <OptionalField onDelete={() => setValue('billing.newPayment', undefined)}>
                   <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <InputPrice name="billing.newPayment.amount" label="Montant en euros" />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
+                    {watchPayment?.overrideAmount && (
+                      <Grid item xs={12} sm={6}>
+                        <InputPrice name="billing.newPayment.amount" label="Montant en euros" />
+                      </Grid>
+                    )}
+                    <Grid item xs={12} sm={watchPayment?.overrideAmount ? 6 : undefined}>
                       <SelectTransactionType name="billing.newPayment.type" />
                     </Grid>
                     <Grid item xs={12}>
                       <DatePickerElement name="billing.newPayment.date" label="Date" inputProps={{ fullWidth: true }} />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <CheckboxElement name="billing.newPayment.overrideAmount" label="Définir un autre prix pour cette commande" />
                     </Grid>
                   </Grid>
                 </OptionalField>
@@ -658,27 +719,49 @@ const OrderFormFields: React.FC = () => {
             ) : null)}
           {watchTransaction === undefined && watchPayment === undefined && (
             <Grid item xs={12}>
-              <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date() })} />
+              <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date(), overrideAmount: false })} />
             </Grid>
           )}
-          <Grid item xs={12}>
-            <CheckboxElement name="billing.force" label="Définir un autre prix pour cette commande" />
-          </Grid>
           <Grid item xs={12}>
             <TextFieldElement name="notes" label="Notes" fullWidth />
           </Grid>
 
-          {!!orderPreview && (
+          {!!orderPreview && ((
+            (watchTransaction && watchTransaction.amount !== orderPreview.computedAmount)
+            || (!watchTransaction && !watchPayment && orderPreview.computedAmount > 0)
+          ) ? (
             <Grid item xs={12}>
-              <Alert severity="info">
-                En cliquant sur "créer" vous confirmez avoir reçu un paiement de <strong>{orderPreview.computedAmount} €</strong> de la part de <strong>{displayUserName(watchUser)}</strong>.
+              <Alert severity="warning">
+                {orderPreview.computedAmount > 0 ? (
+                  <>
+                    Le montant de la commande est de <strong>{orderPreview.computedAmount} €</strong> tandis que le paiement de l'utilisateur revient à <strong>{watchTransaction?.amount ?? watchPayment?.amount ?? 0} €</strong>.
+                  </>
+                ) : (
+                  <>
+                    Le montant de la commande est de <strong>0 €</strong>, aucun paiement n'est attendu.
+                  </>
+                )}
               </Alert>
             </Grid>
-          )}
+          ) : (
+            <Grid item xs={12}>
+              <Alert severity="info">
+                {orderPreview.computedAmount > 0 || (watchPayment?.overrideAmount && (watchPayment?.amount ?? 0) > 0) ? (
+                  <>
+                    En cliquant sur "créer" vous confirmez avoir reçu un paiement de <strong>{watchPayment?.overrideAmount ? (watchPayment?.amount ?? 0) : orderPreview.computedAmount} €</strong> de la part de <strong>{displayUserName(watchUser)}</strong>.
+                  </>
+                ) : (
+                  <>
+                    En cliquant sur "créer" vous confirmez ne pas avoir reçu de paiement de la part de <strong>{displayUserName(watchUser)}</strong>.
+                  </>
+                )}
+              </Alert>
+            </Grid>
+          ))}
         </>
       )}
 
-      <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+      <Grid item xs={12} sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
         {watchStep > 0 ? (
           <Button key={`previous-${watchStep}`} variant="outlined" startIcon={<ArrowBack />} onClick={onPreviousStep}>
             Précédent
@@ -711,9 +794,6 @@ const OrderFormFields: React.FC = () => {
 
 const orderFormDefaultValues: DeepPartial<z.infer<typeof orderCreateSchema>> = {
   purchases: {},
-  billing: {
-    force: false,
-  },
   step: 0,
 };
 
@@ -761,7 +841,7 @@ export const OrderCreateForm: React.FC = () => {
 
   return (userData.length === 0 || (userData[0].data && !userData[0].isLoading)) && (transactionData.length === 0 || (transactionData[0].data && !transactionData[0].isLoading)) ? (
     <CreateFormContent
-      {...commonFormProps({ ...(userData.length === 0 ? {} : { user: userData[0].data as any}), ...(transactionData.length === 0 ? {} : { user: transactionData[0].data as any}) })}
+      {...commonFormProps({ ...(userData.length === 0 ? {} : { user: userData[0].data as any}), ...(transactionData.length === 0 ? {} : { transaction: transactionData[0].data as any}) })}
       title="Création d'une commande"
       schema={orderCreateSchema}
       mutationProcedure={trpc.order.create}

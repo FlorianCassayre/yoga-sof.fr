@@ -176,11 +176,11 @@ export const orderCreateStep3Discounts = orderCreateStep3DiscountsBase.superRefi
 const orderCreateStep4PaymentBase = orderCreateStep3DiscountsBase.merge(z.object({
   billing: orderCreateStep3DiscountsBase.shape.billing.merge(z.strictObject({ // <- needs to be strict
     newPayment: z.strictObject({
-      amount: z.number().int().min(1),
+      amount: z.number().int().min(0).optional(),
+      overrideAmount: z.boolean(),
       type: z.nativeEnum(TransactionType),
       date: z.date(),
     }).optional(),
-    force: z.boolean().refine(value => value, { message: 'Vous devez cocher cette case pour continuer' }),
   })),
   notes: z.string().optional(),
 }));
@@ -190,10 +190,18 @@ export const refinePaymentType: z.RefinementEffect<z.infer<typeof orderCreateSte
     [['data', 'billing', 'transaction'], ['billing', 'newPayment']].forEach(path =>
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ctx.path,
+        path,
         message: `Il ne peut y avoir qu'un seul paiement par commande`,
       })
     );
+  }
+
+  if (data.billing.newPayment !== undefined && data.billing.newPayment.overrideAmount && data.billing.newPayment.amount === undefined) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['billing', 'newPayment', 'amount'],
+      message: `Requis`,
+    });
   }
 };
 

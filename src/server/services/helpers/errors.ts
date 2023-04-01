@@ -31,6 +31,7 @@ export enum ServiceErrorCode {
   OrderCourseRegistrationCouponFull,
   OrderCouponAlreadyOrdered,
   OrderMembershipAlreadyOrdered,
+  OrderPaymentAmountMismatch,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -73,4 +74,5 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.OrderCourseRegistrationCouponFull]: `La coupon est plein`,
   [ServiceErrorCode.OrderCouponAlreadyOrdered]: `La carte fait déjà partie d'une commande`,
   [ServiceErrorCode.OrderMembershipAlreadyOrdered]: `L'adhésion fait déjà partie d'une commande`,
+  [ServiceErrorCode.OrderPaymentAmountMismatch]: `Le montant payé ne correspond pas au total de la commande`,
 };
