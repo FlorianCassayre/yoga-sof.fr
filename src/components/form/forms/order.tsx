@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   AutocompleteElement, CheckboxElement,
   DatePickerElement,
-  DeepPartial, SwitchElement,
+  DeepPartial,
   TextFieldElement, useFieldArray,
   useFormContext
 } from 'react-hook-form-mui';
@@ -13,7 +13,7 @@ import {
   Button, CircularProgress,
   Dialog, DialogActions,
   DialogContent, DialogContentText,
-  DialogTitle, Divider,
+  DialogTitle,
   Grid,
   IconButton,
   Stack, Step, StepLabel, Stepper,
@@ -25,11 +25,9 @@ import {
   AddBox,
   ArrowBack,
   ArrowForward,
-  Calculate,
   Delete,
   Discount,
   Euro,
-  Event,
   Person,
   ShoppingCart
 } from '@mui/icons-material';
@@ -40,10 +38,7 @@ import { SelectCourseRegistration } from '../fields/SelectCourseRegistration';
 import {
   CouponModel,
   Course,
-  CourseModel,
   CourseRegistration,
-  Transaction,
-  TransactionType,
   User
 } from '@prisma/client';
 import {
@@ -294,6 +289,7 @@ const OrderFormFields: React.FC = () => {
     },
     {
       title: 'Paiement',
+      next: true,
       error: !!errors?.billing?.newPayment || !!errors?.billing?.force,
     },
   ];
@@ -616,18 +612,15 @@ const OrderFormFields: React.FC = () => {
 
       <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
         {watchStep > 0 ? (
-          <Button variant="outlined" size="large" startIcon={<ArrowBack />} onClick={onPreviousStep}>
+          <Button key={`previous-${watchStep}`} variant="outlined" startIcon={<ArrowBack />} onClick={onPreviousStep}>
             Précédent
           </Button>
         ) : <Box />}
-        {watchStep < steps.length - 1 ? (
-          <Button variant="contained" size="large" endIcon={<ArrowForward />} onClick={onNextStep} disabled={!steps[watchStep].next}>
-            Suivant
+        {watchStep < steps.length ? (
+          <Button key={`next-${watchStep}`} type={watchStep !== steps.length - 1 ? undefined : 'submit'} variant="contained" color={watchStep !== steps.length - 1 ? undefined : 'success'} endIcon={watchStep !== steps.length - 1 ? <ArrowForward /> : <AddBox />} onClick={watchStep !== steps.length - 1 ? onNextStep : undefined} disabled={!steps[watchStep].next}>
+            {watchStep !== steps.length - 1 ? `Suivant` : `Créer`}
           </Button>
         ) : <Box />}
-      </Grid>
-      <Grid item xs={12}>
-        <Divider />
       </Grid>
     </Grid>
   );
@@ -705,6 +698,7 @@ export const OrderCreateForm: React.FC = () => {
       mutationProcedure={trpc.order.create}
       successMessage={(data) => `La commande a été enregistrée.`}
       invalidate={invalidate}
+      hiddenControls
     >
       <OrderFormFields />
     </CreateFormContent>
