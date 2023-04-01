@@ -50,7 +50,11 @@ import { SelectMembershipModel } from '../fields/SelectMembershipModel';
 import { SelectCouponModel } from '../fields/SelectCouponModel';
 import { grey } from '@mui/material/colors';
 import { SelectTransactionType } from '../fields/SelectTransactionType';
-import { orderCreateSchema } from '../../../common/schemas/order';
+import {
+  orderCreateSchema,
+  orderCreateStep1UserSchema,
+  orderCreateStep2PurchasesSchema, orderCreateStep3Discounts, orderCreateStep4Payment
+} from '../../../common/schemas/order';
 import { useRouter } from 'next/router';
 import { BackofficeContentLoading } from '../../layout/admin/BackofficeContentLoading';
 import { SelectCoupon } from '../fields/SelectCoupon';
@@ -229,6 +233,8 @@ const OrderFormFields: React.FC = () => {
 
   const { watch, setValue, control, getValues, formState, trigger } = useFormContext();
 
+  const watchValues = watch();
+
   const watchStep = watch('step');
 
   const watchUser = watch('user');
@@ -266,30 +272,25 @@ const OrderFormFields: React.FC = () => {
 
   const errors = formState.errors as any;
 
-  const steps: { title: string, subtitle?: string, next?: boolean, error?: boolean, onBack?: () => void }[] = [
+  const steps: { title: string, subtitle?: string, schema: z.Schema, error?: boolean, onBack?: () => void }[] = [
     {
       title: 'Utilisateur',
-      next: !!watchUser,
+      schema: orderCreateStep1UserSchema,
       error: !!errors?.user || !!errors?.billing?.transaction,
     },
     {
       title: 'Achats',
-      next:
-        (watchCourseRegistrations && watchCourseRegistrations.length > 0)
-        || (watchNewCoupons && watchNewCoupons.length > 0)
-        || (watchExistingCoupons && watchExistingCoupons.length > 0)
-        || (watchNewMemberships && watchNewMemberships.length > 0)
-        || (watchExistingMemberships && watchExistingMemberships.length > 0),
+      schema: orderCreateStep2PurchasesSchema,
       error: !!errors?.purchases,
     },
     {
       title: 'Réductions',
-      next: true,
+      schema: orderCreateStep3Discounts,
       error: !!errors?.billing?.newCoupons || !!errors?.billing?.existingCoupons || !!errors?.billing?.trialCourseRegistrationId || !!errors?.billing?.replacementCourseRegistrations,
     },
     {
       title: 'Paiement',
-      next: true,
+      schema: orderCreateStep4Payment,
       error: !!errors?.billing?.newPayment || !!errors?.billing?.force,
     },
   ];
@@ -580,6 +581,10 @@ const OrderFormFields: React.FC = () => {
               <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date() })} />
             </Grid>
           )}
+
+          <Grid item xs={12}>
+            <CheckboxElement name="billing.force" label="Accepter le paiement malgré la disparité" />
+          </Grid>
           {/*{needForce && (
             <>
               <Grid item xs={12}>
@@ -603,7 +608,7 @@ const OrderFormFields: React.FC = () => {
           </Button>
         ) : <Box />}
         {watchStep < steps.length ? (
-          <Button key={`next-${watchStep}`} type={watchStep !== steps.length - 1 ? undefined : 'submit'} variant="contained" color={watchStep !== steps.length - 1 ? undefined : 'success'} endIcon={watchStep !== steps.length - 1 ? <ArrowForward /> : <AddBox />} onClick={watchStep !== steps.length - 1 ? onNextStep : undefined} disabled={!steps[watchStep].next}>
+          <Button key={`next-${watchStep}`} type={watchStep !== steps.length - 1 ? undefined : 'submit'} variant="contained" color={watchStep !== steps.length - 1 ? undefined : 'success'} endIcon={watchStep !== steps.length - 1 ? <ArrowForward /> : <AddBox />} onClick={watchStep !== steps.length - 1 ? onNextStep : undefined} disabled={!steps[watchStep].schema.safeParse(watchValues).success}>
             {watchStep !== steps.length - 1 ? `Suivant` : `Créer`}
           </Button>
         ) : <Box />}

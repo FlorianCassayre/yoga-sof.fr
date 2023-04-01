@@ -18,10 +18,18 @@ const checkUniqueFor = <T>(idGetter: (e: T) => number, message: string = `Les é
     { message }
   ] as const;
 
-export const orderCreateSchema = z.strictObject({
+export const orderCreateStep1UserSchema = z.object({
   user: z.object({
     id: z.number().int().min(0),
   }),
+  billing: z.object({
+    transaction: z.object({
+      id: z.number().int().min(0),
+    }).optional(),
+  }),
+});
+
+const orderCreateStep2PurchasesSchemaBase = orderCreateStep1UserSchema.merge(z.object({
   purchases: z.strictObject({
     courseRegistrations: z.array(z.object({
       id: z.number().int().min(0),
@@ -46,7 +54,28 @@ export const orderCreateSchema = z.strictObject({
       }),
     ).min(1).optional(),
   }),
-  billing: z.strictObject({
+}));
+
+export const refineAtLeastOnePurchase: z.RefinementEffect<z.infer<typeof orderCreateStep2PurchasesSchemaBase>>['refinement'] = ({ purchases }, ctx) => {
+  if (!(
+    purchases.courseRegistrations?.length
+    || purchases.newCoupons?.length
+    || purchases.existingCoupons?.length
+    || purchases.newMemberships?.length
+    || purchases.existingMemberships?.length
+  )) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ctx.path,
+      message: `La commande ne peut pas être vide`,
+    });
+  }
+};
+
+export const orderCreateStep2PurchasesSchema = orderCreateStep2PurchasesSchemaBase.superRefine(refineAtLeastOnePurchase);
+
+const orderCreateStep3DiscountsBase = orderCreateStep2PurchasesSchemaBase.merge(z.object({
+  billing: orderCreateStep2PurchasesSchemaBase.shape.billing.merge(z.object({
     newCoupons: z.array(z.strictObject({
       newCouponIndex: z.number().int().min(0),
       courseRegistrationIds: z.array(z.number().int().min(0)).min(1),
@@ -63,21 +92,12 @@ export const orderCreateSchema = z.strictObject({
       fromCourseRegistrationId: z.number().int().min(0),
       toCourseRegistrationId: z.number().int().min(0),
     }))
-      .refine(...checkUniqueFor((e: { toCourseRegistrationId: number }) => e.toCourseRegistrationId))
+      .refine(...checkUniqueFor((e: { fromCourseRegistrationId: number }) => e.fromCourseRegistrationId))
       .optional(),
-    transaction: z.object({
-      id: z.number().int().min(0),
-    }).optional(),
-    newPayment: z.strictObject({
-      amount: z.number().int().min(1),
-      type: z.nativeEnum(TransactionType),
-      date: z.date(),
-    }).optional(),
-    force: z.boolean().refine(value => value, { message: 'Vous devez cocher cette case pour continuer' }),
-  }),
-  notes: z.string().optional(),
-  step: z.number().optional(),
-}).superRefine((data, ctx) => {
+  })),
+}));
+
+export const refineBilling: z.RefinementEffect<z.infer<typeof orderCreateStep3DiscountsBase>>['refinement'] = (data, ctx) => {
   type FieldPath = (string | number)[];
   const distinctPaths = (paths: FieldPath[]): FieldPath[] =>
     Object.values(Object.fromEntries(paths.map(path => [path.join('.'), path])));
@@ -147,21 +167,23 @@ export const orderCreateSchema = z.strictObject({
       });
     }
   });
+};
 
-  if (!(
-    data.purchases.courseRegistrations?.length
-    || data.purchases.newCoupons?.length
-    || data.purchases.existingCoupons?.length
-    || data.purchases.newMemberships?.length
-    || data.purchases.existingMemberships?.length
-  )) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ctx.path,
-      message: `La commande ne peut pas être vide`,
-    });
-  }
+export const orderCreateStep3Discounts = orderCreateStep3DiscountsBase.superRefine(refineAtLeastOnePurchase).superRefine(refineBilling);
 
+const orderCreateStep4PaymentBase = orderCreateStep3DiscountsBase.merge(z.object({
+  billing: orderCreateStep3DiscountsBase.shape.billing.merge(z.strictObject({ // <- needs to be strict
+    newPayment: z.strictObject({
+      amount: z.number().int().min(1),
+      type: z.nativeEnum(TransactionType),
+      date: z.date(),
+    }).optional(),
+    force: z.boolean().refine(value => value, { message: 'Vous devez cocher cette case pour continuer' }),
+  })),
+  notes: z.string().optional(),
+}));
+
+export const refinePaymentType: z.RefinementEffect<z.infer<typeof orderCreateStep4PaymentBase>>['refinement'] = (data, ctx) => {
   if (data.billing.transaction !== undefined && data.billing.newPayment !== undefined) {
     [['data', 'billing', 'transaction'], ['billing', 'newPayment']].forEach(path =>
       ctx.addIssue({
@@ -171,5 +193,10 @@ export const orderCreateSchema = z.strictObject({
       })
     );
   }
+};
 
-});
+export const orderCreateStep4Payment = orderCreateStep4PaymentBase.superRefine(refineAtLeastOnePurchase).superRefine(refineBilling).superRefine(refinePaymentType);
+
+export const orderCreateSchema = orderCreateStep4PaymentBase.merge(z.strictObject({ // <- needs to be strict
+  step: z.number().optional(),
+})).superRefine(refineAtLeastOnePurchase).superRefine(refineBilling).superRefine(refinePaymentType);
