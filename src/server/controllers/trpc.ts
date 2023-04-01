@@ -6,6 +6,7 @@ import { ZodError } from 'zod';
 import { ServiceError } from '../services/helpers/errors';
 import { getSession } from 'next-auth/react';
 import * as trpc from '@trpc/server';
+import { TRPC_ERROR_CODES_BY_KEY } from '@trpc/server/rpc';
 
 const t = initTRPC.context<Context & Record<string, unknown>>().create({
   transformer: superjson,
@@ -20,7 +21,7 @@ const t = initTRPC.context<Context & Record<string, unknown>>().create({
       };
     } else if (error.cause instanceof ServiceError) {
       return {
-        code: -32600, // FIXME issue with compiler
+        code: TRPC_ERROR_CODES_BY_KEY.BAD_REQUEST,
         message: error.cause.message,
         data: {
           code: error.cause.code,
