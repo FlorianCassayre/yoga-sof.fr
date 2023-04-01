@@ -52,6 +52,7 @@ interface FormContentProps<TMutationProcedure extends AnyMutationProcedure, TDat
   defaultValues: DeepPartial<inferProcedureInput<TMutationProcedure>>;
   invalidate?: { reset: () => Promise<void> }[];
   successMessage: (data: TData) => SnackbarMessage;
+  hiddenControls?: boolean;
 }
 
 interface CreateFormContentProps<TMutationProcedure extends AnyMutationProcedure> extends FormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>> {
@@ -82,6 +83,7 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
   invalidate,
   successMessage,
   edit,
+  hiddenControls,
   isLoading: isQueryLoading,
   error: queryError,
 }: InternalFormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>>) => {
@@ -120,16 +122,18 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
             <Grid item xs={12}>
               {children}
             </Grid>
-            <Grid item xs={12} container direction="row" spacing={2} justifyContent="flex-end">
-              <Grid item>
-                <Button variant="outlined" color="inherit" startIcon={<Cancel />} onClick={handleCancel}>Annuler</Button>
+            {!hiddenControls && (
+              <Grid item xs={12} container direction="row" spacing={2} justifyContent="flex-end">
+                <Grid item>
+                  <Button variant="outlined" color="inherit" startIcon={<Cancel />} onClick={handleCancel}>Annuler</Button>
+                </Grid>
+                <Grid item>
+                  <Button type="submit" variant="contained" color={edit ? undefined : 'success'} startIcon={edit ? <Save /> : <AddBox />}>
+                    {edit ? 'Sauvegarder' : 'Créer'}
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item>
-                <Button type="submit" variant="contained" color={edit ? undefined : 'success'} startIcon={edit ? <Save /> : <AddBox />}>
-                  {edit ? 'Sauvegarder' : 'Créer'}
-                </Button>
-              </Grid>
-            </Grid>
+            )}
           </Grid>
         ) : (
           <Box display="flex" alignItems="center" justifyContent="center">

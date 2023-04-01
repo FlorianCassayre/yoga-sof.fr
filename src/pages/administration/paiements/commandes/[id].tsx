@@ -18,6 +18,7 @@ import { formatDateDDsMMsYYYYsHHhMMmSSs, formatDateDDsmmYYYY } from '../../../..
 import { UserLink } from '../../../../components/link/UserLink';
 import { DeleteOrderDialog } from '../../../../components/DeleteOrderDialog';
 import { useSnackbar } from 'notistack';
+import { PurchasesTable } from '../../../../components/PurchasesTable';
 
 interface OrderViewContentProps {
   order: RouterOutput['order']['find'];
@@ -39,7 +40,7 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
     },
   });
 
-  type PurchaseTableItem = { item: React.ReactNode, oldPrice?: number, price: number, discount?: React.ReactNode };
+  type PurchaseTableItem = Parameters<typeof PurchasesTable>[0]['rows'][0];
   const makeCourseRegistrationsTableData =
     (items: (Omit<PurchaseTableItem, 'item'> & { courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }> })[]): PurchaseTableItem[] =>
       items
@@ -93,8 +94,6 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
       ]),
     ];
 
-  const displayPrice = (price: number) => `${price} €`;
-
   return (
     <BackofficeContent
       title={`Commande du ${formatDateDDsmmYYYY(order.date)} pour ${displayUserName(order.user)}`}
@@ -132,44 +131,14 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
         </Grid>
         <Grid item xs={12} lg={9} xl={6}>
           <Card variant="outlined" sx={{ borderBottom: 'none' }}>
-            <Table /*size="small"*/>
-              <TableHead>
-                <TableRow>
-                  <TableCell variant="head">Article</TableCell>
-                  <TableCell variant="head" align="right">Prix</TableCell>
-                  <TableCell variant="head">Réduction</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {purchasesTableData.map(({ item, oldPrice, price, discount }, i) => (
-                  <TableRow key={i}>
-                    <TableCell>{item}</TableCell>
-                    <TableCell align="right">
-                      {oldPrice !== undefined ?
-                        (
-                          <Stack direction="row" alignItems="center" spacing={0.5} justifyContent="flex-end">
-                            <Box sx={{ textDecoration: 'line-through' }}>{displayPrice(oldPrice)}</Box>
-                            <ArrowRightAlt color="action" />
-                            <Box>{displayPrice(price)}</Box>
-                          </Stack>
-                        ) :
-                        displayPrice(price)}
-                    </TableCell>
-                    <TableCell>{discount}</TableCell>
-                  </TableRow>
-                ))}
-                <TableRow>
-                  <TableCell variant="head" align="right">Total à payer</TableCell>
-                  <TableCell align="right">{displayPrice(order.computedAmount)}</TableCell>
-                  <TableCell>{null}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell variant="head" align="right">Total payé</TableCell>
-                  <TableCell align="right">{displayPrice(order?.payment?.amount ?? 0)}</TableCell>
-                  <TableCell>{order?.payment ? TransactionTypeNames[order.payment.type] : null}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            <PurchasesTable
+              rows={purchasesTableData}
+              totalToPay={order.computedAmount}
+              paid={{
+                amount: order.payment?.amount ?? 0,
+                type: order.payment?.type,
+              }}
+            />
           </Card>
         </Grid>
       </Grid>

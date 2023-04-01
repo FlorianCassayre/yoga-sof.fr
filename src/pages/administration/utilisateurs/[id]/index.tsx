@@ -1,6 +1,17 @@
 import React, { useState } from 'react';
 import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
-import { Assignment, Block, Info, Edit, Person, Done, Close, QuestionMark, Delete } from '@mui/icons-material';
+import {
+  Assignment,
+  Block,
+  Info,
+  Edit,
+  Person,
+  Done,
+  Close,
+  QuestionMark,
+  Delete,
+  ShoppingCart
+} from '@mui/icons-material';
 import { Prisma } from '@prisma/client';
 import { displayUserName } from '../../../../common/display';
 import { userFindTransformSchema } from '../../../../common/schemas/user';
@@ -132,6 +143,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       ]}
       quickActions={[
         { name: 'Inscrire à des séances', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { userId: user.id } } },
+        { name: 'Créer une commande', icon: <ShoppingCart />, url: { pathname: `/administration/paiements/commandes/creation`, query: { userId: user.id } } },
       ]}
     >
       <DisableUserDialog user={user} open={isDisableDialogOpen && !user.disabled} setOpen={setDisableDialogOpen} onConfirm={() => mutateDisable({ id: user.id, disabled: true })} />

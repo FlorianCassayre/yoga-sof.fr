@@ -30,7 +30,7 @@ export const findCoursesPaginated = async <Where extends Prisma.CourseWhereInput
 export const updateCourse = async <Where extends Prisma.CourseWhereUniqueInput, Data extends Partial<Pick<Course, 'slots' | 'price' | 'notes'>>, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, data: Data, select?: Select, include?: Include }) => {
   const { where: { id }, data: { slots } } = args;
   return await writeTransaction(async (prisma) => {
-    const course = await prisma.course.findUniqueOrThrow({ where: args.where, select: { isCanceled: true, dateEnd: true } });
+    const course = await prisma.course.findUniqueOrThrow({ where: args.where, select: { isCanceled: true, dateEnd: true, price: true, registrations: { select: { isUserCanceled: true, orderPurchased: { select: { id: true } } } } } });
     if ((args.data.slots !== undefined || args.data.price !== undefined) && course.isCanceled) {
       throw new ServiceError(ServiceErrorCode.CourseCanceledNoModification);
     }
@@ -49,6 +49,9 @@ export const updateCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
       if (slots < count) {
         throw new ServiceError(ServiceErrorCode.FewerSlotsThanRegistered);
       }
+    }
+    if (args.data.price !== undefined && args.data.price !== course.price && !course.registrations.every(r => r.orderPurchased.length === 0 && (r.isUserCanceled || course.isCanceled))) {
+      throw new ServiceError(ServiceErrorCode.CoursePriceCannotBeModified);
     }
     return prisma.course.update(args);
   });

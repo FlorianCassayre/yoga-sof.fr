@@ -1,28 +1,28 @@
 import React from 'react';
 import { trpc } from '../../../common/trpc';
-import { displayCouponModelName, displayCouponName } from '../../../common/display';
+import { displayCouponNameWithQuantity } from '../../../common/display';
 import { AsyncSelect } from './AsyncSelect';
-import { CouponModel } from '@prisma/client';
 
 interface SelectCouponProps {
   name: string;
   userId: number;
   noOrder?: boolean;
+  notEmpty?: boolean;
   multiple?: boolean;
   noMatchId?: boolean;
   label?: string;
 }
 
-export const SelectCoupon: React.FC<SelectCouponProps> = ({ name, userId, noOrder, multiple, noMatchId, label }) => {
+export const SelectCoupon: React.FC<SelectCouponProps> = ({ name, userId, noOrder, notEmpty, multiple, noMatchId, label }) => {
   return (
     <AsyncSelect
       name={name}
       multiple={multiple}
       noMatchId={noMatchId}
       label={label ?? `Carte${multiple ? 's' : ''}`}
-      renderOptionLabel={(option: CouponModel) => displayCouponName(option)}
+      renderOptionLabel={(option: any) => displayCouponNameWithQuantity(option)}
       procedure={trpc.coupon.findAll}
-      input={{ userId, noOrder }}
+      input={{ userId, noOrder, notEmpty }}
     />
   );
 };

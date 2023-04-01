@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   AutocompleteElement, CheckboxElement,
   DatePickerElement,
-  DeepPartial, SwitchElement,
+  DeepPartial,
   TextFieldElement, useFieldArray,
   useFormContext
 } from 'react-hook-form-mui';
@@ -10,10 +10,10 @@ import { z } from 'zod';
 import {
   Alert,
   Box,
-  Button, CircularProgress,
+  Button, Card,
   Dialog, DialogActions,
   DialogContent, DialogContentText,
-  DialogTitle, Divider,
+  DialogTitle,
   Grid,
   IconButton,
   Stack, Step, StepLabel, Stepper,
@@ -25,11 +25,9 @@ import {
   AddBox,
   ArrowBack,
   ArrowForward,
-  Calculate,
   Delete,
   Discount,
   Euro,
-  Event,
   Person,
   ShoppingCart
 } from '@mui/icons-material';
@@ -38,30 +36,37 @@ import { trpc } from '../../../common/trpc';
 import { SelectUser } from '../fields/SelectUser';
 import { SelectCourseRegistration } from '../fields/SelectCourseRegistration';
 import {
+  Coupon,
   CouponModel,
   Course,
-  CourseModel,
-  CourseRegistration,
-  Transaction,
-  TransactionType,
+  CourseRegistration, Membership, MembershipModel, Transaction,
   User
 } from '@prisma/client';
 import {
   displayCouponModelName,
+  displayCouponName,
   displayCourseName,
+  displayMembershipModelNameWithoutPrice,
+  displayMembershipName,
+  displayUserName
 } from '../../../common/display';
 import { SelectTransaction } from '../fields/SelectTransaction';
 import { SelectMembershipModel } from '../fields/SelectMembershipModel';
 import { SelectCouponModel } from '../fields/SelectCouponModel';
 import { grey } from '@mui/material/colors';
 import { SelectTransactionType } from '../fields/SelectTransactionType';
-import { orderCreateSchema } from '../../../common/schemas/order';
+import {
+  orderCreateSchema,
+  orderCreateStep1UserSchema,
+  orderCreateStep2PurchasesSchema, orderCreateStep3Discounts, orderCreateStep4Payment
+} from '../../../common/schemas/order';
 import { useRouter } from 'next/router';
 import { BackofficeContentLoading } from '../../layout/admin/BackofficeContentLoading';
 import { SelectCoupon } from '../fields/SelectCoupon';
 import { SelectMembership } from '../fields/SelectMembership';
 import { InputYear } from '../fields/InputYear';
 import PatchedAutocompleteElement from '../fields/PatchedAutocompleteElement';
+import { PurchasesTable } from '../../PurchasesTable';
 
 interface BinaryDialogProps {
   open: boolean;
@@ -234,20 +239,24 @@ const OrderFormFields: React.FC = () => {
 
   const { watch, setValue, control, getValues, formState, trigger } = useFormContext();
 
+  const watchValues = watch();
+
   const watchStep = watch('step');
 
   const watchUser = watch('user');
 
   const watchCourseRegistrations = watch('purchases.courseRegistrations');
-  const watchNewCoupons = watch('purchases.newCoupons');
-  const watchNewMemberships = watch('purchases.newMemberships');
+  //const watchNewCoupons = watch('purchases.newCoupons');
+  //const watchNewMemberships = watch('purchases.newMemberships');
   const watchExistingCoupons = watch('purchases.existingCoupons');
-  const watchExistingMemberships = watch('purchases.existingMembershipIds');
+  const watchExistingMemberships = watch('purchases.existingMemberships');
 
-  const watchTrialCourseRegistration = watch('billing.trialCourseRegistrationId');
-  //const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
-  const watchTransactionId = watch('billing.transactionId');
+  const watchTrialCourseRegistration = watch('billing.trialCourseRegistration');
+  const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
+  const watchTransaction = watch('billing.transaction');
   const watchPayment = watch('billing.newPayment');
+  const watchBillingExistingCoupons = watch('billing.existingCoupons');
+  const watchBillingNewCoupons = watch('billing.newCoupons');
 
   //
 
@@ -257,63 +266,181 @@ const OrderFormFields: React.FC = () => {
 
   const { fields: purchasedNewCouponFields, append: addPurchasedNewCoupon, remove: removePurchasedNewCoupon } = useFieldArray({ control, name: 'purchases.newCoupons' });
   const { fields: purchasedNewMembershipFields, append: addPurchasedNewMembership, remove: removePurchasedNewMembership } = useFieldArray({ control, name: 'purchases.newMemberships' });
-  const { fields: billingNewCouponFields, append: addBillingNewCoupon, remove: removeBillingNewCoupon } = useFieldArray({ control, name: 'billing.newCoupons' });
-  const { fields: billingExistingCouponFields, append: addBillingExistingCoupon, remove: removeBillingExistingCoupon } = useFieldArray({ control, name: 'billing.existingCoupons' });
+  const { fields: billingNewCouponFields, append: addBillingNewCoupon, remove: removeBillingNewCoupon, update: updateBillingNewCoupon } = useFieldArray({ control, name: 'billing.newCoupons' });
+  const { fields: billingExistingCouponFields, append: addBillingExistingCoupon, remove: removeBillingExistingCoupon, update: updateBillingExistingCoupon } = useFieldArray({ control, name: 'billing.existingCoupons' });
   const { fields: billingReplacementCourseRegistrationFields, append: addBillingReplacementCourseRegistration, remove: removeBillingReplacementCourseRegistration } = useFieldArray({ control, name: 'billing.replacementCourseRegistrations' });
-
-  useEffect(() => {
-    setValue('purchases', {});
-    setValue('billing', { transactionId: watchTransactionId });
-    setValue('notes', undefined);
-  }, [watchUser]);
 
   const purchasedNewMembershipDefaultValue = { year: new Date().getFullYear() };
 
   const errors = formState.errors as any;
 
-  const steps: { title: string, subtitle?: string, next?: boolean, error?: boolean, onBack?: () => void }[] = [
+  const steps: { title: string, subtitle?: string, schema: z.Schema, error?: boolean, onBack?: () => void }[] = [
     {
       title: 'Utilisateur',
-      next: !!watchUser,
-      error: !!errors?.user || !!errors?.billing?.transactionId,
+      schema: orderCreateStep1UserSchema,
+      error: !!errors?.user || !!errors?.billing?.transaction,
     },
     {
       title: 'Achats',
-      next:
-        (watchCourseRegistrations && watchCourseRegistrations.length > 0)
-        || (watchNewCoupons && watchNewCoupons.length > 0)
-        || (watchExistingCoupons && watchExistingCoupons.length > 0)
-        || (watchNewMemberships && watchNewMemberships.length > 0)
-        || (watchExistingMemberships && watchExistingMemberships.length > 0),
+      schema: orderCreateStep2PurchasesSchema,
       error: !!errors?.purchases,
     },
     {
       title: 'Réductions',
-      next: true,
+      schema: orderCreateStep3Discounts,
       error: !!errors?.billing?.newCoupons || !!errors?.billing?.existingCoupons || !!errors?.billing?.trialCourseRegistrationId || !!errors?.billing?.replacementCourseRegistrations,
     },
     {
       title: 'Paiement',
-      error: !!errors?.billing?.newPayment || !!errors?.billing?.force,
+      schema: orderCreateStep4Payment,
+      error: !!errors?.billing?.newPayment && !!errors?.notes,
     },
   ];
 
-  const values = useMemo(() => getValues(), [watchStep]);
-  const previewOrderCreate = trpc.useQueries(t => watchStep === steps.length - 1 ? [
-    t.order.previewCreate({ ...values, billing: { ...values?.billing, force: true } } as any)
-  ] : ([] as any[]));
-  // TODO all of this is garbage
-  useEffect(() => {
-    if (previewOrderCreate[0]?.isError) {
-      //trigger();
+  const orderPreview = useMemo(() => {
+    if (watchStep !== steps.length - 1) {
+      return;
     }
-  }, [previewOrderCreate[0]?.isError as any]);
-  const computedAmountToPay: number | null = (previewOrderCreate[0]?.data as any)?.computedAmount ?? null;
-  const needForce: boolean = (previewOrderCreate[0]?.data as any)?.needForce ?? false;
-  const amountPaid: number = (previewOrderCreate[0]?.data as any)?.amountPaid ?? 0;
+    const values = getValues() as any as (z.infer<typeof orderCreateStep3Discounts> & { user: User, billing: { transaction?: Transaction } });
+
+    type PurchaseTableItem = Parameters<typeof PurchasesTable>[0]['rows'][0];
+
+    const items: PurchaseTableItem[] = (values.purchases.existingMemberships?.map(m => {
+      const membership = m as Membership;
+      return {
+        item: displayMembershipName(membership),
+        price: membership.price,
+      };
+    }) ?? []).concat(values.purchases.newMemberships?.map(m => {
+      const membershipModel = m.membershipModel as MembershipModel;
+      return {
+        item: displayMembershipModelNameWithoutPrice(membershipModel),
+        price: membershipModel.price,
+      };
+    }) ?? []).concat(values.purchases.existingCoupons?.map(c => {
+      const coupon = c as Coupon;
+      return {
+        item: displayCouponName(coupon),
+        price: coupon.price,
+      };
+    }) ?? []).concat(values.purchases.newCoupons?.map(c => {
+      const couponModel = c.couponModel as CouponModel;
+      return {
+        item: displayCouponModelName(couponModel),
+        price: couponModel.price,
+      };
+    }) ?? []).concat(values.purchases.courseRegistrations?.map((courseRegistration) => {
+      const { id, course } = courseRegistration as CourseRegistration & { course: Course };
+      const existingCoupon = values.billing.existingCoupons?.filter(c => c.courseRegistrationIds.includes(id))[0];
+      const newCoupon = values.billing.newCoupons?.filter(c => c.courseRegistrationIds.includes(id))[0];
+      const replacement = values.billing.replacementCourseRegistrations?.filter(r => r.toCourseRegistrationId === id)[0];
+
+      if (existingCoupon !== undefined) { // Existing coupon
+        return {
+          item: displayCourseName(course),
+          discount: displayCouponName(existingCoupon.coupon as Coupon),
+          oldPrice: course.price,
+          price: 0,
+        };
+      } else if (values.purchases.newCoupons !== undefined && newCoupon !== undefined) { // New coupon
+        return {
+          item: displayCourseName(course),
+          discount: displayCouponModelName(values.purchases.newCoupons[newCoupon.newCouponIndex].couponModel as CouponModel),
+          oldPrice: course.price,
+          price: 0,
+        };
+      } else if (replacement !== undefined) { // Replacement
+        return {
+          item: displayCourseName(course),
+          discount: 'Remplacement de séance', // TODO include name
+          oldPrice: course.price,
+          price: 0,
+        };
+      } else if (values.billing.trialCourseRegistration !== undefined && values.billing.trialCourseRegistration?.courseRegistrationId === id) { // Trial
+        return {
+          item: displayCourseName(course),
+          discount: `Séance d'essai`,
+          oldPrice: course.price,
+          price: values.billing.trialCourseRegistration.newPrice,
+        };
+      } else { // Normal purchase
+        return {
+          item: displayCourseName(course),
+          price: course.price,
+        };
+      }
+    }) ?? []);
+
+    return {
+      items,
+      computedAmount: items.map(({ price }) => price).reduce((a, b) => a + b, 0),
+    };
+  }, [watchStep, getValues]);
+
+  // Synchronize dependent fields
+
+  // Step 1
   useEffect(() => {
-    setValue('billing.force', !needForce);
-  }, [needForce]);
+    if (watchUser && watchTransaction && watchUser.id !== watchTransaction.userId || !watchUser && watchTransaction) {
+      setValue('billing.transaction', undefined);
+    }
+  }, [watchUser]);
+
+  // Step 2
+  useEffect(() => {
+    if (!watchUser) {
+      setValue('purchases.courseRegistrations', watchCourseRegistrations ? (watchCourseRegistrations.length > 0 ? [] : watchCourseRegistrations) : undefined);
+      setValue('purchases.existingCoupons', watchExistingCoupons ? (watchExistingCoupons.length > 0 ? [] : watchExistingCoupons) : undefined);
+      setValue('purchases.existingMemberships', watchExistingMemberships ? (watchExistingMemberships.length > 0 ? [] : watchExistingMemberships) : undefined);
+    } else {
+      if (watchCourseRegistrations) {
+        const filteredCourseRegistrations = (watchCourseRegistrations as CourseRegistration[]).filter(({ userId }) => watchUser.id === userId);
+        if (filteredCourseRegistrations.length !== watchCourseRegistrations.length) {
+          setValue('purchases.courseRegistrations', filteredCourseRegistrations);
+        }
+      }
+      if (watchExistingCoupons) {
+        const filteredExistingCoupons = (watchExistingCoupons as Coupon[]).filter(({ userId }) => watchUser.id === userId);
+        if (filteredExistingCoupons.length !== watchExistingCoupons.length) {
+          setValue('purchases.existingCoupons', filteredExistingCoupons);
+        }
+      }
+      if (watchExistingMemberships) {
+        const filteredExistingMemberships = (watchExistingMemberships as (Membership & { users: User[] })[]).filter(({ users }) => users.some(({ id }) => id === watchUser.id));
+        if (filteredExistingMemberships.length !== watchExistingMemberships.length) {
+          setValue('purchases.existingMemberships', filteredExistingMemberships);
+        }
+      }
+    }
+  }, [watchStep]);
+
+  // Step 3
+  useEffect(() => {
+    if (!watchCourseRegistrations) {
+      [[watchBillingExistingCoupons, updateBillingExistingCoupon], [watchBillingNewCoupons, updateBillingNewCoupon]].forEach(([watchBillingCoupons, updateBillingCoupons]) =>
+        (watchBillingCoupons as any[] | undefined)?.forEach((o, i) => {
+          const courseRegistrationIds = o.courseRegistrationIds;
+          updateBillingCoupons(i, { ...o, courseRegistrationIds: courseRegistrationIds ? (courseRegistrationIds.length > 0 ? [] : courseRegistrationIds) : undefined });
+        })
+      );
+    } else {
+      [[watchBillingExistingCoupons, updateBillingExistingCoupon], [watchBillingNewCoupons, updateBillingNewCoupon]].forEach(([watchBillingCoupons, updateBillingCoupons]) =>
+        (watchBillingCoupons as any[] | undefined)?.forEach((o, i) => {
+          const courseRegistrations = o.courseRegistrationsIds as number[] | undefined;
+          if (courseRegistrations) {
+            const filteredCourseRegistrations = courseRegistrations.filter(id => watchCourseRegistrations.some((c: any) => c.id === id));
+            if (filteredCourseRegistrations.length !== courseRegistrations.length) {
+              updateBillingCoupons(i, { ...o, courseRegistrationIds: filteredCourseRegistrations });
+            }
+          }
+        })
+      );
+    }
+    if (watchTrialCourseRegistration && (!watchCourseRegistrations || !watchCourseRegistrations.some((c: any) => c.id === watchTrialCourseRegistration.courseRegistrationId))) {
+      setValue('billing.trialCourseRegistration.courseRegistrationId', undefined);
+    }
+    // TODO replacement
+  }, [watchStep]); // Infinite loop with more dependencies... honestly fed up with this crap
 
   const resetScroll = () => {
     window.scrollTo(0, 0);
@@ -326,13 +453,9 @@ const OrderFormFields: React.FC = () => {
     setValue('step', watchStep - 1);
     resetScroll();
   };
-  const onChangeStep = (step: number) => {
-    setValue('step', step);
-    resetScroll();
-  }
 
   const renderForm = () => (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} justifyContent="center">
       {watchStep === 0 && (
         <>
           <Grid item xs={12}>
@@ -347,23 +470,23 @@ const OrderFormFields: React.FC = () => {
           <Grid item xs={12}>
             <SelectUser name="user" noMatchId />
           </Grid>
-          {watchUser != null && watchTransactionId !== undefined && (
+          {watchUser != null && watchTransaction !== undefined && (
             <>
               <Grid item xs={12}>
                 <Alert severity="info">
-                  Lorsque la commande aura été créée l'ancien paiement disparaitra automatiquement de la liste.
+                  L'ancien paiement disparaitra automatiquement de la liste lorsque la commande aura été créée.
                 </Alert>
               </Grid>
               <Grid item xs={12}>
-                <OptionalField onDelete={() => setValue('billing.transactionId', undefined)}>
-                  <SelectTransaction name="billing.transactionId" userId={watchUser.id} />
+                <OptionalField onDelete={() => setValue('billing.transaction', undefined)}>
+                  <SelectTransaction name="billing.transaction" userId={watchUser.id} noMatchId />
                 </OptionalField>
               </Grid>
             </>
           )}
-          {watchTransactionId === undefined && watchPayment === undefined && (
+          {watchTransaction === undefined && watchPayment === undefined && (
             <Grid item xs={12}>
-              <CreateButton label="Lier à un ancien paiement" onClick={() => setValue('billing.transactionId', null)} />
+              <CreateButton label="Lier à un ancien paiement" onClick={() => setValue('billing.transaction', null)} disabled={!watchUser} />
             </Grid>
           )}
         </>
@@ -403,8 +526,8 @@ const OrderFormFields: React.FC = () => {
           ))}
           {watchExistingMemberships !== undefined && watchUser != null && (
             <Grid item xs={12}>
-              <OptionalField onDelete={() => setValue('purchases.existingMembershipIds', undefined)}>
-                <SelectMembership name="purchases.existingMembershipIds" userId={watchUser.id} noOrder label="Cotisations existantes" multiple />
+              <OptionalField onDelete={() => setValue('purchases.existingMemberships', undefined)}>
+                <SelectMembership name="purchases.existingMemberships" userId={watchUser.id} noOrder label="Cotisations existantes" noMatchId multiple />
               </OptionalField>
             </Grid>
           )}
@@ -413,7 +536,7 @@ const OrderFormFields: React.FC = () => {
               <OptionalField onDelete={() => removePurchasedNewMembership(index)}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={8} lg={9} xl={10}>
-                    <SelectMembershipModel name={`purchases.newMemberships.${index}.membershipModelId`} label="Nouvelle cotisation" />
+                    <SelectMembershipModel name={`purchases.newMemberships.${index}.membershipModel`} label="Nouvelle cotisation" noMatchId />
                   </Grid>
                   <Grid item xs={12} sm={4} lg={3} xl={2}>
                     <InputYear name={`purchases.newMemberships.${index}.year`} label="Année de début de validité" />
@@ -440,7 +563,7 @@ const OrderFormFields: React.FC = () => {
           </Grid>
           <BinaryDialog
             title="Ajout d'une cotisation" labelA="Lier une cotisation" labelB="Nouvelle cotisation"
-            open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => setValue('purchases.existingMembershipIds', [])} onChooseB={() => addPurchasedNewMembership(purchasedNewMembershipDefaultValue)}
+            open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => setValue('purchases.existingMemberships', [])} onChooseB={() => addPurchasedNewMembership(purchasedNewMembershipDefaultValue)}
           >
             Souhaitez lier une cotisation existante, ou bien en créer une nouvelle ?
           </BinaryDialog>
@@ -464,7 +587,7 @@ const OrderFormFields: React.FC = () => {
                   <OptionalField onDelete={() => removeBillingExistingCoupon(index)}>
                     <Grid container spacing={2}>
                       <Grid item xs={12} md={6}>
-                        <SelectCoupon name={`billing.existingCoupons.${index}.couponId`} userId={watchUser.id} label="Carte existante" />
+                        <SelectCoupon name={`billing.existingCoupons.${index}.coupon`} userId={watchUser.id} notEmpty label="Carte existante" noMatchId />
                       </Grid>
                       <Grid item xs={12} md={6}>
                         <SelectDependentCourseRegistration name={`billing.existingCoupons.${index}.courseRegistrationIds`} fromName="purchases.courseRegistrations" multiple label="Séances" />
@@ -489,8 +612,15 @@ const OrderFormFields: React.FC = () => {
               ))}
               {watchTrialCourseRegistration !== undefined && (
                 <Grid item xs={12}>
-                  <OptionalField onDelete={() => setValue('billing.trialCourseRegistrationId', undefined)}>
-                    <SelectDependentCourseRegistration name="billing.trialCourseRegistrationId" fromName="purchases.courseRegistrations" label="Séance d'essai" />
+                  <OptionalField onDelete={() => setValue('billing.trialCourseRegistration', undefined)}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <SelectDependentCourseRegistration name="billing.trialCourseRegistration.courseRegistrationId" fromName="purchases.courseRegistrations" label="Séance d'essai" />
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <InputPrice name="billing.trialCourseRegistration.newPrice" label="Nouveau prix" />
+                      </Grid>
+                    </Grid>
                   </OptionalField>
                 </Grid>
               )}
@@ -522,7 +652,7 @@ const OrderFormFields: React.FC = () => {
               </BinaryDialog>
               {watchTrialCourseRegistration === undefined && (
                 <Grid item xs={12}>
-                  <CreateButton label="Ajouter une séance d'essai" onClick={() => setValue('billing.trialCourseRegistrationId', null)} />
+                  <CreateButton label="Ajouter une séance d'essai" onClick={() => setValue('billing.trialCourseRegistration', {})} />
                 </Grid>
               )}
               <Grid item xs={12}>
@@ -532,7 +662,7 @@ const OrderFormFields: React.FC = () => {
           ) : (
             <Grid item xs={12}>
               <Alert severity="info">
-                Aucune réduction n'est applicable, vous pouvez passer à l'étape suivante.
+                Aucune réduction n'est applicable, vous pouvez directement passer à l'étape suivante.
               </Alert>
             </Grid>
           )}
@@ -549,30 +679,19 @@ const OrderFormFields: React.FC = () => {
               Si toutes les données vous semblent correctes vous pouvez procéder à la validation et si applicable à l'encaissement de la part de l'utilisateur.
             </Typography>
           </Grid>
-          <Grid item xs={12}>
-            {previewOrderCreate.length === 1 && (previewOrderCreate[0].isLoading ? (
-              <Box textAlign="center" sx={{ my: 3 }}>
-                <CircularProgress />
-              </Box>
-            ) : previewOrderCreate[0].data ? (
-              <Alert severity="info">
-                L'utilisateur doit payer <strong>{computedAmountToPay} €</strong>.
-              </Alert>
-            ) : (
-              <Alert severity="error">
-                Une erreur est survenue lors du calcul de l'aperçu ; un des champs est peut-être erroné.
-              </Alert>
-            ))}
-          </Grid>
-          <Grid item xs={12}>
-            <TextFieldElement name="notes" label="Notes" fullWidth />
-          </Grid>
+          {orderPreview && (
+            <Grid item xs={12} lg={10} xl={8} sx={{ mb: 2 }}>
+              <Card variant="outlined" sx={{ borderBottom: 'none' }}>
+                <PurchasesTable rows={orderPreview.items} totalToPay={orderPreview.computedAmount} small />
+              </Card>
+            </Grid>
+          )}
           {watchUser != null && (
-            watchTransactionId !== undefined ? (
+            watchTransaction !== undefined ? (
               <>
                 <Grid item xs={12}>
-                  <OptionalField onDelete={() => setValue('billing.transactionId', undefined)}>
-                    <SelectTransaction name="billing.transactionId" userId={watchUser.id} disabled />
+                  <OptionalField onDelete={() => setValue('billing.transaction', undefined)}>
+                    <SelectTransaction name="billing.transaction" userId={watchUser.id} noMatchId disabled />
                   </OptionalField>
                 </Grid>
               </>
@@ -580,54 +699,79 @@ const OrderFormFields: React.FC = () => {
               <Grid item xs={12}>
                 <OptionalField onDelete={() => setValue('billing.newPayment', undefined)}>
                   <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <InputPrice name="billing.newPayment.amount" label="Montant en euros" />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
+                    {watchPayment?.overrideAmount && (
+                      <Grid item xs={12} sm={6}>
+                        <InputPrice name="billing.newPayment.amount" label="Montant en euros" />
+                      </Grid>
+                    )}
+                    <Grid item xs={12} sm={watchPayment?.overrideAmount ? 6 : undefined}>
                       <SelectTransactionType name="billing.newPayment.type" />
                     </Grid>
                     <Grid item xs={12}>
                       <DatePickerElement name="billing.newPayment.date" label="Date" inputProps={{ fullWidth: true }} />
                     </Grid>
+                    <Grid item xs={12}>
+                      <CheckboxElement name="billing.newPayment.overrideAmount" label="Définir un autre prix pour cette commande" />
+                    </Grid>
                   </Grid>
                 </OptionalField>
               </Grid>
             ) : null)}
-          {watchTransactionId === undefined && watchPayment === undefined && (
+          {watchTransaction === undefined && watchPayment === undefined && (
             <Grid item xs={12}>
-              <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date() })} />
+              <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date(), overrideAmount: false })} />
             </Grid>
           )}
-          {needForce && (
-            <>
-              <Grid item xs={12}>
-                <Alert severity="warning">
-                  Attention, le paiement ne correspond pas à ce qui est attendu : la commande s'élève à <strong>{computedAmountToPay} €</strong> tandis que les paiements déclarés s'élèvent à <strong>{amountPaid} €</strong>.
-                  Si vous souhaitez tout de même valider le paiement vous pouvez prendre la main en cochant la case ci-dessous.
-                </Alert>
-              </Grid>
-              <Grid item xs={12}>
-                <CheckboxElement name="billing.force" label="Accepter le paiement malgré la disparité" />
-              </Grid>
-            </>
-          )}
+          <Grid item xs={12}>
+            <TextFieldElement name="notes" label="Notes" fullWidth />
+          </Grid>
+
+          {!!orderPreview && ((
+            (watchTransaction && watchTransaction.amount !== orderPreview.computedAmount)
+            || (!watchTransaction && !watchPayment && orderPreview.computedAmount > 0)
+          ) ? (
+            <Grid item xs={12}>
+              <Alert severity="warning">
+                {orderPreview.computedAmount > 0 ? (
+                  <>
+                    Le montant de la commande est de <strong>{orderPreview.computedAmount} €</strong> tandis que le paiement de l'utilisateur revient à <strong>{watchTransaction?.amount ?? watchPayment?.amount ?? 0} €</strong>.
+                  </>
+                ) : (
+                  <>
+                    Le montant de la commande est de <strong>0 €</strong>, aucun paiement n'est attendu.
+                  </>
+                )}
+              </Alert>
+            </Grid>
+          ) : (
+            <Grid item xs={12}>
+              <Alert severity="info">
+                {orderPreview.computedAmount > 0 || (watchPayment?.overrideAmount && (watchPayment?.amount ?? 0) > 0) ? (
+                  <>
+                    En cliquant sur "créer" vous confirmez avoir reçu un paiement de <strong>{watchPayment?.overrideAmount ? (watchPayment?.amount ?? 0) : orderPreview.computedAmount} €</strong> de la part de <strong>{displayUserName(watchUser)}</strong>.
+                  </>
+                ) : (
+                  <>
+                    En cliquant sur "créer" vous confirmez ne pas avoir reçu de paiement de la part de <strong>{displayUserName(watchUser)}</strong>.
+                  </>
+                )}
+              </Alert>
+            </Grid>
+          ))}
         </>
       )}
 
-      <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+      <Grid item xs={12} sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
         {watchStep > 0 ? (
-          <Button variant="outlined" size="large" startIcon={<ArrowBack />} onClick={onPreviousStep}>
+          <Button key={`previous-${watchStep}`} variant="outlined" startIcon={<ArrowBack />} onClick={onPreviousStep}>
             Précédent
           </Button>
         ) : <Box />}
-        {watchStep < steps.length - 1 ? (
-          <Button variant="contained" size="large" endIcon={<ArrowForward />} onClick={onNextStep} disabled={!steps[watchStep].next}>
-            Suivant
+        {watchStep < steps.length ? (
+          <Button key={`next-${watchStep}`} type={watchStep !== steps.length - 1 ? undefined : 'submit'} variant="contained" color={watchStep !== steps.length - 1 ? undefined : 'success'} endIcon={watchStep !== steps.length - 1 ? <ArrowForward /> : <AddBox />} onClick={watchStep !== steps.length - 1 ? onNextStep : undefined} disabled={!steps[watchStep].schema.safeParse(watchValues).success}>
+            {watchStep !== steps.length - 1 ? `Suivant` : `Créer`}
           </Button>
         ) : <Box />}
-      </Grid>
-      <Grid item xs={12}>
-        <Divider />
       </Grid>
     </Grid>
   );
@@ -650,9 +794,6 @@ const OrderFormFields: React.FC = () => {
 
 const orderFormDefaultValues: DeepPartial<z.infer<typeof orderCreateSchema>> = {
   purchases: {},
-  billing: {
-    force: false,
-  },
   step: 0,
 };
 
@@ -661,9 +802,9 @@ const useProceduresToInvalidate = () => {
   return [order.find, order.findAll];
 };
 
-const commonFormProps = ({ user, transactionId }: { user?: User, transactionId?: number }) => ({
+const commonFormProps = ({ user, transaction }: { user?: User, transaction?: Transaction }) => ({
   icon: <ShoppingCart />,
-  defaultValues: { ...orderFormDefaultValues, user, billing: { ...orderFormDefaultValues.billing, transactionId } },
+  defaultValues: { ...orderFormDefaultValues, user, billing: { ...orderFormDefaultValues.billing, transaction } },
   urlSuccessFor: (data: any) => `/administration/paiements`, // TODO
   urlCancel: `/administration/paiements`,
 });
@@ -696,15 +837,17 @@ export const OrderCreateForm: React.FC = () => {
   const invalidate = useProceduresToInvalidate();
 
   const userData = trpc.useQueries(t => queryInitialValues.userId !== undefined ? [t.user.find({ id: queryInitialValues.userId })] : ([] as any[]));
+  const transactionData = trpc.useQueries(t => queryInitialValues.transactionId !== undefined ? [t.transaction.find({ id: queryInitialValues.transactionId })] : ([] as any[]));
 
-  return userData.length === 0 || (userData[0].data && !userData[0].isLoading) ? (
+  return (userData.length === 0 || (userData[0].data && !userData[0].isLoading)) && (transactionData.length === 0 || (transactionData[0].data && !transactionData[0].isLoading)) ? (
     <CreateFormContent
-      {...commonFormProps(userData.length === 0 ? {} : { user: userData[0].data as any, transactionId: queryInitialValues.transactionId })}
+      {...commonFormProps({ ...(userData.length === 0 ? {} : { user: userData[0].data as any}), ...(transactionData.length === 0 ? {} : { transaction: transactionData[0].data as any}) })}
       title="Création d'une commande"
       schema={orderCreateSchema}
       mutationProcedure={trpc.order.create}
       successMessage={(data) => `La commande a été enregistrée.`}
       invalidate={invalidate}
+      hiddenControls
     >
       <OrderFormFields />
     </CreateFormContent>

@@ -15,8 +15,16 @@ export const couponRouter = router({
       includeDisabled: z.boolean().optional(),
       userId: z.number().int().min(0).optional(),
       noOrder: z.boolean().optional(),
+      notEmpty: z.boolean().optional(),
     }))
-    .query(async ({ input: { includeDisabled, userId, noOrder } }) => findCoupons({ where: { includeDisabled: !!includeDisabled, userId, noOrder } })),
+    .query(async ({ input: { includeDisabled, userId, noOrder, notEmpty } }) => {
+      const result = await findCoupons({ where: { includeDisabled: !!includeDisabled, userId, noOrder } });
+      if (notEmpty) {
+        return result.filter(coupon => coupon.orderCourseRegistrations.length < coupon.quantity);
+      } else {
+        return result;
+      }
+    }),
   create: adminProcedure
     .input(couponCreateSchema)
     .mutation(async ({ input: { couponModelId, userId }, ctx: { session } }) =>
