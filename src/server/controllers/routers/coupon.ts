@@ -2,7 +2,7 @@ import { adminProcedure, router } from '../trpc';
 import { createCoupon, disableCoupon, findCoupon, findCoupons } from '../../services/coupon';
 import { couponCreateSchema, couponFindSchema } from '../../../common/schemas/coupon';
 import { z } from 'zod';
-import { prisma, transactionOptions } from '../../prisma';
+import { writeTransaction } from '../../prisma';
 
 export const couponRouter = router({
   find: adminProcedure
@@ -20,7 +20,7 @@ export const couponRouter = router({
   create: adminProcedure
     .input(couponCreateSchema)
     .mutation(async ({ input: { couponModelId, userId }, ctx: { session } }) =>
-      prisma.$transaction(prisma => createCoupon(prisma, { data: { couponModelId, userId: userId ?? session.userId, free: userId == null } }), transactionOptions)
+      writeTransaction(prisma => createCoupon(prisma, { data: { couponModelId, userId: userId ?? session.userId, free: userId == null } }))
     ),
   disable: adminProcedure
     .input(couponFindSchema)

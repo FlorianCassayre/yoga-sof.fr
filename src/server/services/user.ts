@@ -1,5 +1,5 @@
-import { Prisma, User } from '@prisma/client';
-import { prisma, transactionOptions } from '../prisma';
+import { Prisma } from '@prisma/client';
+import { prisma, writeTransaction } from '../prisma';
 import {
   userCreateSchema,
   userDisableSchema,
@@ -46,14 +46,14 @@ export const updateUser = async <Where extends Prisma.UserWhereUniqueInput, Sele
   if (args.where.id === args.data.managedByUserId) {
     throw new ServiceError(ServiceErrorCode.UserCannotManageThemselves);
   }
-  return await prisma.$transaction(async (prisma) => {
+  return await writeTransaction(async (prisma) => {
     const user = await prisma.user.findUniqueOrThrow({ where: args.where, include: { managedUsers: true } });
     if (args.data.managedByUserId !== null && user.managedUsers.length > 0) {
       throw new ServiceError(ServiceErrorCode.UserAlreadyManages);
     }
     await updateUserInformation(prisma, { where: args.where, data: { name: args.data.name, email: args.data.email } });
     return prisma.user.update({ where: args.where, data: { managedByUserId: args.data.managedByUserId } });
-  }, transactionOptions);
+  });
 }
 
 export const updateUserInformation = async <Where extends Prisma.UserWhereUniqueInput, Select extends Prisma.UserSelect>(prisma: Prisma.TransactionClient, args: { where: Where, data: z.infer<typeof userSchemaBase>, select?: Select }) => {
@@ -66,7 +66,7 @@ export const updateUserInformation = async <Where extends Prisma.UserWhereUnique
 
 export const updateUserDisable = async (args: { where: Prisma.UserWhereUniqueInput, data: Omit<z.infer<typeof userDisableSchema>, 'id'> }) => {
   userDisableSchema.parse({ ...args.where, ...args.data });
-  await prisma.$transaction(async (prisma) => {
+  await writeTransaction(async (prisma) => {
     if (args.data.disabled) {
       const user = await prisma.user.findUniqueOrThrow({ where: args.where, select: { email: true } });
       if (await isWhitelistedAdmin(prisma, user)) {
@@ -74,11 +74,11 @@ export const updateUserDisable = async (args: { where: Prisma.UserWhereUniqueInp
       }
     }
     await prisma.user.update({ where: args.where, data: { disabled: args.data.disabled } });
-  }, transactionOptions);
+  });
 };
 
 export const deleteUser = async (args: { where: Prisma.UserWhereUniqueInput }) => {
-  await prisma.$transaction(async (prisma) => {
+  await writeTransaction(async (prisma) => {
     const user = await prisma.user.findUniqueOrThrow({
       where: args.where,
       include: {

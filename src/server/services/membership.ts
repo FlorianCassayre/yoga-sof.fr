@@ -1,5 +1,5 @@
 import { MembershipType, Prisma } from '@prisma/client';
-import { prisma, transactionOptions } from '../prisma';
+import { prisma, writeTransaction } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { membershipCreateLegacySchema, membershipSchema } from '../../common/schemas/membership';
 
@@ -36,7 +36,7 @@ export const createMembership = async (prisma: Prisma.TransactionClient, args: {
 /**
  * @deprecated use {@link createMembership} instead
  */
-export const createMembershipLegacy = async (args: { data: { membershipModelId: MembershipType, dateStart: Date, users: number[] } }) => prisma.$transaction(async (prisma) => {
+export const createMembershipLegacy = async (args: { data: { membershipModelId: MembershipType, dateStart: Date, users: number[] } }) => writeTransaction(async (prisma) => {
   membershipCreateLegacySchema.parse(args.data);
   const { id: type, price } = await prisma.membershipModel.findUniqueOrThrow({ where: { id: args.data.membershipModelId } });
   const dateEnd = new Date(args.data.dateStart);
@@ -46,11 +46,11 @@ export const createMembershipLegacy = async (args: { data: { membershipModelId: 
 });
 
 export const disableMembership = async (args: { where: Prisma.MembershipWhereUniqueInput }) => {
-  return await prisma.$transaction(async (prisma) => {
+  return await writeTransaction(async (prisma) => {
     const membership = await prisma.membership.findUniqueOrThrow(args);
     if (membership.disabled) {
       throw new ServiceError(ServiceErrorCode.MembershipAlreadyDisabled);
     }
     return await prisma.membership.update({ where: args.where, data: { disabled: true } });
-  }, transactionOptions);
+  });
 };

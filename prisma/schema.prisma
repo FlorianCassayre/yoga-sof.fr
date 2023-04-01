@@ -95,6 +95,16 @@ model VerificationToken {
 
 // End of the next-auth models
 
+enum LockEntityType {
+  GLOBAL
+}
+
+model LockEntity {
+  id LockEntityType @id
+
+  @@map("lock_entity")
+}
+
 model AdminWhitelist {
   email String @unique
 

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { prisma, transactionOptions } from '../prisma';
+import { prisma, readTransaction, writeTransaction } from '../prisma';
 import { orderCreateSchema } from '../../common/schemas/order';
 import { Prisma } from '@prisma/client';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
@@ -260,12 +260,11 @@ export const createOrderRequest = async (prisma: Prisma.TransactionClient, args:
 };
 
 export const createOrder = async (args: { data: z.infer<typeof orderCreateSchema> }) =>
-  prisma.$transaction(async prisma => (await createOrderRequest(prisma, args))[1]());
+  writeTransaction(async prisma => (await createOrderRequest(prisma, args))[1]());
 
 export const previewCreateOrder = async (args: { data: z.infer<typeof orderCreateSchema> }) =>
-  prisma.$transaction(async prisma => (await createOrderRequest(prisma, args))[0]);
+  readTransaction(async prisma => (await createOrderRequest(prisma, args))[0]);
 
-export const deleteOrder = async (args: { where: Prisma.OrderWhereUniqueInput }) => prisma.$transaction(async prisma =>
-  prisma.order.update({ where: args.where, data: { active: false, transaction: { disconnect: true } } }),
-  transactionOptions
+export const deleteOrder = async (args: { where: Prisma.OrderWhereUniqueInput }) => writeTransaction(async prisma =>
+  prisma.order.update({ where: args.where, data: { active: false, transaction: { disconnect: true } } })
 );

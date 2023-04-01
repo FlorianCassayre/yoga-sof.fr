@@ -1,5 +1,5 @@
-import { CourseRegistration, Prisma, User } from '@prisma/client';
-import { prisma, transactionOptions } from '../prisma';
+import { CourseRegistration, Prisma } from '@prisma/client';
+import { writeTransaction } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { courseRegistrationCreateSchema } from '../../common/schemas/courseRegistration';
 import { notifyCourseRegistration } from '../email';
@@ -91,7 +91,7 @@ export const cancelCourseRegistration = async (prisma: Prisma.TransactionClient,
 };
 
 export const updateCourseRegistrationAttendance = async (args: { where: { id: number }, data: { attended: boolean | null } }) => {
-  return prisma.$transaction(async (prisma) => {
+  return writeTransaction(async (prisma) => {
     const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id: args.where.id }, include: { course: true } });
     if (courseRegistration.course.isCanceled) {
       throw new ServiceError(ServiceErrorCode.CourseCanceledAttendance);
@@ -100,7 +100,7 @@ export const updateCourseRegistrationAttendance = async (args: { where: { id: nu
       throw new ServiceError(ServiceErrorCode.UserNotRegisteredAttendance);
     }
     return prisma.courseRegistration.update(args);
-  }, transactionOptions);
+  });
 };
 
 export const findCourseRegistrationsPublic = async (prisma: Prisma.TransactionClient, { userId, future, userCanceled }: { userId: number, userCanceled: boolean, future: boolean | null }) => {

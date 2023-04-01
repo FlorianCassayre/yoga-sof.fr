@@ -2,18 +2,17 @@ import { z } from 'zod';
 import {
   cancelCourseRegistration,
   createCourseRegistrations, createUser,
-  findCourseRegistrations, findCourseRegistrationsPublic,
-  findManaged, findUser,
+  findCourseRegistrationsPublic,
+  findManaged,
   findUserUpdate,
-  updateUser, updateUserInformation, validateControlsUser
+  updateUserInformation, validateControlsUser
 } from '../../services';
-import { prisma, transactionOptions } from '../../prisma';
-import { userSchemaBase, userUpdateSchema, userUpdateSelfSchema } from '../../../common/schemas/user';
+import { readTransaction, writeTransaction } from '../../prisma';
+import { userUpdateSelfSchema } from '../../../common/schemas/user';
 import { frontsiteCourseRegistrationSchema } from '../../../common/schemas/frontsiteCourseRegistration';
 import { router, userProcedure } from '../trpc';
 import { User } from '@prisma/client';
 import { displayUserName } from '../../../common/display';
-import { ServiceError, ServiceErrorCode } from '../../services/helpers/errors';
 import { findCouponsPublic } from '../../services/coupon';
 
 // It is important to control the data that we return from this router, since it is accessible to any logged-in user
@@ -32,31 +31,31 @@ export const selfRouter = router({
       future: z.boolean().nullable(),
     }))
     .query(async ({ input: { userId, future, userCanceled }, ctx: { session: { userId: requesterId } } }) => {
-      return await prisma.$transaction(async (prisma) => {
+      return await readTransaction(async (prisma) => {
         await validateControlsUser(prisma, { where: { id: requesterId, userId } });
         return findCourseRegistrationsPublic(prisma, { userId, future, userCanceled });
-      }, transactionOptions);
+      });
     }),
   findAllCoupons: userProcedure
     .input(z.strictObject({
       userId: z.number().int().min(0),
     }))
     .query(async ({ input: { userId }, ctx: { session: { userId: requesterId } } }) => {
-      return await prisma.$transaction(async (prisma) => {
+      return await readTransaction(async (prisma) => {
         await validateControlsUser(prisma, { where: { id: requesterId, userId } });
         return findCouponsPublic(prisma, { where: { userId } });
-      }, transactionOptions);
+      });
     }),
   profile: userProcedure
     .input(z.strictObject({
       userId: z.number().int().min(0),
     }))
     .query(async ({ input: { userId }, ctx: { session: { userId: requesterId } } }) => {
-      return await prisma.$transaction(async (prisma) => {
+      return await readTransaction(async (prisma) => {
         await validateControlsUser(prisma, { where: { id: requesterId, userId } });
         const { name, email } = await findUserUpdate(prisma, { where: { id: userId } });
         return { name, email };
-      }, transactionOptions);
+      });
     }),
   cancelRegistration: userProcedure
     .input(z.strictObject({
@@ -64,25 +63,25 @@ export const selfRouter = router({
       id: z.number().int().min(0),
     }))
     .mutation(async ({ input: { userId, id }, ctx: { session: { userId: requesterId } } }) => {
-      await prisma.$transaction(async (prisma) => {
+      await writeTransaction(async (prisma) => {
         await validateControlsUser(prisma, { where: { id: requesterId, userId } });
         await prisma.courseRegistration.findFirstOrThrow({ where: { id, userId } }); // Access control
         await cancelCourseRegistration(prisma, { where: { id }, data: { admin: false } }).then(({ id }) => ({ id }));
-      }, transactionOptions);
+      });
       return { id };
     }),
   updateProfile: userProcedure
     .input(userUpdateSelfSchema)
     .mutation(async ({ input: { id, name, email }, ctx: { session: { userId: requesterId } } }) => {
-      await prisma.$transaction(async (prisma) => {
+      await writeTransaction(async (prisma) => {
         await validateControlsUser(prisma, { where: { id: requesterId, userId: id } });
         await updateUserInformation(prisma, { where: { id }, data: { name, email } });
-      }, transactionOptions);
+      });
     }),
   register: userProcedure
     .input(frontsiteCourseRegistrationSchema)
     .mutation(async ({ input: { userId, courseIds, notify, name, email }, ctx: { session: { userId: requesterId } } }) => {
-      const sendMailCallback = await prisma.$transaction(async (prisma) => {
+      const sendMailCallback = await writeTransaction(async (prisma) => {
         if (userId !== null) {
           await validateControlsUser(prisma, { where: { id: requesterId, userId } });
         }
@@ -93,7 +92,7 @@ export const selfRouter = router({
         }
         const [, sendMailCallback] = await createCourseRegistrations(prisma, { data: { users: [nonNullUserId], courses: courseIds, notify, admin: false } });
         return sendMailCallback;
-      }, transactionOptions);
+      });
       await sendMailCallback();
     }),
 });

@@ -1,5 +1,3 @@
-import * as trpc from '@trpc/server';
-import { ContextProtected } from '../context';
 import {
   cancelCourseRegistration,
   createCourseRegistrations,
@@ -9,7 +7,7 @@ import {
 import { z } from 'zod';
 import { courseRegistrationCreateSchema } from '../../../common/schemas/courseRegistration';
 import { adminProcedure, router } from '../trpc';
-import { prisma, transactionOptions } from '../../prisma';
+import { readTransaction, writeTransaction } from '../../prisma';
 
 const selectorSchema = z.strictObject({
   courseId: z.number().int().min(0).optional(),
@@ -20,11 +18,11 @@ const selectorSchema = z.strictObject({
 
 export const courseRegistrationRouter = router({
   findAll: adminProcedure
-    .query(async () => prisma.$transaction(async (prisma) => findCourseRegistrations(prisma, { include: { user: true, course: true } }), transactionOptions)),
+    .query(async () => readTransaction(async (prisma) => findCourseRegistrations(prisma, { include: { user: true, course: true } }))),
   findAllEvents: adminProcedure
     .input(selectorSchema)
     .query(async ({ input: { courseId, userId, attended, isCanceled } }) =>
-      prisma.$transaction(async (prisma) => findCourseRegistrationEvents(prisma, { where: { courseId, userId, attended, course: { isCanceled } }, include: { course: courseId === undefined, user: userId === undefined } }), transactionOptions)),
+      readTransaction(async (prisma) => findCourseRegistrationEvents(prisma, { where: { courseId, userId, attended, course: { isCanceled } }, include: { course: courseId === undefined, user: userId === undefined } }))),
   findAllActive: adminProcedure
     .input(selectorSchema.merge(z.object({ noOrder: z.boolean().optional() })))
     .query(async ({ input: { courseId, userId, noOrder, attended, isCanceled } }) => {
@@ -38,7 +36,7 @@ export const courseRegistrationRouter = router({
         { orderReplacementTo: { every: { order: inactiveArgs } } },
         { orderPurchased: { every: inactiveArgs } },
       ] : [];
-      return prisma.$transaction(async (prisma) => prisma.courseRegistration.findMany({
+      return readTransaction(async (prisma) => prisma.courseRegistration.findMany({
         where: { AND: [baseWhere, ...otherWhere] },
         include: {
           course: true,
@@ -49,19 +47,19 @@ export const courseRegistrationRouter = router({
           orderReplacementTo: whereActiveOrders,
           orderPurchased: { where: activeArgs, select: { id: true } },
         },
-      }), transactionOptions);
+      }));
     }),
   create: adminProcedure
     .input(courseRegistrationCreateSchema)
     .mutation(async ({ input: { courses, users, notify } }) => {
-        const [result, sendMailsCallback] = await prisma.$transaction(async (prisma) => createCourseRegistrations(prisma, { data: { courses, users, notify, admin: true } }), transactionOptions);
+        const [result, sendMailsCallback] = await writeTransaction(async (prisma) => createCourseRegistrations(prisma, { data: { courses, users, notify, admin: true } }));
         await sendMailsCallback();
         return result;
     }),
   cancel: adminProcedure
     .input(z.strictObject({ id: z.number().int().min(0) }))
     .mutation(async ({ input: { id } }) =>
-      prisma.$transaction(async (prisma) => cancelCourseRegistration(prisma, { where: { id }, data: { admin: true } }), transactionOptions)),
+      writeTransaction(async (prisma) => cancelCourseRegistration(prisma, { where: { id }, data: { admin: true } }))),
   attended: adminProcedure
     .input(z.strictObject({ id: z.number().int().min(0), attended: z.boolean().nullable() }))
     .mutation(async ({ input: { id, attended } }) =>
