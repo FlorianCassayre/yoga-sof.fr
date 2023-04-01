@@ -55,7 +55,10 @@ export const orderCreateSchema = z.strictObject({
       couponId: z.number().int().min(0),
       courseRegistrationIds: z.array(z.number().int().min(0)).min(1),
     })).optional(),
-    trialCourseRegistrationId: z.number().int().min(0).optional(),
+    trialCourseRegistration: z.strictObject({
+      courseRegistrationId: z.number().int().min(0),
+      newPrice: z.number().int().min(0),
+    }).optional(),
     replacementCourseRegistrations: z.array(z.strictObject({
       fromCourseRegistrationId: z.number().int().min(0),
       toCourseRegistrationId: z.number().int().min(0),
@@ -81,13 +84,13 @@ export const orderCreateSchema = z.strictObject({
 
   type IdRef = { id: number, path: FieldPath };
   const subsetChecksData: [IdRef[], IdRef[]][] = [
-    // purchases.courseRegistrations -> [billing.newCoupons.courseRegistrationIds, billing.existingCoupons.courseRegistrationIds, billing.trialCourseRegistrationId, billing.replacementCourseRegistrations.toCourseRegistrationId]
+    // purchases.courseRegistrations -> [billing.newCoupons.courseRegistrationIds, billing.existingCoupons.courseRegistrationIds, billing.trialCourseRegistration.courseRegistrationId, billing.replacementCourseRegistrations.toCourseRegistrationId]
     [
       data.purchases.courseRegistrations?.map(({ id }) => ({ id, path: ['purchases', 'courseRegistrations'] })) ?? [],
       [
         ...(data.billing.newCoupons?.flatMap(({ courseRegistrationIds }, index) => courseRegistrationIds.map(id => ({ id, path: ['billing', 'newCoupons', index, 'courseRegistrationIds'] }))) ?? []),
         ...(data.billing.existingCoupons?.flatMap(({ courseRegistrationIds }, index) => courseRegistrationIds.map(id => ({ id, path: ['billing', 'existingCoupons', index, 'courseRegistrationIds'] }))) ?? []),
-        ...[data.billing.trialCourseRegistrationId].filter((v): v is number => v !== undefined).map(id => ({ id, path: ['billing', 'trialCourseRegistrationId'] })),
+        ...[data.billing.trialCourseRegistration?.courseRegistrationId].filter((v): v is number => v !== undefined).map(id => ({ id, path: ['billing', 'trialCourseRegistration', 'courseRegistrationId'] })),
         ...(data.billing.replacementCourseRegistrations?.map(({ toCourseRegistrationId }, index) => ({ id: toCourseRegistrationId, path: ['billing', 'replacementCourseRegistrations', index, 'toCourseRegistrationId'] })) ?? [])
       ]
     ],

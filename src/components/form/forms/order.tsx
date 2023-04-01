@@ -239,7 +239,7 @@ const OrderFormFields: React.FC = () => {
   const watchExistingCoupons = watch('purchases.existingCoupons');
   const watchExistingMemberships = watch('purchases.existingMemberships');
 
-  const watchTrialCourseRegistration = watch('billing.trialCourseRegistrationId');
+  const watchTrialCourseRegistration = watch('billing.trialCourseRegistration');
   //const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
   const watchTransaction = watch('billing.transaction');
   const watchPayment = watch('billing.newPayment');
@@ -294,22 +294,13 @@ const OrderFormFields: React.FC = () => {
     },
   ];
 
-  const values = useMemo(() => getValues(), [watchStep]);
-  const previewOrderCreate = trpc.useQueries(t => watchStep === steps.length - 1 ? [
-    t.order.previewCreate({ ...values, billing: { ...values?.billing, force: true } } as any)
-  ] : ([] as any[]));
-  // TODO all of this is garbage
-  useEffect(() => {
-    if (previewOrderCreate[0]?.isError) {
-      //trigger();
+  const orderPreview = useMemo(() => {
+    if (watchStep !== steps.length - 1) {
+      return;
     }
-  }, [previewOrderCreate[0]?.isError as any]);
-  const computedAmountToPay: number | null = (previewOrderCreate[0]?.data as any)?.computedAmount ?? null;
-  const needForce: boolean = (previewOrderCreate[0]?.data as any)?.needForce ?? false;
-  const amountPaid: number = (previewOrderCreate[0]?.data as any)?.amountPaid ?? 0;
-  useEffect(() => {
-    setValue('billing.force', !needForce);
-  }, [needForce]);
+
+    return {};
+  }, [watchStep]);
 
   const resetScroll = () => {
     window.scrollTo(0, 0);
@@ -485,8 +476,15 @@ const OrderFormFields: React.FC = () => {
               ))}
               {watchTrialCourseRegistration !== undefined && (
                 <Grid item xs={12}>
-                  <OptionalField onDelete={() => setValue('billing.trialCourseRegistrationId', undefined)}>
-                    <SelectDependentCourseRegistration name="billing.trialCourseRegistrationId" fromName="purchases.courseRegistrations" label="Séance d'essai" />
+                  <OptionalField onDelete={() => setValue('billing.trialCourseRegistration', undefined)}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <SelectDependentCourseRegistration name="billing.trialCourseRegistration.courseRegistrationId" fromName="purchases.courseRegistrations" label="Séance d'essai" />
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <InputPrice name="billing.trialCourseRegistration.newPrice" label="Nouveau prix" />
+                      </Grid>
+                    </Grid>
                   </OptionalField>
                 </Grid>
               )}
@@ -518,7 +516,7 @@ const OrderFormFields: React.FC = () => {
               </BinaryDialog>
               {watchTrialCourseRegistration === undefined && (
                 <Grid item xs={12}>
-                  <CreateButton label="Ajouter une séance d'essai" onClick={() => setValue('billing.trialCourseRegistrationId', null)} />
+                  <CreateButton label="Ajouter une séance d'essai" onClick={() => setValue('billing.trialCourseRegistration', {})} />
                 </Grid>
               )}
               <Grid item xs={12}>
@@ -546,19 +544,7 @@ const OrderFormFields: React.FC = () => {
             </Typography>
           </Grid>
           <Grid item xs={12}>
-            {previewOrderCreate.length === 1 && (previewOrderCreate[0].isLoading ? (
-              <Box textAlign="center" sx={{ my: 3 }}>
-                <CircularProgress />
-              </Box>
-            ) : previewOrderCreate[0].data ? (
-              <Alert severity="info">
-                L'utilisateur doit payer <strong>{computedAmountToPay} €</strong>.
-              </Alert>
-            ) : (
-              <Alert severity="error">
-                Une erreur est survenue lors du calcul de l'aperçu ; un des champs est peut-être erroné.
-              </Alert>
-            ))}
+            TODO FIXME
           </Grid>
           <Grid item xs={12}>
             <TextFieldElement name="notes" label="Notes" fullWidth />
@@ -594,7 +580,7 @@ const OrderFormFields: React.FC = () => {
               <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date() })} />
             </Grid>
           )}
-          {needForce && (
+          {/*{needForce && (
             <>
               <Grid item xs={12}>
                 <Alert severity="warning">
@@ -606,7 +592,7 @@ const OrderFormFields: React.FC = () => {
                 <CheckboxElement name="billing.force" label="Accepter le paiement malgré la disparité" />
               </Grid>
             </>
-          )}
+          )}*/}
         </>
       )}
 

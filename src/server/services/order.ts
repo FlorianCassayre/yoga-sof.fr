@@ -93,7 +93,7 @@ export const createOrderRequest = async (prisma: Prisma.TransactionClient, args:
     !(data.billing.existingCoupons?.some(c => c.courseRegistrationIds.includes(id))
       || data.billing.newCoupons?.some(c => c.courseRegistrationIds.includes(id))
       || data.billing.replacementCourseRegistrations?.some(r => r.toCourseRegistrationId === id)
-      || data.billing.trialCourseRegistrationId === id)
+      || data.billing.trialCourseRegistration?.courseRegistrationId === id)
   );
 
   const coupons = makeRecord(await Promise.all(
@@ -166,8 +166,8 @@ export const createOrderRequest = async (prisma: Prisma.TransactionClient, args:
       return 0; // Use coupon
     } else if (data.billing.replacementCourseRegistrations?.some(r => r.toCourseRegistrationId === id)) {
       return 0; // Use paid course as a replacement
-    } else if (data.billing.trialCourseRegistrationId === id) {
-      return 0; // Trial TODO custom price
+    } else if (data.billing.trialCourseRegistration?.courseRegistrationId === id) {
+      return data.billing.trialCourseRegistration.newPrice; // Trial
     } else {
       return courseRegistrations[id].course.price;
     }
@@ -222,9 +222,9 @@ export const createOrderRequest = async (prisma: Prisma.TransactionClient, args:
               .concat(newMembershipsCreated.map(({ id }) => ({ id }))),
         },
         trialCourseRegistrations: {
-          create: data.billing.trialCourseRegistrationId !== undefined ? [{
-            courseRegistrationId: data.billing.trialCourseRegistrationId,
-            price: 0, // TODO FIXME
+          create: data.billing.trialCourseRegistration !== undefined ? [{
+            courseRegistrationId: data.billing.trialCourseRegistration.courseRegistrationId,
+            price: data.billing.trialCourseRegistration.newPrice,
           }] : [],
         },
         replacementCourseRegistrations: {
