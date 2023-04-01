@@ -72,7 +72,7 @@ export const createOrderRequest = async (prisma: Prisma.TransactionClient, args:
 
   const { data } = args;
   const user = await prisma.user.findUniqueOrThrow({ where: { id: data.user.id } });
-  const transaction = data.billing.transactionId !== undefined ? await prisma.transaction.findUniqueOrThrow({ where: { id: data.billing.transactionId } }) : null;
+  const transaction = data.billing.transaction !== undefined ? await prisma.transaction.findUniqueOrThrow({ where: { id: data.billing.transaction.id } }) : null;
 
   // We keep only the orders that are active (= not deleted)
   const activeArgs = { active: true };
@@ -103,9 +103,9 @@ export const createOrderRequest = async (prisma: Prisma.TransactionClient, args:
     data.purchases.newCoupons?.map(({ couponModel: { id } }) => prisma.couponModel.findUniqueOrThrow({ where: { id } })) ?? []
   ));
   const membershipModels = makeRecord(await Promise.all(
-    data.purchases.newMemberships?.map(({ membershipModelId: id }) => prisma.membershipModel.findUniqueOrThrow({ where: { id } })) ?? []
+    data.purchases.newMemberships?.map(({ membershipModel: { id } }) => prisma.membershipModel.findUniqueOrThrow({ where: { id } })) ?? []
   ));
-  const memberships = makeRecord(await Promise.all((data.purchases.existingMembershipIds ?? []).map(id => prisma.membership.findUniqueOrThrow({ where: { id }, include: { ordersPurchased: { where: activeArgs } } }))));
+  const memberships = makeRecord(await Promise.all((data.purchases.existingMemberships ?? []).map(({ id }) => prisma.membership.findUniqueOrThrow({ where: { id }, include: { ordersPurchased: { where: activeArgs } } }))));
 
   // Transaction
   if (transaction !== null) {
@@ -152,7 +152,7 @@ export const createOrderRequest = async (prisma: Prisma.TransactionClient, args:
   }
 
   // Membership (purchase)
-  if (data.purchases.existingMembershipIds?.some(id => memberships[id].ordersPurchased.length > 0)) {
+  if (data.purchases.existingMemberships?.some(({ id }) => memberships[id].ordersPurchased.length > 0)) {
     throw new ServiceError(ServiceErrorCode.OrderMembershipAlreadyOrdered);
   }
 
@@ -177,8 +177,8 @@ export const createOrderRequest = async (prisma: Prisma.TransactionClient, args:
       .concat(data.purchases.newCoupons?.map(c => couponModels[c.couponModel.id].price) ?? [])
   );
   const totalAmountMemberships = sum(
-    (data.purchases.existingMembershipIds?.map(id => memberships[id].price) ?? [])
-      .concat(data.purchases.newMemberships?.map(m => membershipModels[m.membershipModelId].price) ?? [])
+    (data.purchases.existingMemberships?.map(({ id }) => memberships[id].price) ?? [])
+      .concat(data.purchases.newMemberships?.map(m => membershipModels[m.membershipModel.id].price) ?? [])
   )
   const computedAmount = totalAmountCourses + totalAmountCoupons + totalAmountMemberships;
 
@@ -197,7 +197,7 @@ export const createOrderRequest = async (prisma: Prisma.TransactionClient, args:
 
   return [preview, async () => {
     const newCouponsCreated = await Promise.all(data.purchases.newCoupons?.map(c => createCoupon(prisma, { data: { couponModelId: c.couponModel.id, userId: user.id } })) ?? []);
-    const newMembershipsCreated = await Promise.all(data.purchases.newMemberships?.map(m => createMembership(prisma, { data: { membershipModelId: m.membershipModelId, yearStart: m.year, users: [user.id] } })) ?? []);
+    const newMembershipsCreated = await Promise.all(data.purchases.newMemberships?.map(m => createMembership(prisma, { data: { membershipModelId: m.membershipModel.id, yearStart: m.year, users: [user.id] } })) ?? []);
 
     const order = await prisma.order.create({
       data: {
@@ -218,7 +218,7 @@ export const createOrderRequest = async (prisma: Prisma.TransactionClient, args:
         },
         purchasedMemberships: {
           connect:
-            (data.purchases.existingMembershipIds?.map(id => ({ id })) ?? [])
+            (data.purchases.existingMemberships?.map(({ id }) => ({ id })) ?? [])
               .concat(newMembershipsCreated.map(({ id }) => ({ id }))),
         },
         trialCourseRegistrations: {

@@ -35,11 +35,15 @@ export const orderCreateSchema = z.strictObject({
       id: z.number().int().min(0),
     })).min(1).optional(),
     newMemberships: z.array(z.strictObject({
-      membershipModelId: z.nativeEnum(MembershipType),
+      membershipModel: z.object({
+        id: z.nativeEnum(MembershipType),
+      }),
       year: z.number().int().min(2021).max(2100),
     })).optional(),
-    existingMembershipIds: z.array(
-      z.number().int().min(0)
+    existingMemberships: z.array(
+      z.object({
+        id: z.number().int().min(0),
+      }),
     ).min(1).optional(),
   }),
   billing: z.strictObject({
@@ -58,7 +62,9 @@ export const orderCreateSchema = z.strictObject({
     }))
       .refine(...checkUniqueFor((e: { toCourseRegistrationId: number }) => e.toCourseRegistrationId))
       .optional(),
-    transactionId: z.number().int().min(0).optional(),
+    transaction: z.object({
+      id: z.number().int().min(0),
+    }).optional(),
     newPayment: z.strictObject({
       amount: z.number().int().min(1),
       type: z.nativeEnum(TransactionType),
@@ -144,7 +150,7 @@ export const orderCreateSchema = z.strictObject({
     || data.purchases.newCoupons?.length
     || data.purchases.existingCoupons?.length
     || data.purchases.newMemberships?.length
-    || data.purchases.existingMembershipIds?.length
+    || data.purchases.existingMemberships?.length
   )) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -153,8 +159,8 @@ export const orderCreateSchema = z.strictObject({
     });
   }
 
-  if (data.billing.transactionId !== undefined && data.billing.newPayment !== undefined) {
-    [['data', 'billing', 'transactionId'], ['billing', 'newPayment']].forEach(path =>
+  if (data.billing.transaction !== undefined && data.billing.newPayment !== undefined) {
+    [['data', 'billing', 'transaction'], ['billing', 'newPayment']].forEach(path =>
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ctx.path,

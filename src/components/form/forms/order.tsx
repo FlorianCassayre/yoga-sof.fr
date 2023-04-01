@@ -38,7 +38,7 @@ import { SelectCourseRegistration } from '../fields/SelectCourseRegistration';
 import {
   CouponModel,
   Course,
-  CourseRegistration,
+  CourseRegistration, Transaction,
   User
 } from '@prisma/client';
 import {
@@ -237,11 +237,11 @@ const OrderFormFields: React.FC = () => {
   const watchNewCoupons = watch('purchases.newCoupons');
   const watchNewMemberships = watch('purchases.newMemberships');
   const watchExistingCoupons = watch('purchases.existingCoupons');
-  const watchExistingMemberships = watch('purchases.existingMembershipIds');
+  const watchExistingMemberships = watch('purchases.existingMemberships');
 
   const watchTrialCourseRegistration = watch('billing.trialCourseRegistrationId');
   //const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
-  const watchTransactionId = watch('billing.transactionId');
+  const watchTransaction = watch('billing.transaction');
   const watchPayment = watch('billing.newPayment');
 
   //
@@ -258,7 +258,7 @@ const OrderFormFields: React.FC = () => {
 
   useEffect(() => {
     setValue('purchases', {});
-    setValue('billing', { transactionId: watchTransactionId });
+    setValue('billing', { transaction: watchTransaction });
     setValue('notes', undefined);
   }, [watchUser]);
 
@@ -270,7 +270,7 @@ const OrderFormFields: React.FC = () => {
     {
       title: 'Utilisateur',
       next: !!watchUser,
-      error: !!errors?.user || !!errors?.billing?.transactionId,
+      error: !!errors?.user || !!errors?.billing?.transaction,
     },
     {
       title: 'Achats',
@@ -343,7 +343,7 @@ const OrderFormFields: React.FC = () => {
           <Grid item xs={12}>
             <SelectUser name="user" noMatchId />
           </Grid>
-          {watchUser != null && watchTransactionId !== undefined && (
+          {watchUser != null && watchTransaction !== undefined && (
             <>
               <Grid item xs={12}>
                 <Alert severity="info">
@@ -351,15 +351,15 @@ const OrderFormFields: React.FC = () => {
                 </Alert>
               </Grid>
               <Grid item xs={12}>
-                <OptionalField onDelete={() => setValue('billing.transactionId', undefined)}>
-                  <SelectTransaction name="billing.transactionId" userId={watchUser.id} />
+                <OptionalField onDelete={() => setValue('billing.transaction', undefined)}>
+                  <SelectTransaction name="billing.transaction" userId={watchUser.id} noMatchId />
                 </OptionalField>
               </Grid>
             </>
           )}
-          {watchTransactionId === undefined && watchPayment === undefined && (
+          {watchTransaction === undefined && watchPayment === undefined && (
             <Grid item xs={12}>
-              <CreateButton label="Lier à un ancien paiement" onClick={() => setValue('billing.transactionId', null)} />
+              <CreateButton label="Lier à un ancien paiement" onClick={() => setValue('billing.transaction', null)} />
             </Grid>
           )}
         </>
@@ -399,8 +399,8 @@ const OrderFormFields: React.FC = () => {
           ))}
           {watchExistingMemberships !== undefined && watchUser != null && (
             <Grid item xs={12}>
-              <OptionalField onDelete={() => setValue('purchases.existingMembershipIds', undefined)}>
-                <SelectMembership name="purchases.existingMembershipIds" userId={watchUser.id} noOrder label="Cotisations existantes" multiple />
+              <OptionalField onDelete={() => setValue('purchases.existingMemberships', undefined)}>
+                <SelectMembership name="purchases.existingMemberships" userId={watchUser.id} noOrder label="Cotisations existantes" noMatchId multiple />
               </OptionalField>
             </Grid>
           )}
@@ -409,7 +409,7 @@ const OrderFormFields: React.FC = () => {
               <OptionalField onDelete={() => removePurchasedNewMembership(index)}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={8} lg={9} xl={10}>
-                    <SelectMembershipModel name={`purchases.newMemberships.${index}.membershipModelId`} label="Nouvelle cotisation" />
+                    <SelectMembershipModel name={`purchases.newMemberships.${index}.membershipModel`} label="Nouvelle cotisation" noMatchId />
                   </Grid>
                   <Grid item xs={12} sm={4} lg={3} xl={2}>
                     <InputYear name={`purchases.newMemberships.${index}.year`} label="Année de début de validité" />
@@ -436,7 +436,7 @@ const OrderFormFields: React.FC = () => {
           </Grid>
           <BinaryDialog
             title="Ajout d'une cotisation" labelA="Lier une cotisation" labelB="Nouvelle cotisation"
-            open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => setValue('purchases.existingMembershipIds', [])} onChooseB={() => addPurchasedNewMembership(purchasedNewMembershipDefaultValue)}
+            open={membershipDialogOpen} setOpen={setMembershipDialogOpen} onChooseA={() => setValue('purchases.existingMemberships', [])} onChooseB={() => addPurchasedNewMembership(purchasedNewMembershipDefaultValue)}
           >
             Souhaitez lier une cotisation existante, ou bien en créer une nouvelle ?
           </BinaryDialog>
@@ -564,11 +564,11 @@ const OrderFormFields: React.FC = () => {
             <TextFieldElement name="notes" label="Notes" fullWidth />
           </Grid>
           {watchUser != null && (
-            watchTransactionId !== undefined ? (
+            watchTransaction !== undefined ? (
               <>
                 <Grid item xs={12}>
-                  <OptionalField onDelete={() => setValue('billing.transactionId', undefined)}>
-                    <SelectTransaction name="billing.transactionId" userId={watchUser.id} disabled />
+                  <OptionalField onDelete={() => setValue('billing.transaction', undefined)}>
+                    <SelectTransaction name="billing.transaction" userId={watchUser.id} noMatchId disabled />
                   </OptionalField>
                 </Grid>
               </>
@@ -589,7 +589,7 @@ const OrderFormFields: React.FC = () => {
                 </OptionalField>
               </Grid>
             ) : null)}
-          {watchTransactionId === undefined && watchPayment === undefined && (
+          {watchTransaction === undefined && watchPayment === undefined && (
             <Grid item xs={12}>
               <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date() })} />
             </Grid>
@@ -654,9 +654,9 @@ const useProceduresToInvalidate = () => {
   return [order.find, order.findAll];
 };
 
-const commonFormProps = ({ user, transactionId }: { user?: User, transactionId?: number }) => ({
+const commonFormProps = ({ user, transaction }: { user?: User, transaction?: Transaction }) => ({
   icon: <ShoppingCart />,
-  defaultValues: { ...orderFormDefaultValues, user, billing: { ...orderFormDefaultValues.billing, transactionId } },
+  defaultValues: { ...orderFormDefaultValues, user, billing: { ...orderFormDefaultValues.billing, transaction } },
   urlSuccessFor: (data: any) => `/administration/paiements`, // TODO
   urlCancel: `/administration/paiements`,
 });
@@ -689,10 +689,11 @@ export const OrderCreateForm: React.FC = () => {
   const invalidate = useProceduresToInvalidate();
 
   const userData = trpc.useQueries(t => queryInitialValues.userId !== undefined ? [t.user.find({ id: queryInitialValues.userId })] : ([] as any[]));
+  const transactionData = trpc.useQueries(t => queryInitialValues.transactionId !== undefined ? [t.transaction.find({ id: queryInitialValues.transactionId })] : ([] as any[]));
 
-  return userData.length === 0 || (userData[0].data && !userData[0].isLoading) ? (
+  return (userData.length === 0 || (userData[0].data && !userData[0].isLoading)) && (transactionData.length === 0 || (transactionData[0].data && !transactionData[0].isLoading)) ? (
     <CreateFormContent
-      {...commonFormProps(userData.length === 0 ? {} : { user: userData[0].data as any, transactionId: queryInitialValues.transactionId })}
+      {...commonFormProps({ ...(userData.length === 0 ? {} : { user: userData[0].data as any}), ...(transactionData.length === 0 ? {} : { user: transactionData[0].data as any}) })}
       title="Création d'une commande"
       schema={orderCreateSchema}
       mutationProcedure={trpc.order.create}
