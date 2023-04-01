@@ -5,7 +5,12 @@ import GoogleProvider from 'next-auth/providers/google';
 import FacebookProvider from 'next-auth/providers/facebook';
 import EmailProvider from 'next-auth/providers/email';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { NODEMAILER_CONFIGURATION, prisma, sendVerificationRequest, transactionOptions } from '../../../server';
+import {
+  NODEMAILER_CONFIGURATION,
+  prisma,
+  readTransaction,
+  sendVerificationRequest,
+} from '../../../server';
 import { UserType } from '../../../common/all';
 import { isWhitelistedAdmin } from '../../../server/services';
 
@@ -85,7 +90,7 @@ export const nextAuthOptions: NextAuthOptions = {
         throw new Error(); // Shouldn't happen?
       }
 
-      const isEmailAdminWhitelisted = await prisma.$transaction(async (prisma) => {
+      const isEmailAdminWhitelisted = await readTransaction(async (prisma) => {
         await prisma.user.update({
           where: {
             id: user.id,
@@ -96,7 +101,7 @@ export const nextAuthOptions: NextAuthOptions = {
         });
 
         return await isWhitelistedAdmin(prisma, user);
-      }, transactionOptions);
+      });
 
       // We extend the `session` object to contain information about the permissions of the user
       session.userId = user.id;

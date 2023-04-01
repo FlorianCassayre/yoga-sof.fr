@@ -1,5 +1,5 @@
 import { Prisma } from '@prisma/client';
-import { prisma, transactionOptions } from '../prisma';
+import { prisma, writeTransaction } from '../prisma';
 import crypto from 'crypto';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { couponCreateSchema } from '../../common/schemas/coupon';
@@ -39,13 +39,13 @@ export const createCoupon = async (prisma: Prisma.TransactionClient, args: { dat
 };
 
 export const disableCoupon = async (args: { where: Prisma.CouponWhereUniqueInput }) => {
-  return await prisma.$transaction(async (prisma) => {
+  return await writeTransaction(async (prisma) => {
     const coupon = await prisma.coupon.findUniqueOrThrow(args);
     if (coupon.disabled) {
       throw new ServiceError(ServiceErrorCode.CouponAlreadyDisabled);
     }
     return await prisma.coupon.update({ where: args.where, data: { disabled: true } });
-  }, transactionOptions);
+  });
 };
 
 export const findCouponsPublic = async (prisma: Prisma.TransactionClient, args: { where: { userId: number } }) => {

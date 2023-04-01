@@ -10,7 +10,7 @@ import {
 } from '../../services';
 import { userCreateSchema, userDisableSchema, userFindSchema, userUpdateSchema } from '../../../common/schemas/user';
 import { adminProcedure, router } from '../trpc';
-import { prisma, transactionOptions } from '../../prisma';
+import { readTransaction, writeTransaction } from '../../prisma';
 
 export const userRouter = router({
   find: adminProcedure
@@ -18,7 +18,7 @@ export const userRouter = router({
       id: z.number().int().min(0),
     }))
     .query(async ({ input: { id } }) => {
-      return prisma.$transaction(async (prisma) => findUser(prisma, { where: { id }, include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, transactions: true, memberships: true } }), transactionOptions);
+      return readTransaction(async (prisma) => findUser(prisma, { where: { id }, include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, transactions: true, memberships: true } }));
     }),
   findAll: adminProcedure
     .input(z.strictObject({
@@ -30,11 +30,11 @@ export const userRouter = router({
       id: z.number().int().min(0),
     }))
     .query(async ({ input: { id } }) => {
-      return prisma.$transaction(async (prisma) => findUserUpdate(prisma, { where: { id } }), transactionOptions);
+      return readTransaction(async (prisma) => findUserUpdate(prisma, { where: { id } }));
     }),
   create: adminProcedure
     .input(userCreateSchema)
-    .mutation(async ({ input }) => prisma.$transaction(async (prisma) => createUser(prisma, { data: input }), transactionOptions)),
+    .mutation(async ({ input }) => writeTransaction(async (prisma) => createUser(prisma, { data: input }))),
   update: adminProcedure
     .input(userUpdateSchema)
     .mutation(async ({ input: { id, ...data } }) => updateUser({ where: { id }, data })),

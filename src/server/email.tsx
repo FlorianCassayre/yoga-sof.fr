@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { prisma, transactionOptions } from './prisma';
+import { prisma, writeTransaction } from './prisma';
 import { CourseType, EmailMessageType, Prisma, User } from '@prisma/client';
 import {
   EmailMessageTemplate
@@ -110,7 +110,7 @@ export const notifyCourseNewcomers = async () => {
   const dayAfterTomorrow = new Date(tomorrow);
   dayAfterTomorrow.setDate(dayAfterTomorrow.getDate() + 1);
 
-  const actualRegistrations = await prisma.$transaction(async (prisma) => {
+  const actualRegistrations = await writeTransaction(async (prisma) => {
     const registrations = await prisma.courseRegistration.findMany({
       where: {
         AND: [
@@ -179,7 +179,7 @@ export const notifyCourseNewcomers = async () => {
     await Promise.all(validRegistrations.map(({ id }) => prisma.courseRegistration.update({ where: { id }, data: { reminderSent: true } })));
 
     return validRegistrations;
-  }, transactionOptions);
+  });
 
   const callbacks = await Promise.all(
     actualRegistrations
