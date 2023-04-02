@@ -55,7 +55,6 @@ export const CalendarLinkButton: React.FC<CalendarLinkButtonProps> = ({ publicAc
   const ref = useRef<HTMLInputElement>();
   const selectInput = () => {
     if (ref.current) {
-      console.log('a')
       ref.current.select();
     }
   };

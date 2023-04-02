@@ -33,6 +33,7 @@ export enum ServiceErrorCode {
   OrderMembershipAlreadyOrdered,
   OrderPaymentAmountMismatch,
   CoursePriceCannotBeModified,
+  UserHasNoCoupons,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -77,4 +78,5 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.OrderMembershipAlreadyOrdered]: `L'adhésion fait déjà partie d'une commande`,
   [ServiceErrorCode.OrderPaymentAmountMismatch]: `Le montant payé ne correspond pas au total de la commande`,
   [ServiceErrorCode.CoursePriceCannotBeModified]: `Le prix de la séance ne peut plus être modifié`,
+  [ServiceErrorCode.UserHasNoCoupons]: `L'utilisateur ne possède aucune carte qui puisse être utilisée`,
 };
