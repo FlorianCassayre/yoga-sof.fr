@@ -34,9 +34,9 @@ const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactE
   });
 
   return [
-    <GridActionsCellItemTooltip icon={<Notes />} label="Modifier les notes" onClick={() => router.push(`/administration/seances/planning/${course.id}/notes`)} />,
+    <GridActionsCellItemTooltip icon={<Notes />} label="Modifier les notes" onClick={() => router.push({ pathname: '/administration/seances/planning/[id]/notes', query: { id: course.id, redirect: router.asPath } })} />,
     ...(!course.isCanceled && new Date() < new Date(course.dateStart) && !course.isCanceled ? [
-      <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" disabled={isCanceling} onClick={() => router.push(`/administration/seances/planning/${course.id}/edition`)} />,
+      <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" disabled={isCanceling} onClick={() => router.push({ pathname: '/administration/seances/planning/[id]/edition', query: { id: course.id, redirect: router.asPath } })} />,
       <>
         <CancelCourseDialog
           course={course}
@@ -66,7 +66,7 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, c
       sortable: false,
       minWidth: 50,
       getActions: ({ row }: GridRowParams) => [
-        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" onClick={() => router.push(`/administration/seances/planning/${row.id}`)} />,
+        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" onClick={() => router.push({ pathname: '/administration/seances/planning/[id]', query: { id: row.id } })} />,
       ],
     },
     {

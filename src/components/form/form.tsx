@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { z } from 'zod';
 import { DeepPartial, FormContainer, useFormState } from 'react-hook-form-mui';
 import { AppRouter } from '../../server/controllers';
@@ -16,6 +16,10 @@ import { DecorateProcedure } from '@trpc/react-query/dist/shared';
 import { BackofficeContentLoading } from '../layout/admin/BackofficeContentLoading';
 import { DirtyFormUnloadAlert } from './fields/DirtyFormUnloadAlert';
 import { BackofficeContentError } from '../layout/admin/BackofficeContentError';
+
+const formRedirectSchema = z.object({
+  redirect: z.string().optional(),
+});
 
 interface FormErrorAlertItemProps {
   serverError: TRPCClientErrorLike<AppRouter> | null;
@@ -88,13 +92,18 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
   error: queryError,
 }: InternalFormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>>) => {
   const router = useRouter();
+  const redirect: string | null = useMemo(() => {
+    const parsed = formRedirectSchema.safeParse(router.query);
+    // No open redirect
+    return parsed.success && parsed.data.redirect && parsed.data.redirect.startsWith('/') ? parsed.data.redirect : null;
+  }, [router]);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const { mutate, isLoading, error } = mutationProcedure.useMutation({
     onSuccess: (data) => {
       const invalidations = (invalidate ?? []).map(procedure => procedure.reset());
-      return Promise.all([router.push(urlSuccessFor(data)), ...invalidations])
+      return Promise.all([router.push(redirect ?? urlSuccessFor(data)), ...invalidations])
         .then(() => enqueueSnackbar(successMessage(data), { variant: 'success' }));
     },
   });
@@ -104,7 +113,7 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
   }, []);
 
   const handleCancel = useCallback(() => {
-    return router.push(urlCancel);
+    return router.push(redirect ?? urlCancel);
   }, []);
 
   return !isQueryLoading ? (

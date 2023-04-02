@@ -137,13 +137,13 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       }
       icon={<Person />}
       actions={[
-        { name: 'Modifier', icon: <Edit />, url: `/administration/utilisateurs/${user.id}/edition` },
+        { name: 'Modifier', icon: <Edit />, url: { pathname: '/administration/utilisateurs/[id]/edition', query: { id: user.id, redirect: router.asPath } } },
         { name: user.disabled ? 'Réactiver le compte' : 'Désactiver le compte', icon: <Block />, onClick: () => setDisableDialogOpen(true), disabled: isDisablingLoading },
         { name: 'Supprimer', icon: <Delete />, onClick: () => setDeleteDialogOpen(true), disabled: isDeleteLoading },
       ]}
       quickActions={[
-        { name: 'Inscrire à des séances', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { userId: user.id } } },
-        { name: 'Créer une commande', icon: <ShoppingCart />, url: { pathname: `/administration/paiements/commandes/creation`, query: { userId: user.id } } },
+        { name: 'Inscrire à des séances', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { userId: user.id, redirect: router.asPath } } },
+        { name: 'Créer une commande', icon: <ShoppingCart />, url: { pathname: `/administration/paiements/commandes/creation`, query: { userId: user.id, redirect: router.asPath } } },
       ]}
     >
       <DisableUserDialog user={user} open={isDisableDialogOpen && !user.disabled} setOpen={setDisableDialogOpen} onConfirm={() => mutateDisable({ id: user.id, disabled: true })} />
