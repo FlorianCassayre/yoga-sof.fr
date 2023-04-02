@@ -13,6 +13,7 @@ import { getCourseStatus } from '../../../common/course';
 import { getUserLatestMembership } from '../../../common/user';
 import { Chip } from '@mui/material';
 import { RouterOutput } from '../../../server/controllers/types';
+import { QuickOrderDialog } from '../../QuickOrderDialog';
 
 interface GridActionsAttendanceProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>;
@@ -92,6 +93,23 @@ interface CourseRegistrationGridProps {
 }
 
 export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationGridProps> = ({ courseId, userId, attended, attendance, attendanceModifiable }) => {
+  const compose = <U, V>(input: U, transform: (input: U) => V): V => transform(input);
+  const trpcClient = trpc.useContext();
+  const { enqueueSnackbar } = useSnackbar();
+  const [quickOrderOpen, setQuickOrderOpen] = useState(false);
+  const [quickOrderCourseRegistration, setQuickOrderCourseRegistration] = useState<any>(); // TODO this is garbage
+  const { mutate: mutateQuickOrder, isLoading: isMutatingQuickOrder } = trpc.order.createAutomatically.useMutation({
+    onSuccess: async () => {
+      await Promise.all((
+        [trpcClient.course.find, trpcClient.course.findAll, trpcClient.courseRegistration.findAll, trpcClient.courseRegistration.findAllEvents, trpcClient.courseRegistration.findAllActive, trpcClient.order.findAll, trpcClient.order.find]
+      ).map(procedure => procedure.invalidate()));
+      enqueueSnackbar(`La séance a été marquée comme payée avec la carte`, { variant: 'success' });
+    },
+    onError: () => {
+      enqueueSnackbar(`Impossible de payer cette séance automatiquement : l'utilisateur ne possède peut-être pas de carte`, { variant: 'error' });
+    },
+  });
+
   const columns: GridColumns = [
     ...(attendance ? [{
       field: 'attendance',
@@ -124,7 +142,7 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
       valueGetter: ({ row }: { row: RouterOutput['courseRegistration']['findAllActive'][0] }) =>
         [row.orderUsedCoupons.map(o => o.order), row.orderTrial.map(o => o.order), row.orderReplacementTo.map(o => o.order), row.orderPurchased]
           .flat().map(({ id }) => id)[0],
-    }),
+    }, { onClickNo: !isMutatingQuickOrder ? ({ row: courseRegistration }) => { setQuickOrderCourseRegistration(courseRegistration); setQuickOrderOpen(true) } : undefined }),
     {
       field: 'actions',
       type: 'actions',
@@ -135,6 +153,9 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.courseRegistration.findAllActive} input={{ courseId, userId, attended }} initialSort={{ field: 'createdAt', sort: 'desc' }} />
+    <>
+      <AsyncGrid columns={columns} procedure={trpc.courseRegistration.findAllActive} input={{ courseId, userId, attended }} initialSort={{ field: 'createdAt', sort: 'desc' }} />
+      <QuickOrderDialog courseRegistration={quickOrderCourseRegistration} open={quickOrderOpen} setOpen={setQuickOrderOpen} onConfirm={() => mutateQuickOrder({ courseRegistrationId: quickOrderCourseRegistration.id })} />
+    </>
   );
 };

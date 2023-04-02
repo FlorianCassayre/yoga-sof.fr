@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { prisma, readTransaction, writeTransaction } from '../prisma';
+import { prisma, writeTransaction } from '../prisma';
 import { orderCreateSchema } from '../../common/schemas/order';
 import { Prisma } from '@prisma/client';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
-import { createCoupon } from './coupon';
+import { createCoupon, findCoupons } from './coupon';
 import { createMembership } from './membership';
 
 export const findOrder = async (args: { where: Prisma.OrderWhereUniqueInput }) => {
@@ -251,9 +251,31 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
     },
   });
 
-    return order;
+  return order;
 };
 
 export const deleteOrder = async (args: { where: Prisma.OrderWhereUniqueInput }) => writeTransaction(async prisma =>
   prisma.order.update({ where: args.where, data: { active: false, transaction: { disconnect: true } } })
 );
+
+export const createOrderAutomatically = async (args: { where: { courseRegistrationId: number } }) => writeTransaction(async prisma => {
+  const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id: args.where.courseRegistrationId } });
+  const coupon = (await findCoupons({ where: { includeDisabled: false, userId: courseRegistration.userId } })).filter(c => c.orderCourseRegistrations.length < c.quantity).sort((a, b) => b.orderCourseRegistrations.length - a.orderCourseRegistrations.length)[0];
+  if (coupon === undefined) {
+    throw new ServiceError(ServiceErrorCode.UserHasNoCoupons);
+  }
+  return createOrder(prisma, {
+    data: {
+      user: { id: courseRegistration.userId },
+      purchases: {
+        courseRegistrations: [{ id: courseRegistration.id }],
+      },
+      billing: {
+        existingCoupons: [{
+          coupon: { id: coupon.id },
+          courseRegistrationIds: [courseRegistration.id],
+        }],
+      },
+    },
+  });
+});

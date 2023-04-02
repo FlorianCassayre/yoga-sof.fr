@@ -68,14 +68,35 @@ export const relativeTimestamp = (params: PartialGridEnrichedColDef, compact: bo
   ...params,
 });
 
-export const orderColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
+export const orderColumn = (params: PartialGridEnrichedColDef, options?: { onClickNo?: (data: any) => void }): GridEnrichedColDef => ({
   headerName: 'Payé',
   minWidth: 100,
-  renderCell: ({ value: id }) => // number | undefined
-    id !== undefined ? (
-      <ChipLink label="Oui" color="success" variant="outlined" icon={<Done />} href={`/administration/paiements/commandes/${id}`} />
+  renderCell: (data: any) => { // number | undefined
+    const { value: id } = data;
+    const commonProps = {
+      variant: 'outlined',
+    } as const;
+    const yesProps = {
+      ...commonProps,
+      label: 'Oui',
+      color: 'success',
+      icon: <Done />,
+      href: `/administration/paiements/commandes/${id}`,
+    } as const;
+    const noProps = {
+      ...commonProps,
+      label: 'Non',
+      color: 'default',
+      icon: <Close />,
+    } as const;
+    const onClickNo = options?.onClickNo;
+    return id !== undefined ? (
+      <ChipLink {...yesProps} />
+    ) : !onClickNo ? (
+      <Chip {...noProps} />
     ) : (
-      <Chip label="Non" color="default" variant="outlined" icon={<Close />} />
-    ),
+      <Chip {...noProps} onClick={() => onClickNo(data)} />
+    );
+  },
   ...params,
 });
