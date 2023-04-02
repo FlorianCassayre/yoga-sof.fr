@@ -24,7 +24,7 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       type: 'actions',
       minWidth: 50,
       getActions: ({ row }: GridRowParams) => [
-        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" onClick={() => router.push(`/administration/paiements/commandes/${row.id}`)} />,
+        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" onClick={() => router.push({ pathname: '/administration/paiements/commandes/[id]', query: { id: row.id } })} />,
       ],
     },
     ...(userId === undefined ? [userColumn({

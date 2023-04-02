@@ -32,6 +32,7 @@ interface CourseContentProps {
 }
 
 const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: CourseContentProps) => {
+  const router = useRouter();
   const status = getCourseStatusWithRegistrations(course);
   const { enqueueSnackbar } = useSnackbar();
   const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
@@ -53,13 +54,13 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
       title={displayCourseName(course)}
       icon={<Event />}
       actions={[
-        { name: 'Modifier mes notes', icon: <Notes />, url: { pathname: `/administration/seances/planning/[id]/notes`, query: { id: course.id } } },
+        { name: 'Modifier mes notes', icon: <Notes />, url: { pathname: `/administration/seances/planning/[id]/notes`, query: { id: course.id, redirect: router.asPath } } },
         ...(!course.isCanceled && (!status.isBeforeStart || status.isInExtendedPeriod) ? [{ name: isCheckingAttendance ? `Ne plus faire l'appel` : `Faire l'appel`, icon: <EmojiPeople />, onClick: () => setCheckingAttendance(!isCheckingAttendance) }] : []),
-        ...(!course.isCanceled && (status.isBeforeStart || status.isInExtendedPeriod) ? [{ name: 'Modifier la séance', icon: <Edit />, url: { pathname: `/administration/seances/planning/[id]/edition`, query: { id: course.id } } }] : []),
+        ...(!course.isCanceled && (status.isBeforeStart || status.isInExtendedPeriod) ? [{ name: 'Modifier la séance', icon: <Edit />, url: { pathname: `/administration/seances/planning/[id]/edition`, query: { id: course.id, redirect: router.asPath } } }] : []),
         ...(!course.isCanceled && (!status.isAfterEnd || status.isInExtendedPeriod) ? [{ name: 'Annuler la séance', icon: <Cancel />, onClick: () => setConfirmCancelDialogOpen(true), disabled: isCanceling }] : []),
       ]}
       quickActions={[
-        ...(status.canRegister ? [{ name: 'Inscrire des utilisateurs', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { courseId: course.id } } }] : []),
+        ...(status.canRegister ? [{ name: 'Inscrire des utilisateurs', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { courseId: course.id, redirect: router.asPath } } }] : []),
       ]}
     >
       <CancelCourseDialog
@@ -128,7 +129,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
             </CardContent>
             {status.canRegister && (
               <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Link href={{ pathname: '/administration/inscriptions/creation', query: { courseId: course.id } }} passHref>
+                <Link href={{ pathname: '/administration/inscriptions/creation', query: { courseId: course.id, redirect: router.asPath } }} passHref>
                   <Tooltip title="Inscrire des utilisateurs">
                     <IconButton size="small"><AddBox /></IconButton>
                   </Tooltip>
@@ -157,7 +158,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
               </Typography>
             </CardContent>
             <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Link href={`/administration/seances/planning/${course.id}/notes`} passHref>
+              <Link href={{ pathname: '/administration/seances/planning/[id]/notes', query: { id: course.id, redirect: router.asPath } }} passHref>
                 <Tooltip title="Modifier">
                   <IconButton size="small"><Edit /></IconButton>
                 </Tooltip>

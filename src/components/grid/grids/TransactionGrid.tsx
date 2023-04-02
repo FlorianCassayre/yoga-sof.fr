@@ -20,7 +20,7 @@ const GridActionCreateOrder: React.FC<GridActionCreateOrderProps> = ({ transacti
   const { id: transactionId, userId } = transaction;
   const router = useRouter();
   return (
-    <GridActionsCellItemTooltip icon={<ShoppingCartCheckout />} onClick={() => router.push({ pathname: '/administration/paiements/commandes/creation', query: { userId, transactionId } })} label="Créer une commande" />
+    <GridActionsCellItemTooltip icon={<ShoppingCartCheckout />} onClick={() => router.push({ pathname: '/administration/paiements/commandes/creation', query: { userId, transactionId, redirect: router.asPath } })} label="Créer une commande" />
   );
 };
 
@@ -31,7 +31,7 @@ interface GridActionEditTransactionProps {
 const GridActionEditTransaction: React.FC<GridActionEditTransactionProps> = ({ transaction }) => {
   const router = useRouter();
   return (
-    <GridActionsCellItemTooltip icon={<Edit />} onClick={() => router.push(`/administration/paiements/${transaction.id}/edition`)} label="Modifier" />
+    <GridActionsCellItemTooltip icon={<Edit />} onClick={() => router.push({ pathname: '/administration/paiements/[id]/edition', query: { id: transaction.id, redirect: router.asPath } })} label="Modifier" />
   );
 };
 
