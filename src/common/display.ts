@@ -67,6 +67,9 @@ export const displayCouponModelName = ({ courseType, quantity }: Pick<CouponMode
 
 export const displayCouponName = ({ courseType, quantity }: Pick<Coupon, 'courseType' | 'quantity'>, capitalize = true) => `${capitalize ? 'Carte' : 'carte'} de ${quantity} séance${quantity > 1 ? 's' : ''} ${CourseTypeNames[courseType].toLowerCase()}`;
 
+export const displayCouponNameWithQuantity = ({ courseType, quantity, orderCourseRegistrations }: Pick<Coupon, 'courseType' | 'quantity'> & { orderCourseRegistrations: {}[] }, capitalize = true) =>
+  `${capitalize ? 'Carte' : 'carte'} de ${quantity - orderCourseRegistrations.length} / ${quantity} séance${quantity > 1 ? 's' : ''} ${CourseTypeNames[courseType].toLowerCase()}`;
+
 export const displayMembershipModelName = ({ id: type, price }: Pick<MembershipModel, 'id' | 'price'>) => `Adhésion ${MembershipTypeNames[type].toLowerCase()} (${price} €)`;
 
 export const displayMembershipModelNameWithoutPrice = ({ id: type }: Pick<MembershipModel, 'id'>) => `Adhésion ${MembershipTypeNames[type].toLowerCase()}`;

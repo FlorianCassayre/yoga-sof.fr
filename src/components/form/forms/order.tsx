@@ -587,7 +587,7 @@ const OrderFormFields: React.FC = () => {
                   <OptionalField onDelete={() => removeBillingExistingCoupon(index)}>
                     <Grid container spacing={2}>
                       <Grid item xs={12} md={6}>
-                        <SelectCoupon name={`billing.existingCoupons.${index}.coupon`} userId={watchUser.id} label="Carte existante" noMatchId />
+                        <SelectCoupon name={`billing.existingCoupons.${index}.coupon`} userId={watchUser.id} notEmpty label="Carte existante" noMatchId />
                       </Grid>
                       <Grid item xs={12} md={6}>
                         <SelectDependentCourseRegistration name={`billing.existingCoupons.${index}.courseRegistrationIds`} fromName="purchases.courseRegistrations" multiple label="Séances" />

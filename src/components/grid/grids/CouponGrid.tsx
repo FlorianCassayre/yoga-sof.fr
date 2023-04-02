@@ -146,13 +146,6 @@ export const CouponGrid: React.FunctionComponent<CouponGridProps> = ({ userId, c
       )
     } as any, // TODO
     {
-      field: 'price',
-      headerName: `Prix d'achat`,
-      flex: 1,
-      minWidth: 100,
-      valueFormatter: ({ value }: { value: number }) => value > 0 ? `${value} €` : 'Gratuit',
-    },
-    {
       field: 'code',
       headerName: 'Code',
       flex: 1,
@@ -160,6 +153,13 @@ export const CouponGrid: React.FunctionComponent<CouponGridProps> = ({ userId, c
       renderCell: ({ value }: GridRenderCellParams<Coupon['code']>) => value && (
         <CouponCode code={value} />
       ),
+    },
+    {
+      field: 'price',
+      headerName: `Prix d'achat`,
+      flex: 1,
+      minWidth: 100,
+      valueFormatter: ({ value }: { value: number }) => value > 0 ? `${value} €` : 'Gratuit',
     },
     relativeTimestamp({
       field: 'createdAt',
