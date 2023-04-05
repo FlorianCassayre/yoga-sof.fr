@@ -95,7 +95,7 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
   const redirect: string | null = useMemo(() => {
     const parsed = formRedirectSchema.safeParse(router.query);
     // No open redirect
-    return parsed.success && parsed.data.redirect && parsed.data.redirect.startsWith('/') ? parsed.data.redirect : null;
+    return parsed.success && parsed.data.redirect && parsed.data.redirect.startsWith('/') ? `/${parsed.data.redirect}` : null;
   }, [router]);
 
   const { enqueueSnackbar } = useSnackbar();

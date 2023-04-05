@@ -23,7 +23,7 @@ export default function Redirection() {
         let sanitizedRequestedRedirection: null | string = null;
         if (requestedRedirection && !Array.isArray(requestedRedirection)) {
           if (requestedRedirection.startsWith('/')) {
-            sanitizedRequestedRedirection = requestedRedirection;
+            sanitizedRequestedRedirection = `/${requestedRedirection}`;
           }
         }
         // Shortcut for admins
