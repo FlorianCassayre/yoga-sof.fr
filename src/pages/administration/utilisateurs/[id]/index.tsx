@@ -41,6 +41,7 @@ import { BackofficeContentError } from '../../../../components/layout/admin/Back
 import { CouponGrid } from '../../../../components/grid/grids/CouponGrid';
 import { MembershipGrid } from '../../../../components/grid/grids/MembershipGrid';
 import { OrderGrid } from '../../../../components/grid/grids/OrderGrid';
+import { UserInformationTable } from '../../../../components/UserInformationTable';
 
 interface GridItemStatisticProps {
   value: number;
@@ -65,35 +66,13 @@ const GridItemStatistic: React.FC<GridItemStatisticProps> = ({ value, valueForma
   </Grid>
 );
 
-interface UserProvidedInformationChipProps {
-  original: string;
-}
-
-const UserProvidedInformationChip: React.FC<UserProvidedInformationChipProps> = ({ original }) => (
-  <Tooltip title={(
-    <>
-      <Box>Cette donnée a été modifiée par l'utilisateur.</Box>
-      <Box>
-        La valeur originale était{' '}
-        {original ? (
-          <strong>{original}</strong>
-        ) : 'vide.'}
-      </Box>
-    </>
-  )}>
-    <Info color="action" />
-  </Tooltip>
-);
-
 interface AdminUserContentProps {
   user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, transactions: true, memberships: true } }>;
 }
 
 const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user }: AdminUserContentProps) => {
   const title = `Utilisateur ${displayUserName(user)}`;
-  const displayDate = (date: Date | string | undefined | null) => !!date && `${formatDateDDsMMsYYYYsHHhMMmSSs(date)} (${formatTimestampRelative(date).toLowerCase()})`;
   const statistics = getUserStatistics(user);
-  const membership = getUserLatestMembership(user);
   const trpcClient = trpc.useContext();
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
@@ -154,84 +133,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} lg={6}>
-          <InformationTableCard
-            rows={[
-              {
-                header: 'Statut',
-                value: user.disabled ? (
-                  <Chip label="Désactivé" color="error" variant="outlined" icon={<Close />} size="small" />
-                ) : user.lastActivity ? (
-                  <Chip label="Actif" color="success" variant="outlined" icon={<Done />} size="small" />
-                ) : (
-                  <Chip label="Jamais connecté" color="default" variant="outlined" icon={<QuestionMark />} size="small" />
-                ),
-              },
-              {
-                header: 'Adhérent',
-                value: membership ? (
-                  <Chip label={`Oui (jusqu'au ${formatDateDDsMMsYYYY(membership.dateEnd)})`} color="success" variant="outlined" icon={<Done />} size="small" />
-                ) : (
-                  <Chip label="Non" color="default" variant="outlined" icon={<Close />} size="small" />
-                ),
-              },
-              {
-                header: 'Nom',
-                value: (
-                  <Stack direction="row" alignItems="center" gap={1}>
-                    {user.customName ?? user.name}
-                    {user.customName !== null && user.customName !== user.name && (
-                      <UserProvidedInformationChip original={user.name ?? ''} />
-                    )}
-                  </Stack>
-                ),
-              },
-              {
-                header: 'Adresse e-mail',
-                value: (
-                  <Stack direction="row" alignItems="center" gap={1}>
-                    {user.customEmail ?? user.email}
-                    {user.customEmail !== null && user.customEmail !== user.email && (
-                      <UserProvidedInformationChip original={user.email ?? ''} />
-                    )}
-                  </Stack>
-                ),
-              },
-              { header: 'Dernière connexion', value: user.lastActivity !== null ? displayDate(user.lastActivity) : 'Jamais' },
-              { header: user.lastActivity ? 'Création du compte' : 'Date de création', value: displayDate(user.createdAt) },
-              {
-                header: 'Services de connexion',
-                value: (() => {
-                  const providers = [...(user.emailVerified !== null ? ['email'] : []), ...user.accounts.map(({ provider }) => provider)];
-                  return providers.length > 0 ? (
-                    <Stack direction="row" spacing={1}>
-                      {providers
-                        .sort()
-                        .map(provider => [provider, AuthProviders[provider] ?? AuthProviders['fallback']] as const)
-                        .map(([provider, { name, icon }]) => (
-                          <Tooltip key={provider} title={name} sx={{ color: grey[600] }}>
-                            {icon}
-                          </Tooltip>
-                        ))}
-                    </Stack>
-                  ) : '(aucun)'
-                })(),
-              },
-              ...(user.managedByUser ? [{
-                header: 'Supervisé par',
-                value: <UserLink user={user.managedByUser} />,
-              }] : []),
-              ...(user.managedUsers.length > 0 ? [{
-                header: 'Supervise',
-                value: (
-                  <Stack direction="row" spacing={2}>
-                    {user.managedUsers.map(managedUser => (
-                      <UserLink key={managedUser.id} user={managedUser} />
-                    ))}
-                  </Stack>
-                ),
-              }] : []),
-            ]}
-          />
+          <UserInformationTable user={user} />
         </Grid>
         <Grid item xs={12} lg={6}>
           <Card variant="outlined">

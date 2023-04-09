@@ -1,9 +1,10 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { prisma, writeTransaction } from '../prisma';
 import {
   userCreateSchema,
   userDisableSchema,
   userSchemaBase,
+  usersMergeSchema,
   userUpdateSchema,
   userUpdateSelfSchema
 } from '../../common/schemas/user';
@@ -97,3 +98,66 @@ export const deleteUser = async (args: { where: Prisma.UserWhereUniqueInput }) =
     return prisma.user.delete(args);
   });
 };
+
+export const mergeUsers = async (args: { data: z.infer<typeof usersMergeSchema> }) => writeTransaction(async prisma => {
+  const include = {
+      accounts: true,
+      sessions: true,
+      managedByUser: true,
+      managedUsers: true,
+      transactions: true,
+      emailsReceived: true,
+      courseRegistrations: true,
+      coupons: true,
+      memberships: { include: { users: true } },
+      orders: true,
+  };
+  const [mainUser, secondaryUser] = await Promise.all([prisma.user.findUniqueOrThrow({ where: { id: args.data.mainUserId }, include }), prisma.user.findUniqueOrThrow({ where: { id: args.data.secondaryUserId }, include })]);
+  const mainUserId = mainUser.id;
+
+  const mainUserCourses = new Set(mainUser.courseRegistrations.map(r => r.courseId)), secondaryUserCourses = new Set(secondaryUser.courseRegistrations.map(r => r.courseId));
+  const allCourses = new Set();
+  mainUserCourses.forEach(id => allCourses.add(id));
+  secondaryUserCourses.forEach(id => allCourses.add(id));
+
+  if (
+    mainUserCourses.size + secondaryUserCourses.size !== allCourses.size ||
+    secondaryUser.managedByUserId !== null ||
+    secondaryUser.managedUsers.length > 0
+  ) {
+    throw new ServiceError(ServiceErrorCode.UsersCannotBeMerged);
+  }
+
+  await Promise.all([
+    ...secondaryUser.accounts.map(({ id }) => prisma.account.update({ where: { id }, data: { userId: mainUserId } })),
+    ...secondaryUser.sessions.map(({ id }) => prisma.session.update({ where: { id }, data: { userId: mainUserId } })),
+    ...secondaryUser.transactions.map(({ id }) => prisma.transaction.update({ where: { id }, data: { userId: mainUserId } })),
+    ...secondaryUser.emailsReceived.map(({ id }) => prisma.emailMessage.update({ where: { id }, data: { userId: mainUserId } })),
+    ...secondaryUser.courseRegistrations.map(({ id }) => prisma.courseRegistration.update({ where: { id }, data: { userId: mainUserId } })),
+    ...secondaryUser.coupons.map(({ id }) => prisma.coupon.update({ where: { id }, data: { userId: mainUserId } })),
+    ...secondaryUser.memberships.map(({ id, users }) =>
+      prisma.membership.update({
+        where: { id },
+        data: { users: { disconnect: { id }, connect: users.some(user => user.id === mainUserId) ? undefined : { id: mainUserId } } },
+      })),
+    ...secondaryUser.orders.map(({ id }) => prisma.order.update({ where: { id }, data: { userId: mainUserId } })),
+  ]);
+
+  let shouldDeleteUser = true;
+  if (
+    // Verified email takes precedence over non verified email, which takes precedence over no email
+    secondaryUser.email !== null && mainUser.email === null
+    || secondaryUser.emailVerified !== null && mainUser.emailVerified === null
+  ) {
+    await prisma.user.update({ where: { id: mainUserId }, data: { emailVerified: secondaryUser.emailVerified, email: secondaryUser.email } });
+  } else if (mainUser.emailVerified !== null && secondaryUser.emailVerified !== null) {
+    shouldDeleteUser = false;
+  }
+  if (shouldDeleteUser) {
+    await prisma.user.delete({ where: { id: secondaryUser.id } });
+  } else {
+    await prisma.user.update({ where: { id: secondaryUser.id }, data: { disabled: true } });
+  }
+
+  return prisma.user.findUniqueOrThrow({ where: { id: mainUserId } });
+});

@@ -4,11 +4,17 @@ import {
   deleteUser,
   findUser,
   findUsers,
-  findUserUpdate,
+  findUserUpdate, mergeUsers,
   updateUser,
-  updateUserDisable
+  updateUserDisable,
 } from '../../services';
-import { userCreateSchema, userDisableSchema, userFindSchema, userUpdateSchema } from '../../../common/schemas/user';
+import {
+  userCreateSchema,
+  userDisableSchema,
+  userFindSchema,
+  usersMergeSchema,
+  userUpdateSchema,
+} from '../../../common/schemas/user';
 import { adminProcedure, router } from '../trpc';
 import { readTransaction, writeTransaction } from '../../prisma';
 
@@ -44,4 +50,7 @@ export const userRouter = router({
   delete: adminProcedure
     .input(userFindSchema)
     .mutation(async ({ input: { id } }) => deleteUser({ where: { id } })),
+  merge: adminProcedure
+    .input(usersMergeSchema)
+    .mutation(async ({ input: data }) => mergeUsers({ data }))
 });

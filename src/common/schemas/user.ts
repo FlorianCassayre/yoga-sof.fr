@@ -30,3 +30,8 @@ export const userDisableSchema = z.object({
 }).merge(userFindSchema);
 
 export const userUpdateSelfSchema = userSchemaBase.merge(userFindSchema);
+
+export const usersMergeSchema = z.strictObject({
+  mainUserId: z.number().int().min(0),
+  secondaryUserId: z.number().int().min(0),
+}).refine(({ mainUserId: u1, secondaryUserId: u2 }) => u1 !== u2, { message: `Les deux utilisateurs doivent être différents` });
