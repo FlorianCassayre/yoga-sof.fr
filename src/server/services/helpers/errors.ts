@@ -34,6 +34,7 @@ export enum ServiceErrorCode {
   OrderPaymentAmountMismatch,
   CoursePriceCannotBeModified,
   UserHasNoCoupons,
+  UsersCannotBeMerged,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -79,4 +80,5 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.OrderPaymentAmountMismatch]: `Le montant payé ne correspond pas au total de la commande`,
   [ServiceErrorCode.CoursePriceCannotBeModified]: `Le prix de la séance ne peut plus être modifié`,
   [ServiceErrorCode.UserHasNoCoupons]: `L'utilisateur ne possède aucune carte qui puisse être utilisée`,
+  [ServiceErrorCode.UsersCannotBeMerged]: `Ces utilisateurs ne peuvent pas être fusionnés`,
 };

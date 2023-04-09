@@ -1,6 +1,6 @@
 import React from 'react';
 import { BackofficeContent } from '../../../components/layout/admin/BackofficeContent';
-import { People, Person } from '@mui/icons-material';
+import { Merge, Notes, People, Person } from '@mui/icons-material';
 import { Typography } from '@mui/material';
 import { UserGrid } from '../../../components/grid/grids/UserGrid';
 
@@ -9,6 +9,9 @@ export default function AdminAdmins() {
     <BackofficeContent
       title="Utilisateurs"
       icon={<People />}
+      actions={[
+        { name: 'Fusionner des utilisateurs', icon: <Merge/>, url: '/administration/utilisateurs/fusion' },
+      ]}
       quickActions={[
         { icon: <Person />, name: 'Nouvel utilisateur', url: '/administration/utilisateurs/creation' }
       ]}

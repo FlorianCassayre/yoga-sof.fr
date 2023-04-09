@@ -3,12 +3,17 @@ import { DeepPartial, TextFieldElement } from 'react-hook-form-mui';
 import { z } from 'zod';
 import {
 } from '../../../common/schemas';
-import { Grid } from '@mui/material';
-import { Person } from '@mui/icons-material';
+import { Grid, Typography } from '@mui/material';
+import { Merge, People, Person } from '@mui/icons-material';
 import { CreateFormContent, UpdateFormContent } from '../form';
 import { ParsedUrlQuery } from 'querystring';
 import { User } from '@prisma/client';
-import { userCreateSchema, userFindTransformSchema, userUpdateSchema } from '../../../common/schemas/user';
+import {
+  userCreateSchema,
+  userFindTransformSchema,
+  usersMergeSchema,
+  userUpdateSchema,
+} from '../../../common/schemas/user';
 import { displayUserName } from '../../../common/display';
 import { trpc } from '../../../common/trpc';
 import { SelectUser } from '../fields/SelectUser';
@@ -75,5 +80,56 @@ export const UserUpdateForm = ({ queryParams }: { queryParams: ParsedUrlQuery })
     >
       <UserFormFields />
     </UpdateFormContent>
+  );
+};
+
+const UserMergeFields = ({ title, path }: { title: string, path: string }) => {
+
+  return (
+    <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <SelectUser name={`${path}.user`} label={title} noMatchId />
+      </Grid>
+      <Grid item xs={12} />
+      <Grid item xs={12} md={6}>
+        <TextFieldElement name={`${path}.user.name`} label="Nom" fullWidth InputProps={{ readOnly: true }} />
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <TextFieldElement name={`${path}.user.displayName`} label="Nom d'affichage" fullWidth InputProps={{ readOnly: true }} />
+      </Grid>
+    </Grid>
+  );
+};
+
+const UsersMergeFields = () => {
+  return (
+    <Grid container spacing={2}>
+      {[`Utilisateur principal`, `Utilisateur à fusionner`].map((title, index) => (
+        <Grid key={index} item xs={12} md={6}>
+          <UserMergeFields path={`users.${index}`} title={title}/>
+        </Grid>
+      ))}
+    </Grid>
+  );
+};
+
+export const UsersMergeForm = () => {
+  return (
+    <CreateFormContent
+      title="Fusion de comptes utilisateurs"
+      schema={usersMergeSchema}
+      mutationProcedure={trpc.user.merge}
+      successMessage={(data) => `Les utilisateurs ont été fusionnés.`}
+      invalidate={useProceduresToInvalidate()}
+      icon={<People />}
+      defaultValues={{}}
+      urlSuccessFor={(data: User) => `/administration/utilisateurs/${data.id}`}
+      urlCancel={`/administration/utilisateurs`}
+      buttonLabel="Fusionner"
+      buttonIcon={<Merge/>}
+      buttonColor={undefined}
+    >
+      <UsersMergeFields />
+    </CreateFormContent>
   );
 };

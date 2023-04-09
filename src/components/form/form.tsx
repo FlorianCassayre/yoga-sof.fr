@@ -45,7 +45,13 @@ const FormErrorAlertItem: React.FC<FormErrorAlertItemProps> = ({ serverError }) 
   );
 };
 
-interface FormContentProps<TMutationProcedure extends AnyMutationProcedure, TData> {
+interface OptionalFormContentProps {
+  buttonLabel: string;
+  buttonIcon: React.ReactElement;
+  buttonColor: Parameters<typeof Button>[0]['color'];
+}
+
+interface FormContentProps<TMutationProcedure extends AnyMutationProcedure, TData> extends Partial<OptionalFormContentProps> {
   children: React.ReactNode;
   title: string;
   icon: React.ReactNode;
@@ -69,8 +75,7 @@ interface UpdateFormContentProps<TQueryProcedure extends AnyQueryProcedure, TMut
   queryParams: ParsedUrlQuery;
 }
 
-interface InternalFormContentProps<TMutationProcedure extends AnyMutationProcedure, TData> extends FormContentProps<TMutationProcedure, TData> {
-  edit: boolean;
+interface InternalFormContentProps<TMutationProcedure extends AnyMutationProcedure, TData> extends FormContentProps<TMutationProcedure, TData>, OptionalFormContentProps {
   isLoading: boolean;
   error?: any;
 }
@@ -86,7 +91,9 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
   defaultValues,
   invalidate,
   successMessage,
-  edit,
+  buttonLabel,
+  buttonIcon,
+  buttonColor,
   hiddenControls,
   isLoading: isQueryLoading,
   error: queryError,
@@ -137,8 +144,8 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
                   <Button variant="outlined" color="inherit" startIcon={<Cancel />} onClick={handleCancel}>Annuler</Button>
                 </Grid>
                 <Grid item>
-                  <Button type="submit" variant="contained" color={edit ? undefined : 'success'} startIcon={edit ? <Save /> : <AddBox />}>
-                    {edit ? 'Sauvegarder' : 'Créer'}
+                  <Button type="submit" variant="contained" color={buttonColor} startIcon={buttonIcon}>
+                    {buttonLabel}
                   </Button>
                 </Grid>
               </Grid>
@@ -161,8 +168,10 @@ const InternalFormContent = <TMutationProcedure extends AnyMutationProcedure>({
 export const CreateFormContent = <TMutationProcedure extends AnyMutationProcedure>({ children, ...props }: CreateFormContentProps<TMutationProcedure>): JSX.Element => {
   return (
     <InternalFormContent
+      buttonLabel="Créer"
+      buttonIcon={<AddBox/>}
+      buttonColor="success"
       {...props}
-      edit={false}
       isLoading={false}
     >
       {children}
@@ -182,8 +191,10 @@ export const UpdateFormContent = <TQueryProcedure extends AnyQueryProcedure, TMu
   const { data, isLoading, error } = queryProcedure.useQuery(parsed);
   return (
     <InternalFormContent
+      buttonLabel="Sauvegarder"
+      buttonIcon={<Save/>}
+      buttonColor={undefined}
       {...props}
-      edit={true}
       isLoading={isLoading}
       error={error}
       defaultValues={{ ...defaultValues, ...data }}

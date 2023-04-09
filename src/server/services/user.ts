@@ -1,11 +1,11 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { prisma, writeTransaction } from '../prisma';
 import {
   userCreateSchema,
   userDisableSchema,
-  userSchemaBase,
+  userSchemaBase, usersMergeSchema,
   userUpdateSchema,
-  userUpdateSelfSchema
+  userUpdateSelfSchema,
 } from '../../common/schemas/user';
 import { z } from 'zod';
 import { isWhitelistedAdmin } from './adminWhitelist';
@@ -97,3 +97,11 @@ export const deleteUser = async (args: { where: Prisma.UserWhereUniqueInput }) =
     return prisma.user.delete(args);
   });
 };
+
+export const mergeUsers = async (args: { data: z.infer<typeof usersMergeSchema> }) => writeTransaction(async prisma => {
+  const [user1, user2] = await Promise.all(args.data.users.map(({ user: { id } }) => prisma.user.findUniqueOrThrow({ where: { id } })));
+
+  // TODO
+
+  return {} as any as User;
+});
