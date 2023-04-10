@@ -1,10 +1,10 @@
 import React from 'react';
-import { DeepPartial, TextFieldElement } from 'react-hook-form-mui';
+import { DeepPartial, TextFieldElement, useFormContext } from 'react-hook-form-mui';
 import { z } from 'zod';
 import {
 } from '../../../common/schemas';
-import { Grid, Typography } from '@mui/material';
-import { Merge, People, Person } from '@mui/icons-material';
+import { Grid, IconButton, Tooltip, Typography } from '@mui/material';
+import { Merge, People, Person, SwapHoriz } from '@mui/icons-material';
 import { CreateFormContent, UpdateFormContent } from '../form';
 import { ParsedUrlQuery } from 'querystring';
 import { User } from '@prisma/client';
@@ -84,24 +84,42 @@ export const UserUpdateForm = ({ queryParams }: { queryParams: ParsedUrlQuery })
 };
 
 const UserMergeFields = ({ title, path }: { title: string, path: string }) => {
+  const { watch } = useFormContext();
+  const userId = watch(`${path}.userId`);
+  const result = trpc.useQueries(t => userId !== undefined ? [t.user.find] : []);
+  const r = result.length > 0 ? result[0] : null;
 
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <SelectUser name={`${path}.user`} label={title} noMatchId />
+        <SelectUser name={`${path}.userId`} label={title} />
       </Grid>
       <Grid item xs={12} />
-      <Grid item xs={12} md={6}>
+      {/*<Grid item xs={12} md={6}>
         <TextFieldElement name={`${path}.user.name`} label="Nom" fullWidth InputProps={{ readOnly: true }} />
       </Grid>
       <Grid item xs={12} md={6}>
-        <TextFieldElement name={`${path}.user.displayName`} label="Nom d'affichage" fullWidth InputProps={{ readOnly: true }} />
+        <TextFieldElement name={`${path}.user.custom`} label="Nom d'affichage" fullWidth InputProps={{ readOnly: true }} />
       </Grid>
+      <Grid item xs={12} md={6}>
+        <TextFieldElement name={`${path}.user.email`} label="E-mail" fullWidth InputProps={{ readOnly: true }}/>
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <TextFieldElement name={`${path}.user.customEmail`} label="E-mail d'affichage" fullWidth InputProps={{ readOnly: true }}/>
+      </Grid>*/}
     </Grid>
   );
 };
 
 const UsersMergeFields = () => {
+  const form = useFormContext();
+  const handleSwap = () => {
+    const values = form.getValues();
+    console.log(values);
+    if (values.users) {
+      form.setValue('users', [values.users[1], values.users[0]]);
+    }
+  };
   return (
     <Grid container spacing={2}>
       {[`Utilisateur principal`, `Utilisateur à fusionner`].map((title, index) => (
@@ -109,6 +127,13 @@ const UsersMergeFields = () => {
           <UserMergeFields path={`users.${index}`} title={title}/>
         </Grid>
       ))}
+      <Grid item xs={12} sx={{ textAlign: 'center' }}>
+        <Tooltip title="Échanger">
+          <IconButton onClick={handleSwap}>
+            <SwapHoriz/>
+          </IconButton>
+        </Tooltip>
+      </Grid>
     </Grid>
   );
 };

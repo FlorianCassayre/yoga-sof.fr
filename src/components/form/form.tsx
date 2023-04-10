@@ -51,7 +51,7 @@ interface OptionalFormContentProps {
   buttonColor: Parameters<typeof Button>[0]['color'];
 }
 
-interface FormContentProps<TMutationProcedure extends AnyMutationProcedure, TData> extends Partial<OptionalFormContentProps> {
+interface FormContentProps<TMutationProcedure extends AnyMutationProcedure, TData> {
   children: React.ReactNode;
   title: string;
   icon: React.ReactNode;
@@ -65,11 +65,11 @@ interface FormContentProps<TMutationProcedure extends AnyMutationProcedure, TDat
   hiddenControls?: boolean;
 }
 
-interface CreateFormContentProps<TMutationProcedure extends AnyMutationProcedure> extends FormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>> {
+interface CreateFormContentProps<TMutationProcedure extends AnyMutationProcedure> extends FormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>>, Partial<OptionalFormContentProps> {
 
 }
 
-interface UpdateFormContentProps<TQueryProcedure extends AnyQueryProcedure, TMutationProcedure extends AnyMutationProcedure, TQueryInputSchema extends z.ZodType<inferProcedureInput<TQueryProcedure>, ZodTypeDef, any>> extends FormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>> {
+interface UpdateFormContentProps<TQueryProcedure extends AnyQueryProcedure, TMutationProcedure extends AnyMutationProcedure, TQueryInputSchema extends z.ZodType<inferProcedureInput<TQueryProcedure>, ZodTypeDef, any>> extends FormContentProps<TMutationProcedure, inferProcedureOutput<TMutationProcedure>>, Partial<OptionalFormContentProps> {
   queryProcedure: DecorateProcedure<TQueryProcedure, any, any>;
   querySchema: TQueryInputSchema;
   queryParams: ParsedUrlQuery;
