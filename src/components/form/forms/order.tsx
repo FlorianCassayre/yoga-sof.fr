@@ -270,7 +270,8 @@ const OrderFormFields: React.FC = () => {
   const { fields: billingExistingCouponFields, append: addBillingExistingCoupon, remove: removeBillingExistingCoupon, update: updateBillingExistingCoupon } = useFieldArray({ control, name: 'billing.existingCoupons' });
   const { fields: billingReplacementCourseRegistrationFields, append: addBillingReplacementCourseRegistration, remove: removeBillingReplacementCourseRegistration } = useFieldArray({ control, name: 'billing.replacementCourseRegistrations' });
 
-  const purchasedNewMembershipDefaultValue = { year: new Date().getFullYear() };
+  const today = new Date();
+  const purchasedNewMembershipDefaultValue = { year: today.getFullYear() - (today.getMonth() < 9 - 1 ? 1 : 0) };
 
   const errors = formState.errors as any;
 
@@ -629,7 +630,7 @@ const OrderFormFields: React.FC = () => {
                   <OptionalField onDelete={() => removeBillingReplacementCourseRegistration(index)}>
                     <Grid container spacing={2}>
                       <Grid item xs={12} md={6}>
-                        <SelectCourseRegistration name={`billing.replacementCourseRegistrations.${index}.fromCourseRegistrationId`} userId={watchUser.id} label="Séance à rattraper" />
+                        <SelectCourseRegistration name={`billing.replacementCourseRegistrations.${index}.fromCourseRegistrationId`} userId={watchUser.id} label="Séance à rattraper" notCanceled />
                       </Grid>
                       <Grid item xs={12} md={6}>
                         <SelectDependentCourseRegistration name={`billing.replacementCourseRegistrations.${index}.toCourseRegistrationId`} fromName="purchases.courseRegistrations" label="Séance de rattrapage" />

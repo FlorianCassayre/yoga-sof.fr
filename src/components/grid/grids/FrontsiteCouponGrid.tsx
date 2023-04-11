@@ -3,7 +3,7 @@ import { Cancel, Visibility, VisibilityOff } from '@mui/icons-material';
 import { GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useRouter } from 'next/router';
-import { orderColumn, relativeTimestamp, userColumn } from './common';
+import { orderColumn, relativeTimestamp, simpleOrderColumn, userColumn } from './common';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { trpc } from '../../../common/trpc';
 import { Coupon, CourseType } from '@prisma/client';
@@ -62,6 +62,9 @@ export const FrontsiteCouponGrid: React.FunctionComponent<FrontsiteCouponGridPro
       field: 'createdAt',
       headerName: `Date d'émission`,
       flex: 1,
+    }),
+    simpleOrderColumn({
+      field: 'paid',
     }),
   ];
 

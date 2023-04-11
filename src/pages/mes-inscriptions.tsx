@@ -7,7 +7,7 @@ import {
   Card,
   CircularProgress,
   Grid,
-  Link as MuiLink,
+  Link as MuiLink, Stack,
   Tab,
   Tabs,
   TextField,
@@ -29,6 +29,7 @@ import { Save } from '@mui/icons-material';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { userSchemaBase } from '../common/schemas/user';
 import { FrontsiteCouponGrid } from '../components/grid/grids/FrontsiteCouponGrid';
+import { FrontsiteMembershipGrid } from '../components/grid/grids/FrontsiteMembershipGrid';
 
 interface CalendarWidgetProps {
   userId: number;
@@ -144,17 +145,17 @@ const UserTabPanelContent: React.FC<UserTabPanelProps> = ({ userId, publicAccess
   return (
     <>
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
-        Séances à venir
+        Séances
       </Typography>
-      <FrontsiteCourseGrid userId={userId} future={true} userCanceled={false} />
-      <Typography variant="h5" component="div" sx={{ my: 2 }}>
-        Séances passées
+      <Typography paragraph>
+        Les séances à venir pour lesquelles vous êtes inscrit(e).
+        Vous retrouverez également l'historique de vos inscriptions et participations.
       </Typography>
-      <FrontsiteCourseGrid userId={userId} future={false} userCanceled={false} />
-      <Typography variant="h5" component="div" sx={{ my: 2 }}>
-        Désinscriptions
-      </Typography>
-      <FrontsiteCourseGrid userId={userId} future={null} userCanceled={true} />
+      <Stack direction="column" spacing={2}>
+        <FrontsiteCourseGrid userId={userId} future={true} userCanceled={false} />
+        <FrontsiteCourseGrid userId={userId} future={false} userCanceled={false} collapsible collapsedSummary="Séances passées" />
+        <FrontsiteCourseGrid userId={userId} future={null} userCanceled={true} collapsible collapsedSummary="Séances désinscrites" />
+      </Stack>
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Cartes
       </Typography>
@@ -162,6 +163,13 @@ const UserTabPanelContent: React.FC<UserTabPanelProps> = ({ userId, publicAccess
         Si vous avez acheté des cartes de séances, leur solde s'affichera ci-dessous.
       </Typography>
       <FrontsiteCouponGrid userId={userId} />
+      <Typography variant="h5" component="div" sx={{ my: 2 }}>
+        Adhésions
+      </Typography>
+      <Typography paragraph>
+        Vos adhésions à l'association Yoga Sof en tant que membre sont listées ci-dessous.
+      </Typography>
+      <FrontsiteMembershipGrid userId={userId} />
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Données personnelles
       </Typography>
@@ -172,7 +180,7 @@ const UserTabPanelContent: React.FC<UserTabPanelProps> = ({ userId, publicAccess
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Calendrier personnel
       </Typography>
-      Vous retrouverez sur ce calendrier toutes vos séances passées et futures :
+      Vous retrouverez sur ce calendrier toutes vos séances passées et futures.
       <CalendarWidget userId={userId} />
       <CalendarLinkButton publicAccessToken={publicAccessToken} />
     </>

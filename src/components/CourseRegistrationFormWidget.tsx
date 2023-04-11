@@ -371,7 +371,7 @@ const CourseRegistrationFormStep3Confirmation: React.FC<Pick<CourseRegistrationF
         <Grid item xs={12}>
           <CheckboxElement
             name="consent"
-            label={`J'ai pris connaissance du règlement intérieur, en outre je m'engage à ${self ? 'me désinscrire' : 'désinscrire le proche'} dans les meilleurs délais (sans frais) si ${self ? 'je ne peux' : 'il ou elle ne peut'} plus assister à une ou plusieurs séances`}
+            label={`J'ai pris connaissance du règlement intérieur, en outre je m'engage à ${self ? 'me désinscrire' : 'désinscrire le proche'} dans les meilleurs délais si ${self ? 'je ne peux' : 'il ou elle ne peut'} plus assister à une ou plusieurs séances`}
           />
         </Grid>
       </Grid>

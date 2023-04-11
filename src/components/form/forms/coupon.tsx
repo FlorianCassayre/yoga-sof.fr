@@ -8,13 +8,18 @@ import { couponCreateSchema } from '../../../common/schemas/coupon';
 import { SelectCouponModel } from '../fields/SelectCouponModel';
 import { z } from 'zod';
 import { useRouter } from 'next/router';
+import { InternalLink } from '../../contents/common/InternalLink';
 
 const CouponFormFields = () => (
   <Grid container spacing={2}>
     <Grid item xs={12}>
+      <Alert severity="warning">
+        Les cartes peuvent être générées et payées directement depuis le <InternalLink href="/administration/paiements/commandes/creation">formulaire de création de commande</InternalLink>.
+      </Alert>
+    </Grid>
+    <Grid item xs={12}>
       <Alert severity="info">
-        Si vous ne choisissez aucun propriétaire, vous en deviendrez le propriétaire et la carte vous sera automatiquement offerte.
-        Cette option peut être utile pour offrir des cartes sans connaître le propriétaire à l'avance.
+        Si vous ne choisissez aucun propriétaire vous en deviendrez le propriétaire.
       </Alert>
     </Grid>
     <Grid item xs={12}>

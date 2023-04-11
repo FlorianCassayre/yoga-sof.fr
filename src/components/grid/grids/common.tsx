@@ -1,7 +1,7 @@
 import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { GridRenderCellParams } from '@mui/x-data-grid';
 import { Course, Prisma, User } from '@prisma/client';
-import { Box, Chip, Stack } from '@mui/material';
+import { Box, Chip, Stack, Tooltip } from '@mui/material';
 import { UserLink } from '../../link/UserLink';
 import { formatDateDDsMMsYYYYsHHhMMmSSs, formatTimeHHhMM, formatTimestampRelative } from '../../../common/date';
 import { GridValidRowModel } from '@mui/x-data-grid/models/gridRows';
@@ -10,7 +10,7 @@ import { CourseStatusChip } from '../../CourseStatusChip';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 import { displayUserName } from '../../../common/display';
 import { getUserLatestMembership } from '../../../common/user';
-import { Close, Done } from '@mui/icons-material';
+import { Close, Done, QuestionMark } from '@mui/icons-material';
 import React from 'react';
 import { ChipLink } from '../../ChipLink';
 
@@ -98,5 +98,21 @@ export const orderColumn = (params: PartialGridEnrichedColDef, options?: { onCli
       <Chip {...noProps} onClick={() => onClickNo(data)} />
     );
   },
+  ...params,
+});
+
+export const simpleOrderColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
+  headerName: 'Payée',
+  minWidth: 150,
+  flex: 1,
+  valueGetter: ({ row }: { row: { paid: boolean } }) => row.paid,
+  renderCell: ({ value }) =>
+    <Tooltip title={value ? `L'article a été payé` : `L'article n'a pas encore été payé`}>
+      {value ? (
+        <Chip label="Oui" color="success" variant="outlined" icon={<Done />} />
+      ) : (
+        <Chip label="Pas encore" color="default" variant="outlined" icon={<QuestionMark />} />
+      )}
+    </Tooltip>,
   ...params,
 });

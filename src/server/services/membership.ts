@@ -2,6 +2,8 @@ import { MembershipType, Prisma } from '@prisma/client';
 import { prisma, writeTransaction } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { membershipCreateLegacySchema, membershipSchema } from '../../common/schemas/membership';
+import { findCoupons } from './coupon';
+import { displayUserName } from '../../common/display';
 
 export const findMembership = async (args: { where: Prisma.MembershipWhereUniqueInput }) =>
   prisma.membership.findUniqueOrThrow(args);
@@ -53,4 +55,15 @@ export const disableMembership = async (args: { where: Prisma.MembershipWhereUni
     }
     return await prisma.membership.update({ where: args.where, data: { disabled: true } });
   });
+};
+
+export const findMembershipsPublic = async (prisma: Prisma.TransactionClient, args: { where: { userId: number } }) => {
+  return (await findMemberships({ where: { userId: args.where.userId, includeDisabled: false } })).map(({ id, type, dateStart, dateEnd, users, ordersPurchased }) => ({
+    id,
+    type,
+    dateStart,
+    dateEnd,
+    otherUsers: users.filter(({ id }) => id !== args.where.userId).map(user => ({ id: user.id, displayName: displayUserName(user) })),
+    paid: ordersPurchased.length > 0,
+  }));
 };

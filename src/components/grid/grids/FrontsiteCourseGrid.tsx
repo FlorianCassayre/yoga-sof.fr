@@ -14,7 +14,7 @@ import { useSnackbar } from 'notistack';
 import { trpc } from '../../../common/trpc';
 import { FrontsiteCancelCourseRegistrationDialog } from '../../FrontsiteCancelCourseRegistrationDialog';
 import { CourseStatusChip } from '../../CourseStatusChip';
-import { relativeTimestamp } from './common';
+import { relativeTimestamp, simpleOrderColumn } from './common';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 import { ChipLink } from '../../ChipLink';
@@ -53,9 +53,11 @@ interface FrontsiteCourseGrid {
   userId: number;
   userCanceled: boolean;
   future: boolean | null;
+  collapsible?: boolean;
+  collapsedSummary?: React.ReactNode;
 }
 
-export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> = ({ userId, userCanceled, future }) => {
+export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> = ({ userId, userCanceled, future, collapsible, collapsedSummary }) => {
   const nowLater = new Date();
   nowLater.setDate(nowLater.getDate() + 1);
   const columns: GridColumns = [
@@ -94,19 +96,9 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
       headerName: `Désinscription`,
       flex: 1.5,
     })] : []),
-    {
+    ...(userCanceled ? [] : [simpleOrderColumn({
       field: 'paid',
-      headerName: 'Réglée',
-      minWidth: 150,
-      flex: 1,
-      valueGetter: ({ row }: { row: { paid: boolean } }) => row.paid,
-      renderCell: ({ value }) =>
-        value ? (
-          <Chip label="Oui" color="success" variant="outlined" icon={<Done />} />
-        ) : (
-          <Chip label="Pas encore" color="default" variant="outlined" icon={<QuestionMark />} />
-        ),
-    },
+    })]),
     ...(future ? [{
       field: 'actions',
       type: 'actions',
@@ -119,6 +111,6 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
   ];
 
   return (
-    <AsyncGrid columns={columns} procedure={trpc.self.findAllRegisteredCourses} input={{ userId, userCanceled, future }} initialSort={{ field: 'date', sort: future ? 'asc' : 'desc' }} />
+    <AsyncGrid columns={columns} procedure={trpc.self.findAllRegisteredCourses} input={{ userId, userCanceled, future }} initialSort={{ field: 'date', sort: future ? 'asc' : 'desc' }} collapsible={collapsible} collapsedSummary={collapsedSummary} />
   );
 };

@@ -12,7 +12,7 @@ export default function AdminMemberships() {
     <BackofficeContent
       title="Adhésions"
       icon={<Groups />}
-      actions={[
+      quickActions={[
         { icon: <PersonAdd />, name: 'Créer une ou plusieurs adhésions', url: '/administration/adhesions/membres/creation' },
         { icon: <Groups />, name: `Nouveau type d'adhésion`, url: '/administration/adhesions/types/creation' },
       ]}

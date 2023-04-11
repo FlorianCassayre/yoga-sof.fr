@@ -29,7 +29,7 @@ export const courseRegistrationRouter = router({
       // TODO extract this logic
       const activeArgs = { active: true }, inactiveArgs = { active: false };
       const whereActiveOrders = { where: { order: activeArgs }, select: { order: { select: { id: true } } } };
-      const baseWhere = { courseId, userId, isUserCanceled: false, attended, course: { isCanceled } };
+      const baseWhere = { courseId, userId, isUserCanceled: isCanceled ? undefined : false, attended, course: { isCanceled: isCanceled ? undefined : false } };
       const otherWhere = noOrder ? [
         { orderUsedCoupons: { every: { order: inactiveArgs } } },
         { orderTrial: { every: { order: inactiveArgs } } },

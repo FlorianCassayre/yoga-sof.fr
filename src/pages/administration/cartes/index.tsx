@@ -11,7 +11,7 @@ export default function AdminCoupons() {
     <BackofficeContent
       title="Cartes"
       icon={<CardGiftcard />}
-      actions={[
+      quickActions={[
         { icon: <AddCard />, name: 'Générer une carte', url: '/administration/cartes/emises/creation' },
         { icon: <CardGiftcard />, name: 'Nouveau type de carte', url: '/administration/cartes/types/creation' },
       ]}

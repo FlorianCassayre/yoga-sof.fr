@@ -49,12 +49,13 @@ export const disableCoupon = async (args: { where: Prisma.CouponWhereUniqueInput
 };
 
 export const findCouponsPublic = async (prisma: Prisma.TransactionClient, args: { where: { userId: number } }) => {
-  return (await findCoupons({ where: { userId: args.where.userId, includeDisabled: false } })).map(({ id, courseType, code, quantity, orderCourseRegistrations, createdAt }) => ({
+  return (await findCoupons({ where: { userId: args.where.userId, includeDisabled: false } })).map(({ id, courseType, code, quantity, orderCourseRegistrations, ordersPurchased, createdAt }) => ({
     id,
     courseType,
     code,
     quantity,
     remaining: quantity - orderCourseRegistrations.length,
     createdAt,
+    paid: ordersPurchased.length > 0,
   }));
 };

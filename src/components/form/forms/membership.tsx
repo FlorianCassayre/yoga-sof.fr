@@ -10,9 +10,15 @@ import { membershipCreateLegacySchema } from '../../../common/schemas/membership
 import { MembershipType } from '@prisma/client';
 import { SelectUser } from '../fields/SelectUser';
 import { DatePickerElement } from 'react-hook-form-mui';
+import { InternalLink } from '../../contents/common/InternalLink';
 
 const MembershipFormFields = () => (
   <Grid container spacing={2}>
+    <Grid item xs={12}>
+      <Alert severity="warning">
+        Les adhésions peuvent être enregistrées et payées directement depuis le <InternalLink href="/administration/paiements/commandes/creation">formulaire de création de commande</InternalLink>.
+      </Alert>
+    </Grid>
     <Grid item xs={12}>
       <Alert severity="info">
         L'adhésion dure un an ; vous pouvez choisir la date de début qui est définie par défaut comme étant le jour courant.
