@@ -19,7 +19,7 @@ export const SelectCourseRegistration: React.FC<SelectCourseRegistrationProps> =
   return (
     <AutocompleteElement
       name={name}
-      options={data ? data.sort((a, b) => a.course.dateStart.getTime() - b.course.dateStart.getTime()) : []}
+      options={data ? [...data].sort((a, b) => a.course.dateStart.getTime() - b.course.dateStart.getTime()) : []}
       multiple={multiple}
       matchId={!noMatchId}
       label={label ?? `Séance${multiple ? 's' : ''}`}

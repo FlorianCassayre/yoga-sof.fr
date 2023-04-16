@@ -15,7 +15,7 @@ export const SelectCourse: React.FC<SelectCourseProps> = ({ name, multiple, noMa
   return (
     <AutocompleteElement
       name={name}
-      options={data ? data.sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime()) : []}
+      options={data ? [...data].sort((a, b) => a.dateStart.getTime() - b.dateStart.getTime()) : []}
       multiple={multiple}
       matchId={!noMatchId}
       label={`Séance${multiple ? 's' : ''}`}

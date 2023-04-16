@@ -17,7 +17,7 @@ export const SelectTransaction: React.FC<SelectTransactionProps> = ({ name, user
   return (
     <AutocompleteElement
       name={name}
-      options={data ? data.sort((a, b) => a.date.getTime() - b.date.getTime()) : []}
+      options={data ? [...data].sort((a, b) => a.date.getTime() - b.date.getTime()) : []}
       multiple={multiple}
       matchId={!noMatchId}
       label={`Ancien${multiple ? 's' : ''} paiement${multiple ? 's' : ''}`}

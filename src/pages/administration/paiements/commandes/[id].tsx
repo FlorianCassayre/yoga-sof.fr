@@ -43,7 +43,7 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
   type PurchaseTableItem = Parameters<typeof PurchasesTable>[0]['rows'][0];
   const makeCourseRegistrationsTableData =
     (items: (Omit<PurchaseTableItem, 'item'> & { courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }> })[]): PurchaseTableItem[] =>
-      items
+      [...items]
         .sort(({ courseRegistration: { course: { dateStart: a } } }, { courseRegistration: { course: { dateStart: b } } }) => a.getTime() - b.getTime())
         .map(({ courseRegistration, ...item }) => ({
           item: <CourseLink course={courseRegistration.course} />,
@@ -51,13 +51,13 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
         }));
   const purchasesTableData: PurchaseTableItem[] =
     [
-      ...order.purchasedMemberships
+      ...[...order.purchasedMemberships]
         .sort(({ dateStart: a }, { dateStart: b }) => a.getTime() - b.getTime())
         .map(m => ({
           item: displayMembershipName(m),
           price: m.price,
         })),
-      ...order.purchasedCoupons
+      ...[...order.purchasedCoupons]
         .sort(({ createdAt: a }, { createdAt: b }) => a.getTime() - b.getTime())
         .map(c => ({
           item: displayCouponName(c),

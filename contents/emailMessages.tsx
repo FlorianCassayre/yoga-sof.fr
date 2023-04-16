@@ -127,7 +127,7 @@ export const EmailMessageTemplateCourseAdultRegistrationConfirmation: EmailMessa
         <>votre inscription à la séance de yoga suivante :</>
       )}
       <ul>
-        {registrations.sort(({ course: { dateStart: d1 } }, { course: { dateStart: d2 } }) => d1 < d2 ? -1 : 1).map(({ id, course }) => (
+        {[...registrations].sort(({ course: { dateStart: d1 } }, { course: { dateStart: d2 } }) => d1 < d2 ? -1 : 1).map(({ id, course }) => (
           <li key={id}>
             {displayCourseName(course)}
           </li>
