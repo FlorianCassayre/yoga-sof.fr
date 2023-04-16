@@ -186,7 +186,10 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
   const date = transaction?.date ?? data.billing.newPayment?.date ?? new Date();
 
   const amountPaid = transaction?.amount ?? (data.billing.newPayment ? (data.billing.newPayment?.overrideAmount ? data.billing?.newPayment?.amount : computedAmount) : 0) ?? 0;
-  if (amountPaid !== computedAmount && !data.billing.newPayment?.overrideAmount) { // If no override, check that the payment corresponds to the amount
+  if (
+    (transaction === null || !data.billing.forceTransaction)
+    && amountPaid !== computedAmount && !data.billing.newPayment?.overrideAmount
+  ) { // If no override, check that the payment corresponds to the amount
     throw new ServiceError(ServiceErrorCode.OrderPaymentAmountMismatch);
   }
 

@@ -103,7 +103,7 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
       ]}
     >
       <Grid container spacing={2} justifyContent="center">
-        <Grid item xs={12} lg={3} xl={3}>
+        <Grid item xs={12} lg={3} xl={4}>
           <InformationTableCard
             rows={[
               {
@@ -129,7 +129,7 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
             ]}
           />
         </Grid>
-        <Grid item xs={12} lg={9} xl={6}>
+        <Grid item xs={12} lg={9} xl={8}>
           <Card variant="outlined" sx={{ borderBottom: 'none' }}>
             <PurchasesTable
               rows={purchasesTableData}

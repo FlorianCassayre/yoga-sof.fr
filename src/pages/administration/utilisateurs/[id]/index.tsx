@@ -41,7 +41,7 @@ import { BackofficeContentError } from '../../../../components/layout/admin/Back
 import { CouponGrid } from '../../../../components/grid/grids/CouponGrid';
 import { MembershipGrid } from '../../../../components/grid/grids/MembershipGrid';
 import { OrderGrid } from '../../../../components/grid/grids/OrderGrid';
-import { UserInformationTable } from '../../../../components/UserInformationTable';
+import { UserInformationTableCard } from '../../../../components/UserInformationTableCard';
 
 interface GridItemStatisticProps {
   value: number;
@@ -67,7 +67,7 @@ const GridItemStatistic: React.FC<GridItemStatisticProps> = ({ value, valueForma
 );
 
 interface AdminUserContentProps {
-  user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, transactions: true, memberships: true } }>;
+  user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, transactions: true, memberships: true, orders: { select: { trialCourseRegistrations: { select: { courseRegistration: { select: { courseId: true } } } } } } } }>;
 }
 
 const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user }: AdminUserContentProps) => {
@@ -133,7 +133,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       </Typography>
       <Grid container spacing={2}>
         <Grid item xs={12} lg={6}>
-          <UserInformationTable user={user} />
+          <UserInformationTableCard user={user} />
         </Grid>
         <Grid item xs={12} lg={6}>
           <Card variant="outlined">

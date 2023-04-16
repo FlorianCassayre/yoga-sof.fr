@@ -24,7 +24,7 @@ export const userRouter = router({
       id: z.number().int().min(0),
     }))
     .query(async ({ input: { id } }) => {
-      return readTransaction(async (prisma) => findUser(prisma, { where: { id }, include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, transactions: true, memberships: true } }));
+      return readTransaction(async (prisma) => findUser(prisma, { where: { id }, include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, transactions: true, memberships: true, orders: { where: { active: true }, select: { trialCourseRegistrations: { select: { courseRegistration: { select: { courseId: true } } } } } } } }));
     }),
   findAll: adminProcedure
     .input(z.strictObject({

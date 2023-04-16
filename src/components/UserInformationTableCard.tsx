@@ -8,6 +8,7 @@ import { UserLink } from './link/UserLink';
 import { InformationTableCard } from './InformationTableCard';
 import { getUserLatestMembership } from '../common/user';
 import { Prisma } from '@prisma/client';
+import { ChipLink } from './ChipLink';
 
 interface UserProvidedInformationChipProps {
   original: string;
@@ -29,13 +30,14 @@ const UserProvidedInformationChip: React.FC<UserProvidedInformationChipProps> = 
   </Tooltip>
 );
 
-interface UserInformationTableProps {
-  user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, transactions: true, memberships: true } }>;
+interface UserInformationTableCardProps {
+  user: Prisma.UserGetPayload<{ include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, transactions: true, memberships: true, orders: { select: { trialCourseRegistrations: { select: { courseRegistration: { select: { courseId: true } } } } } } } }>;
 }
 
-export const UserInformationTable: React.FC<UserInformationTableProps> = ({ user }) => {
+export const UserInformationTableCard: React.FC<UserInformationTableCardProps> = ({ user }) => {
   const displayDate = (date: Date | string | undefined | null) => !!date && `${formatDateDDsMMsYYYYsHHhMMmSSs(date)} (${formatTimestampRelative(date).toLowerCase()})`;
   const membership = getUserLatestMembership(user);
+  const trialCourseId: number | undefined = user.orders.flatMap(o => o.trialCourseRegistrations.map(({ courseRegistration: { courseId } }) => courseId))[0];
   return (
     <InformationTableCard
       rows={[
@@ -113,6 +115,14 @@ export const UserInformationTable: React.FC<UserInformationTableProps> = ({ user
             </Stack>
           ),
         }] : []),
+        {
+          header: `Séance d'essai`,
+          value: trialCourseId !== undefined ? (
+            <ChipLink label="Utilisée" color="success" variant="outlined" icon={<Done />} size="small" href={{ pathname: '/administration/seances/planning/[id]', query: { id: trialCourseId } }} />
+          ) : (
+            <Chip label="Non utilisée" color="default" variant="outlined" icon={<Close />} size="small" />
+          ),
+        },
       ]}
     />
   );

@@ -17,7 +17,7 @@ import {
 import { displayUserName } from '../../../common/display';
 import { trpc } from '../../../common/trpc';
 import { SelectUser } from '../fields/SelectUser';
-import { UserInformationTable } from '../../UserInformationTable';
+import { UserInformationTableCard } from '../../UserInformationTableCard';
 import Link from 'next/link';
 
 const UserFormFields = () => (
@@ -91,7 +91,7 @@ const UserMergePreview = ({ userId }: { userId: number }) => {
   return data ? (
     <Grid container spacing={2} key={userId}>
       <Grid item xs={12}>
-        <UserInformationTable user={data as any} />
+        <UserInformationTableCard user={data as any} />
       </Grid>
     </Grid>
   ) : isLoading ? (

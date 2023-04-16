@@ -21,6 +21,7 @@ import { CourseTypeNames } from '../../../common/course';
 import { useSnackbar } from 'notistack';
 import { displayCouponName } from '../../../common/display';
 import { RouterOutput } from '../../../server/controllers/types';
+import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 
 interface FrontsiteCouponGridProps {
   userId: number;
@@ -50,6 +51,7 @@ export const FrontsiteCouponGrid: React.FunctionComponent<FrontsiteCouponGridPro
       flex: 1,
       minWidth: 150,
       valueGetter: ({ row }: { row: RouterOutput['self']['findAllCoupons'][0] }) => [row.quantity, row.remaining],
+      sortComparator: (([_1, v1], [_2, v2]) => v1 - v2) as GridComparatorFn<[number, number]>,
       renderCell: ({ value: [quantity, remaining] }: { value: [number, number] }) => (
         <Box>
           <Box display="inline" color={remaining > 3 ? 'green' : remaining > 0 ? 'orange' : 'red'}>{remaining}</Box>

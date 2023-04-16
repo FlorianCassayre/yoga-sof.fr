@@ -181,6 +181,7 @@ const orderCreateStep4PaymentBase = orderCreateStep3DiscountsBase.merge(z.object
       type: z.nativeEnum(TransactionType),
       date: z.date(),
     }).optional(),
+    forceTransaction: z.boolean().optional(),
   })),
   notes: z.string().optional(),
 }));

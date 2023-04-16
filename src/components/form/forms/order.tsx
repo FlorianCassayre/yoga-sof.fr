@@ -15,7 +15,7 @@ import {
   DialogContent, DialogContentText,
   DialogTitle,
   Grid,
-  IconButton,
+  IconButton, Link,
   Stack, Step, StepLabel, Stepper,
   Tooltip,
   Typography, useMediaQuery, useTheme
@@ -258,6 +258,8 @@ const OrderFormFields: React.FC = () => {
   const watchBillingExistingCoupons = watch('billing.existingCoupons');
   const watchBillingNewCoupons = watch('billing.newCoupons');
 
+  const watchForceTransaction = watch('billing.forceTransaction');
+
   //
 
   const [couponDialogOpen, setCouponDialogOpen] = useState(false);
@@ -457,6 +459,13 @@ const OrderFormFields: React.FC = () => {
 
   const renderForm = () => (
     <Grid container spacing={2} justifyContent="center">
+      {watchStep > 0 && watchTransaction !== undefined && (
+        <Grid item xs={12}>
+          <Alert severity="info">
+            Rappel : vous avez sélectionné un ancien paiement étant intitulé "<strong>{watchTransaction.comment}</strong>" pour un total de <strong>{watchTransaction.amount} €</strong>.
+          </Alert>
+        </Grid>
+      )}
       {watchStep === 0 && (
         <>
           <Grid item xs={12}>
@@ -736,6 +745,12 @@ const OrderFormFields: React.FC = () => {
                 {orderPreview.computedAmount > 0 ? (
                   <>
                     Le montant de la commande est de <strong>{orderPreview.computedAmount} €</strong> tandis que le paiement de l'utilisateur revient à <strong>{watchTransaction?.amount ?? watchPayment?.amount ?? 0} €</strong>.
+                    {watchTransaction && !watchForceTransaction && (
+                      <>
+                        {' '}
+                        <Link href="#" onClick={() => setValue('billing.forceTransaction', true)}>Continuer ?</Link>
+                      </>
+                    )}
                   </>
                 ) : (
                   <>
