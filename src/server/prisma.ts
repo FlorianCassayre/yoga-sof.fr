@@ -26,9 +26,10 @@ const LOCK_ENTITY_ID: LockEntityType = LockEntityType.GLOBAL;
 const transaction = <R>(tx: (prisma: Prisma.TransactionClient) => Promise<R>, write: boolean): Promise<R> =>
   prisma.$transaction(async prisma => {
     await prisma.$executeRawUnsafe(
+      // `LOCK IN SHARE MODE` is equivalent to `FOR SHARE`, but the second may not be compatible across all engines
       write
         ? `SELECT * FROM ${LOCK_ENTITY_TABLE} WHERE ID = '${LOCK_ENTITY_ID}' FOR UPDATE` // Write
-        : `SELECT * FROM ${LOCK_ENTITY_TABLE} WHERE ID = '${LOCK_ENTITY_ID}' FOR SHARE` // Read
+        : `SELECT * FROM ${LOCK_ENTITY_TABLE} WHERE ID = '${LOCK_ENTITY_ID}' LOCK IN SHARE MODE` // Read
     );
     return tx(prisma);
   }, transactionOptions);
