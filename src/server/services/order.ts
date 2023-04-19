@@ -182,8 +182,8 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
   )
   const computedAmount = totalAmountCourses + totalAmountCoupons + totalAmountMemberships;
 
-  // If there are no payments there will be no dates, in that case it makes sense to set it to the current day
-  const date = transaction?.date ?? data.billing.newPayment?.date ?? new Date();
+  // The date is always defined (by default it is the current day). For transactions, it's not used (not shown in the UI), but still defined
+  const date = transaction?.date ?? data.billing.date;
 
   const amountPaid = transaction?.amount ?? (data.billing.newPayment ? (data.billing.newPayment?.overrideAmount ? data.billing?.newPayment?.amount : computedAmount) : 0) ?? 0;
   if (
@@ -278,6 +278,7 @@ export const createOrderAutomatically = async (args: { where: { courseRegistrati
           coupon: { id: coupon.id },
           courseRegistrationIds: [courseRegistration.id],
         }],
+        date: new Date(),
       },
     },
   });

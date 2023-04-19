@@ -718,9 +718,6 @@ const OrderFormFields: React.FC = () => {
                       <SelectTransactionType name="billing.newPayment.type" />
                     </Grid>
                     <Grid item xs={12}>
-                      <DatePickerElement name="billing.newPayment.date" label="Date" inputProps={{ fullWidth: true }} />
-                    </Grid>
-                    <Grid item xs={12}>
                       <CheckboxElement name="billing.newPayment.overrideAmount" label="Définir un autre prix pour cette commande" />
                     </Grid>
                   </Grid>
@@ -729,7 +726,12 @@ const OrderFormFields: React.FC = () => {
             ) : null)}
           {watchTransaction === undefined && watchPayment === undefined && (
             <Grid item xs={12}>
-              <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { date: new Date(), overrideAmount: false })} />
+              <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { overrideAmount: false })} />
+            </Grid>
+          )}
+          {watchTransaction === undefined && (
+            <Grid item xs={12}>
+              <DatePickerElement name="billing.date" label="Date" inputProps={{ fullWidth: true }} />
             </Grid>
           )}
           <Grid item xs={12}>
@@ -808,22 +810,28 @@ const OrderFormFields: React.FC = () => {
   );
 }
 
-const orderFormDefaultValues: DeepPartial<z.infer<typeof orderCreateSchema>> = {
+const orderFormDefaultValues = (): DeepPartial<z.infer<typeof orderCreateSchema>> => ({
   purchases: {},
   step: 0,
-};
+  billing: {
+    date: new Date(),
+  },
+});
 
 const useProceduresToInvalidate = () => {
   const { order } = trpc.useContext();
   return [order.find, order.findAll];
 };
 
-const commonFormProps = ({ user, transaction }: { user?: User, transaction?: Transaction }) => ({
-  icon: <ShoppingCart />,
-  defaultValues: { ...orderFormDefaultValues, user, billing: { ...orderFormDefaultValues.billing, transaction } },
-  urlSuccessFor: (data: any) => `/administration/paiements`, // TODO
-  urlCancel: `/administration/paiements`,
-});
+const commonFormProps = ({ user, transaction }: { user?: User, transaction?: Transaction }) => {
+  const defaultValues = orderFormDefaultValues();
+  return {
+    icon: <ShoppingCart />,
+    defaultValues: { ...defaultValues, user, billing: { ...defaultValues.billing, transaction } },
+    urlSuccessFor: (data: any) => `/administration/paiements`, // TODO
+    urlCancel: `/administration/paiements`,
+  };
+};
 
 const querySchema = z.object({
   userId: z.preprocess(

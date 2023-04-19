@@ -23,7 +23,7 @@ const ConnexionPage: React.FC<ConnexionPageProps> = ({ providers }) => {
           <Box sx={{ my: 3, mx: 2 }}>
             <LoginCard providers={providers} />
             <Box textAlign="center" sx={{ mt: 2 }}>
-              <Link href="/public" passHref>
+              <Link href="/" passHref>
                 <MuiLink>
                   Retourner à l'accueil
                 </MuiLink>

@@ -284,17 +284,18 @@ model OrderUsedCouponCourseRegistration {
   order                Order  @relation(fields: [orderId], references: [id])
   couponId             Int    @map("coupon_id")
   coupon               Coupon @relation(fields: [couponId], references: [id])
-  courseRegistrationId Int    @unique @map("course_registration_id")
+  courseRegistrationId Int    @map("course_registration_id")
   courseRegistration   CourseRegistration @relation(fields: [courseRegistrationId], references: [id])
 
   @@id([orderId, couponId, courseRegistrationId])
+  @@unique([orderId, courseRegistrationId])
   @@map("order_purchased_coupon_course_registration")
 }
 
 model OrderTrialCourseRegistration {
   orderId              Int   @map("order_id")
   order                Order @relation(fields: [orderId], references: [id])
-  courseRegistrationId Int   @unique @map("course_registration_id")
+  courseRegistrationId Int   @map("course_registration_id")
   courseRegistration   CourseRegistration @relation(fields: [courseRegistrationId], references: [id])
   price                Int   @db.UnsignedInt
 
@@ -305,12 +306,14 @@ model OrderTrialCourseRegistration {
 model OrderReplacementCourseRegistration {
   orderId                  Int   @map("order_id")
   order                    Order @relation(fields: [orderId], references: [id])
-  fromCourseRegistrationId Int   @unique @map("from_course_registration_id")
+  fromCourseRegistrationId Int   @map("from_course_registration_id")
   fromCourseRegistration   CourseRegistration @relation(name: "order_replacement_from_course_registration", fields: [fromCourseRegistrationId], references: [id])
-  toCourseRegistrationId   Int   @unique @map("to_course_registration_id")
+  toCourseRegistrationId   Int   @map("to_course_registration_id")
   toCourseRegistration     CourseRegistration @relation(name: "order_replacement_to_course_registration", fields: [toCourseRegistrationId], references: [id])
 
   @@id([orderId, fromCourseRegistrationId, toCourseRegistrationId])
+  @@unique([orderId, fromCourseRegistrationId])
+  @@unique([orderId, toCourseRegistrationId])
   @@map("order_replacement_course_registration")
 }
 
