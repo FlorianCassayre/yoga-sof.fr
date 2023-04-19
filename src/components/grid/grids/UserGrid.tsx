@@ -41,7 +41,7 @@ export const UserGrid: React.FunctionComponent<UserGridProps> = ({ disabledUsers
       type: 'actions',
       minWidth: 50,
       getActions: ({ row }: GridRowParams) => [
-        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" onClick={() => router.push({ pathname: '/administration/utilisateurs/[id]', query: { id: row.id } })} />,
+        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" href={{ pathname: '/administration/utilisateurs/[id]', query: { id: row.id } }} />,
       ],
     },
     {
@@ -72,7 +72,7 @@ export const UserGrid: React.FunctionComponent<UserGridProps> = ({ disabledUsers
       field: 'actions',
       type: 'actions',
       getActions: ({ row }: GridRowParams) => [
-        <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" onClick={() => router.push({ pathname: '/administration/utilisateurs/[id]/edition', query: { id: row.id, redirect: router.asPath } })} />,
+        <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" href={{ pathname: '/administration/utilisateurs/[id]/edition', query: { id: row.id, redirect: router.asPath } }} />,
       ],
     },
   ];

@@ -11,7 +11,7 @@ export default function AdminPayments() {
       title="Paiements"
       icon={<Payments />}
       quickActions={[
-        { icon: <Payments />, name: 'Enregistrer un paiement', url: '/administration/paiements/creation' },
+        //{ icon: <Payments />, name: 'Enregistrer un paiement', url: '/administration/paiements/creation' },
         { icon: <ShoppingCart />, name: 'Enregistrer une commande', url: '/administration/paiements/commandes/creation' },
       ]}
     >

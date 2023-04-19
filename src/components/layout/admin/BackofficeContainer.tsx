@@ -66,7 +66,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
       ]}
       profileMenu={{
         children: [
-          { title: 'Profil', icon: <People />, onClick: () => router.push({ pathname: '/administration/utilisateurs/[id]', query: { id: session?.userId } }) },
+          { title: 'Profil', icon: <People />, url: { pathname: '/administration/utilisateurs/[id]', query: { id: session?.userId } } },
           { title: 'Se déconnecter', icon: <Logout />, onClick: () => signOut({ redirect: true, callbackUrl: '/' }) },
         ]
       }}

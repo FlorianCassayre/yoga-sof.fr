@@ -3,6 +3,8 @@ import { IconButton, ListItemIcon, ListItemText, Menu, MenuItem } from '@mui/mat
 import { MoreVert } from '@mui/icons-material';
 import { BasicSpeedDial } from './BasicSpeedDial';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { OptionalLink } from './OptionalLink';
 
 interface MoreActionsButtonProps {
   actions: Parameters<typeof BasicSpeedDial>[0]['actions'];
@@ -38,23 +40,24 @@ export const MoreActionsButton: React.FunctionComponent<MoreActionsButtonProps> 
         }}
       >
         {actions.map((action) => (
-          <MenuItem
-            key={action.name}
-            onClick={() => {
-              if (!action.disabled) {
-                action.url && router.push(action.url);
-                action.onClick && action.onClick();
-                handleClose();
-              }
-            }}
-          >
-            <ListItemIcon>
-              {action.icon}
-            </ListItemIcon>
-            <ListItemText>
-              {action.name}
-            </ListItemText>
-          </MenuItem>
+          <OptionalLink key={action.name} href={action.url} passHref>
+            <MenuItem
+              onClick={() => {
+                if (!action.disabled) {
+                  action.onClick && action.onClick();
+                  handleClose();
+                }
+              }}
+              component={(action.url ? 'a' : undefined) as any}
+            >
+              <ListItemIcon>
+                {action.icon}
+              </ListItemIcon>
+              <ListItemText>
+                {action.name}
+              </ListItemText>
+            </MenuItem>
+          </OptionalLink>
         ))}
       </Menu>
     </>

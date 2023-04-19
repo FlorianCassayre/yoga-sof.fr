@@ -24,7 +24,7 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       type: 'actions',
       minWidth: 50,
       getActions: ({ row }: GridRowParams) => [
-        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" onClick={() => router.push({ pathname: '/administration/paiements/commandes/[id]', query: { id: row.id } })} />,
+        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" href={{ pathname: '/administration/paiements/commandes/[id]', query: { id: row.id } }} />,
       ],
     },
     ...(userId === undefined ? [userColumn({
@@ -78,7 +78,7 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       type: 'actions',
       minWidth: 50,
       getActions: ({ row }: GridRowParams) => [
-        <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" onClick={() => router.push({ pathname: '/administration/paiements/commandes/[id]/edition', query: { id: row.id } })} />,
+        <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" href={{ pathname: '/administration/paiements/commandes/[id]/edition', query: { id: row.id } }} />,
       ],
     },
   ];

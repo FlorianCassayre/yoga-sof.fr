@@ -16,6 +16,7 @@ import { Menu as MenuIcon, Person } from '@mui/icons-material';
 import CssBaseline from '@mui/material/CssBaseline';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { OptionalLink } from '../../OptionalLink';
 
 interface MenuTitleProps {
   logo: React.ReactElement;
@@ -146,18 +147,19 @@ const ProfileMenuButton: React.FC<ProfileMenuButtonProps> = ({ profile, signInUr
             {profile.children.map(({ children: categoryChildren }, i) =>
               [
                 categoryChildren.map(({ title, icon, url, onClick }, j) => (
-                  <MenuItem key={j} onClick={() => {
-                    onClick && onClick();
-                    url && router.push(url);
-                    handleClose();
-                  }}>
-                    <ListItemIcon>
-                      {icon}
-                    </ListItemIcon>
-                    <ListItemText>
-                      {title}
-                    </ListItemText>
-                  </MenuItem>
+                  <OptionalLink key={j} href={url} passHref>
+                    <MenuItem onClick={() => {
+                      onClick && onClick();
+                      handleClose();
+                    }} component={(url ? 'a' : undefined) as any}>
+                      <ListItemIcon>
+                        {icon}
+                      </ListItemIcon>
+                      <ListItemText>
+                        {title}
+                      </ListItemText>
+                    </MenuItem>
+                  </OptionalLink>
                 )),
                 i < profile.children.length - 1 && (
                   <Divider />

@@ -7,24 +7,26 @@ import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { useMedia } from 'react-use';
 import { Fragment, useCallback, useMemo, useState } from 'react';
-import { Avatar, IconButton, ListSubheader, Menu, MenuItem } from '@mui/material';
+import { Avatar, IconButton, ListItem, ListSubheader, Menu, MenuItem } from '@mui/material';
 import { AccountCircle, Menu as MenuIcon } from '@mui/icons-material';
 import Link from 'next/link';
 import { LinkProps } from 'next/dist/client/link';
 import { TypeSafePage } from 'next-type-safe-routes';
 import { useRouter } from 'next/router';
+import { UrlObject } from 'url';
+import { OptionalLink } from '../../OptionalLink';
 
 const drawerWidth = 240;
 
 interface ProfileMenuItem {
   title: string;
   icon: React.ReactNode;
+  url?: UrlObject | string;
   onClick?: () => void;
 }
 
@@ -53,9 +55,6 @@ interface BackofficeContainerLayoutProps {
   children: React.ReactNode;
   footer: React.ReactNode;
 }
-
-const OptionalLink = ({ href, ...props }: Omit<LinkProps, 'href'> & { href?: LinkProps["href"], children: React.ReactNode }): JSX.Element =>
-  href ? <Link href={href} {...props}>{props.children}</Link> : <>{props.children}</>;
 
 export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps> =
   ({ title, url: titleUrl, menu, profileMenu, children, footer }) => {
@@ -125,16 +124,18 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
                 open={Boolean(profileAnchorEl)}
                 onClose={() => setProfileProfileAnchorEl(null)}
               >
-                {profileMenu.children.map(({ title, icon, onClick }, i) => (
-                  <MenuItem key={i} onClick={() => {
-                    setProfileProfileAnchorEl(null);
-                    onClick && onClick();
-                  }}>
-                    <ListItemIcon>
-                      {icon}
-                    </ListItemIcon>
-                    <ListItemText primary={title} />
-                  </MenuItem>
+                {profileMenu.children.map(({ title, icon, url, onClick }, i) => (
+                  <OptionalLink key={i} href={url} passHref>
+                    <MenuItem onClick={() => {
+                      setProfileProfileAnchorEl(null);
+                      onClick && onClick();
+                    }} component={(url ? 'a' : undefined) as any}>
+                      <ListItemIcon>
+                        {icon}
+                      </ListItemIcon>
+                      <ListItemText primary={title} />
+                    </MenuItem>
+                  </OptionalLink>
                 ))}
               </Menu>
             </>
@@ -157,16 +158,16 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
               <Fragment key={i}>
                 <List subheader={categoryTitle ? <ListSubheader>{categoryTitle}</ListSubheader> : undefined}>
                   {children.map(({ title: itemTitle, icon, url, disabled }, j) => (
-                    <OptionalLink key={j} href={url} passHref>
-                      <ListItem disablePadding>
-                        <ListItemButton selected={url !== undefined ? isUrlSelected(url) : false} disabled={disabled} onClick={() => setDrawerOpen(false)}>
+                    <ListItem key={j} disablePadding>
+                      <OptionalLink href={url} passHref>
+                        <ListItemButton selected={url !== undefined ? isUrlSelected(url) : false} disabled={disabled} onClick={() => setDrawerOpen(false)} component="a">
                           <ListItemIcon>
                             {icon}
                           </ListItemIcon>
                           <ListItemText primary={itemTitle} />
                         </ListItemButton>
-                      </ListItem>
-                    </OptionalLink>
+                      </OptionalLink>
+                    </ListItem>
                   ))}
                 </List>
                 {i < menu.length - 1 && (
