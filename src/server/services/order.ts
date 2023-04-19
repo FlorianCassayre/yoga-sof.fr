@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { prisma, writeTransaction } from '../prisma';
-import { orderCreateSchema } from '../../common/schemas/order';
+import { orderCreateSchema, orderUpdateSchema } from '../../common/schemas/order';
 import { Prisma } from '@prisma/client';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { createCoupon, findCoupons } from './coupon';
@@ -256,6 +256,11 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
 
   return order;
 };
+
+export const updateOrder = async (args: { where: Prisma.OrderWhereUniqueInput, data: Omit<z.infer<typeof orderUpdateSchema>, 'id'> }) => writeTransaction(async prisma => {
+  orderUpdateSchema.parse({ ...args.where, ...args.data });
+  return prisma.order.update({ where: args.where, data: args.data });
+});
 
 export const deleteOrder = async (args: { where: Prisma.OrderWhereUniqueInput }) => writeTransaction(async prisma =>
   prisma.order.update({ where: args.where, data: { active: false, transaction: { disconnect: true } } })

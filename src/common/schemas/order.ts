@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { MembershipType, TransactionType } from '@prisma/client';
 
-export const orderFindSchema = z.object({
+export const orderFindSchema = z.strictObject({
   id: z.number().int().min(0),
 });
 
@@ -211,3 +211,15 @@ export const orderCreateStep4Payment = orderCreateStep4PaymentBase.superRefine(r
 export const orderCreateSchema = orderCreateStep4PaymentBase.merge(z.strictObject({ // <- needs to be strict
   step: z.number().optional(),
 })).superRefine(refineAtLeastOnePurchase).superRefine(refineBilling).superRefine(refinePaymentType);
+
+export const orderUpdateSchema = orderFindSchema.merge(z.strictObject({
+  date: z.date(),
+  notes: z.string().nullable(),
+}));
+
+export const orderGetTransformSchema = z.object({
+  id: z.preprocess(
+    (a) => parseInt(z.string().parse(a), 10),
+    z.number().int().min(0)
+  ),
+});

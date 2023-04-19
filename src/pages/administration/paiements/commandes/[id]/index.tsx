@@ -1,24 +1,24 @@
 import React, { useState } from 'react';
-import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
-import { ArrowRightAlt, Delete, InfoOutlined, ShoppingCart } from '@mui/icons-material';
+import { BackofficeContent } from '../../../../../components/layout/admin/BackofficeContent';
+import { ArrowRightAlt, Delete, Edit, InfoOutlined, ShoppingCart } from '@mui/icons-material';
 import { useRouter } from 'next/router';
-import { useSchemaQuery } from '../../../../components/hooks/useSchemaQuery';
-import { trpc } from '../../../../common/trpc';
-import { BackofficeContentLoading } from '../../../../components/layout/admin/BackofficeContentLoading';
-import { BackofficeContentError } from '../../../../components/layout/admin/BackofficeContentError';
-import { orderFindTransformSchema } from '../../../../common/schemas/order';
-import { RouterOutput } from '../../../../server/controllers/types';
+import { useSchemaQuery } from '../../../../../components/hooks/useSchemaQuery';
+import { trpc } from '../../../../../common/trpc';
+import { BackofficeContentLoading } from '../../../../../components/layout/admin/BackofficeContentLoading';
+import { BackofficeContentError } from '../../../../../components/layout/admin/BackofficeContentError';
+import { orderFindTransformSchema } from '../../../../../common/schemas/order';
+import { RouterOutput } from '../../../../../server/controllers/types';
 import { Box, Card, Chip, Grid, Stack, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-import { CourseLink } from '../../../../components/link/CourseLink';
+import { CourseLink } from '../../../../../components/link/CourseLink';
 import { Prisma } from '@prisma/client';
-import { displayCouponName, displayMembershipName, displayUserName } from '../../../../common/display';
-import { TransactionTypeNames } from '../../../../common/transaction';
-import { InformationTableCard } from '../../../../components/InformationTableCard';
-import { formatDateDDsMMsYYYYsHHhMMmSSs, formatDateDDsmmYYYY } from '../../../../common/date';
-import { UserLink } from '../../../../components/link/UserLink';
-import { DeleteOrderDialog } from '../../../../components/DeleteOrderDialog';
+import { displayCouponName, displayMembershipName, displayUserName } from '../../../../../common/display';
+import { TransactionTypeNames } from '../../../../../common/transaction';
+import { InformationTableCard } from '../../../../../components/InformationTableCard';
+import { formatDateDDsMMsYYYYsHHhMMmSSs, formatDateDDsmmYYYY } from '../../../../../common/date';
+import { UserLink } from '../../../../../components/link/UserLink';
+import { DeleteOrderDialog } from '../../../../../components/DeleteOrderDialog';
 import { useSnackbar } from 'notistack';
-import { PurchasesTable } from '../../../../components/PurchasesTable';
+import { PurchasesTable } from '../../../../../components/PurchasesTable';
 
 interface OrderViewContentProps {
   order: RouterOutput['order']['find'];
@@ -99,6 +99,7 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
       title={`Commande du ${formatDateDDsmmYYYY(order.date)} pour ${displayUserName(order.user)}`}
       icon={<ShoppingCart />}
       actions={[
+        { name: 'Modifier', icon: <Edit />, url: { pathname: '/administration/paiements/commandes/[id]/edition', query: { id: order.id, redirect: router.asPath } } },
         { name: 'Supprimer', icon: <Delete />, onClick: () => setDeleteDialogOpen(true), disabled: isDeleteLoading },
       ]}
     >

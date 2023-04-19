@@ -7,7 +7,7 @@ import { TransactionTypeNames } from '../../../common/transaction';
 import { TransactionType, OrderPayment } from '@prisma/client';
 import { GridRowParams } from '@mui/x-data-grid';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
-import { Visibility } from '@mui/icons-material';
+import { Edit, Visibility } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { RouterOutput } from '../../../server/controllers/types';
 
@@ -72,6 +72,14 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       headerName: 'Notes',
       minWidth: 500,
       flex: 1,
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      minWidth: 50,
+      getActions: ({ row }: GridRowParams) => [
+        <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" onClick={() => router.push({ pathname: '/administration/paiements/commandes/[id]/edition', query: { id: row.id } })} />,
+      ],
     },
   ];
 

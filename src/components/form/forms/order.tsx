@@ -31,7 +31,7 @@ import {
   Person,
   ShoppingCart
 } from '@mui/icons-material';
-import { CreateFormContent } from '../form';
+import { CreateFormContent, UpdateFormContent } from '../form';
 import { trpc } from '../../../common/trpc';
 import { SelectUser } from '../fields/SelectUser';
 import { SelectCourseRegistration } from '../fields/SelectCourseRegistration';
@@ -58,7 +58,11 @@ import { SelectTransactionType } from '../fields/SelectTransactionType';
 import {
   orderCreateSchema,
   orderCreateStep1UserSchema,
-  orderCreateStep2PurchasesSchema, orderCreateStep3Discounts, orderCreateStep4Payment
+  orderCreateStep2PurchasesSchema,
+  orderCreateStep3Discounts,
+  orderCreateStep4Payment,
+  orderFindTransformSchema,
+  orderUpdateSchema
 } from '../../../common/schemas/order';
 import { useRouter } from 'next/router';
 import { BackofficeContentLoading } from '../../layout/admin/BackofficeContentLoading';
@@ -67,6 +71,7 @@ import { SelectMembership } from '../fields/SelectMembership';
 import { InputYear } from '../fields/InputYear';
 import PatchedAutocompleteElement from '../fields/PatchedAutocompleteElement';
 import { PurchasesTable } from '../../PurchasesTable';
+import { ParsedUrlQuery } from 'querystring';
 
 interface BinaryDialogProps {
   open: boolean;
@@ -820,7 +825,7 @@ const orderFormDefaultValues = (): DeepPartial<z.infer<typeof orderCreateSchema>
 
 const useProceduresToInvalidate = () => {
   const { order } = trpc.useContext();
-  return [order.find, order.findAll];
+  return [order.find, order.findAll, order.findUpdate];
 };
 
 const commonFormProps = ({ user, transaction }: { user?: User, transaction?: Transaction }) => {
@@ -876,4 +881,32 @@ export const OrderCreateForm: React.FC = () => {
       <OrderFormFields />
     </CreateFormContent>
   ) : <BackofficeContentLoading />;
+};
+
+export const OrderUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) => {
+  return (
+    <UpdateFormContent
+      title="Modification d'une commande"
+      icon={<ShoppingCart />}
+      schema={orderUpdateSchema}
+      mutationProcedure={trpc.order.update}
+      queryProcedure={trpc.order.findUpdate}
+      querySchema={orderFindTransformSchema}
+      queryParams={queryData}
+      successMessage={() => 'La commande a été mise à jour'}
+      defaultValues={{}}
+      urlSuccessFor={({ id }) => `/administration/paiements/commandes/${id}`}
+      urlCancel={`/administration/paiements`}
+      invalidate={useProceduresToInvalidate()}
+    >
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <DatePickerElement name="date" label="Date de la commande" inputProps={{ fullWidth: true }} />
+        </Grid>
+        <Grid item xs={12}>
+          <TextFieldElement name="notes" label="Notes (visibles seulement par vous)" multiline rows={4} fullWidth />
+        </Grid>
+      </Grid>
+    </UpdateFormContent>
+  );
 };
