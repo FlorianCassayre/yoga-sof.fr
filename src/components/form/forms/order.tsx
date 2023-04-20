@@ -311,51 +311,69 @@ const OrderFormFields: React.FC = () => {
     }
     const values = getValues() as any as (z.infer<typeof orderCreateStep3Discounts> & { user: User, billing: { transaction?: Transaction } });
 
-    type PurchaseTableItem = Parameters<typeof PurchasesTable>[0]['rows'][0];
+    type OrderedPurchaseTableItem = Parameters<typeof PurchasesTable>[0]['rows'][0] & { ordering: [number, number] };
 
-    const items: PurchaseTableItem[] = (values.purchases.existingMemberships?.map(m => {
+    const
+      orderMembershipsExisting = 0,
+      orderMembershipsNew = 1,
+      orderCouponsExisting = 2,
+      orderCouponsNew = 3,
+      orderCourseRegistrationPurchased = 4,
+      orderCourseRegistrationUsedCouponExisting = 5,
+      orderCourseRegistrationUsedCouponNew = 6,
+      orderCourseRegistrationTrial = 7,
+      orderCourseRegistrationReplacement = 8;
+
+    const items: OrderedPurchaseTableItem[] = (values.purchases.existingMemberships?.map<OrderedPurchaseTableItem>(m => {
       const membership = m as Membership;
       return {
         item: displayMembershipName(membership),
         price: membership.price,
+        ordering: [orderMembershipsExisting, -membership.price],
       };
     }) ?? []).concat(values.purchases.newMemberships?.map(m => {
       const membershipModel = m.membershipModel as MembershipModel;
       return {
-        item: displayMembershipModelNameWithoutPrice(membershipModel),
+        item: `${displayMembershipModelNameWithoutPrice(membershipModel)} (nouvelle)`,
         price: membershipModel.price,
+        ordering: [orderMembershipsNew, -membershipModel.price],
       };
     }) ?? []).concat(values.purchases.existingCoupons?.map(c => {
       const coupon = c as Coupon;
       return {
-        item: displayCouponName(coupon),
+        item: `${displayCouponName(coupon)} (existante)`,
         price: coupon.price,
+        ordering: [orderCouponsExisting, coupon.price],
       };
     }) ?? []).concat(values.purchases.newCoupons?.map(c => {
       const couponModel = c.couponModel as CouponModel;
       return {
-        item: displayCouponModelName(couponModel),
+        item: `${displayCouponModelName(couponModel)} (nouvelle)`,
         price: couponModel.price,
+        ordering: [orderCouponsNew, couponModel.price],
       };
     }) ?? []).concat(values.purchases.courseRegistrations?.map((courseRegistration) => {
       const { id, course } = courseRegistration as CourseRegistration & { course: Course };
       const existingCoupon = values.billing.existingCoupons?.filter(c => c.courseRegistrationIds.includes(id))[0];
       const newCoupon = values.billing.newCoupons?.filter(c => c.courseRegistrationIds.includes(id))[0];
       const replacement = values.billing.replacementCourseRegistrations?.filter(r => r.toCourseRegistrationId === id)[0];
+      const courseTime = course.dateStart.getTime()
 
       if (existingCoupon !== undefined) { // Existing coupon
         return {
           item: displayCourseName(course),
-          discount: displayCouponName(existingCoupon.coupon as Coupon),
+          discount: `${displayCouponName(existingCoupon.coupon as Coupon)} (existante)`,
           oldPrice: course.price,
           price: 0,
+          ordering: [orderCourseRegistrationUsedCouponExisting, courseTime],
         };
       } else if (values.purchases.newCoupons !== undefined && newCoupon !== undefined) { // New coupon
         return {
           item: displayCourseName(course),
-          discount: displayCouponModelName(values.purchases.newCoupons[newCoupon.newCouponIndex].couponModel as CouponModel),
+          discount: `${displayCouponModelName(values.purchases.newCoupons[newCoupon.newCouponIndex].couponModel as CouponModel)} (nouvelle)`,
           oldPrice: course.price,
           price: 0,
+          ordering: [orderCourseRegistrationUsedCouponNew, courseTime],
         };
       } else if (replacement !== undefined) { // Replacement
         return {
@@ -363,6 +381,7 @@ const OrderFormFields: React.FC = () => {
           discount: 'Remplacement de séance', // TODO include name
           oldPrice: course.price,
           price: 0,
+          ordering: [orderCourseRegistrationReplacement, courseTime],
         };
       } else if (values.billing.trialCourseRegistration !== undefined && values.billing.trialCourseRegistration?.courseRegistrationId === id) { // Trial
         return {
@@ -370,14 +389,17 @@ const OrderFormFields: React.FC = () => {
           discount: `Séance d'essai`,
           oldPrice: course.price,
           price: values.billing.trialCourseRegistration.newPrice,
+          ordering: [orderCourseRegistrationTrial, courseTime],
         };
       } else { // Normal purchase
         return {
           item: displayCourseName(course),
           price: course.price,
+          ordering: [orderCourseRegistrationPurchased, courseTime],
         };
       }
-    }) ?? []);
+    }) ?? [])
+      .sort(({ ordering: [a1, a2] }, { ordering: [b1, b2] }) => a1 !== b1 ? a1 - b1 : a2 - b2);
 
     return {
       items,

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { AsyncGrid } from '../AsyncGrid';
 import { trpc } from '../../../common/trpc';
-import { userColumn } from './common';
+import { relativeTimestamp, userColumn } from './common';
 import { formatDateDDsmmYYYY } from '../../../common/date';
 import { TransactionTypeNames } from '../../../common/transaction';
 import { TransactionType, OrderPayment } from '@prisma/client';
@@ -67,11 +67,16 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       minWidth: 200,
       flex: 1,
     },
+    relativeTimestamp({
+      field: 'createdAt',
+      headerName: `Date de création`,
+      flex: 1,
+    }),
     {
       field: 'notes',
       headerName: 'Notes',
-      minWidth: 500,
-      flex: 1,
+      minWidth: 350,
+      flex: 2,
     },
     {
       field: 'actions',

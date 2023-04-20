@@ -28,13 +28,14 @@ export default function AdminPayments() {
       </Typography>
       <OrderGrid />
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
-        Paiements sans commande
+        Anciens paiements
       </Typography>
       <Typography paragraph>
-        Les paiements suivants n'ont pas encore de commande associée.
+        Les anciens paiements suivants n'ont pas encore de commande associée.
         Pour chacun d'entre eux, vous devrez créer une commande afin d'indiquer quelles séances, cotisations et cartes ont été payées.
         Il est recommandé de traiter ces données pour chaque utilisateur, et de procéder du paiement le plus ancien au plus récent.
         Vous aurez terminé la migration lorsque la liste sera vide.
+        Cette fonctionnalité sera ensuite définitivement supprimée.
       </Typography>
       <TransactionGrid />
     </BackofficeContent>
