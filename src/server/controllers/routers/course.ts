@@ -3,7 +3,7 @@ import {
   cancelCourse,
   createCourses,
   findCourse,
-  findCourses,
+  findCourses, findCoursesRelated,
   updateCourse
 } from '../../services';
 import { courseCreateManySchema, courseUpdateNotesSchema } from '../../../common/schemas/course';
@@ -31,6 +31,11 @@ export const courseRouter = router({
     .query(async ({ input: { id } }) => {
       return findCourse({ where: { id }, select: { id: true, notes: true } });
     }),
+  findRelated: adminProcedure
+    .input(z.strictObject({
+      id: z.number().int().min(0),
+    }))
+    .query(async ({ input: { id } }) => findCoursesRelated({ where: { id } })),
   findAll: adminProcedure
     .input(z.strictObject({
       future: z.boolean().nullable(),

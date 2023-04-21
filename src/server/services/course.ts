@@ -13,6 +13,28 @@ export const findCourse = async <Where extends Prisma.CourseWhereUniqueInput, Se
 export const findCourses = async <T extends Prisma.CourseFindManyArgs>(args: Prisma.SelectSubset<T, Prisma.CourseFindManyArgs>) =>
   prisma.course.findMany<T>(args);
 
+export const findCoursesRelated = async (args: { where: Prisma.CourseWhereUniqueInput }) => readTransaction(async prisma => {
+  const course = await prisma.course.findUniqueOrThrow(args);
+  const deltaWeek = (date: Date, deltaInWeeks: number): Date => {
+    const daysInWeek = 7;
+    const copy = new Date(date);
+    copy.setDate(copy.getDate() + deltaInWeeks * daysInWeek);
+    return copy;
+  };
+  const [previous, next, previousWeek, nextWeek] = await Promise.all([
+    prisma.course.findFirst({ where: { dateStart: { lt: course.dateStart } }, orderBy: { dateStart: 'desc' } }),
+    prisma.course.findFirst({ where: { dateStart: { gt: course.dateStart } }, orderBy: { dateStart: 'asc' } }),
+    prisma.course.findFirst({ where: { dateStart: deltaWeek(course.dateStart, -1) } }),
+    prisma.course.findFirst({ where: { dateStart: deltaWeek(course.dateStart, 1) } }),
+  ]);
+  return {
+    previous,
+    next,
+    previousWeek,
+    nextWeek,
+  };
+});
+
 export const findCoursesPaginated = async <Where extends Prisma.CourseWhereInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseOrderByWithRelationInput>>(args: { pagination: Pagination, where?: Where, select?: Select, include?: Include, orderBy?: OrderBy }) => {
   const { pagination: { page, elementsPerPage }, ...rest } = args;
   const [totalElements, data] = await readTransaction(async (prisma) => Promise.all([

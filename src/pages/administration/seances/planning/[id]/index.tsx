@@ -1,7 +1,18 @@
-import React, { useState } from 'react';
+import React, { Fragment, useMemo, useState } from 'react';
 import { BackofficeContent } from '../../../../../components/layout/admin/BackofficeContent';
-import { AddBox, Assignment, Cancel, Edit, EmojiPeople, Event, Notes } from '@mui/icons-material';
-import { Prisma } from '@prisma/client';
+import {
+  AddBox,
+  ArrowBack,
+  ArrowForward,
+  ArrowLeft,
+  Assignment,
+  Cancel,
+  Edit,
+  EmojiPeople,
+  Event, KeyboardDoubleArrowLeft, KeyboardDoubleArrowRight,
+  Notes
+} from '@mui/icons-material';
+import { Course, Prisma } from '@prisma/client';
 import { useRouter } from 'next/router';
 import { useSchemaQuery } from '../../../../../components/hooks/useSchemaQuery';
 import { courseFindTransformSchema } from '../../../../../common/schemas/course';
@@ -14,7 +25,7 @@ import {
   Card, CardActions, CardContent, Grid, IconButton,
   Stack,
   Typography,
-  Link as MuiLink, Tooltip
+  Link as MuiLink, Tooltip, Chip, Skeleton
 } from '@mui/material';
 import { InformationTableCard } from '../../../../../components/InformationTableCard';
 import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../../../common/course';
@@ -26,6 +37,83 @@ import { trpc } from '../../../../../common/trpc';
 import { CancelCourseDialog } from '../../../../../components/CancelCourseDialog';
 import { BackofficeContentLoading } from '../../../../../components/layout/admin/BackofficeContentLoading';
 import { BackofficeContentError } from '../../../../../components/layout/admin/BackofficeContentError';
+
+interface CourseNavigationProps {
+  courseId: number;
+}
+
+const CourseNavigation: React.FC<CourseNavigationProps> = ({ courseId }) => {
+  const { data, isLoading } = trpc.course.findRelated.useQuery({ id: courseId });
+
+  type NavigationItem = { label: string, course: Course | null, icon: React.ReactElement };
+  type NavigationRow = { previous: NavigationItem, next: NavigationItem };
+
+  const rows: NavigationRow[] | undefined = useMemo(() => {
+    if (data !== undefined) {
+      return [
+        {
+          previous: {
+            label: 'Semaine dernière',
+            course: data.previousWeek,
+            icon: <KeyboardDoubleArrowLeft />,
+          },
+          next: {
+            label: 'Semaine prochaine',
+            course: data.nextWeek,
+            icon: <KeyboardDoubleArrowRight />,
+          },
+        },
+        {
+          previous: {
+            label: 'Séance précédente',
+            course: data.previous,
+            icon: <ArrowBack />,
+          },
+          next: {
+            label: 'Séance suivante',
+            course: data.next,
+            icon: <ArrowForward />,
+          },
+        },
+      ].filter(({ previous: { course: c1 }, next: { course: c2 } }) => c1 !== null || c2 !== null);
+    } else {
+      return undefined;
+    }
+  }, [data]);
+
+  return isLoading || (rows && rows.length > 0) ? (
+    <Grid container spacing={2} sx={{ mt: 1 }}>
+      {rows !== undefined ? (
+        rows.map(({ previous, next }, i) => (
+          <Fragment key={i}>
+            {[{ item: previous, side: false }, { item: next, side: true }].map(({ item: { label, course, icon }, side }, j) => (
+              <Grid key={j} item xs={6} textAlign={side ? 'right' : undefined}>
+                {course !== null && (
+                  <Tooltip title={displayCourseName(course)}>
+                    <span>
+                      <Link href={{ pathname: '/administration/seances/planning/[id]', query: { id: course.id } }} passHref>
+                        <Chip component="a" label={label} color="primary" variant="outlined" icon={icon} />
+                      </Link>
+                    </span>
+                  </Tooltip>
+                )}
+              </Grid>
+            ))}
+          </Fragment>
+        ))
+      ) : (
+        <>
+          <Grid item xs={6}>
+            <Skeleton variant="text" sx={{ fontSize: '2rem', width: '10rem' }} />
+          </Grid>
+          <Grid item xs={6}>
+            <Skeleton variant="text" sx={{ fontSize: '2rem', width: '10rem', ml: 'auto' }} />
+          </Grid>
+        </>
+      )}
+    </Grid>
+  ) : null;
+};
 
 interface CourseContentProps {
   course: Prisma.CourseGetPayload<{ include: { registrations: true } }>;
@@ -177,6 +265,8 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
         Historique d'inscriptions à cette séance
       </Typography>
       <CourseRegistrationEventGrid courseId={course.id} />
+
+      <CourseNavigation courseId={course.id} />
     </BackofficeContent>
   );
 };
