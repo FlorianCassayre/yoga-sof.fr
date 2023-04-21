@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { prisma, writeTransaction } from '../prisma';
+import { prisma, readTransaction, writeTransaction } from '../prisma';
 import { orderCreateSchema, orderUpdateSchema } from '../../common/schemas/order';
-import { Prisma } from '@prisma/client';
+import { Coupon, CourseRegistration, Membership, Prisma } from '@prisma/client';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { createCoupon, findCoupons } from './coupon';
 import { createMembership } from './membership';
@@ -287,4 +287,71 @@ export const createOrderAutomatically = async (args: { where: { courseRegistrati
       },
     },
   });
+});
+
+export const findItemsWithNoOrder = async (args: { where?: { userId?: number } } = {}) => readTransaction(async prisma => {
+  const baseItem = {
+    courseRegistration: null,
+    coupon: null,
+    membership: null,
+  };
+  type BaseItem = typeof baseItem;
+  type Item =
+    (Omit<BaseItem, 'courseRegistration'> & { courseRegistration: CourseRegistration })
+    | (Omit<BaseItem, 'coupon'> & { coupon: Coupon })
+    | (Omit<BaseItem, 'membership'> & { membership: Membership });
+
+  const userId = args.where?.userId;
+
+  const inactiveArgs = { active: false };
+  const everyInactiveOrders = { every: { order: inactiveArgs } };
+
+  const [unpaidCourseRegistrations, unpaidCoupons, unpaidMemberships] =
+    await Promise.all([
+      prisma.courseRegistration.findMany(({
+        where: {
+          ...(userId !== undefined ? { userId } : {}),
+          isUserCanceled: false,
+          course: {
+            isCanceled: false
+          },
+          orderUsedCoupons: everyInactiveOrders,
+          orderTrial: everyInactiveOrders,
+          orderReplacementTo: everyInactiveOrders,
+          orderPurchased: { every: inactiveArgs },
+        },
+        include: {
+          course: true,
+          user: true,
+        },
+      })),
+      prisma.coupon.findMany({
+        where: {
+          ...(userId !== undefined ? { userId } : {}),
+          disabled: false, // May have to be reconsidered
+          ordersPurchased: { every: inactiveArgs },
+        },
+        include: {
+          user: true,
+        },
+      }),
+      prisma.membership.findMany({
+        where: {
+          ...(userId !== undefined ? { users: { some: { id: userId } } } : {}),
+          disabled: false, // Same
+          ordersPurchased: { every: inactiveArgs },
+        },
+        include: {
+          users: true,
+        },
+      }),
+    ]);
+
+  const items: Item[] = [
+    ...unpaidMemberships.map(membership => ({ ...baseItem, membership })),
+    ...unpaidCoupons.map(coupon => ({ ...baseItem, coupon })),
+    ...unpaidCourseRegistrations.map(courseRegistration => ({ ...baseItem, courseRegistration })),
+  ];
+
+  return items;
 });

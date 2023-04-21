@@ -3,7 +3,7 @@ import { orderCreateSchema, orderFindSchema, orderUpdateSchema } from '../../../
 import {
   createOrder,
   createOrderAutomatically,
-  deleteOrder,
+  deleteOrder, findItemsWithNoOrder,
   findOrder,
   findOrders,
   updateOrder
@@ -25,6 +25,9 @@ export const orderModelRouter = router({
   findAll: adminProcedure
     .input(z.strictObject({ userId: z.number().int().min(0).optional() }))
     .query(async ({ input: { userId } }) => findOrders({ where: { userId, includeDisabled: false } })),
+  findAllItemsWithNoOrder: adminProcedure
+    .input(z.strictObject({ userId: z.number().int().min(0).optional() }))
+    .query(async ({ input: { userId } }) => findItemsWithNoOrder({ where: { userId } })),
   create: adminProcedure
     .input(orderCreateSchema)
     .mutation(async ({ input }) => writeTransaction(prisma => createOrder(prisma, { data: input }))),

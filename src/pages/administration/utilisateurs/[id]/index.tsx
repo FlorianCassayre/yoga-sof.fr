@@ -42,6 +42,7 @@ import { CouponGrid } from '../../../../components/grid/grids/CouponGrid';
 import { MembershipGrid } from '../../../../components/grid/grids/MembershipGrid';
 import { OrderGrid } from '../../../../components/grid/grids/OrderGrid';
 import { UserInformationTableCard } from '../../../../components/UserInformationTableCard';
+import { UnpaidItemsGrid } from '../../../../components/grid/grids/UnpaidItemsGrid';
 
 interface GridItemStatisticProps {
   value: number;
@@ -190,6 +191,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
         <TransactionGrid userId={user.id} />
         <MembershipGrid collapsible collapsedSummary="Adhésions de l'utilisateur" userId={user.id} />
         <CouponGrid collapsible collapsedSummary="Cartes possédées par cet utilisateur" userId={user.id} />
+        <UnpaidItemsGrid collapsible collapsedSummary="Articles impayés" userId={user.id} />
       </Stack>
       </BackofficeContent>
   );

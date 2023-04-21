@@ -1,9 +1,10 @@
 import React from 'react';
 import { BackofficeContent } from '../../../components/layout/admin/BackofficeContent';
-import { Payments, ShoppingCart } from '@mui/icons-material';
-import { Alert, Typography } from '@mui/material';
+import { AutoDelete, Payments, ShoppingCart } from '@mui/icons-material';
+import { Alert, Box, Stack, Tooltip, Typography } from '@mui/material';
 import { TransactionGrid } from '../../../components/grid/grids/TransactionGrid';
 import { OrderGrid } from '../../../components/grid/grids/OrderGrid';
+import { UnpaidItemsGrid } from '../../../components/grid/grids/UnpaidItemsGrid';
 
 export default function AdminPayments() {
   return (
@@ -28,7 +29,21 @@ export default function AdminPayments() {
       </Typography>
       <OrderGrid />
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
-        Anciens paiements
+        Articles impayés
+      </Typography>
+      <Typography paragraph>
+        Les articles n'ayant pas encore de commande associée sont affichés ci-dessous.
+      </Typography>
+      <UnpaidItemsGrid />
+      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Box>
+            Anciens paiements
+          </Box>
+          <Tooltip title="Fonctionnalité en cours de suppression">
+            <AutoDelete color="action" />
+          </Tooltip>
+        </Stack>
       </Typography>
       <Typography paragraph>
         Les anciens paiements suivants n'ont pas encore de commande associée.
