@@ -14,6 +14,7 @@ import { router } from './trpc';
 import { transactionRouter } from './routers/transaction';
 import { membershipRouter } from './routers/membership';
 import { orderModelRouter } from './routers/order';
+import { statisticsRouter } from './routers/statisticsRouter';
 
 export const appRouter =
   router({
@@ -31,6 +32,7 @@ export const appRouter =
     membershipModel: membershipModelRouter,
     membership: membershipRouter,
     order: orderModelRouter,
+    statistics: statisticsRouter,
   });
 
 export type AppRouter = typeof appRouter;

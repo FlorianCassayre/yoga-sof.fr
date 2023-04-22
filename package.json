@@ -50,6 +50,7 @@
     "react-hook-form": "^7.38.0",
     "react-hook-form-mui": "5.11.0",
     "react-use": "^17.4.0",
+    "recharts": "^2.5.0",
     "superjson": "^1.11.0",
     "zod": "^3.19.1"
   },

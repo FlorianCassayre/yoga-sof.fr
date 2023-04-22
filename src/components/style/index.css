@@ -1,0 +1,8 @@
+.recharts-cartesian-axis-tick {
+    font-size: 16px;
+    font-family: Nunito, sans-serif;
+}
+
+.recharts-cartesian-axis-tick-value {
+    fill: rgba(0, 0, 0, 0.87);
+}

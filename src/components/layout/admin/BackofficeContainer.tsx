@@ -9,7 +9,7 @@ import {
   Euro, Groups,
   Home,
   Logout, Payments,
-  People, Settings
+  People, Settings, Timeline
 } from '@mui/icons-material';
 import { signOut, useSession } from 'next-auth/react';
 import { Typography } from '@mui/material';
@@ -48,6 +48,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
             { title: 'Paiements', icon: <Payments />, url: '/administration/paiements' },
             { title: 'Adhésions', icon: <Groups />, url: '/administration/adhesions' },
             { title: 'Cartes', icon: <CardGiftcard />, url: '/administration/cartes' },
+            { title: 'Statistiques', icon: <Timeline />, url: '/administration/statistiques' },
           ],
         },
         {

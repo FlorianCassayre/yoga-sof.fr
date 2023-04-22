@@ -3,6 +3,7 @@ import '@fontsource/nunito/400.css';
 import '@fontsource/nunito/500.css';
 import '@fontsource/nunito/700.css';
 //import '@fontsource/roboto';
+import '../components/style/index.css';
 import { createTheme, ThemeProvider, Link as MuiLink, Typography } from '@mui/material';
 import { withTRPC } from '@trpc/next';
 import { SessionProvider } from 'next-auth/react';
