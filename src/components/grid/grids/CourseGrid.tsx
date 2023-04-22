@@ -57,8 +57,6 @@ interface CourseGridProps {
 }
 
 export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, canceled, readOnly }) => {
-  const router = useRouter();
-
   const columns: GridColumns = [
     {
       field: 'details',

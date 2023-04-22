@@ -2,7 +2,7 @@ import {
   cancelCourseRegistration,
   createCourseRegistrations,
   findCourseRegistrationEvents,
-  findCourseRegistrations, updateCourseRegistrationAttendance
+  findCourseRegistrations, findCourseRegistrationsForReplacement, updateCourseRegistrationAttendance
 } from '../../services';
 import { z } from 'zod';
 import { courseRegistrationCreateSchema } from '../../../common/schemas/courseRegistration';
@@ -49,6 +49,9 @@ export const courseRegistrationRouter = router({
         },
       }));
     }),
+  findAllForReplacement: adminProcedure
+    .input(z.strictObject({ userId: z.number().int().min(0).optional() }))
+    .query(async ({ input: { userId } }) => findCourseRegistrationsForReplacement({ where: { userId } })),
   create: adminProcedure
     .input(courseRegistrationCreateSchema)
     .mutation(async ({ input: { courses, users, notify } }) => {

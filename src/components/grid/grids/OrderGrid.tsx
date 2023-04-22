@@ -75,7 +75,7 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
     {
       field: 'notes',
       headerName: 'Notes',
-      minWidth: 350,
+      minWidth: 300,
       flex: 2,
     },
     {
@@ -93,7 +93,7 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       columns={columns}
       procedure={trpc.order.findAll}
       input={{ userId }}
-      initialSort={{ field: 'date', sort: 'asc' }}
+      initialSort={{ field: 'createdAt', sort: 'desc' }}
     />
   );
 };

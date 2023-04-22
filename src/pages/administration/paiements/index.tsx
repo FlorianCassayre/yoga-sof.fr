@@ -5,6 +5,9 @@ import { Alert, Box, Stack, Tooltip, Typography } from '@mui/material';
 import { TransactionGrid } from '../../../components/grid/grids/TransactionGrid';
 import { OrderGrid } from '../../../components/grid/grids/OrderGrid';
 import { UnpaidItemsGrid } from '../../../components/grid/grids/UnpaidItemsGrid';
+import {
+  CourseRegistrationForReplacementGrid
+} from '../../../components/grid/grids/CourseRegistrationForReplacementGrid';
 
 export default function AdminPayments() {
   return (
@@ -35,6 +38,13 @@ export default function AdminPayments() {
         Les articles n'ayant pas encore de commande associée sont affichés ci-dessous.
       </Typography>
       <UnpaidItemsGrid />
+      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
+        Inscriptions à rattraper
+      </Typography>
+      <Typography paragraph>
+        Si des utilisateurs ont payé pour des inscriptions à des séances qui ont par la suite été annulées, ces dernières peuvent être utilisées en tant que remplacement pour une autre inscription.
+      </Typography>
+      <CourseRegistrationForReplacementGrid />
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
         <Stack direction="row" alignItems="center" spacing={1}>
           <Box>

@@ -1,5 +1,5 @@
 import { CourseRegistration, Prisma } from '@prisma/client';
-import { writeTransaction } from '../prisma';
+import { prisma, writeTransaction } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { courseRegistrationCreateSchema } from '../../common/schemas/courseRegistration';
 import { notifyCourseRegistration } from '../email';
@@ -25,7 +25,40 @@ export const findCourseRegistrations = async <Where extends Prisma.CourseRegistr
   prisma.courseRegistration.findMany(args);
 
 export const findCourseRegistrationEvents = async <Where extends Pick<Prisma.CourseRegistrationWhereInput, 'courseId' | 'userId'>, Select extends Prisma.CourseRegistrationSelect, Include extends Prisma.CourseRegistrationInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseRegistrationOrderByWithRelationInput>>(prisma: Prisma.TransactionClient, args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
- registrationsToEvent(await findCourseRegistrations(prisma, args))
+ registrationsToEvent(await findCourseRegistrations(prisma, args));
+
+export const findCourseRegistrationsForReplacement = async (args: { where?: { userId?: number } } = {}) => {
+  const activeArgs = { active: true };
+  const someActiveOrders = { some: { order: activeArgs } };
+  return prisma.courseRegistration.findMany({
+    where: {
+      AND: [
+        {
+          ...(args.where?.userId !== undefined ? { userId: args.where.userId } : {}),
+          orderReplacementFrom: { every: { order: { active: false } } },
+        },
+        {
+          OR: [
+            { orderUsedCoupons: someActiveOrders },
+            { orderTrial: someActiveOrders },
+            { orderReplacementTo: someActiveOrders },
+            { orderPurchased: { some: activeArgs } },
+          ],
+        },
+        {
+          OR: [
+            { isUserCanceled: true },
+            { course: { isCanceled: true } },
+          ],
+        },
+      ]
+    },
+    include: {
+      user: true,
+      course: true,
+    },
+  });
+};
 
 export const createCourseRegistrations = async (prisma: Prisma.TransactionClient, args: { data: { courses: number[], users: number[], notify: boolean, admin: boolean } }) => {
   const { admin, ...data } = args.data;
