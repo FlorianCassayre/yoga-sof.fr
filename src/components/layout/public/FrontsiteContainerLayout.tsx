@@ -27,7 +27,7 @@ interface MenuTitleProps {
 
 const MenuTitle: React.FC<MenuTitleProps> = ({ logo, title, titleUrl, onClick }) => {
   return (
-    <Link href={titleUrl} passHref>
+    <Link href={titleUrl} passHref legacyBehavior>
       <MuiLink
         variant="h5"
         color="inherit"
@@ -80,7 +80,7 @@ const MenuSections: React.FC<MenuSectionsProps> = ({ sections, onClick }) => {
         <Link
           key={i}
           href={url}
-          passHref
+          passHref legacyBehavior
         >
           <MuiLink
             color="inherit"
@@ -118,7 +118,7 @@ const ProfileMenuButton: React.FC<ProfileMenuButtonProps> = ({ profile, signInUr
       {profile === undefined ? (
         <Skeleton variant="text" width={150} />
       ) : profile === null ? (
-        <Link href={signInUrl} passHref>
+        <Link href={signInUrl} passHref legacyBehavior>
           <Button variant="outlined" size="small">
             Connexion
           </Button>
@@ -147,7 +147,7 @@ const ProfileMenuButton: React.FC<ProfileMenuButtonProps> = ({ profile, signInUr
             {profile.children.map(({ children: categoryChildren }, i) =>
               [
                 categoryChildren.map(({ title, icon, url, onClick }, j) => (
-                  <OptionalLink key={j} href={url} passHref>
+                  <OptionalLink key={j} href={url} passHref legacyBehavior>
                     <MenuItem onClick={() => {
                       onClick && onClick();
                       handleClose();
@@ -245,7 +245,7 @@ function Footer({ sections, title, subtitle, links }: FooterProps) {
           <Grid item container xs={12} md={6} sx={{ textAlign: 'center' }}>
             {sections.map(({ title, url }, i) => (
               <Grid key={i} item xs={12}>
-                <Link href={url} passHref>
+                <Link href={url} passHref legacyBehavior>
                   <MuiLink
                     color="inherit"
                     noWrap

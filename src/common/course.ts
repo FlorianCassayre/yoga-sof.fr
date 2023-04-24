@@ -6,7 +6,7 @@ export const CourseTypeNames: { [K in CourseType]: string } = {
   [CourseType.YOGA_ADULT_CHILD]: 'Yoga parent-enfant',
 }
 
-export const getCourseStatus = (course: Course) => {
+export const getCourseStatus = (course: Pick<Course, 'dateStart' | 'dateEnd'>) => {
   const currentTime = new Date().getTime();
   const addDays = (date: Date, days: number): Date => {
     const copy = new Date(date);

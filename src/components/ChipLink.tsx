@@ -11,7 +11,7 @@ type ChipLinkProps<
 
 export const ChipLink: React.FC<ChipLinkProps> = ({ href, ...props }) => {
   return href ? (
-    <Link href={href} passHref>
+    <Link href={href} passHref legacyBehavior>
       <Chip {...props as any} component="a" />
     </Link>
   ) : (

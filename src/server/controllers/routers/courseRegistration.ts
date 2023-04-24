@@ -18,11 +18,11 @@ const selectorSchema = z.strictObject({
 
 export const courseRegistrationRouter = router({
   findAll: adminProcedure
-    .query(async () => readTransaction(async (prisma) => findCourseRegistrations(prisma, { include: { user: true, course: true } }))),
+    .query(async () => readTransaction(async (prisma) => findCourseRegistrations(prisma))),
   findAllEvents: adminProcedure
     .input(selectorSchema)
     .query(async ({ input: { courseId, userId, attended, isCanceled } }) =>
-      readTransaction(async (prisma) => findCourseRegistrationEvents(prisma, { where: { courseId, userId, attended, course: { isCanceled } }, include: { course: courseId === undefined, user: userId === undefined } }))),
+      readTransaction(async (prisma) => findCourseRegistrationEvents(prisma, { courseId, userId, attended, isCanceled }))),
   findAllActive: adminProcedure
     .input(selectorSchema.merge(z.object({ noOrder: z.boolean().optional() })))
     .query(async ({ input: { courseId, userId, noOrder, attended, isCanceled } }) => {

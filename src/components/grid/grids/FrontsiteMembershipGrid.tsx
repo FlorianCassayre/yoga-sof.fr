@@ -1,29 +1,18 @@
-import React, { useState } from 'react';
-import { Cancel, Visibility, VisibilityOff } from '@mui/icons-material';
-import { GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
+import React from 'react';
+import { GridColDef, GridRenderCellParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
-import { useRouter } from 'next/router';
-import { orderColumn, relativeTimestamp, simpleOrderColumn, userColumn } from './common';
-import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
+import { simpleOrderColumn } from './common';
 import { trpc } from '../../../common/trpc';
-import { Membership, CourseType, MembershipType } from '@prisma/client';
+import { MembershipType } from '@prisma/client';
 import {
-  Box, Button, Chip,
-  Dialog, DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  IconButton,
+  Box,
+  Chip,
   Stack,
-  Tooltip
 } from '@mui/material';
-import { CourseTypeNames } from '../../../common/course';
-import { useSnackbar } from 'notistack';
-import { displayMembershipName } from '../../../common/display';
 import { RouterOutput } from '../../../server/controllers/types';
-import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
-import { formatDateDDsmmYYYY, formatTimeHHhMM, formatWeekday } from '../../../common/date';
+import { formatDateDDsmmYYYY } from '../../../common/date';
 import { MembershipTypeNames } from '../../../common/membership';
+import { GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
 
 interface FrontsiteMembershipGridProps {
   userId: number;
@@ -33,14 +22,15 @@ export const FrontsiteMembershipGrid: React.FunctionComponent<FrontsiteMembershi
   const today = new Date();
   const todayTime = today.getTime();
 
-  const columns = [
+  type MembershipItem = RouterOutput['self']['findAllMemberships'][0];
+  const columns: GridColDef<MembershipItem>[] = [
     {
       field: 'status',
       headerName: 'Statut',
       minWidth: 100,
       flex: 1,
-      valueGetter: ({ row }: { row: { dateStart: Date, dateEnd: Date } }) => todayTime < row.dateStart.getTime() ? null : row.dateStart.getTime() <= todayTime && todayTime <= row.dateEnd.getTime(),
-      renderCell: ({ value }: GridRenderCellParams<{ value: boolean | null }>) => value === null ? (
+      valueGetter: ({ row }: GridValueGetterParams<MembershipItem>): boolean | null => todayTime < row.dateStart.getTime() ? null : row.dateStart.getTime() <= todayTime && todayTime <= row.dateEnd.getTime(),
+      renderCell: ({ value }: GridRenderCellParams<MembershipItem, boolean | null>) => value === null ? (
         <Chip label="Pas encore active" color="default" variant="outlined" />
       ) : value ? (
         <Chip label="Active" color="primary" variant="outlined" />
@@ -53,21 +43,21 @@ export const FrontsiteMembershipGrid: React.FunctionComponent<FrontsiteMembershi
       headerName: 'Type',
       minWidth: 120,
       flex: 1,
-      valueFormatter: ({ value }: { value: MembershipType }) => MembershipTypeNames[value],
+      valueFormatter: ({ value }: GridValueFormatterParams<MembershipType>) => MembershipTypeNames[value],
     },
     {
       field: 'dateStart',
       headerName: 'Début de validité',
       minWidth: 200,
       flex: 1.5,
-      valueFormatter: ({ value }: { value: Date }) => formatDateDDsmmYYYY(value),
+      valueFormatter: ({ value }: GridValueFormatterParams<Date>) => formatDateDDsmmYYYY(value),
     },
     {
       field: 'dateEnd',
       headerName: 'Fin de validité',
       minWidth: 200,
       flex: 1.5,
-      valueFormatter: ({ value }: { value: Date }) => formatDateDDsmmYYYY(value),
+      valueFormatter: ({ value }: GridValueFormatterParams<Date>) => formatDateDDsmmYYYY(value),
     },
     {
       field: 'otherUsers',
@@ -75,12 +65,12 @@ export const FrontsiteMembershipGrid: React.FunctionComponent<FrontsiteMembershi
       sortable: false,
       minWidth: 150,
       flex: 1.5,
-      renderCell: ({ value }: { value: { id: number, displayName: string }[] }) => (
+      renderCell: ({ value }: GridRenderCellParams<MembershipItem, MembershipItem['otherUsers']>) => !!value && (
         <Stack direction="column">
           {value.map(({ id, displayName }) => <Box key={id}>{displayName}</Box>)}
         </Stack>
       ),
-    } as any, // TODO
+    },
     simpleOrderColumn({
       field: 'paid',
     }),

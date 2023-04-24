@@ -37,7 +37,8 @@ interface CalendarWidgetProps {
 
 const CalendarWidget: React.FC<CalendarWidgetProps> = ({ userId }) => {
   const { data, isLoading } = trpc.self.findAllRegisteredCourses.useQuery({ userId, future: null, userCanceled: false });
-  const renderDay = (day: Date, selectedDays: Date[], pickersDayProps: PickersDayProps<Date>) => {
+  const renderDay = (pickersDayProps: PickersDayProps<Date>): React.ReactElement => {
+    const { day } = pickersDayProps;
     const isSelected = data && data.some(({ course: { dateStart } }: any) => isSameDay(new Date(dateStart), day));
     const isDisabled = !isSameDay(day, new Date()) && day.getTime() < new Date().getTime();
     return (
@@ -71,8 +72,10 @@ const CalendarWidget: React.FC<CalendarWidgetProps> = ({ userId }) => {
             onChange={() => {}}
             minDate={minDate}
             maxDate={maxDate}
-            renderInput={(params) => <TextField {...params} />}
-            renderDay={renderDay}
+            slots={{
+              //textfield: TextField,
+              day: renderDay,
+            }}
             showDaysOutsideCurrentMonth
           />
         </Card>
@@ -175,7 +178,7 @@ const UserTabPanelContent: React.FC<UserTabPanelProps> = ({ userId, publicAccess
       </Typography>
       Votre adresse email nous permet notamment de vous informer en cas d'annulation de séance.
       <UserDataForm userId={userId} />
-      Vos données personnelles sont traitées conformément à notre <Link href="/confidentialite" passHref><MuiLink>politique de confidentialité</MuiLink></Link>,
+      Vos données personnelles sont traitées conformément à notre <Link href="/confidentialite" passHref legacyBehavior><MuiLink>politique de confidentialité</MuiLink></Link>,
       en particulier celles-ci ne sont utilisées que dans le but d'assurer l'inscription et l'organisation des séances de Yoga.
       <Typography variant="h5" component="div" sx={{ my: 2 }}>
         Calendrier personnel
@@ -208,7 +211,7 @@ const MesInscriptionsContent: React.FC<MesInscriptionsContentProps> = ({ session
     <FrontsiteContent title="Mes inscriptions">
       Cette page liste l'ensemble de vos inscriptions aux séances de Yoga (ainsi que celles de vos proches le cas échéant).
       <br />
-      Ces inscriptions se font au moyen de <Link href="/inscription" passHref><MuiLink>ce formulaire</MuiLink></Link>.
+      Ces inscriptions se font au moyen de <Link href="/inscription" passHref legacyBehavior><MuiLink>ce formulaire</MuiLink></Link>.
       {data && data.managedByUser && (
         <Alert severity="info" sx={{ mt: 2 }}>
           Votre compte est actuellement relié à celui de <strong>{data.managedByUser.name}</strong>, ce qui lui offre la possibilité de gérer vos inscriptions à votre place.

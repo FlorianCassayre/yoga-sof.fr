@@ -25,10 +25,9 @@ import {
   Login, Person, PersonAdd
 } from '@mui/icons-material';
 import Link from 'next/link';
-import { DataGrid, gridClasses, GridRowParams } from '@mui/x-data-grid';
+import { DataGrid, gridClasses, GridColDef, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { trpc } from '../common/trpc';
 import { CourseType } from '@prisma/client';
-import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { CourseTypeNames } from '../common/course';
 import { GridRenderCellParams, GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
 import { formatDateDDsmmYYYY, formatTimeHHhMM, formatWeekday } from '../common/date';
@@ -162,7 +161,8 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
   const alreadyRegisteredCourseSet = useMemo(() => new Set<number>(userCourses.map(({ course: { id } }) => id)), [userCourses]);
 
   const rowsPerPageOptions = [10];
-  const columns: GridColumns<(typeof courses)[0]> = [
+  type CourseItem = (typeof courses)[0];
+  const columns: GridColDef<CourseItem>[] = [
     {
       field: 'type',
       headerName: 'Type de séance',
@@ -177,8 +177,8 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
       headerName: 'Date et horaire',
       minWidth: 350,
       flex: 2,
-      valueGetter: ({ row: { dateStart } }) => dateStart,
-      renderCell: ({ row: { dateStart, dateEnd } }: GridRenderCellParams<{ dateStart: Date, dateEnd: Date }>) =>
+      valueGetter: ({ row: { dateStart } }: GridValueGetterParams<CourseItem>) => dateStart,
+      renderCell: ({ row: { dateStart, dateEnd } }: GridRenderCellParams<CourseItem>) =>
         [formatWeekday(dateStart), formatDateDDsmmYYYY(dateStart), 'de', formatTimeHHhMM(dateStart), 'à', formatTimeHHhMM(dateEnd)].join(' '),
       headerAlign: 'center',
       align: 'center',
@@ -188,8 +188,8 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
       headerName: 'Places restantes / disponibles',
       minWidth: 250,
       flex: 1,
-      valueGetter: ({ row: { slots, registrations } }) => slots - registrations,
-      renderCell: ({ row: { slots, registrations } }: GridRenderCellParams<{ slots: number, registrations: number }>) => (
+      valueGetter: ({ row: { slots, registrations } }: GridValueGetterParams<CourseItem>) => slots - registrations,
+      renderCell: ({ row: { slots, registrations } }: GridRenderCellParams<CourseItem>) => (
         <Box sx={{ fontWeight: 'bold' }}>
           <Box display="inline" sx={{ color: registrations >= slots ? 'error.main' : slots - registrations <= 1 ? 'warning.main' : 'success.main' }}>{slots - registrations}</Box>
           <Box display="inline" sx={{ mx: 1 }}>/</Box>
@@ -204,13 +204,15 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
     <DataGrid
       rows={courses}
       columns={columns}
-      pageSize={rowsPerPageOptions[0]}
-      rowsPerPageOptions={rowsPerPageOptions}
+      initialState={{
+        sorting: { sortModel: [{ field: 'date', sort: 'asc' }] },
+        pagination: { paginationModel: { pageSize: rowsPerPageOptions[0] } },
+      }}
+      pageSizeOptions={rowsPerPageOptions}
       sortingOrder={['asc', 'desc']}
-      initialState={{ sorting: { sortModel: [{ field: 'date', sort: 'asc' }] } }}
       checkboxSelection
-      selectionModel={[...watchCourseIds, ...Array.from(alreadyRegisteredCourseSet)]}
-      onSelectionModelChange={selected => setValue('courseIds', selected.map(id => parseInt(id as any)).filter(id => !alreadyRegisteredCourseSet.has(id)))}
+      rowSelectionModel={[...watchCourseIds, ...Array.from(alreadyRegisteredCourseSet)]}
+      onRowSelectionModelChange={selected => setValue('courseIds', selected.map(id => parseInt(id as any)).filter(id => !alreadyRegisteredCourseSet.has(id)))}
       isRowSelectable={({ row }: GridRowParams<(typeof courses)[0]>) => !alreadyRegisteredCourseSet.has(row.id) && row.registrations < row.slots}
       localeText={{
         footerRowSelected: () => {
@@ -394,7 +396,7 @@ const CourseRegistrationFormStep3Confirmed: React.FC<CourseRegistrationFormStepC
         <Box>
           Vous pouvez dès à présent les retrouver sur
           {' '}
-          <Link href="/mes-inscriptions" passHref>
+          <Link href="/mes-inscriptions" passHref legacyBehavior>
             <MuiLink>votre page personnelle</MuiLink>
           </Link>
           .
@@ -402,7 +404,7 @@ const CourseRegistrationFormStep3Confirmed: React.FC<CourseRegistrationFormStepC
         <Box>
           En cas de question, n'hésitez pas à
           {' '}
-          <Link href="/a-propos" passHref>
+          <Link href="/a-propos" passHref legacyBehavior>
             <MuiLink>nous contacter</MuiLink>
           </Link>
           {' '}
@@ -595,7 +597,7 @@ export const CourseRegistrationFormWidget: React.FC<CourseRegistrationFormWidget
               <FaceTwoTone color="disabled" fontSize="large" />
               <Face2TwoTone color="disabled" fontSize="large" />
             </Stack>
-            <Link href="/connexion" passHref>
+            <Link href="/connexion" passHref legacyBehavior>
               <Button variant="outlined" startIcon={<Login />} sx={{ my: 2 }}>
                 Créer un compte ou me connecter
               </Button>

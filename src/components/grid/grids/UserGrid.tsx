@@ -1,14 +1,13 @@
 import React from 'react';
-import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { Edit, Visibility } from '@mui/icons-material';
-import { User } from '@prisma/client';
-import { GridActionsCellItem, GridRowParams } from '@mui/x-data-grid';
+import { GridColDef, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useRouter } from 'next/router';
 import { relativeTimestamp } from './common';
 import { displayUserEmail, displayUserName } from '../../../common/display';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { trpc } from '../../../common/trpc';
+import { RouterOutput } from '../../../server/controllers/types';
 
 // TODO
 /*
@@ -35,12 +34,13 @@ interface UserGridProps {
 export const UserGrid: React.FunctionComponent<UserGridProps> = ({ disabledUsers, collapsible, collapsedSummary }) => {
   const router = useRouter();
 
-  const columns = [
+  type UserItem = RouterOutput['user']['findAll'][0];
+  const columns: GridColDef<UserItem>[] = [
     {
       field: 'details',
       type: 'actions',
       minWidth: 50,
-      getActions: ({ row }: GridRowParams) => [
+      getActions: ({ row }: GridRowParams<UserItem>) => [
         <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" href={{ pathname: '/administration/utilisateurs/[id]', query: { id: row.id } }} />,
       ],
     },
@@ -49,14 +49,14 @@ export const UserGrid: React.FunctionComponent<UserGridProps> = ({ disabledUsers
       headerName: 'Nom',
       minWidth: 200,
       flex: 1,
-      valueGetter: ({ row }: { row: User }) => displayUserName(row),
+      valueGetter: ({ row }: GridValueGetterParams<UserItem>) => displayUserName(row),
     },
     {
       field: 'email',
       headerName: 'Addresse e-mail',
       minWidth: 250,
       flex: 1.5,
-      valueGetter: ({ row }: { row: User }) => displayUserEmail(row),
+      valueGetter: ({ row }: GridValueGetterParams<UserItem>) => displayUserEmail(row),
     },
     relativeTimestamp({
       field: 'createdAt',
@@ -71,7 +71,7 @@ export const UserGrid: React.FunctionComponent<UserGridProps> = ({ disabledUsers
     {
       field: 'actions',
       type: 'actions',
-      getActions: ({ row }: GridRowParams) => [
+      getActions: ({ row }: GridRowParams<UserItem>) => [
         <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" href={{ pathname: '/administration/utilisateurs/[id]/edition', query: { id: row.id, redirect: router.asPath } }} />,
       ],
     },

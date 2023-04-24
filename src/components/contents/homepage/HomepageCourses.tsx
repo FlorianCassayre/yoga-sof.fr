@@ -19,7 +19,7 @@ const HomepageCourse: React.FC<HomepageCourseProps> = ({ course, imageUrl, index
   return (
     <Grow in timeout={(1 + index) * 500}>
       <Grid item xs={12}>
-        <Link href={`/seances#${anchor}`} passHref>
+        <Link href={`/seances#${anchor}`} passHref legacyBehavior>
           <CardActionArea>
             <Card elevation={4} sx={{ display: { xs: 'inherit', md: 'flex' } }}>
               <CardContent sx={{ flex: 1 }}>

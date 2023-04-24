@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { Cancel, Edit, Notes, Visibility } from '@mui/icons-material';
 import { formatDateDDsmmYYYY, formatTimeHHhMM, formatWeekday } from '../../../common/date';
-import { Course, CourseType, Prisma } from '@prisma/client';
+import { Course, CourseType } from '@prisma/client';
 import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../common/course';
-import { GridRowParams } from '@mui/x-data-grid';
+import { GridColDef, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useRouter } from 'next/router';
 import { CourseStatusChip } from '../../CourseStatusChip';
-import { GridRenderCellParams } from '@mui/x-data-grid/models/params/gridCellParams';
+import { GridRenderCellParams, GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
 import { Box } from '@mui/material';
 import { CancelCourseDialog } from '../../CancelCourseDialog';
 import { trpc } from '../../../common/trpc';
 import { useSnackbar } from 'notistack';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
+import { RouterOutput } from '../../../server/controllers/types';
 
 const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactElement[] => {
   const router = useRouter();
@@ -57,13 +57,14 @@ interface CourseGridProps {
 }
 
 export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, canceled, readOnly }) => {
-  const columns: GridColumns = [
+  type CourseItem = RouterOutput['course']['findAll'][0];
+  const columns: GridColDef<CourseItem>[] = [
     {
       field: 'details',
       type: 'actions',
       sortable: false,
       minWidth: 50,
-      getActions: ({ row }: GridRowParams) => [
+      getActions: ({ row }: GridRowParams<CourseItem>) => [
         <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" href={{ pathname: '/administration/seances/planning/[id]', query: { id: row.id } }} />,
       ],
     },
@@ -71,7 +72,7 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, c
       field: 'status',
       headerName: 'Statut',
       sortable: false,
-      renderCell: ({ row }: GridRenderCellParams<Course>) => (
+      renderCell: ({ row }: GridRenderCellParams<CourseItem>) => (
         <CourseStatusChip course={row} />
       ),
     },
@@ -80,38 +81,38 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, c
       headerName: 'Type de séance',
       minWidth: 150,
       flex: 1,
-      valueFormatter: ({ value }: { value: CourseType }) => CourseTypeNames[value],
+      valueFormatter: ({ value }: GridValueFormatterParams<CourseType>) => CourseTypeNames[value],
     },
     {
       field: 'dateStart',
       headerName: 'Date',
       minWidth: 110,
       flex: 1,
-      valueFormatter: ({ value }) => `${formatWeekday(value)} ${formatDateDDsmmYYYY(value)}`,
+      valueFormatter: ({ value }: GridValueFormatterParams<Date>) => `${formatWeekday(value)} ${formatDateDDsmmYYYY(value)}`,
     },
     {
       field: 'time',
       headerName: 'Horaire',
       minWidth: 150,
       flex: 1,
-      valueGetter: params => [params.row.dateStart, params.row.dateEnd],
-      sortComparator: (([date1,], [date2,]) => formatTimeHHhMM(date1) < formatTimeHHhMM(date2) ? -1 : 1) as GridComparatorFn<[Date, Date]>,
-      valueFormatter: params => params.value.map((v: string) => formatTimeHHhMM(v)).join(' à '),
+      valueGetter: ({ row: { dateStart, dateEnd } }: GridValueGetterParams<CourseItem>) => [dateStart, dateEnd],
+      sortComparator: (([date1,], [date2,]) => formatTimeHHhMM(date1) < formatTimeHHhMM(date2) ? -1 : 1) satisfies GridComparatorFn<[Date, Date]>,
+      valueFormatter: ({ value }: GridValueFormatterParams<[Date, Date]>) => value.map(v => formatTimeHHhMM(v)).join(' à '),
     },
     {
       field: 'price',
       headerName: 'Prix',
       minWidth: 80,
       flex: 0.5,
-      valueFormatter: ({ value }: { value: number }) => value > 0 ? `${value} €` : 'Gratuit',
+      valueFormatter: ({ value }: GridValueFormatterParams<number>) => value > 0 ? `${value} €` : 'Gratuit',
     },
     {
       field: 'registrations',
       headerName: (future ? '' : 'Présents / ') + 'Inscrits / Quota',
       minWidth: future ? 100 : 150,
       flex: 1,
-      valueGetter: params => getCourseStatusWithRegistrations(params.row).registered,
-      renderCell: ({ row }: GridRenderCellParams<Prisma.CourseGetPayload<{ include: { registrations: true } }>>) => {
+      valueGetter: ({ row }: GridValueGetterParams<CourseItem>) => getCourseStatusWithRegistrations(row).registered,
+      renderCell: ({ row }: GridRenderCellParams<CourseItem>) => {
         const status = getCourseStatusWithRegistrations(row);
         return (
           <Box>
@@ -149,7 +150,7 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, c
       type: 'actions',
       minWidth: 130,
       getActions: CourseGridActions,
-    } as GridEnrichedColDef] : []),
+    } satisfies GridColDef<Course>] : []),
   ];
 
   return (

@@ -40,7 +40,7 @@ export const MoreActionsButton: React.FunctionComponent<MoreActionsButtonProps> 
         }}
       >
         {actions.map((action) => (
-          <OptionalLink key={action.name} href={action.url} passHref>
+          <OptionalLink key={action.name} href={action.url} passHref legacyBehavior>
             <MenuItem
               onClick={() => {
                 if (!action.disabled) {

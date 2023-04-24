@@ -9,7 +9,7 @@ export const GridActionsCellItemTooltip = ({ href, ...props }: GridActionsCellIt
     <Tooltip title={props.label}>
       <span>
         {href ? (
-          <Link href={href} passHref>
+          <Link href={href} passHref legacyBehavior>
             <GridActionsCellItem {...props as any} component="a" />
           </Link>
         ) : (

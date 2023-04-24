@@ -32,7 +32,7 @@ export const trpc = createTRPCNext<AppRouter>({
           },
         },
       },
-      transformer: superjson, // TODO <- needed?
+      transformer: superjson,
       /**
        * @link https://tanstack.com/query/v4/docs/reference/QueryClient
        **/

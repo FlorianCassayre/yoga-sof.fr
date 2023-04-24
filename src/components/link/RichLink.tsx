@@ -12,7 +12,7 @@ interface RichLinkProps {
 
 export const RichLink: React.FunctionComponent<RichLinkProps> = ({ url, icon, children }) => {
   return (
-    <Link href={url} passHref>
+    <Link href={url} passHref legacyBehavior>
       <Stack direction="row" spacing={1} alignItems="center" component="a" sx={{ color: grey[600] }}>
         {icon}
         <span style={{ color: grey[900] }}>{children}</span>

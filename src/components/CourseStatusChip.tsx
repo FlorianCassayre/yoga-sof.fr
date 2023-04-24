@@ -4,7 +4,7 @@ import { getCourseStatus } from '../common/course';
 import { Chip } from '@mui/material';
 
 interface CourseStatusChipProps {
-  course: Course;
+  course: Pick<Course, 'isCanceled'> & Parameters<typeof getCourseStatus>[0];
 }
 
 export const CourseStatusChip: React.FC<CourseStatusChipProps> = ({ course }) => {

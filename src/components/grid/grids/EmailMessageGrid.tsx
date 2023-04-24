@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { Box, Dialog, DialogContent, DialogTitle, Grid, IconButton, Stack, TextField, Typography } from '@mui/material';
+import { Box, Dialog, DialogContent, DialogTitle, Grid, IconButton, Stack, TextField } from '@mui/material';
 import { Close, Visibility } from '@mui/icons-material';
-import { GridRenderCellParams, GridRowModel, GridRowParams } from '@mui/x-data-grid';
+import { GridColDef, GridRenderCellParams, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
-import { CourseType, EmailMessage, EmailMessageType } from '@prisma/client';
+import { EmailMessage, EmailMessageType } from '@prisma/client';
 import { relativeTimestamp, userColumn } from './common';
 import { formatDateDDsMMsYYYYsHHhMMmSSs } from '../../../common/date';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { EmailMessageTypeNames } from '../../../common/emailMessages';
 import { trpc } from '../../../common/trpc';
-import { CourseTypeNames } from '../../../common/course';
+import { RouterOutput } from '../../../server/controllers/types';
+import { GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
 
 interface EmailDetailsDialogProps {
   open: boolean;
@@ -80,12 +80,14 @@ export const EmailMessageGrid: React.FunctionComponent<EmailMessageGridProps> = 
     setOpen(true);
   };
 
-  const columns: GridColumns = [
+  type EmailMessageItem = RouterOutput['emailMessage']['findAll'][0];
+
+  const columns: GridColDef<EmailMessageItem>[] = [
     {
       field: 'details',
       type: 'actions',
       minWidth: 50,
-      getActions: ({ row }: GridRowParams) => [
+      getActions: ({ row }: GridRowParams<EmailMessageItem>) => [
         <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" onClick={() => handleDialogOpen(row)} />,
       ],
     },
@@ -94,7 +96,7 @@ export const EmailMessageGrid: React.FunctionComponent<EmailMessageGridProps> = 
       headerName: `Type d'e-mail`,
       minWidth: 250,
       flex: 1.5,
-      valueGetter: ({ value }: { value: EmailMessageType }) => EmailMessageTypeNames[value],
+      valueGetter: ({ value }: GridValueGetterParams<EmailMessageItem, EmailMessageType>) => value !== undefined ? EmailMessageTypeNames[value] : undefined,
     },
     userColumn({ field: 'user' }),
     {
@@ -102,8 +104,8 @@ export const EmailMessageGrid: React.FunctionComponent<EmailMessageGridProps> = 
       headerName: 'Adresse(s) de destination',
       minWidth: 250,
       flex: 1.5,
-      valueGetter: ({ row }: { row: EmailMessage }) => [row.destinationAddress, row.ccAddress].filter(a => a),
-      renderCell: ({ value }: GridRenderCellParams<string[]>) => !!value && (
+      valueGetter: ({ row }: GridValueGetterParams<EmailMessageItem>): string[] => [row.destinationAddress, row.ccAddress].filter((a): a is string => !!a),
+      renderCell: ({ value }: GridRenderCellParams<EmailMessageItem, string[]>) => !!value && (
         <Stack direction="column">
           {value.map((address, i) => (
             <Box key={i}>{address}</Box>
@@ -122,8 +124,8 @@ export const EmailMessageGrid: React.FunctionComponent<EmailMessageGridProps> = 
       headerName: 'Longueur',
       minWidth: 150,
       flex: 1,
-      valueGetter: ({ value }) => value.length,
-      valueFormatter: ({ value }) => `${value} caractère${value > 1 ? 's' : ''}`,
+      valueGetter: ({ value }: GridValueGetterParams<EmailMessageItem, string>): number => value?.length ?? 0,
+      valueFormatter: ({ value }: GridValueFormatterParams<number>) => `${value} caractère${value > 1 ? 's' : ''}`,
     },
     relativeTimestamp({ field: 'createdAt', headerName: 'Date de création', flex: 1 }),
     relativeTimestamp({ field: 'sentAt', headerName: `Date d'envoi`, flex: 1 }),

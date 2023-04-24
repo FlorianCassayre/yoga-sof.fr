@@ -117,7 +117,7 @@ const UserMergeFields = ({ title, path }: { title: string, path: string }) => {
       )}
       {userId != undefined && (
         <Grid item xs={12} textAlign="center">
-          <Link href={{ pathname: '/administration/utilisateurs/[id]', query: { id: userId } }} passHref>
+          <Link href={{ pathname: '/administration/utilisateurs/[id]', query: { id: userId } }} passHref legacyBehavior>
             <Tooltip title="Voir l'utilisateur">
               <IconButton>
                 <Visibility />

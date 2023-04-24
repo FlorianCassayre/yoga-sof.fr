@@ -65,6 +65,7 @@ export default function PatchedAutocompleteElement<TFieldValues extends FieldVal
   return (
     <Controller
       name={name}
+      // @ts-ignore TODO
       control={control}
       rules={validationRules}
       render={({field: {onChange, onBlur, value}, fieldState: {error}}) => {

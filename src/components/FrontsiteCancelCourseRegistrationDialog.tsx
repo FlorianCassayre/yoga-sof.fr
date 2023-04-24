@@ -12,7 +12,7 @@ import { displayCourseName } from '../common/display';
 import { grey } from '@mui/material/colors';
 
 interface FrontsiteCancelCourseRegistrationDialogProps {
-  courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>;
+  courseRegistration: { course: Parameters<typeof displayCourseName>[0] };
   open: boolean;
   setOpen: (open: boolean) => void;
   onConfirm: () => void;

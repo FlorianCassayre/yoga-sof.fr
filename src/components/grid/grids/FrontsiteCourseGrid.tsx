@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { Cancel, Close, Done, QuestionMark } from '@mui/icons-material';
+import { Cancel } from '@mui/icons-material';
 import {
   formatDateDDsmmYYYY,
   formatTimeHHhMM,
   formatWeekday,
 } from '../../../common/date';
-import { Course, CourseType, Prisma } from '@prisma/client';
 import { CourseTypeNames } from '../../../common/course';
-import { GridRowParams } from '@mui/x-data-grid';
+import { GridColDef, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../common/trpc';
@@ -17,12 +15,14 @@ import { CourseStatusChip } from '../../CourseStatusChip';
 import { relativeTimestamp, simpleOrderColumn } from './common';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
-import { ChipLink } from '../../ChipLink';
-import { Chip } from '@mui/material';
+import { RouterOutput } from '../../../server/controllers/types';
+import { GridRenderCellParams, GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
+import { displayCourseName } from '../../../common/display';
+import { CourseRegistration } from '@prisma/client';
 
 interface GridActionCancelRegistrationProps {
   userId: number;
-  courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>;
+  courseRegistration: Pick<CourseRegistration, 'id'> & { course: Parameters<typeof displayCourseName>[0] };
   disabled?: boolean;
 }
 
@@ -60,30 +60,31 @@ interface FrontsiteCourseGrid {
 export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> = ({ userId, userCanceled, future, collapsible, collapsedSummary }) => {
   const nowLater = new Date();
   nowLater.setDate(nowLater.getDate() + 1);
-  const columns: GridColumns = [
+  type CourseRegistrationItem = RouterOutput['self']['findAllRegisteredCourses'][0];
+  const columns: GridColDef<CourseRegistrationItem>[] = [
     ...(userCanceled ? [] : [{
       field: 'status',
       headerName: 'Statut',
       sortable: false,
-      renderCell: ({ row }) => (
+      renderCell: ({ row }: GridRenderCellParams<CourseRegistrationItem>) => !!row && (
         <CourseStatusChip course={row.course} />
       ),
-    } as GridEnrichedColDef]),
+    } satisfies GridColDef<CourseRegistrationItem>]),
     {
       field: 'type',
       headerName: 'Type de séance',
       minWidth: 150,
       flex: 1,
-      valueGetter: ({ row }) => CourseTypeNames[row.course.type as CourseType],
+      valueGetter: ({ row }: GridValueGetterParams<CourseRegistrationItem>) => !!row && CourseTypeNames[row.course.type],
     },
     {
       field: 'date',
       headerName: 'Date et heure',
       minWidth: 350,
       flex: 3,
-      valueGetter: ({ row: { course } }) => [course.dateStart, course.dateEnd],
-      sortComparator: (([date1,], [date2,]) => date1 < date2 ? -1 : 1) as GridComparatorFn<[Date, Date]>,
-      valueFormatter: ({ value: [dateStart, dateEnd] }) =>
+      valueGetter: ({ row: { course } }: GridValueGetterParams<CourseRegistrationItem>): [Date, Date] => [course.dateStart, course.dateEnd],
+      sortComparator: (([date1,], [date2,]) => date1 < date2 ? -1 : 1) satisfies GridComparatorFn<[Date, Date]>,
+      valueFormatter: ({ value: [dateStart, dateEnd] }: GridValueFormatterParams<[Date, Date]>) =>
         `Le ${formatWeekday(dateStart, false)} ${formatDateDDsmmYYYY(dateStart)} de ${formatTimeHHhMM(dateStart)} à ${formatTimeHHhMM(dateEnd)}`,
     },
     relativeTimestamp({
@@ -95,19 +96,19 @@ export const FrontsiteCourseGrid: React.FunctionComponent<FrontsiteCourseGrid> =
       field: 'canceledAt',
       headerName: `Désinscription`,
       flex: 1.5,
-    })] : []),
+    }) satisfies GridColDef<CourseRegistrationItem>] : []),
     ...(userCanceled ? [] : [simpleOrderColumn({
       field: 'paid',
-    })]),
+    }) satisfies GridColDef<CourseRegistrationItem>]),
     ...(future ? [{
       field: 'actions',
       type: 'actions',
       headerName: 'Désinscription',
       minWidth: 120,
-      getActions: ({ row }: GridRowParams<Prisma.CourseRegistrationGetPayload<{ include: { course: true } }>>) => !row.course.isCanceled ? [
+      getActions: ({ row }: GridRowParams<CourseRegistrationItem>) => !row.course.isCanceled ? [
         <GridActionCancelRegistration userId={userId} courseRegistration={row} disabled={nowLater.getTime() >= row.course.dateStart.getTime()} />,
       ] : [],
-    } as GridEnrichedColDef] : []),
+    } satisfies GridColDef<CourseRegistrationItem>] : []),
   ];
 
   return (

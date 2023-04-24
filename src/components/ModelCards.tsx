@@ -156,7 +156,7 @@ export const ModelCards = <T extends InputIdentifier, TProcedureFindAll extends 
             {!readOnly && (
               <GridItem>
                 <Box display="flex" justifyContent="center" alignItems="center" sx={{ minHeight: skeletonCardHeight, height: '100%', p: 0, border: '1px dashed lightgrey', borderRadius: 1 }}>
-                  <Link href={urlCreate} passHref>
+                  <Link href={urlCreate} passHref legacyBehavior>
                     <Button startIcon={<AddBox />} sx={{ width: '100%', height: '100%' }}>{createLabel}</Button>
                   </Link>
                 </Box>

@@ -68,7 +68,12 @@ export const zodFrenchErrorMap: ZodErrorMap = (issue, _ctx) => {
       break;
     case ZodIssueCode.invalid_string:
       if (typeof issue.validation === "object") {
-        if ("startsWith" in issue.validation) {
+        if ("includes" in issue.validation) {
+          message = `Entrée invalidate : doit contenir "${issue.validation.includes}"`;
+          if (typeof issue.validation.position === "number") {
+            message = `${message} à une ou plusieurs positions supérieures ou égales à ${issue.validation.position}`;
+          }
+        } else if ("startsWith" in issue.validation) {
           message = `Entrée invalide : doit commencer par "${issue.validation.startsWith}"`;
         } else if ("endsWith" in issue.validation) {
           message = `Entrée invalide : doit se terminer par "${issue.validation.endsWith}"`;
@@ -97,7 +102,7 @@ export const zodFrenchErrorMap: ZodErrorMap = (issue, _ctx) => {
       else if (issue.type === "date")
         message = `La date doit être postérieure ${
           issue.inclusive ? `ou égale ` : ``
-        }à ${new Date(issue.minimum)}`;
+        }à ${new Date(Number(issue.minimum))}`;
       else message = "Entrée invalide";
       break;
     case ZodIssueCode.too_big:
@@ -116,7 +121,7 @@ export const zodFrenchErrorMap: ZodErrorMap = (issue, _ctx) => {
       else if (issue.type === "date")
         message = `La date doit être antérieure ${
           issue.inclusive ? `ou égale ` : ``
-        }à ${new Date(issue.maximum)}`;
+        }à ${new Date(Number(issue.maximum))}`;
       else message = "Entrée invalide";
       break;
     case ZodIssueCode.custom:
@@ -128,9 +133,9 @@ export const zodFrenchErrorMap: ZodErrorMap = (issue, _ctx) => {
     case ZodIssueCode.not_multiple_of:
       message = `Le nombre doit être un multiple de ${issue.multipleOf}`;
       break;
-    /*case ZodIssueCode.not_finite:
-      message = "Number must be finite";
-      break;*/
+    case ZodIssueCode.not_finite:
+      message = "Le nombre doit être fini";
+      break;
     default:
       message = _ctx.defaultError;
       util.assertNever(issue);

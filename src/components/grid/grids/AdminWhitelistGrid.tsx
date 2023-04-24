@@ -1,5 +1,4 @@
 import React from 'react';
-import { GridColumns } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { AsyncGrid } from '../AsyncGrid';
 import { trpc } from '../../../common/trpc';
 

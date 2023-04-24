@@ -12,9 +12,6 @@ const nextTypeSafePages = require("next-type-safe-routes/plugin");
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
-  options: {
-    providerImportSource: '@mdx-js/react',
-  },
   poweredByHeader: false,
   async headers() {
     return [

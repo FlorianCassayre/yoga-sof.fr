@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Cancel, Visibility, VisibilityOff } from '@mui/icons-material';
-import { GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
+import { GridColDef, GridRenderCellParams, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { useRouter } from 'next/router';
 import { orderColumn, relativeTimestamp, userColumn } from './common';
@@ -22,6 +22,7 @@ import { useSnackbar } from 'notistack';
 import { displayCouponName } from '../../../common/display';
 import { RouterOutput } from '../../../server/controllers/types';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
+import { GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
 
 interface CouponCodeProps {
   code: string;
@@ -87,7 +88,6 @@ export const DisableCouponDialog: React.FC<DisableCouponDialogProps> = ({ coupon
 };
 
 const CouponGridActions = ({ row: coupon }: GridRowParams<Coupon>): React.ReactElement[] => {
-  const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const [confirmDisableDialogOpen, setConfirmDisableDialogOpen] = useState(false);
   const trpcClient = trpc.useContext();
@@ -123,36 +123,45 @@ interface CouponGridProps {
 }
 
 export const CouponGrid: React.FunctionComponent<CouponGridProps> = ({ userId, collapsible, collapsedSummary }) => {
-  const columns = [
+  type CouponItem = RouterOutput['coupon']['findAll'][0];
+
+  const columns: GridColDef<CouponItem>[] = [
     ...(userId === undefined ? [userColumn({ field: 'user', headerName: 'Propriétaire', flex: 1 })] : []),
     {
       field: 'courseType',
       headerName: 'Type de séance',
       minWidth: 150,
       flex: 1,
-      valueFormatter: ({ value }: { value: CourseType }) => CourseTypeNames[value],
+      valueFormatter: ({ value }: GridValueFormatterParams<CourseType>) => CourseTypeNames[value],
     },
     {
       field: 'quantity',
       headerName: 'Séances restantes',
       flex: 1,
       minWidth: 150,
-      valueGetter: ({ row }: { row: RouterOutput['coupon']['findAll'][0] }) => [row.quantity, row.quantity - row.orderCourseRegistrations.length],
+      valueGetter: ({ row }: GridValueGetterParams<CouponItem>): [number, number] => [row.quantity, row.quantity - row.orderCourseRegistrations.length],
       sortComparator: (([_1, v1], [_2, v2]) => v1 - v2) as GridComparatorFn<[number, number]>,
-      renderCell: ({ value: [quantity, remaining] }: { value: [number, number] }) => (
-        <Box>
-          <Box display="inline" color={remaining > 3 ? 'green' : remaining > 0 ? 'orange' : 'red'}>{remaining}</Box>
-          {' / '}
-          <Box display="inline">{quantity}</Box>
-        </Box>
-      )
-    } as any, // TODO
+      renderCell: ({ value }: GridRenderCellParams<CouponItem, [number, number]>) => {
+        if (value !== undefined) {
+          const [quantity, remaining] = value;
+          return (
+            <Box>
+              <Box display="inline" color={remaining > 3 ? 'green' : remaining > 0 ? 'orange' : 'red'}>{remaining}</Box>
+              {' / '}
+              <Box display="inline">{quantity}</Box>
+            </Box>
+          );
+        } else {
+          return undefined;
+        }
+      }
+    },
     {
       field: 'code',
       headerName: 'Code',
       flex: 1,
       minWidth: 150,
-      renderCell: ({ value }: GridRenderCellParams<Coupon['code']>) => value && (
+      renderCell: ({ value }: GridRenderCellParams<CouponItem, CouponItem['code']>) => value && (
         <CouponCode code={value} />
       ),
     },
@@ -161,7 +170,7 @@ export const CouponGrid: React.FunctionComponent<CouponGridProps> = ({ userId, c
       headerName: `Prix d'achat`,
       flex: 1,
       minWidth: 100,
-      valueFormatter: ({ value }: { value: number }) => value > 0 ? `${value} €` : 'Gratuit',
+      valueFormatter: ({ value }: GridValueFormatterParams<number>) => value > 0 ? `${value} €` : 'Gratuit',
     },
     relativeTimestamp({
       field: 'createdAt',
@@ -171,7 +180,7 @@ export const CouponGrid: React.FunctionComponent<CouponGridProps> = ({ userId, c
     orderColumn({
       field: 'order',
       headerName: 'Payée',
-      valueGetter: ({ row }: { row: RouterOutput['coupon']['findAll'][0] }) => row.ordersPurchased.map(({ id }) => id)[0],
+      valueGetter: ({ row }: GridValueGetterParams<CouponItem>) => row.ordersPurchased.map(({ id }) => id)[0],
     }),
     {
       field: 'actions',

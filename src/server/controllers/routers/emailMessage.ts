@@ -7,10 +7,5 @@ export const emailMessageRouter = router({
     .input(z.strictObject({
       sent: z.boolean().optional(),
     }))
-    .query(async ({ input: { sent } }) => findEmailMessages({
-      where: sent === undefined ? undefined : sent ? { NOT: { sentAt: null } } : { sentAt: null },
-      include: {
-        user: true,
-      },
-    })),
+    .query(async ({ input: { sent } }) => findEmailMessages({ where: { sent } })),
 });

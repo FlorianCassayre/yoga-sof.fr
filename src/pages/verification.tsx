@@ -23,7 +23,7 @@ const EmailSentPage: React.FC = () => {
               </CardContent>
             </Card>
             <Box textAlign="center" sx={{ mt: 2 }}>
-              <Link href="/" passHref>
+              <Link href="/" passHref legacyBehavior>
                 <MuiLink>
                   Retourner à l'accueil
                 </MuiLink>

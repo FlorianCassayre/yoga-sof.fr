@@ -1,8 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { Cancel, CheckCircle, Close, Done, Help } from '@mui/icons-material';
 import { Prisma } from '@prisma/client';
-import { GridRowParams } from '@mui/x-data-grid';
+import { GridColDef, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { courseColumn, orderColumn, relativeTimestamp, userColumn } from './common';
 import { CancelCourseRegistrationDialog } from '../../CancelCourseRegistrationDialog';
@@ -93,7 +92,6 @@ interface CourseRegistrationGridProps {
 }
 
 export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationGridProps> = ({ courseId, userId, attended, attendance, attendanceModifiable }) => {
-  const compose = <U, V>(input: U, transform: (input: U) => V): V => transform(input);
   const trpcClient = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
   const [quickOrderOpen, setQuickOrderOpen] = useState(false);
@@ -110,16 +108,18 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
     },
   });
 
-  const columns: GridColumns = [
+  type CourseRegistrationItem = RouterOutput['courseRegistration']['findAllActive'][0];
+
+  const columns: GridColDef<CourseRegistrationItem>[] = [
     ...(attendance ? [{
       field: 'attendance',
       type: 'actions',
       headerName: 'Présence',
       minWidth: 150,
-      getActions: ({ row }: GridRowParams<Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>>) => [
+      getActions: ({ row }: GridRowParams<CourseRegistrationItem>) => [
         <GridActionsAttendance courseRegistration={row} readOnly={!attendanceModifiable} />,
       ],
-    } as GridEnrichedColDef] : []),
+    } satisfies GridColDef<CourseRegistrationItem>] : []),
     ...(userId !== undefined ? [] : [userColumn({ field: 'user', flex: 1 })]),
     ...(courseId !== undefined ? [] : [courseColumn({ field: 'course', flex: 1 })]),
     relativeTimestamp({ field: 'createdAt', headerName: `Date d'inscription`, flex: 1 }),
@@ -139,14 +139,14 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
     orderColumn({
       field: 'order',
       headerName: 'Payée',
-      valueGetter: ({ row }: { row: RouterOutput['courseRegistration']['findAllActive'][0] }) =>
+      valueGetter: ({ row }: GridValueGetterParams<CourseRegistrationItem>) =>
         [row.orderUsedCoupons.map(o => o.order), row.orderTrial.map(o => o.order), row.orderReplacementTo.map(o => o.order), row.orderPurchased]
           .flat().map(({ id }) => id)[0],
     }, { onClickNo: !isMutatingQuickOrder ? ({ row: courseRegistration }) => { setQuickOrderCourseRegistration(courseRegistration); setQuickOrderOpen(true) } : undefined }),
     {
       field: 'actions',
       type: 'actions',
-      getActions: ({ row }: GridRowParams<Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>>) => !row.isUserCanceled ? [ // TODO (<- what?)
+      getActions: ({ row }: GridRowParams<CourseRegistrationItem>) => !row.isUserCanceled ? [ // TODO (<- what?)
         <GridActionCancel courseRegistration={row} />,
       ] : [],
     },

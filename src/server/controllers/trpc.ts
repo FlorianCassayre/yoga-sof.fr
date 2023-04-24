@@ -1,4 +1,4 @@
-import { initTRPC } from '@trpc/server';
+import { initTRPC, MiddlewareBuilder } from '@trpc/server';
 import { Context } from './context';
 import { UserType } from '../../common/all';
 import superjson from 'superjson';
@@ -7,8 +7,9 @@ import { ServiceError } from '../services/helpers/errors';
 import { getSession } from 'next-auth/react';
 import * as trpc from '@trpc/server';
 import { TRPC_ERROR_CODES_BY_KEY } from '@trpc/server/rpc';
+import { Session } from 'next-auth';
 
-const t = initTRPC.context<Context & Record<string, unknown>>().create({
+const t = initTRPC.context<Context>().create({
   transformer: superjson,
   errorFormatter: ({ shape, error }) => {
     if (error.cause instanceof ZodError) {
@@ -56,7 +57,7 @@ const createSessionProtectedMiddleware = (allowedUserTypes: UserType[]) => {
     if (!allowedUserTypes.includes(session.userType)) {
       throw new trpc.TRPCError({ code: 'FORBIDDEN' });
     }
-    return next({
+    return next<{ session: Session }>({
       ctx: {
         session,
       },

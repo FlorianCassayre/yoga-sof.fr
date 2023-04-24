@@ -1,12 +1,12 @@
 import React from 'react';
-import { GridColumns, GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 import { ContentPaste, ContentPasteOff, EventAvailable } from '@mui/icons-material';
 import { CourseRegistration } from '@prisma/client';
-import { GridRenderCellParams } from '@mui/x-data-grid';
+import { GridColDef, GridRenderCellParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { courseColumn, relativeTimestamp, userColumn } from './common';
 import { Tooltip } from '@mui/material';
 import { trpc } from '../../../common/trpc';
+import { RouterOutput } from '../../../server/controllers/types';
 
 interface CourseRegistrationEventGridProps {
   courseId?: number;
@@ -15,11 +15,12 @@ interface CourseRegistrationEventGridProps {
 }
 
 export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistrationEventGridProps> = ({ courseId, userId, readOnly }) => {
-  const columns: GridColumns = [
+  type CourseRegistrationEvent = RouterOutput['courseRegistration']['findAllEvents'][0];
+  const columns: GridColDef<CourseRegistrationEvent>[] = [
     {
       field: 'isEventTypeUserCanceled',
       headerName: 'Événement',
-      renderCell: ({ value }: GridRenderCellParams<{ value: boolean }>) => (
+      renderCell: ({ value }: GridRenderCellParams<CourseRegistrationEvent, boolean>) => (
         <Tooltip title={value ? 'Désinscription' : 'Inscription'}>
           {value ? (
             <ContentPasteOff color="error" />
@@ -30,8 +31,8 @@ export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistra
       ),
       align: 'center',
     },
-    ...(userId !== undefined ? [] : [userColumn({ field: 'registration.user', valueGetter: params => params.row.registration.user, flex: 1 })]),
-    ...(courseId !== undefined ? [] : [courseColumn({ field: 'registration.course', valueGetter: params => params.row.registration.course, flex: 2 })]),
+    ...(userId !== undefined ? [] : [userColumn({ field: 'registration.user', valueGetter: ({ row }: GridValueGetterParams<CourseRegistrationEvent>) => row.registration.user, flex: 1 })]),
+    ...(courseId !== undefined ? [] : [courseColumn({ field: 'registration.course', valueGetter: ({ row }: GridValueGetterParams<CourseRegistrationEvent>) => row.registration.course, flex: 2 })]),
     relativeTimestamp({ field: 'date', headerName: `Date`, flex: 1 }),
     ...(readOnly ? [] : [{
       field: 'actions',
@@ -43,7 +44,7 @@ export const CourseRegistrationEventGrid: React.FunctionComponent<CourseRegistra
         </Tooltip>
       ),
       align: 'center',
-    } as GridEnrichedColDef]),
+    } satisfies GridColDef<CourseRegistrationEvent>]),
   ];
 
   return (

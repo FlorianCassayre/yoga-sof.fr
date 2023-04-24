@@ -21,11 +21,11 @@ const registrationsToEvent = <T extends CourseRegistration>(registrations: T[]) 
     registration,
   }] : [])]).sort(({ date: date1 }, { date: date2 }) => date2.getTime() - date1.getTime());
 
-export const findCourseRegistrations = async <Where extends Prisma.CourseRegistrationWhereInput, Select extends Prisma.CourseRegistrationSelect, Include extends Prisma.CourseRegistrationInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseRegistrationOrderByWithRelationInput>>(prisma: Prisma.TransactionClient, args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
-  prisma.courseRegistration.findMany(args);
+export const findCourseRegistrations = (prisma: Prisma.TransactionClient) =>
+  prisma.courseRegistration.findMany({ include: { course: true, user: true } });
 
-export const findCourseRegistrationEvents = async <Where extends Pick<Prisma.CourseRegistrationWhereInput, 'courseId' | 'userId'>, Select extends Prisma.CourseRegistrationSelect, Include extends Prisma.CourseRegistrationInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseRegistrationOrderByWithRelationInput>>(prisma: Prisma.TransactionClient, args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
- registrationsToEvent(await findCourseRegistrations(prisma, args));
+export const findCourseRegistrationEvents = async (prisma: Prisma.TransactionClient, { courseId, userId, attended, isCanceled }: { courseId?: number, userId?: number, attended?: boolean, isCanceled?: boolean }) =>
+ registrationsToEvent(await prisma.courseRegistration.findMany({ where: { courseId, userId, attended, course: { isCanceled } }, include: { course: true, user: true } }));
 
 export const findCourseRegistrationsForReplacement = async (args: { where?: { userId?: number } } = {}) => {
   const activeArgs = { active: true };

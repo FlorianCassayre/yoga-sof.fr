@@ -4,5 +4,5 @@ import Link from 'next/link';
 
 export const InternalLink: React.FC<Pick<Parameters<typeof Link>[0], 'href' | 'children'> & Parameters<typeof MuiLink>[0]> =
   ({ href, children, ...rest }) => (
-    <Link href={href} passHref><MuiLink {...rest}>{children}</MuiLink></Link>
+    <Link href={href} passHref legacyBehavior><MuiLink {...rest}>{children}</MuiLink></Link>
   );

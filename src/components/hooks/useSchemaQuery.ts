@@ -2,8 +2,7 @@ import { inferProcedureInput } from '@trpc/server';
 import { TRPCClientErrorLike } from '@trpc/client';
 import { z } from 'zod';
 import { ZodTypeDef } from 'zod/lib/types';
-import { UseTRPCQueryOptions, UseTRPCQueryResult } from '@trpc/react-query/src/shared/hooks/createHooksInternal';
-import { DecorateProcedure } from '@trpc/react-query/shared';
+import { DecorateProcedure, UseTRPCQueryOptions, UseTRPCQueryResult } from '@trpc/react-query/shared';
 import { inferTransformedProcedureOutput } from '@trpc/server/shared';
 import { AnyQueryProcedure } from '@trpc/server/src/core/procedure';
 

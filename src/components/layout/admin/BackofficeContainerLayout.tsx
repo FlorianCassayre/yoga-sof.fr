@@ -88,7 +88,7 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
           >
             <MenuIcon />
           </IconButton>
-          <Link href={titleUrl} passHref>
+          <Link href={titleUrl} passHref legacyBehavior>
             <Typography variant="h6" noWrap component="a" sx={{ textDecoration: 'none', color: 'inherit' }}>
               {title}
             </Typography>
@@ -125,7 +125,7 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
                 onClose={() => setProfileProfileAnchorEl(null)}
               >
                 {profileMenu.children.map(({ title, icon, url, onClick }, i) => (
-                  <OptionalLink key={i} href={url} passHref>
+                  <OptionalLink key={i} href={url} passHref legacyBehavior>
                     <MenuItem onClick={() => {
                       setProfileProfileAnchorEl(null);
                       onClick && onClick();
@@ -159,7 +159,7 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
                 <List subheader={categoryTitle ? <ListSubheader>{categoryTitle}</ListSubheader> : undefined}>
                   {children.map(({ title: itemTitle, icon, url, disabled }, j) => (
                     <ListItem key={j} disablePadding>
-                      <OptionalLink href={url} passHref>
+                      <OptionalLink href={url} passHref legacyBehavior>
                         <ListItemButton selected={url !== undefined ? isUrlSelected(url) : false} disabled={disabled} onClick={() => setDrawerOpen(false)} component="a">
                           <ListItemIcon>
                             {icon}
@@ -182,7 +182,7 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
           </ListItem>
         </List>
       </Drawer>
-      <Box sx={{ flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1, width: `calc(100% - ${drawerWidth}px)` }}>
         <Toolbar />
         {children}
       </Box>

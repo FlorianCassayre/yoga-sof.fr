@@ -91,7 +91,7 @@ const CourseNavigation: React.FC<CourseNavigationProps> = ({ courseId }) => {
                 {course !== null && (
                   <Tooltip title={displayCourseName(course)}>
                     <span>
-                      <Link href={{ pathname: '/administration/seances/planning/[id]', query: { id: course.id } }} passHref>
+                      <Link href={{ pathname: '/administration/seances/planning/[id]', query: { id: course.id } }} passHref legacyBehavior>
                         <Chip component="a" label={label} color="primary" variant="outlined" icon={icon} />
                       </Link>
                     </span>
@@ -217,7 +217,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
             </CardContent>
             {status.canRegister && (
               <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Link href={{ pathname: '/administration/inscriptions/creation', query: { courseId: course.id, redirect: router.asPath } }} passHref>
+                <Link href={{ pathname: '/administration/inscriptions/creation', query: { courseId: course.id, redirect: router.asPath } }} passHref legacyBehavior>
                   <Tooltip title="Inscrire des utilisateurs">
                     <IconButton size="small"><AddBox /></IconButton>
                   </Tooltip>
@@ -236,7 +236,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
                 <Alert severity="info" sx={{ mt: 1 }}>
                   Aucune note pour cette séance.
                   {' '}
-                  <Link href={`/administration/seances/planning/${course.id}/notes`} passHref>
+                  <Link href={`/administration/seances/planning/${course.id}/notes`} passHref legacyBehavior>
                     <MuiLink>Écrire une note ?</MuiLink>
                   </Link>
                 </Alert>
@@ -246,7 +246,7 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
               </Typography>
             </CardContent>
             <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Link href={{ pathname: '/administration/seances/planning/[id]/notes', query: { id: course.id, redirect: router.asPath } }} passHref>
+              <Link href={{ pathname: '/administration/seances/planning/[id]/notes', query: { id: course.id, redirect: router.asPath } }} passHref legacyBehavior>
                 <Tooltip title="Modifier">
                   <IconButton size="small"><Edit /></IconButton>
                 </Tooltip>

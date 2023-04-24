@@ -1,37 +1,35 @@
-import { GridEnrichedColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
-import { GridRenderCellParams } from '@mui/x-data-grid';
-import { Course, Prisma, User } from '@prisma/client';
+import { Course, User } from '@prisma/client';
 import { Box, Chip, Stack, Tooltip } from '@mui/material';
 import { UserLink } from '../../link/UserLink';
-import { formatDateDDsMMsYYYYsHHhMMmSSs, formatTimeHHhMM, formatTimestampRelative } from '../../../common/date';
+import { formatDateDDsMMsYYYYsHHhMMmSSs, formatTimestampRelative } from '../../../common/date';
 import { GridValidRowModel } from '@mui/x-data-grid/models/gridRows';
 import { CourseLink } from '../../link/CourseLink';
 import { CourseStatusChip } from '../../CourseStatusChip';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 import { displayUserName } from '../../../common/display';
-import { getUserLatestMembership } from '../../../common/user';
 import { Close, Done, QuestionMark } from '@mui/icons-material';
 import React from 'react';
 import { ChipLink } from '../../ChipLink';
+import { GridBaseColDef } from '@mui/x-data-grid/models/colDef/gridColDef';
 
-type PartialGridEnrichedColDef<R extends GridValidRowModel = any> = Pick<GridEnrichedColDef<R>, 'field'> & Partial<GridEnrichedColDef<R>>
+type PartialGridEnrichedColDef<R extends GridValidRowModel = any> = Pick<GridBaseColDef<R>, 'field'> & Partial<GridBaseColDef<R>>
 
-export const userColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
+export const userColumn = <R extends GridValidRowModel = any>(params: PartialGridEnrichedColDef<R>): GridBaseColDef<R, User> => ({
   headerName: 'Utilisateur',
   sortComparator: ((user1, user2) => displayUserName(user1) < displayUserName(user2) ? -1 : 1) as GridComparatorFn<User>,
-  renderCell: ({ value }: GridRenderCellParams<User>) => value && (
+  renderCell: ({ value }) => !!value && (
     <UserLink user={value} />
   ),
   minWidth: 200,
   ...params,
 });
 
-export const usersColumn = (params: PartialGridEnrichedColDef, options?: { excludeUserId?: number }): GridEnrichedColDef => ({
+export const usersColumn = <R extends GridValidRowModel = any>(params: PartialGridEnrichedColDef<R>, options?: { excludeUserId?: number }): GridBaseColDef<R, User[]> => ({
   headerName: 'Utilisateurs',
-  sortComparator: ((user1, user2) => displayUserName(user1) < displayUserName(user2) ? -1 : 1) as GridComparatorFn<User>,
-  renderCell: ({ value }: GridRenderCellParams<User[]>) => (
+  sortable: false,
+  renderCell: ({ value }) => (
     <Stack direction="column">
-      {value && value.filter(user => !options || user.id !== options.excludeUserId).map(user =>
+      {!!value && value.filter(user => !options || user.id !== options.excludeUserId).map(user =>
         <UserLink user={user} key={user.id} />
       )}
     </Stack>
@@ -40,10 +38,10 @@ export const usersColumn = (params: PartialGridEnrichedColDef, options?: { exclu
   ...params,
 });
 
-export const courseColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
+export const courseColumn = <R extends GridValidRowModel = any>(params: PartialGridEnrichedColDef<R>): GridBaseColDef<R, Course> => ({
   headerName: 'Séance',
   sortComparator: ((course1, course2) => course1.dateStart < course2.dateStart ? -1 : 1) as GridComparatorFn<Course>,
-  renderCell: ({ value }: GridRenderCellParams<Course>) => value && (
+  renderCell: ({ value }) => !!value && (
     <Stack direction="row" gap={1}>
       <CourseLink course={value} />
       <CourseStatusChip course={value} />
@@ -53,8 +51,8 @@ export const courseColumn = (params: PartialGridEnrichedColDef): GridEnrichedCol
   ...params,
 });
 
-export const relativeTimestamp = (params: PartialGridEnrichedColDef, compact: boolean = false): GridEnrichedColDef => ({
-  renderCell: ({ value }: GridRenderCellParams<string>) => value && (
+export const relativeTimestamp = <R extends GridValidRowModel = any>(params: PartialGridEnrichedColDef<R>, compact: boolean = false): GridBaseColDef<R, string> => ({
+  renderCell: ({ value }) => !!value && (
     <time dateTime={value}>
       {formatTimestampRelative(value)}
       {!compact && (
@@ -68,10 +66,10 @@ export const relativeTimestamp = (params: PartialGridEnrichedColDef, compact: bo
   ...params,
 });
 
-export const orderColumn = (params: PartialGridEnrichedColDef, options?: { onClickNo?: (data: any) => void }): GridEnrichedColDef => ({
+export const orderColumn = <R extends GridValidRowModel = any>(params: PartialGridEnrichedColDef<R>, options?: { onClickNo?: (data: any) => void }): GridBaseColDef<R, number> => ({
   headerName: 'Payé',
   minWidth: 100,
-  renderCell: (data: any) => { // number | undefined
+  renderCell: (data) => {
     const { value: id } = data;
     const commonProps = {
       variant: 'outlined',
@@ -101,7 +99,7 @@ export const orderColumn = (params: PartialGridEnrichedColDef, options?: { onCli
   ...params,
 });
 
-export const simpleOrderColumn = (params: PartialGridEnrichedColDef): GridEnrichedColDef => ({
+export const simpleOrderColumn = <R extends { paid: boolean }>(params: PartialGridEnrichedColDef<R>): GridBaseColDef<R, boolean> => ({
   headerName: 'Payée',
   minWidth: 150,
   flex: 1,

@@ -3,13 +3,13 @@
 // Overriding https://next-auth.js.org/providers/email#customizing-emails
 
 import nodemailer from 'nodemailer';
-import { SendVerificationRequestParams } from 'next-auth/providers/email';
+import { EmailConfig } from 'next-auth/providers';
 
-export const sendVerificationRequest = async ({
+export const sendVerificationRequest: EmailConfig['sendVerificationRequest'] = async ({
   identifier: email,
   url,
   provider: { server, from },
-}: SendVerificationRequestParams) => {
+}) => {
   const { host } = new URL(url)
   const transport = nodemailer.createTransport(server)
   await transport.sendMail({
