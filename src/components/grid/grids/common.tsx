@@ -16,7 +16,7 @@ type PartialGridEnrichedColDef<R extends GridValidRowModel = any> = Pick<GridBas
 
 export const userColumn = <R extends GridValidRowModel = any>(params: PartialGridEnrichedColDef<R>): GridBaseColDef<R, User> => ({
   headerName: 'Utilisateur',
-  sortComparator: ((user1, user2) => displayUserName(user1) < displayUserName(user2) ? -1 : 1) as GridComparatorFn<User>,
+  sortComparator: ((user1, user2) => displayUserName(user1) < displayUserName(user2) ? -1 : 1) satisfies GridComparatorFn<User>,
   renderCell: ({ value }) => !!value && (
     <UserLink user={value} />
   ),
@@ -40,7 +40,7 @@ export const usersColumn = <R extends GridValidRowModel = any>(params: PartialGr
 
 export const courseColumn = <R extends GridValidRowModel = any>(params: PartialGridEnrichedColDef<R>): GridBaseColDef<R, Course> => ({
   headerName: 'Séance',
-  sortComparator: ((course1, course2) => course1.dateStart < course2.dateStart ? -1 : 1) as GridComparatorFn<Course>,
+  sortComparator: ((course1, course2) => course1.dateStart < course2.dateStart ? -1 : 1) satisfies GridComparatorFn<Course>,
   renderCell: ({ value }) => !!value && (
     <Stack direction="row" gap={1}>
       <CourseLink course={value} />

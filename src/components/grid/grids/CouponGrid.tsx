@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Cancel, Visibility, VisibilityOff } from '@mui/icons-material';
 import { GridColDef, GridRenderCellParams, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
-import { useRouter } from 'next/router';
 import { orderColumn, relativeTimestamp, userColumn } from './common';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { trpc } from '../../../common/trpc';
@@ -140,7 +139,7 @@ export const CouponGrid: React.FunctionComponent<CouponGridProps> = ({ userId, c
       flex: 1,
       minWidth: 150,
       valueGetter: ({ row }: GridValueGetterParams<CouponItem>): [number, number] => [row.quantity, row.quantity - row.orderCourseRegistrations.length],
-      sortComparator: (([_1, v1], [_2, v2]) => v1 - v2) as GridComparatorFn<[number, number]>,
+      sortComparator: (([_1, v1], [_2, v2]) => v1 - v2) satisfies GridComparatorFn<[number, number]>,
       renderCell: ({ value }: GridRenderCellParams<CouponItem, [number, number]>) => {
         if (value !== undefined) {
           const [quantity, remaining] = value;

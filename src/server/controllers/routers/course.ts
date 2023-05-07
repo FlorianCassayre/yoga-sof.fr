@@ -3,34 +3,29 @@ import {
   cancelCourse,
   createCourses,
   findCourse,
-  findCourses, findCoursesRelated,
+  findCourses, findCoursesRelated, findUpdateCourse, findUpdateCourseNotes,
   updateCourse
 } from '../../services';
 import { courseCreateManySchema, courseUpdateNotesSchema } from '../../../common/schemas/course';
 import { adminProcedure, router } from '../trpc';
+import { prisma } from '../../prisma';
 
 export const courseRouter = router({
   find: adminProcedure
     .input(z.strictObject({
       id: z.number().int().min(0),
     }))
-    .query(async ({ input: { id } }) => {
-      return findCourse({ where: { id }, include: { registrations: true } });
-    }),
+    .query(async ({ input: { id } }) => findCourse({ where: { id } })),
   findUpdate: adminProcedure
     .input(z.strictObject({
       id: z.number().int().min(0),
     }))
-    .query(async ({ input: { id } }) => {
-      return findCourse({ where: { id }, select: { id: true, slots: true, price: true } });
-    }),
+    .query(async ({ input: { id } }) => findUpdateCourse({ where: { id } })),
   findUpdateNotes: adminProcedure
     .input(z.strictObject({
       id: z.number().int().min(0),
     }))
-    .query(async ({ input: { id } }) => {
-      return findCourse({ where: { id }, select: { id: true, notes: true } });
-    }),
+    .query(async ({ input: { id } }) => findUpdateCourseNotes({ where: { id } })),
   findRelated: adminProcedure
     .input(z.strictObject({
       id: z.number().int().min(0),
@@ -47,7 +42,7 @@ export const courseRouter = router({
       if (extended) {
         now.setDate(now.getDate() + (future ? -1 : 1));
       }
-      return findCourses({
+      return prisma.course.findMany({
         where: { ...(future === null ? {} : future ? { dateEnd: { gt: now } } : { dateEnd: { lte: now } }), isCanceled: canceled },
         include: { registrations: true },
       });

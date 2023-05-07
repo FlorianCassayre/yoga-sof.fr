@@ -129,7 +129,7 @@ export const BackofficeContainerLayout: React.FC<BackofficeContainerLayoutProps>
                     <MenuItem onClick={() => {
                       setProfileProfileAnchorEl(null);
                       onClick && onClick();
-                    }} component={(url ? 'a' : undefined) as any}>
+                    }} {...(url ? { component: 'a' } : {})}>
                       <ListItemIcon>
                         {icon}
                       </ListItemIcon>

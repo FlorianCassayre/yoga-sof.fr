@@ -12,14 +12,44 @@ import { z } from 'zod';
 import { isWhitelistedAdmin } from './adminWhitelist';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 
-export const findUser = async <Where extends Prisma.UserWhereUniqueInput, Select extends Prisma.UserSelect, Include extends Prisma.UserInclude>(prisma: Prisma.TransactionClient, args: { where: Where, select?: Select, include?: Include }) =>
-  prisma.user.findUniqueOrThrow(args);
+export const findUser = async (args: { where: Prisma.UserWhereUniqueInput }) =>
+  prisma.user.findUniqueOrThrow({
+    where: args.where,
+    include: {
+      courseRegistrations: {
+        include: {
+          course: true
+        },
+      },
+      accounts: true,
+      managedByUser: true,
+      managedUsers: true,
+      transactions: true,
+      memberships: true,
+      orders: {
+        where: {
+          active: true
+        },
+        select: {
+          trialCourseRegistrations: {
+            select: {
+              courseRegistration: {
+                select: {
+                  courseId: true
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
 
-export const findUsers = async <Where extends Prisma.UserWhereInput, Select extends Prisma.UserSelect, Include extends Prisma.UserInclude, OrderBy extends Prisma.Enumerable<Prisma.UserOrderByWithRelationInput>>(args: { where?: Where, select?: Select, include?: Include, orderBy?: OrderBy } = {}) =>
+export const findUsers = async (args: { where?: { disabled?: boolean } } = {}) =>
   prisma.user.findMany(args);
 
-export const findUserUpdate = async <Where extends Prisma.UserWhereUniqueInput>(prisma: Prisma.TransactionClient, args: { where: Where }) => {
-  const { id, name, email, customName, customEmail, managedByUserId } = await findUser(prisma, { where: args.where, select: { id: true, name: true, email: true, customName: true, customEmail: true, managedByUserId: true } });
+export const findUserUpdate = async (prisma: Prisma.TransactionClient, args: { where: Prisma.UserWhereUniqueInput }) => {
+  const { id, name, email, customName, customEmail, managedByUserId } = await prisma.user.findUniqueOrThrow({ where: args.where, select: { id: true, name: true, email: true, customName: true, customEmail: true, managedByUserId: true } });
   return { id, name: customName ?? name, email: customEmail ?? email, managedByUserId };
 }
 
@@ -35,13 +65,13 @@ export const validateControlsUser = async (prisma: Prisma.TransactionClient, arg
   }
 };
 
-export const createUser = async <Select extends Prisma.UserSelect, Include extends Prisma.UserInclude>(prisma: Prisma.TransactionClient, args: { data: z.infer<typeof userCreateSchema>, select?: Select, include?: Include }) => {
+export const createUser = async (prisma: Prisma.TransactionClient, args: { data: z.infer<typeof userCreateSchema> }) => {
   userCreateSchema.parse(args.data);
   // No need to validate the user manager in create, it is correct is all cases wrt to the current logic
   return prisma.user.create({ data: { customName: args.data.name, customEmail: args.data.email, managedByUserId: args.data.managedByUserId } });
 }
 
-export const updateUser = async <Where extends Prisma.UserWhereUniqueInput, Select extends Prisma.UserSelect>(args: { where: Where, data: z.infer<typeof userCreateSchema>, select?: Select }) => {
+export const updateUser = async (args: { where: Prisma.UserWhereUniqueInput, data: z.infer<typeof userCreateSchema> }) => {
   userUpdateSchema.parse({ ...args.data, id: args.where.id });
   // Validate user manager
   if (args.where.id === args.data.managedByUserId) {
@@ -57,7 +87,7 @@ export const updateUser = async <Where extends Prisma.UserWhereUniqueInput, Sele
   });
 }
 
-export const updateUserInformation = async <Where extends Prisma.UserWhereUniqueInput, Select extends Prisma.UserSelect>(prisma: Prisma.TransactionClient, args: { where: Where, data: z.infer<typeof userSchemaBase>, select?: Select }) => {
+export const updateUserInformation = async (prisma: Prisma.TransactionClient, args: { where: Prisma.UserWhereUniqueInput, data: z.infer<typeof userSchemaBase> }) => {
   userUpdateSelfSchema.parse({ ...args.data, id: args.where.id });
   const user = await prisma.user.findUniqueOrThrow({ where: args.where, include: { managedUsers: true } });
   const customName = args.data.name === user.name ? null : args.data.name;

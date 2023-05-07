@@ -7,14 +7,12 @@ import Link from 'next/link';
 type ChipLinkProps<
   D extends React.ElementType = ChipTypeMap['defaultComponent'],
   P = {},
-> = Omit<ChipProps<D, P>, 'onClick'> & { href: UrlObject | string };
+> = Omit<ChipProps<'a', P>, 'component' | 'href' | 'onClick'> & { href: UrlObject | string };
 
 export const ChipLink: React.FC<ChipLinkProps> = ({ href, ...props }) => {
-  return href ? (
+  return (
     <Link href={href} passHref legacyBehavior>
-      <Chip {...props as any} component="a" />
+      <Chip {...props} component="a" />
     </Link>
-  ) : (
-    <Chip {...props} />
   );
 };

@@ -23,9 +23,7 @@ export const userRouter = router({
     .input(z.strictObject({
       id: z.number().int().min(0),
     }))
-    .query(async ({ input: { id } }) => {
-      return readTransaction(async (prisma) => findUser(prisma, { where: { id }, include: { courseRegistrations: { include: { course: true } }, accounts: true, managedByUser: true, managedUsers: true, transactions: true, memberships: true, orders: { where: { active: true }, select: { trialCourseRegistrations: { select: { courseRegistration: { select: { courseId: true } } } } } } } }));
-    }),
+    .query(async ({ input: { id } }) => findUser({ where: { id } })),
   findAll: adminProcedure
     .input(z.strictObject({
       disabled: z.boolean().optional(),

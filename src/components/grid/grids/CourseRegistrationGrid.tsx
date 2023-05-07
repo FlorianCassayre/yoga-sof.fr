@@ -146,7 +146,7 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
     {
       field: 'actions',
       type: 'actions',
-      getActions: ({ row }: GridRowParams<CourseRegistrationItem>) => !row.isUserCanceled ? [ // TODO (<- what?)
+      getActions: ({ row }: GridRowParams<CourseRegistrationItem>) => !row.isUserCanceled ? [
         <GridActionCancel courseRegistration={row} />,
       ] : [],
     },

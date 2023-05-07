@@ -14,12 +14,12 @@ import {
 const NAME_FROM = 'Yoga Sof';
 
 export const NODEMAILER_CONFIGURATION = {
-  host: process.env.EMAIL_SERVER_HOST as string,
-  port: parseInt(process.env.EMAIL_SERVER_PORT as string) as number,
+  host: process.env.EMAIL_SERVER_HOST,
+  port: parseInt(process.env.EMAIL_SERVER_PORT),
   secure: true,
   auth: {
-    user: process.env.EMAIL_SERVER_USER as string,
-    pass: process.env.EMAIL_SERVER_PASSWORD as string,
+    user: process.env.EMAIL_SERVER_USER,
+    pass: process.env.EMAIL_SERVER_PASSWORD,
   },
 };
 

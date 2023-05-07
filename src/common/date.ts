@@ -13,10 +13,10 @@ const timeFormatterHHhMM = new Intl.DateTimeFormat(locale, {
 
 export const colonTimeToParts = (time: string): [number, number] => {
   if (/[0-9]{2}:[0-9]{2}/.test(time)) {
-    const parts = time.split(':').map(s => parseInt(s));
+    const parts = time.split(':').map(s => parseInt(s)) as [number, number]; // Necessary cast
     const [hours, minutes] = parts;
     if (0 <= hours && hours < 24 && 0 <= minutes && minutes < 60) {
-      return parts as [number, number];
+      return parts;
     }
   }
   throw new Error(time); // Invalid time format

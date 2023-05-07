@@ -2,6 +2,7 @@ import { CourseType } from '@prisma/client';
 import { CourseTypeNames } from '../../../common/course';
 import React from 'react';
 import { coursesExplicit } from '../../../../contents/courses';
+import { mapEntries } from '../../../common/utils';
 
 export interface CourseDataExplicit {
   notStarted?: boolean;
@@ -25,6 +26,6 @@ interface CourseData extends CourseDataExplicit {
 }
 
 export const courses: Record<CourseType, CourseData> =
-  Object.fromEntries(Object.entries(coursesExplicit).map(([key, value]) =>
-    [key, { ...value, type: key, title: CourseTypeNames[key as CourseType], notStarted: !!value.notStarted, isRegistrationOnline: !!value.isRegistrationOnline }])
-  ) as Record<CourseType, CourseData>;
+  mapEntries(coursesExplicit, (key, value) =>
+    [key, { ...value, type: key, title: CourseTypeNames[key as CourseType], notStarted: !!value.notStarted, isRegistrationOnline: !!value.isRegistrationOnline }]
+  );

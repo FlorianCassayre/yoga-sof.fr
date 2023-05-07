@@ -151,7 +151,7 @@ const ProfileMenuButton: React.FC<ProfileMenuButtonProps> = ({ profile, signInUr
                     <MenuItem onClick={() => {
                       onClick && onClick();
                       handleClose();
-                    }} component={(url ? 'a' : undefined) as any}>
+                    }} {...(url ? { component: 'a' } : {})}>
                       <ListItemIcon>
                         {icon}
                       </ListItemIcon>

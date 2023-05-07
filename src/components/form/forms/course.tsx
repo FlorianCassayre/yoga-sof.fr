@@ -182,7 +182,7 @@ const DatesSelectionList = () => {
 };
 
 const courseFormDefaultValues: { dates: Date[], modelId?: number } = {
-  dates: [] as Date[],
+  dates: [] satisfies Date[],
 };
 
 const useProceduresToInvalidate = () => {

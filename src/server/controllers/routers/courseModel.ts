@@ -24,7 +24,5 @@ export const courseModelRouter = router({
     .mutation(async ({ input: { id, ...data } }) => updateCourseModel({ where: { id }, data })),
   delete: adminProcedure
     .input(courseModelFindSchema)
-    .mutation(async ({ input: { id } }) => {
-      await deleteCourseModel({ where: { id } });
-    }),
+    .mutation(async ({ input: { id } }) => await deleteCourseModel({ where: { id } })),
 });

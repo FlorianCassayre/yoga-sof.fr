@@ -68,7 +68,7 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
   // Remark: we don't check if the registration belong to the user because it is allowed (even though the UI doesn't permit it yet)
 
   const makeRecord = <T extends number | string, O extends { id: T }>(array: O[]): Record<T, O> =>
-    Object.fromEntries(array.map(o => [o.id, o])) as any;
+    Object.fromEntries(array.map(o => [o.id, o])) as Record<T, O>;
 
   const { data } = args;
   const user = await prisma.user.findUniqueOrThrow({ where: { id: data.user.id } });
@@ -297,9 +297,9 @@ export const findItemsWithNoOrder = async (args: { where?: { userId?: number } }
   };
   type BaseItem = typeof baseItem;
   type Item =
-    (Omit<BaseItem, 'courseRegistration'> & { courseRegistration: CourseRegistration })
-    | (Omit<BaseItem, 'coupon'> & { coupon: Coupon })
-    | (Omit<BaseItem, 'membership'> & { membership: Membership });
+    (Omit<BaseItem, 'courseRegistration'> & { courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }> })
+    | (Omit<BaseItem, 'coupon'> & { coupon: Prisma.CouponGetPayload<{ include: { user: true } }> })
+    | (Omit<BaseItem, 'membership'> & { membership: Prisma.MembershipGetPayload<{ include: { users: true } }> });
 
   const userId = args.where?.userId;
 

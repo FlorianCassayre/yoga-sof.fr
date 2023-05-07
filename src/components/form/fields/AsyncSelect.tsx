@@ -33,9 +33,9 @@ export const AsyncSelect = <TOutputElement extends InputIdentifier, TProcedure e
         disabled: isLoading || disabled,
         getOptionLabel: (option: TOutputElement | undefined) => option !== undefined ? renderOptionLabel(option) : '',
         renderOption: (props, option: TOutputElement) => ( // Weirdly enough, we need to override this ('supposedly' there is a problem of duplicate keys/labels)
-          <Box {...props as any} key={option.id}>
+          <li {...props} key={option.id}>
             {renderOptionLabel(option)}
-          </Box>
+          </li>
         ),
       }}
     />

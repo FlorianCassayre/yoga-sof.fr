@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   AutocompleteElement, CheckboxElement,
-  DatePickerElement,
-  DeepPartial,
+  DatePickerElement, DeepPartial,
   TextFieldElement, useFieldArray,
   useFormContext
 } from 'react-hook-form-mui';
@@ -39,7 +38,7 @@ import {
   Coupon,
   CouponModel,
   Course,
-  CourseRegistration, Membership, MembershipModel, Transaction,
+  CourseRegistration, Membership, MembershipModel, Transaction, TransactionType,
   User
 } from '@prisma/client';
 import {
@@ -72,6 +71,9 @@ import { InputYear } from '../fields/InputYear';
 import PatchedAutocompleteElement from '../fields/PatchedAutocompleteElement';
 import { PurchasesTable } from '../../PurchasesTable';
 import { ParsedUrlQuery } from 'querystring';
+import { FieldPathValue } from 'react-hook-form/dist/types/path';
+import { FieldPath, FieldPathByValue } from 'react-hook-form/dist/types/path/eager';
+import { DeepNullable, ValidateSubtype } from '../../../common/utils';
 
 interface BinaryDialogProps {
   open: boolean;
@@ -154,17 +156,18 @@ export const SelectDependentCourseRegistration: React.FC<SelectDependentCourseRe
   );
 };
 
-interface SelectDependentCouponModelProps {
+type ArrayFieldPath = FieldPathByValue<CreateFieldValues, object[] | undefined | null>;
+interface SelectDependentCouponModelProps<TFieldPath extends ArrayFieldPath> {
   name: string;
-  fromName: string;
+  fromName: TFieldPath;
   label: string;
   multiple?: boolean;
 }
 
-export const SelectDependentCouponModel: React.FC<SelectDependentCouponModelProps> = ({ name, fromName, label, multiple }) => {
-  const { watch } = useFormContext();
+export const SelectDependentCouponModel = <TFieldPath extends ArrayFieldPath>({ name, fromName, label, multiple }: SelectDependentCouponModelProps<TFieldPath>) => {
+  const { watch } = useFormContext<CreateFieldValues>();
   const watchFrom = watch(fromName);
-  const options = useMemo(() => watchFrom ? (watchFrom as any[]).map((option, index) => ({ id: index, ...option })) : [], [watchFrom]);
+  const options = useMemo(() => watchFrom ? watchFrom.map((option, index) => ({ id: index, ...option })) : [], [watchFrom]);
   return (
     <PatchedAutocompleteElement
       name={name}
@@ -242,7 +245,8 @@ const OrderFormFields: React.FC = () => {
   const theme = useTheme();
   const isSmall = useMediaQuery(theme.breakpoints.down('md'));
 
-  const { watch, setValue, control, getValues, formState, trigger } = useFormContext();
+  const { watch, setValue, control, getValues, formState, trigger }
+    = useFormContext<CreateFieldValues>();
 
   const watchValues = watch();
 
@@ -280,7 +284,7 @@ const OrderFormFields: React.FC = () => {
   const today = new Date();
   const purchasedNewMembershipDefaultValue = { year: today.getFullYear() - (today.getMonth() < 9 - 1 ? 1 : 0) };
 
-  const errors = formState.errors as any;
+  const errors = formState.errors;
 
   const steps: { title: string, subtitle?: string, schema: z.Schema, error?: boolean, onBack?: () => void }[] = [
     {
@@ -296,7 +300,7 @@ const OrderFormFields: React.FC = () => {
     {
       title: 'Réductions',
       schema: orderCreateStep3Discounts,
-      error: !!errors?.billing?.newCoupons || !!errors?.billing?.existingCoupons || !!errors?.billing?.trialCourseRegistrationId || !!errors?.billing?.replacementCourseRegistrations,
+      error: !!errors?.billing?.newCoupons || !!errors?.billing?.existingCoupons || !!errors?.billing?.trialCourseRegistration || !!errors?.billing?.replacementCourseRegistrations,
     },
     {
       title: 'Paiement',
@@ -309,7 +313,7 @@ const OrderFormFields: React.FC = () => {
     if (watchStep !== steps.length - 1) {
       return;
     }
-    const values = getValues() as any as (z.infer<typeof orderCreateStep3Discounts> & { user: User, billing: { transaction?: Transaction } });
+    const values = getValues();
 
     type OrderedPurchaseTableItem = Parameters<typeof PurchasesTable>[0]['rows'][0] & { ordering: [number, number] };
 
@@ -324,60 +328,59 @@ const OrderFormFields: React.FC = () => {
       orderCourseRegistrationTrial = 7,
       orderCourseRegistrationReplacement = 8;
 
-    const items: OrderedPurchaseTableItem[] = (values.purchases.existingMemberships?.map<OrderedPurchaseTableItem>(m => {
-      const membership = m as Membership;
+    const items: OrderedPurchaseTableItem[] = (values.purchases.existingMemberships?.map<OrderedPurchaseTableItem>(membership => {
       return {
         item: displayMembershipName(membership),
         price: membership.price,
         ordering: [orderMembershipsExisting, -membership.price],
       };
     }) ?? []).concat(values.purchases.newMemberships?.map(m => {
-      const membershipModel = m.membershipModel as MembershipModel;
+      const membershipModel = m.membershipModel!;
       return {
         item: `${displayMembershipModelNameWithoutPrice(membershipModel)} (nouvelle)`,
         price: membershipModel.price,
         ordering: [orderMembershipsNew, -membershipModel.price],
       };
-    }) ?? []).concat(values.purchases.existingCoupons?.map(c => {
-      const coupon = c as Coupon;
+    }) ?? []).concat(values.purchases.existingCoupons?.map(coupon => {
       return {
         item: `${displayCouponName(coupon)} (existante)`,
         price: coupon.price,
         ordering: [orderCouponsExisting, coupon.price],
       };
     }) ?? []).concat(values.purchases.newCoupons?.map(c => {
-      const couponModel = c.couponModel as CouponModel;
+      const couponModel = c.couponModel!;
       return {
         item: `${displayCouponModelName(couponModel)} (nouvelle)`,
         price: couponModel.price,
         ordering: [orderCouponsNew, couponModel.price],
       };
-    }) ?? []).concat(values.purchases.courseRegistrations?.map((courseRegistration) => {
-      const { id, course } = courseRegistration as CourseRegistration & { course: Course };
-      const existingCoupon = values.billing.existingCoupons?.filter(c => c.courseRegistrationIds.includes(id))[0];
-      const newCoupon = values.billing.newCoupons?.filter(c => c.courseRegistrationIds.includes(id))[0];
+    }) ?? []).concat(values.purchases.courseRegistrations?.map<OrderedPurchaseTableItem>((courseRegistration) => {
+      const { id, course } = courseRegistration;
+      const existingCoupon = values.billing.existingCoupons?.filter(c => c.courseRegistrationIds?.includes(id))[0];
+      const newCoupon = values.billing.newCoupons?.filter(c => c.courseRegistrationIds?.includes(id))[0];
       const replacement = values.billing.replacementCourseRegistrations?.filter(r => r.toCourseRegistrationId === id)[0];
-      const courseTime = course.dateStart.getTime()
+      const courseTime = course.dateStart.getTime();
+      const item = displayCourseName(course);
 
       if (existingCoupon !== undefined) { // Existing coupon
         return {
-          item: displayCourseName(course),
-          discount: `${displayCouponName(existingCoupon.coupon as Coupon)} (existante)`,
+          item,
+          discount: `${displayCouponName(existingCoupon.coupon!)} (existante)`,
           oldPrice: course.price,
           price: 0,
           ordering: [orderCourseRegistrationUsedCouponExisting, courseTime],
         };
       } else if (values.purchases.newCoupons !== undefined && newCoupon !== undefined) { // New coupon
         return {
-          item: displayCourseName(course),
-          discount: `${displayCouponModelName(values.purchases.newCoupons[newCoupon.newCouponIndex].couponModel as CouponModel)} (nouvelle)`,
+          item,
+          discount: `${displayCouponModelName(values.purchases.newCoupons[newCoupon.newCouponIndex!].couponModel!)} (nouvelle)`,
           oldPrice: course.price,
           price: 0,
           ordering: [orderCourseRegistrationUsedCouponNew, courseTime],
         };
       } else if (replacement !== undefined) { // Replacement
         return {
-          item: displayCourseName(course),
+          item,
           discount: 'Remplacement de séance', // TODO include name
           oldPrice: course.price,
           price: 0,
@@ -385,15 +388,15 @@ const OrderFormFields: React.FC = () => {
         };
       } else if (values.billing.trialCourseRegistration !== undefined && values.billing.trialCourseRegistration?.courseRegistrationId === id) { // Trial
         return {
-          item: displayCourseName(course),
+          item,
           discount: `Séance d'essai`,
           oldPrice: course.price,
-          price: values.billing.trialCourseRegistration.newPrice,
+          price: values.billing.trialCourseRegistration.newPrice!,
           ordering: [orderCourseRegistrationTrial, courseTime],
         };
       } else { // Normal purchase
         return {
-          item: displayCourseName(course),
+          item,
           price: course.price,
           ordering: [orderCourseRegistrationPurchased, courseTime],
         };
@@ -424,19 +427,19 @@ const OrderFormFields: React.FC = () => {
       setValue('purchases.existingMemberships', watchExistingMemberships ? (watchExistingMemberships.length > 0 ? [] : watchExistingMemberships) : undefined);
     } else {
       if (watchCourseRegistrations) {
-        const filteredCourseRegistrations = (watchCourseRegistrations as CourseRegistration[]).filter(({ userId }) => watchUser.id === userId);
+        const filteredCourseRegistrations = watchCourseRegistrations.filter(({ userId }) => watchUser.id === userId);
         if (filteredCourseRegistrations.length !== watchCourseRegistrations.length) {
           setValue('purchases.courseRegistrations', filteredCourseRegistrations);
         }
       }
       if (watchExistingCoupons) {
-        const filteredExistingCoupons = (watchExistingCoupons as Coupon[]).filter(({ userId }) => watchUser.id === userId);
+        const filteredExistingCoupons = watchExistingCoupons.filter(({ userId }) => watchUser.id === userId);
         if (filteredExistingCoupons.length !== watchExistingCoupons.length) {
           setValue('purchases.existingCoupons', filteredExistingCoupons);
         }
       }
       if (watchExistingMemberships) {
-        const filteredExistingMemberships = (watchExistingMemberships as (Membership & { users: User[] })[]).filter(({ users }) => users.some(({ id }) => id === watchUser.id));
+        const filteredExistingMemberships = watchExistingMemberships.filter(({ users }) => users.some(({ id }) => id === watchUser.id));
         if (filteredExistingMemberships.length !== watchExistingMemberships.length) {
           setValue('purchases.existingMemberships', filteredExistingMemberships);
         }
@@ -447,18 +450,18 @@ const OrderFormFields: React.FC = () => {
   // Step 3
   useEffect(() => {
     if (!watchCourseRegistrations) {
-      [[watchBillingExistingCoupons, updateBillingExistingCoupon], [watchBillingNewCoupons, updateBillingNewCoupon]].forEach(([watchBillingCoupons, updateBillingCoupons]) =>
-        (watchBillingCoupons as any[] | undefined)?.forEach((o, i) => {
+      ([[watchBillingExistingCoupons, updateBillingExistingCoupon], [watchBillingNewCoupons, updateBillingNewCoupon]] as const).forEach(([watchBillingCoupons, updateBillingCoupons]) =>
+        watchBillingCoupons?.forEach((o, i) => {
           const courseRegistrationIds = o.courseRegistrationIds;
           updateBillingCoupons(i, { ...o, courseRegistrationIds: courseRegistrationIds ? (courseRegistrationIds.length > 0 ? [] : courseRegistrationIds) : undefined });
         })
       );
     } else {
-      [[watchBillingExistingCoupons, updateBillingExistingCoupon], [watchBillingNewCoupons, updateBillingNewCoupon]].forEach(([watchBillingCoupons, updateBillingCoupons]) =>
-        (watchBillingCoupons as any[] | undefined)?.forEach((o, i) => {
-          const courseRegistrations = o.courseRegistrationsIds as number[] | undefined;
+      ([[watchBillingExistingCoupons, updateBillingExistingCoupon], [watchBillingNewCoupons, updateBillingNewCoupon]] as const).forEach(([watchBillingCoupons, updateBillingCoupons]) =>
+        watchBillingCoupons?.forEach((o, i) => {
+          const courseRegistrations = o.courseRegistrationIds;
           if (courseRegistrations) {
-            const filteredCourseRegistrations = courseRegistrations.filter(id => watchCourseRegistrations.some((c: any) => c.id === id));
+            const filteredCourseRegistrations = courseRegistrations.filter(id => watchCourseRegistrations.some(c => c.id === id));
             if (filteredCourseRegistrations.length !== courseRegistrations.length) {
               updateBillingCoupons(i, { ...o, courseRegistrationIds: filteredCourseRegistrations });
             }
@@ -466,7 +469,7 @@ const OrderFormFields: React.FC = () => {
         })
       );
     }
-    if (watchTrialCourseRegistration && (!watchCourseRegistrations || !watchCourseRegistrations.some((c: any) => c.id === watchTrialCourseRegistration.courseRegistrationId))) {
+    if (watchTrialCourseRegistration && (!watchCourseRegistrations || !watchCourseRegistrations.some(c => c.id === watchTrialCourseRegistration.courseRegistrationId))) {
       setValue('billing.trialCourseRegistration.courseRegistrationId', undefined);
     }
     // TODO replacement
@@ -486,7 +489,7 @@ const OrderFormFields: React.FC = () => {
 
   const renderForm = () => (
     <Grid container spacing={2} justifyContent="center">
-      {watchStep > 0 && watchTransaction !== undefined && (
+      {watchStep > 0 && watchTransaction != null && (
         <Grid item xs={12}>
           <Alert severity="info">
             Rappel : vous avez sélectionné un ancien paiement étant intitulé "<strong>{watchTransaction.comment}</strong>" pour un total de <strong>{watchTransaction.amount} €</strong>.
@@ -793,11 +796,11 @@ const OrderFormFields: React.FC = () => {
               <Alert severity="info">
                 {orderPreview.computedAmount > 0 || (watchPayment?.overrideAmount && (watchPayment?.amount ?? 0) > 0) ? (
                   <>
-                    En cliquant sur "créer" vous confirmez avoir reçu un paiement de <strong>{watchPayment?.overrideAmount ? (watchPayment?.amount ?? 0) : orderPreview.computedAmount} €</strong> de la part de <strong>{displayUserName(watchUser)}</strong>.
+                    En cliquant sur "créer" vous confirmez avoir reçu un paiement de <strong>{watchPayment?.overrideAmount ? (watchPayment?.amount ?? 0) : orderPreview.computedAmount} €</strong> de la part de <strong>{displayUserName(watchUser!)}</strong>.
                   </>
                 ) : (
                   <>
-                    En cliquant sur "créer" vous confirmez ne pas avoir reçu de paiement de la part de <strong>{displayUserName(watchUser)}</strong>.
+                    En cliquant sur "créer" vous confirmez ne pas avoir reçu de paiement de la part de <strong>{displayUserName(watchUser!)}</strong>.
                   </>
                 )}
               </Alert>
@@ -837,7 +840,32 @@ const OrderFormFields: React.FC = () => {
   );
 }
 
-const orderFormDefaultValues = (): DeepPartial<z.infer<typeof orderCreateSchema>> => ({
+type CreateFieldValues = ValidateSubtype<
+  DeepPartial<DeepNullable<z.infer<typeof orderCreateSchema>>>,
+  {
+    step: number,
+    user?: User,
+    notes?: string,
+    purchases: {
+      courseRegistrations?: (CourseRegistration & { course: Course })[],
+      newCoupons?: { couponModel?: CouponModel }[],
+      existingCoupons?: Coupon[],
+      newMemberships?: { membershipModel?: MembershipModel, year?: number }[],
+      existingMemberships?: (Membership & { users: User[] })[],
+    },
+    billing: {
+      newCoupons?: { newCouponIndex?: number, courseRegistrationIds?: number[] }[],
+      existingCoupons?: { coupon?: Coupon, courseRegistrationIds?: number[] }[],
+      trialCourseRegistration?: { courseRegistrationId?: number, newPrice?: number },
+      replacementCourseRegistrations?: { fromCourseRegistrationId?: number, toCourseRegistrationId?: number }[],
+      transaction?: Transaction | null,
+      newPayment?: { amount?: number, overrideAmount?: boolean, type?: TransactionType },
+      date?: Date,
+      forceTransaction?: boolean,
+    },
+  }>;
+
+const orderFormDefaultValues = (): CreateFieldValues => ({
   purchases: {},
   step: 0,
   billing: {

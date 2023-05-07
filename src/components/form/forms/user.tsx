@@ -91,7 +91,7 @@ const UserMergePreview = ({ userId }: { userId: number }) => {
   return data ? (
     <Grid container spacing={2} key={userId}>
       <Grid item xs={12}>
-        <UserInformationTableCard user={data as any} />
+        <UserInformationTableCard user={data} />
       </Grid>
     </Grid>
   ) : isLoading ? (

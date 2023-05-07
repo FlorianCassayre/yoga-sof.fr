@@ -17,8 +17,8 @@ const getCommonCourseFields = ({ type, dateStart, dateEnd }: Pick<Course, 'type'
   const courseName = CourseTypeNames[type];
   const location = CourseTypeLocation[type];
   return {
-    title: `Séance de ${courseName}` as string,
-    description: `Séance du ${formatDateDDsMMsYYYY(dateStart)} de ${formatTimeHHhMM(dateStart)} à ${formatTimeHHhMM(dateEnd)} (${courseName}).` as string,
+    title: `Séance de ${courseName}` satisfies string,
+    description: `Séance du ${formatDateDDsMMsYYYY(dateStart)} de ${formatTimeHHhMM(dateStart)} à ${formatTimeHHhMM(dateEnd)} (${courseName}).` satisfies string,
     start: timestampToDateArray(dateStart),
     end: timestampToDateArray(dateEnd),
     startInputType: 'local',
@@ -26,7 +26,7 @@ const getCommonCourseFields = ({ type, dateStart, dateEnd }: Pick<Course, 'type'
     endInputType: 'local',
     endOutputType: 'utc',
     organizer: {
-      name: 'Sophie Richaud-Cassayre' as string,
+      name: 'Sophie Richaud-Cassayre' satisfies string,
       email: EMAIL_CONTACT,
     },
     location: location.name,
@@ -65,7 +65,11 @@ const generateCoachICS = (courses: Prisma.CourseGetPayload<{ include: { registra
   if (error) {
     throw error;
   } else {
-    return value as string;
+    if (value !== undefined) {
+      return value;
+    } else {
+      throw new Error();
+    }
   }
 };
 

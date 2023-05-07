@@ -5,13 +5,18 @@ import { GridRowIdGetter, GridValidRowModel } from '@mui/x-data-grid/models/grid
 import { inferProcedureInput } from '@trpc/server/dist/core/types';
 import { DecorateProcedure } from '@trpc/react-query/shared';
 import { ExpandMore } from '@mui/icons-material';
-import { ProcedureQueryArray } from '../../server/controllers/types';
+import { AnyQueryProcedure, inferProcedureOutput } from '@trpc/server';
 
-interface AsyncGridProps<RowModel extends GridValidRowModel, TProcedure extends ProcedureQueryArray<RowModel, unknown>> {
-  columns: GridColDef<RowModel>[];
-  procedure: DecorateProcedure<TProcedure, any, any>;
-  input: inferProcedureInput<TProcedure>,
-  getRowId?: GridRowIdGetter<RowModel>;
+interface AsyncGridProps<
+  TProcedure extends AnyQueryProcedure,
+  TInput extends inferProcedureInput<TProcedure>,
+  TOutput extends inferProcedureOutput<TProcedure> & GridValidRowModel[],
+  TPath extends string
+> {
+  columns: GridColDef<TOutput[number]>[];
+  procedure: DecorateProcedure<TProcedure, unknown, TPath>;
+  input: TInput,
+  getRowId?: GridRowIdGetter<TOutput[number]>;
   initialSort: { field: string, sort: 'asc' | 'desc' };
   collapsible?: boolean;
   collapsedSummary?: React.ReactNode;
@@ -19,7 +24,12 @@ interface AsyncGridProps<RowModel extends GridValidRowModel, TProcedure extends 
 
 const rowsPerPageOptions = [10];
 
-export const AsyncGrid = <RowModel extends GridValidRowModel, TProcedure extends ProcedureQueryArray<RowModel, unknown>>({ columns, procedure, input, getRowId, initialSort, collapsible, collapsedSummary }: AsyncGridProps<RowModel, TProcedure>): JSX.Element => {
+export const AsyncGrid = <
+  TProcedure extends AnyQueryProcedure,
+  TInput extends inferProcedureInput<TProcedure>,
+  TOutput extends inferProcedureOutput<TProcedure> & GridValidRowModel[],
+  TPath extends string
+>({ columns, procedure, input, getRowId, initialSort, collapsible, collapsedSummary }: AsyncGridProps<TProcedure, TInput, TOutput, TPath>): JSX.Element => {
   //const theme = useTheme();
   const [enabled, setEnabled] = useState(!collapsible);
   const { data, isLoading, isError } = procedure.useQuery(input, { enabled });
@@ -33,7 +43,7 @@ export const AsyncGrid = <RowModel extends GridValidRowModel, TProcedure extends
 
   const renderDataGrid = () => (
     <DataGrid
-      rows={(data as RowModel[] | undefined) ?? []}
+      rows={data ?? []}
       columns={columns}
       getRowId={getRowId}
       autoHeight

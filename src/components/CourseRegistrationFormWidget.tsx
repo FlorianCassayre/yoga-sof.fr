@@ -31,7 +31,7 @@ import { CourseType } from '@prisma/client';
 import { CourseTypeNames } from '../common/course';
 import { GridRenderCellParams, GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
 import { formatDateDDsmmYYYY, formatTimeHHhMM, formatWeekday } from '../common/date';
-import { CheckboxElement, FormContainer, TextFieldElement, useFormContext } from 'react-hook-form-mui';
+import { CheckboxElement, DeepPartial, FormContainer, TextFieldElement, useFormContext } from 'react-hook-form-mui';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { frontsiteCourseRegistrationSchema } from '../common/schemas/frontsiteCourseRegistration';
 // @ts-ignore
@@ -42,6 +42,8 @@ import { courses } from './contents/common/courses';
 import { Session } from 'next-auth';
 import { blue } from '@mui/material/colors';
 import { userSchemaBase } from '../common/schemas/user';
+import { DeepNullable, ValidateSubtype } from '../common/utils';
+import { z } from 'zod';
 
 const ErrorAlert: React.FC = () => (
   <Box textAlign="center">
@@ -106,8 +108,8 @@ interface CourseRegistrationFormStep1UserSelectionProps {
 }
 
 const CourseRegistrationFormStep1UserSelection: React.FC<CourseRegistrationFormStep1UserSelectionProps> = ({ session }) => {
-  const { watch, setValue } = useFormContext();
-  const watchUserId = watch('userId') as number | null | undefined;
+  const { watch, setValue } = useFormContext<CourseRegistrationFieldValues>();
+  const watchUserId = watch('userId');
   const { data: managedUsersData, isError: isManagedUsersError } = trpc.self.managedUsers.useQuery();
   const cardProps = (userIdValue: number | null) => ({
     selected: watchUserId === userIdValue,
@@ -156,8 +158,8 @@ const CourseRegistrationFormStep1UserSelection: React.FC<CourseRegistrationFormS
 }
 
 const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'userCourses'>> = ({ courses, userCourses }) => {
-  const { watch, setValue } = useFormContext();
-  const watchCourseIds = watch('courseIds') as number[];
+  const { watch, setValue } = useFormContext<CourseRegistrationFieldValues>();
+  const watchCourseIds = watch('courseIds');
   const alreadyRegisteredCourseSet = useMemo(() => new Set<number>(userCourses.map(({ course: { id } }) => id)), [userCourses]);
 
   const rowsPerPageOptions = [10];
@@ -212,7 +214,7 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
       sortingOrder={['asc', 'desc']}
       checkboxSelection
       rowSelectionModel={[...watchCourseIds, ...Array.from(alreadyRegisteredCourseSet)]}
-      onRowSelectionModelChange={selected => setValue('courseIds', selected.map(id => parseInt(id as any)).filter(id => !alreadyRegisteredCourseSet.has(id)))}
+      onRowSelectionModelChange={selected => setValue('courseIds', selected.map(id => typeof id === 'string' ? parseInt(id) : id).filter(id => !alreadyRegisteredCourseSet.has(id)))}
       isRowSelectable={({ row }: GridRowParams<(typeof courses)[0]>) => !alreadyRegisteredCourseSet.has(row.id) && row.registrations < row.slots}
       localeText={{
         footerRowSelected: () => {
@@ -244,9 +246,9 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
 };
 
 const CourseRegistrationFormStep2CoursesSelection: React.FC<CourseRegistrationFormProps & { isLoading: boolean, isError: boolean }> = ({ courses, userCourses, session, isLoading, isError }) => {
-  const { watch } = useFormContext();
-  const watchUserId = watch('userId') as number | null | undefined;
-  const watchName = watch('name') as string;
+  const { watch } = useFormContext<CourseRegistrationFieldValues>();
+  const watchUserId = watch('userId');
+  const watchName = watch('name');
   return isError ? (
     <ErrorAlert />
   ) : isLoading || !courses || !userCourses ? (
@@ -266,18 +268,18 @@ const CourseRegistrationFormStep2CoursesSelection: React.FC<CourseRegistrationFo
 };
 
 const CourseRegistrationFormStep3Confirmation: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'session'>> = ({ courses, session }) => {
-  const { watch } = useFormContext();
-  const watchSelectedCourseIds = watch('courseIds') as number[];
-  const watchUserId = watch('userId') as number | null | undefined;
+  const { watch } = useFormContext<CourseRegistrationFieldValues>();
+  const watchSelectedCourseIds = watch('courseIds');
+  const watchUserId = watch('userId');
   const coursesById = useMemo(() => Object.fromEntries(courses.map(course => [course.id, course])), [courses]);
   const selectedCourses = useMemo(() => watchSelectedCourseIds.map(id => coursesById[id]), [watchSelectedCourseIds, coursesById]);
   const selectedCoursesByTypesSorted = useMemo(() => {
     const typesSorted =
       Array.from(new Set<CourseType>(selectedCourses.map(({ type }) => type)))
       .sort((a, b) => CourseTypeNames[a] < CourseTypeNames[b] ? -1 : 1);
-    const typesMap = Object.fromEntries(typesSorted.map(type => [type, [] as CourseRegistrationFormProps['courses']]));
+    const typesMap = Object.fromEntries(typesSorted.map<[CourseType, CourseRegistrationFormProps['courses']]>(type => [type, []]));
     selectedCourses.forEach(course => typesMap[course.type].push(course));
-    return typesSorted.map(type => [type as CourseType, typesMap[type].sort((a, b) => a.dateStart < b.dateStart ? -1 : 1)] as const);
+    return typesSorted.map(type => [type, typesMap[type].sort((a, b) => a.dateStart < b.dateStart ? -1 : 1)] as const);
   }, [selectedCourses]);
   const self = watchUserId === session.userId;
 
@@ -417,8 +419,8 @@ const CourseRegistrationFormStep3Confirmed: React.FC<CourseRegistrationFormStepC
 
 const CourseRegistrationFormStepper: React.FC<{ done: boolean }> = ({ done }) => {
   const stepNames = [`Choix du bénéficiaire`, `Sélection des séances`, `Confirmation`];
-  const { watch } = useFormContext();
-  const watchStep = watch('step') as number;
+  const { watch } = useFormContext<CourseRegistrationFieldValues>();
+  const watchStep = watch('step');
 
   return (
     <Stepper activeStep={1} sx={{ mb: 4 }}>
@@ -437,12 +439,12 @@ interface CourseRegistrationFormNavigationProps {
 }
 
 const CourseRegistrationFormNavigation: React.FC<CourseRegistrationFormNavigationProps> = ({ isLoading, done }) => {
-  const { watch, setValue } = useFormContext();
-  const watchStep = watch('step') as number;
-  const watchUserId = watch('userId') as number | null | undefined;
-  const watchName = watch('name') as string;
-  const watchEmail = watch('email') as string;
-  const watchCourseIds = watch('courseIds') as number[];
+  const { watch, setValue } = useFormContext<CourseRegistrationFieldValues>();
+  const watchStep = watch('step');
+  const watchUserId = watch('userId');
+  const watchName = watch('name');
+  const watchEmail = watch('email');
+  const watchCourseIds = watch('courseIds');
   const handleNext = () => {
     if (watchStep !== 2) {
       setValue('step', watchStep + 1);
@@ -492,7 +494,7 @@ interface CourseRegistrationFormProps {
     id: number,
     isUserCanceled: boolean,
     createdAt: Date,
-    canceledAt: Date,
+    canceledAt: Date | null,
     course: {
       id: number,
       type: CourseType,
@@ -504,9 +506,9 @@ interface CourseRegistrationFormProps {
 }
 
 const CourseStepContent: React.FC<Pick<CourseRegistrationFormProps, 'session' | 'courses'> & { done: boolean }> = ({ session, courses, done }) => {
-  const { watch, setValue } = useFormContext();
-  const watchStep = watch('step') as number;
-  const watchUserId = watch('userId') as number | null | undefined;
+  const { watch, setValue } = useFormContext<CourseRegistrationFieldValues>();
+  const watchStep = watch('step');
+  const watchUserId = watch('userId');
   // In case no user is selected, we just preload the current user
   const { data: selectedUserCoursesData, isLoading: isSelectedUserCoursesLoading, isError: isSelectedUserCoursesError } =
     trpc.self.findAllRegisteredCourses.useQuery({ userId: watchUserId ?? session.userId, userCanceled: false, future: true }, {
@@ -535,7 +537,7 @@ const CourseStepContent: React.FC<Pick<CourseRegistrationFormProps, 'session' | 
   ) : watchStep === 1 && !done ? (
     <CourseRegistrationFormStep2CoursesSelection
       courses={courses}
-      userCourses={watchUserId != null ? selectedUserCoursesData as any : []} // TODO
+      userCourses={watchUserId != null ? selectedUserCoursesData! : []}
       session={session}
       isLoading={watchUserId != null && (isSelectedUserCoursesLoading || isSelectedUserProfileLoading)}
       isError={isSelectedUserCoursesError || isSelectedUserProfileError}
@@ -546,6 +548,19 @@ const CourseStepContent: React.FC<Pick<CourseRegistrationFormProps, 'session' | 
     <CourseRegistrationFormStep3Confirmed />
   ) : null;
 }
+
+type CourseRegistrationFieldValues = ValidateSubtype<
+  DeepPartial<DeepNullable<z.infer<typeof frontsiteCourseRegistrationSchema>>>,
+  {
+    step: number,
+    userId?: number | null,
+    courseIds: number[],
+    name: string | null,
+    email: string | null,
+    consent: boolean,
+    notify: boolean,
+  }
+>;
 
 const CourseRegistrationForm: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'session'>> = ({ session, courses }) => {
   const trpcClient = trpc.useContext();
@@ -568,7 +583,7 @@ const CourseRegistrationForm: React.FC<Pick<CourseRegistrationFormProps, 'course
     <FormContainer
       onSuccess={data => submitRegister(data as any)}
       resolver={zodResolver(frontsiteCourseRegistrationSchema)}
-      defaultValues={{ step: 0, userId: undefined, courseIds: [], name: '', email: '', consent: false, notify: true }}
+      defaultValues={{ step: 0, userId: undefined, courseIds: [], name: '', email: '', consent: false, notify: true } satisfies CourseRegistrationFieldValues}
     >
       {/*<DirtyFormUnloadAlert condition={isSubmitRegisterLoading} disabled={isSubmitRegisterSuccess} message="Vous n'avez pas confirmé vos inscriptions, souhaitez-vous vraiment quitter la page ?" />*/}
       <CourseRegistrationFormStepper done={isSubmitRegisterSuccess} />

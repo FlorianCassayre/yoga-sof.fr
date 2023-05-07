@@ -7,11 +7,14 @@ import { notifyCourseCanceled } from '../email';
 import { colonTimeToParts } from '../../common/date';
 import { courseCreateManySchema } from '../../common/schemas/course';
 
-export const findCourse = async <Where extends Prisma.CourseWhereUniqueInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, select?: Select, include?: Include }) =>
-  prisma.course.findUniqueOrThrow(args);
+export const findCourse = async (args: { where: Prisma.CourseWhereUniqueInput }) =>
+  prisma.course.findUniqueOrThrow({ where: args.where, include: { registrations: true } });
 
-export const findCourses = async <T extends Prisma.CourseFindManyArgs>(args: Prisma.SelectSubset<T, Prisma.CourseFindManyArgs>) =>
-  prisma.course.findMany<T>(args);
+export const findUpdateCourse = (args: { where: Prisma.CourseWhereUniqueInput }) => prisma.course.findUniqueOrThrow({ where: args.where, select: { id: true, slots: true, price: true } });
+
+export const findUpdateCourseNotes = (args: { where: Prisma.CourseWhereUniqueInput }) => prisma.course.findUniqueOrThrow({ where: args.where, select: { id: true, notes: true } });
+
+export const findCourses = () => prisma.course.findMany();
 
 export const findCoursesRelated = async (args: { where: Prisma.CourseWhereUniqueInput }) => readTransaction(async prisma => {
   const course = await prisma.course.findUniqueOrThrow(args);
@@ -35,21 +38,7 @@ export const findCoursesRelated = async (args: { where: Prisma.CourseWhereUnique
   };
 });
 
-export const findCoursesPaginated = async <Where extends Prisma.CourseWhereInput, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude, OrderBy extends Prisma.Enumerable<Prisma.CourseOrderByWithRelationInput>>(args: { pagination: Pagination, where?: Where, select?: Select, include?: Include, orderBy?: OrderBy }) => {
-  const { pagination: { page, elementsPerPage }, ...rest } = args;
-  const [totalElements, data] = await readTransaction(async (prisma) => Promise.all([
-    prisma.course.count({ where: args.where }),
-    prisma.course.findMany({ ...rest, ...createPrismaPagination(args.pagination) })
-  ]))
-  return createPaginated({
-    page,
-    elementsPerPage,
-    totalElements,
-    data,
-  });
-}
-
-export const updateCourse = async <Where extends Prisma.CourseWhereUniqueInput, Data extends Partial<Pick<Course, 'slots' | 'price' | 'notes'>>, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, data: Data, select?: Select, include?: Include }) => {
+export const updateCourse = async (args: { where: Prisma.CourseWhereUniqueInput, data: Partial<Pick<Course, 'slots' | 'price' | 'notes'>> }) => {
   const { where: { id }, data: { slots, price } } = args;
   return await writeTransaction(async (prisma) => {
     const course = await prisma.course.findUniqueOrThrow({ where: args.where, select: { isCanceled: true, dateEnd: true, price: true, registrations: { select: { isUserCanceled: true, orderPurchased: { select: { id: true } } } } } });
@@ -79,7 +68,7 @@ export const updateCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
   });
 };
 
-export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, Data extends Pick<Course, 'cancelationReason'>, Select extends Prisma.CourseSelect, Include extends Prisma.CourseInclude>(args: { where: Where, data: Data, select?: Select, include?: Include }) => {
+export const cancelCourse = async (args: { where: Prisma.CourseWhereUniqueInput, data: Pick<Course, 'cancelationReason'> }) => {
   const { where, data, ...rest } = args;
   const [result, sendMailCallback] = await writeTransaction(async (prisma) => {
     const course = await prisma.course.findUniqueOrThrow({ where });
@@ -95,7 +84,7 @@ export const cancelCourse = async <Where extends Prisma.CourseWhereUniqueInput, 
       where,
       data: {
         isCanceled: true,
-        ...(data as Pick<Course, 'cancelationReason'>),
+        ...data,
       },
       include: { registrations: { include: { user: { include: { managedByUser: true } } } } }
     });

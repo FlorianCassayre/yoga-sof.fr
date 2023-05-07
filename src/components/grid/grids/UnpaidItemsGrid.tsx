@@ -20,8 +20,6 @@ interface UnpaidItemsGridProps {
 }
 
 export const UnpaidItemsGrid: React.FunctionComponent<UnpaidItemsGridProps> = ({ userId, collapsible, collapsedSummary }) => {
-  const router = useRouter();
-
   type Item = RouterOutput['order']['findAllItemsWithNoOrder'][0];
 
   const getRowId: GridRowIdGetter<Item> = (item: Item): string =>
@@ -41,7 +39,7 @@ export const UnpaidItemsGrid: React.FunctionComponent<UnpaidItemsGridProps> = ({
       flex: 2,
       sortable: false,
       renderCell: ({ row }) =>
-        row.courseRegistration ? <CourseLink course={(row.courseRegistration as any as { course: Course }).course} /> // TODO: why is the type lost!?
+        row.courseRegistration ? <CourseLink course={row.courseRegistration.course} />
           : row.coupon ? displayCouponName(row.coupon)
             : displayMembershipName(row.membership),
     },
@@ -52,9 +50,9 @@ export const UnpaidItemsGrid: React.FunctionComponent<UnpaidItemsGridProps> = ({
       flex: 2,
       sortable: false,
       valueGetter: ({ row }: GridValueGetterParams<Item>): User[] =>
-        row.courseRegistration ? [(row.courseRegistration as any as { user: User }).user]
-          : row.coupon ? [(row.coupon as any as { user: User }).user]
-            : (row.membership as any as { users: User[] }).users,
+        row.courseRegistration ? [row.courseRegistration.user]
+          : row.coupon ? [row.coupon.user]
+            : row.membership.users,
       renderCell: ({ value }: GridRenderCellParams<Item, User[]>) => (
         <Stack direction="column">
           {value?.map(user => (

@@ -19,13 +19,13 @@ export const nextAuthOptions: NextAuthOptions = {
   // https://next-auth.js.org/configuration/providers
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_ID as string,
-      clientSecret: process.env.GOOGLE_SECRET as string,
+      clientId: process.env.GOOGLE_ID,
+      clientSecret: process.env.GOOGLE_SECRET,
     }),
     // Facebook is disabled temporarily until the app is reactivated
     /*FacebookProvider({
-      clientId: process.env.FACEBOOK_ID as string,
-      clientSecret: process.env.FACEBOOK_SECRET as string,
+      clientId: process.env.FACEBOOK_ID,
+      clientSecret: process.env.FACEBOOK_SECRET,
     }),*/
     EmailProvider({
       server: NODEMAILER_CONFIGURATION,

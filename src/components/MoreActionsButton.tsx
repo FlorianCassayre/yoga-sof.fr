@@ -48,7 +48,7 @@ export const MoreActionsButton: React.FunctionComponent<MoreActionsButtonProps> 
                   handleClose();
                 }
               }}
-              component={(action.url ? 'a' : undefined) as any}
+              {...(action.url ? { component: 'a' } : {})}
             >
               <ListItemIcon>
                 {action.icon}
