@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
-import { BackofficeContent } from '../../../../../components/layout/admin/BackofficeContent';
-import { ArrowRightAlt, Delete, Edit, InfoOutlined, ShoppingCart } from '@mui/icons-material';
+import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
+import { Delete, Edit, InfoOutlined, ShoppingCart } from '@mui/icons-material';
 import { useRouter } from 'next/router';
-import { useSchemaQuery } from '../../../../../components/hooks/useSchemaQuery';
-import { trpc } from '../../../../../common/trpc';
-import { BackofficeContentLoading } from '../../../../../components/layout/admin/BackofficeContentLoading';
-import { BackofficeContentError } from '../../../../../components/layout/admin/BackofficeContentError';
-import { orderFindTransformSchema } from '../../../../../common/schemas/order';
-import { RouterOutput } from '../../../../../server/controllers/types';
-import { Box, Card, Chip, Grid, Stack, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
-import { CourseLink } from '../../../../../components/link/CourseLink';
+import { useSchemaQuery } from '../../../../components/hooks/useSchemaQuery';
+import { trpc } from '../../../../common/trpc';
+import { BackofficeContentLoading } from '../../../../components/layout/admin/BackofficeContentLoading';
+import { BackofficeContentError } from '../../../../components/layout/admin/BackofficeContentError';
+import { orderFindTransformSchema } from '../../../../common/schemas/order';
+import { RouterOutput } from '../../../../server/controllers/types';
+import { Box, Card, Chip, Grid, Stack } from '@mui/material';
+import { CourseLink } from '../../../../components/link/CourseLink';
 import { Prisma } from '@prisma/client';
-import { displayCouponName, displayMembershipName, displayUserName } from '../../../../../common/display';
-import { TransactionTypeNames } from '../../../../../common/transaction';
-import { InformationTableCard } from '../../../../../components/InformationTableCard';
-import { formatDateDDsMMsYYYYsHHhMMmSSs, formatDateDDsmmYYYY } from '../../../../../common/date';
-import { UserLink } from '../../../../../components/link/UserLink';
-import { DeleteOrderDialog } from '../../../../../components/DeleteOrderDialog';
+import { displayCouponName, displayMembershipName, displayUserName } from '../../../../common/display';
+import { InformationTableCard } from '../../../../components/InformationTableCard';
+import { formatDateDDsMMsYYYYsHHhMMmSSs, formatDateDDsmmYYYY } from '../../../../common/date';
+import { UserLink } from '../../../../components/link/UserLink';
+import { DeleteOrderDialog } from '../../../../components/DeleteOrderDialog';
 import { useSnackbar } from 'notistack';
-import { PurchasesTable } from '../../../../../components/PurchasesTable';
+import { PurchasesTable } from '../../../../components/PurchasesTable';
 
 interface OrderViewContentProps {
   order: RouterOutput['order']['find'];
@@ -31,12 +30,12 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
   const router = useRouter();
   const { mutate: mutateDelete, isLoading: isDeleteLoading } = trpc.order.delete.useMutation({
     onSuccess: async () => {
-      await Promise.all(([trpcClient.order.find, trpcClient.order.findAll, trpcClient.transaction.find, trpcClient.transaction.findAll]).map(procedure => procedure.invalidate()));
-      enqueueSnackbar(`La commande a été supprimée`, { variant: 'success' });
+      await Promise.all(([trpcClient.order.find, trpcClient.order.findAll]).map(procedure => procedure.invalidate()));
+      enqueueSnackbar(`Le paiement a été supprimé`, { variant: 'success' });
       return router.push('/administration/paiements');
     },
     onError: () => {
-      enqueueSnackbar(`Une erreur est survenue lors de la suppression de la commande`, { variant: 'error' });
+      enqueueSnackbar(`Une erreur est survenue lors de la suppression du paiement`, { variant: 'error' });
     },
   });
 
@@ -96,10 +95,10 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
 
   return (
     <BackofficeContent
-      title={`Commande du ${formatDateDDsmmYYYY(order.date)} pour ${displayUserName(order.user)}`}
+      title={`Paiement du ${formatDateDDsmmYYYY(order.date)} pour ${displayUserName(order.user)}`}
       icon={<ShoppingCart />}
       actions={[
-        { name: 'Modifier', icon: <Edit />, url: { pathname: '/administration/paiements/commandes/[id]/edition', query: { id: order.id, redirect: router.asPath } } },
+        { name: 'Modifier', icon: <Edit />, url: { pathname: '/administration/paiements/[id]/edition', query: { id: order.id, redirect: router.asPath } } },
         { name: 'Supprimer', icon: <Delete />, onClick: () => setDeleteDialogOpen(true), disabled: isDeleteLoading },
       ]}
     >

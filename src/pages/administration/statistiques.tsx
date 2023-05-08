@@ -89,7 +89,7 @@ export default function AdminStatistics() {
       title="Statistiques"
       icon={<Timeline />}
     >
-      <Typography variant="h5" component="div">
+      <Typography variant="h6" component="div">
         Répartition des recettes
       </Typography>
       <Typography paragraph>
@@ -97,7 +97,7 @@ export default function AdminStatistics() {
       </Typography>
       <ProportionPie />
 
-      <Typography variant="h5" component="div">
+      <Typography variant="h6" component="div">
         Recettes par mois
       </Typography>
       <Typography paragraph>

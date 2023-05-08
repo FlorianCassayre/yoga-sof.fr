@@ -3,12 +3,8 @@ import { BackofficeContent } from '../../../../components/layout/admin/Backoffic
 import {
   Assignment,
   Block,
-  Info,
   Edit,
   Person,
-  Done,
-  Close,
-  QuestionMark,
   Delete,
   ShoppingCart
 } from '@mui/icons-material';
@@ -20,22 +16,12 @@ import { useRouter } from 'next/router';
 import { CourseRegistrationEventGrid } from '../../../../components/grid/grids/CourseRegistrationEventGrid';
 import { CourseRegistrationGrid } from '../../../../components/grid/grids/CourseRegistrationGrid';
 import { Box, Card, CardContent, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
-import { InformationTableCard } from '../../../../components/InformationTableCard';
-import {
-  formatDateDDsMMsYYYY,
-  formatDateDDsMMsYYYYsHHhMMmSSs,
-  formatTimestampRelative
-} from '../../../../common/date';
-import { getUserLatestMembership, getUserStatistics } from '../../../../common/user';
+import { getUserStatistics } from '../../../../common/user';
 import { trpc } from '../../../../common/trpc';
 import { useSnackbar } from 'notistack';
 import { DisableUserDialog } from '../../../../components/DisableUserDialog';
 import { RenableUserDialog } from '../../../../components/RenableUserDialog';
-import { AuthProviders } from '../../../../common/providers';
-import { grey } from '@mui/material/colors';
-import { UserLink } from '../../../../components/link/UserLink';
 import { BackofficeContentLoading } from '../../../../components/layout/admin/BackofficeContentLoading';
-import { TransactionGrid } from '../../../../components/grid/grids/TransactionGrid';
 import { DeleteUserDialog } from '../../../../components/DeleteUserDialog';
 import { BackofficeContentError } from '../../../../components/layout/admin/BackofficeContentError';
 import { CouponGrid } from '../../../../components/grid/grids/CouponGrid';
@@ -123,7 +109,7 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       ]}
       quickActions={[
         { name: 'Inscrire à des séances', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { userId: user.id, redirect: router.asPath } } },
-        { name: 'Créer une commande', icon: <ShoppingCart />, url: { pathname: `/administration/paiements/commandes/creation`, query: { userId: user.id, redirect: router.asPath } } },
+        { name: 'Créer un paiement', icon: <ShoppingCart />, url: { pathname: `/administration/paiements/creation`, query: { userId: user.id, redirect: router.asPath } } },
       ]}
     >
       <DisableUserDialog user={user} open={isDisableDialogOpen && !user.disabled} setOpen={setDisableDialogOpen} onConfirm={() => mutateDisable({ id: user.id, disabled: true })} />
@@ -188,7 +174,6 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
       </Typography>
       <Stack direction="column" gap={2}>
         <OrderGrid userId={user.id} />
-        <TransactionGrid userId={user.id} />
         <MembershipGrid collapsible collapsedSummary="Adhésions de l'utilisateur" userId={user.id} />
         <CouponGrid collapsible collapsedSummary="Cartes possédées par cet utilisateur" userId={user.id} />
         <UnpaidItemsGrid collapsible collapsedSummary="Articles impayés" userId={user.id} />

@@ -16,7 +16,7 @@ const MembershipFormFields = () => (
   <Grid container spacing={2}>
     <Grid item xs={12}>
       <Alert severity="warning">
-        Les adhésions peuvent être enregistrées et payées directement depuis le <InternalLink href="/administration/paiements/commandes/creation">formulaire de création de commande</InternalLink>.
+        Les adhésions peuvent être enregistrées et payées directement depuis le <InternalLink href="/administration/paiements/creation">formulaire de création de paiement</InternalLink>.
       </Alert>
     </Grid>
     <Grid item xs={12}>

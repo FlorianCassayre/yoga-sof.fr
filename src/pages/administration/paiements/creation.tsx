@@ -1,8 +1,8 @@
 import React from 'react';
-import { TransactionCreateForm } from '../../../components/form/forms/transaction';
+import { OrderCreateForm } from '../../../components/form/forms/order';
 
-export default function PaymentCreate() {
+export default function OrderCreate() {
   return (
-    <TransactionCreateForm />
+    <OrderCreateForm />
   );
 }

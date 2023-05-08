@@ -79,7 +79,7 @@ export const orderColumn = <R extends GridValidRowModel = any>(params: PartialGr
       label: 'Oui',
       color: 'success',
       icon: <Done />,
-      href: `/administration/paiements/commandes/${id}`,
+      href: `/administration/paiements/${id}`,
     } as const;
     const noProps = {
       ...commonProps,

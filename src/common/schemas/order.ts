@@ -16,11 +16,6 @@ export const orderCreateStep1UserSchema = z.object({
   user: z.object({
     id: z.number().int().min(0),
   }),
-  billing: z.object({
-    transaction: z.object({
-      id: z.number().int().min(0),
-    }).optional(),
-  }),
 });
 
 const orderCreateStep2PurchasesSchemaBase = orderCreateStep1UserSchema.merge(z.object({
@@ -61,7 +56,7 @@ export const refineAtLeastOnePurchase: z.RefinementEffect<z.infer<typeof orderCr
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ctx.path,
-      message: `La commande ne peut pas être vide`,
+      message: `Il doit y avoir au moins un article`,
     });
   }
 };
@@ -69,7 +64,7 @@ export const refineAtLeastOnePurchase: z.RefinementEffect<z.infer<typeof orderCr
 export const orderCreateStep2PurchasesSchema = orderCreateStep2PurchasesSchemaBase.superRefine(refineAtLeastOnePurchase);
 
 const orderCreateStep3DiscountsBase = orderCreateStep2PurchasesSchemaBase.merge(z.object({
-  billing: orderCreateStep2PurchasesSchemaBase.shape.billing.merge(z.object({
+  billing: z.object({
     newCoupons: z.array(z.strictObject({
       newCouponIndex: z.number().int().min(0),
       courseRegistrationIds: z.array(z.number().int().min(0)).min(1),
@@ -88,7 +83,7 @@ const orderCreateStep3DiscountsBase = orderCreateStep2PurchasesSchemaBase.merge(
       fromCourseRegistrationId: z.number().int().min(0),
       toCourseRegistrationId: z.number().int().min(0),
     })).optional(),
-  })),
+  }),
 }));
 
 export const refineBilling: z.RefinementEffect<z.infer<typeof orderCreateStep3DiscountsBase>>['refinement'] = (data, ctx) => {
@@ -181,22 +176,11 @@ const orderCreateStep4PaymentBase = orderCreateStep3DiscountsBase.merge(z.object
       type: z.nativeEnum(TransactionType),
     }).optional(),
     date: z.date(),
-    forceTransaction: z.boolean().optional(),
   })),
   notes: z.string().optional(),
 }));
 
 export const refinePaymentType: z.RefinementEffect<z.infer<typeof orderCreateStep4PaymentBase>>['refinement'] = (data, ctx) => {
-  if (data.billing.transaction !== undefined && data.billing.newPayment !== undefined) {
-    [['data', 'billing', 'transaction'], ['billing', 'newPayment']].forEach(path =>
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path,
-        message: `Il ne peut y avoir qu'un seul paiement par commande`,
-      })
-    );
-  }
-
   if (data.billing.newPayment !== undefined && data.billing.newPayment.overrideAmount && data.billing.newPayment.amount === undefined) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,

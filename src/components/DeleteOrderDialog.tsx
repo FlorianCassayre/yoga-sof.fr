@@ -34,13 +34,13 @@ export const DeleteOrderDialog: React.FC<DeleteOrderDialogProps> = ({ order, ope
       onClose={handleClose}
     >
       <DialogTitle>
-        Supprimer la commande
+        Supprimer le paiement
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
           <Typography paragraph>
-            Souhaitez-vous vraiment supprimer la commande du <strong>{formatDateDDsmmYYYY(order.date)}</strong> de l'utilisateur <strong>{displayUserName(order.user)}</strong> ?
-            Après la suppression tous les articles qui faisaient partie de la commande n'en feront plus partie et devront être rattachés à une nouvelle commande.
+            Souhaitez-vous vraiment supprimer le paiement du <strong>{formatDateDDsmmYYYY(order.date)}</strong> de l'utilisateur <strong>{displayUserName(order.user)}</strong> ?
+            Après la suppression tous les articles seront à nouveau marqués comme impayés.
             Cette opération n'est pas réversible, cependant les données supprimées seront tout de même conservées.
           </Typography>
         </DialogContentText>

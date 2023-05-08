@@ -14,7 +14,7 @@ const CouponFormFields = () => (
   <Grid container spacing={2}>
     <Grid item xs={12}>
       <Alert severity="warning">
-        Les cartes peuvent être générées et payées directement depuis le <InternalLink href="/administration/paiements/commandes/creation">formulaire de création de commande</InternalLink>.
+        Les cartes peuvent être générées et payées directement depuis le <InternalLink href="/administration/paiements/creation">formulaire de création de paiement</InternalLink>.
       </Alert>
     </Grid>
     <Grid item xs={12}>

@@ -23,7 +23,7 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       type: 'actions',
       minWidth: 50,
       getActions: ({ row }: GridRowParams<OrderItem>) => [
-        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" href={{ pathname: '/administration/paiements/commandes/[id]', query: { id: row.id } }} />,
+        <GridActionsCellItemTooltip icon={<Visibility />} label="Consulter" href={{ pathname: '/administration/paiements/[id]', query: { id: row.id } }} />,
       ],
     },
     ...(userId === undefined ? [userColumn({
@@ -64,7 +64,7 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
     },
     {
       field: 'date',
-      headerName: 'Date de la commande',
+      headerName: 'Date du paiement',
       valueFormatter: ({ value }: GridValueFormatterParams<Date>) => formatDateDDsmmYYYY(value),
       minWidth: 200,
       flex: 1,
@@ -85,7 +85,7 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       type: 'actions',
       minWidth: 50,
       getActions: ({ row }: GridRowParams<OrderItem>) => [
-        <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" href={{ pathname: '/administration/paiements/commandes/[id]/edition', query: { id: row.id } }} />,
+        <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" href={{ pathname: '/administration/paiements/[id]/edition', query: { id: row.id } }} />,
       ],
     },
   ];

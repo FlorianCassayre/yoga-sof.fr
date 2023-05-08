@@ -14,7 +14,7 @@ import {
   DialogContent, DialogContentText,
   DialogTitle,
   Grid,
-  IconButton, Link,
+  IconButton,
   Stack, Step, StepLabel, Stepper,
   Tooltip,
   Typography, useMediaQuery, useTheme
@@ -38,7 +38,7 @@ import {
   Coupon,
   CouponModel,
   Course,
-  CourseRegistration, Membership, MembershipModel, Transaction, TransactionType,
+  CourseRegistration, Membership, MembershipModel, TransactionType,
   User
 } from '@prisma/client';
 import {
@@ -49,7 +49,6 @@ import {
   displayMembershipName,
   displayUserName
 } from '../../../common/display';
-import { SelectTransaction } from '../fields/SelectTransaction';
 import { SelectMembershipModel } from '../fields/SelectMembershipModel';
 import { SelectCouponModel } from '../fields/SelectCouponModel';
 import { grey } from '@mui/material/colors';
@@ -71,8 +70,7 @@ import { InputYear } from '../fields/InputYear';
 import PatchedAutocompleteElement from '../fields/PatchedAutocompleteElement';
 import { PurchasesTable } from '../../PurchasesTable';
 import { ParsedUrlQuery } from 'querystring';
-import { FieldPathValue } from 'react-hook-form/dist/types/path';
-import { FieldPath, FieldPathByValue } from 'react-hook-form/dist/types/path/eager';
+import { FieldPathByValue } from 'react-hook-form/dist/types/path/eager';
 import { DeepNullable, ValidateSubtype } from '../../../common/utils';
 
 interface BinaryDialogProps {
@@ -262,12 +260,9 @@ const OrderFormFields: React.FC = () => {
 
   const watchTrialCourseRegistration = watch('billing.trialCourseRegistration');
   const watchReplacementCourseRegistrations = watch('billing.replacementCourseRegistrations');
-  const watchTransaction = watch('billing.transaction');
   const watchPayment = watch('billing.newPayment');
   const watchBillingExistingCoupons = watch('billing.existingCoupons');
   const watchBillingNewCoupons = watch('billing.newCoupons');
-
-  const watchForceTransaction = watch('billing.forceTransaction');
 
   //
 
@@ -290,7 +285,7 @@ const OrderFormFields: React.FC = () => {
     {
       title: 'Utilisateur',
       schema: orderCreateStep1UserSchema,
-      error: !!errors?.user || !!errors?.billing?.transaction,
+      error: !!errors?.user,
     },
     {
       title: 'Achats',
@@ -412,13 +407,6 @@ const OrderFormFields: React.FC = () => {
 
   // Synchronize dependent fields
 
-  // Step 1
-  useEffect(() => {
-    if (watchUser && watchTransaction && watchUser.id !== watchTransaction.userId || !watchUser && watchTransaction) {
-      setValue('billing.transaction', undefined);
-    }
-  }, [watchUser]);
-
   // Step 2
   useEffect(() => {
     if (!watchUser) {
@@ -489,13 +477,6 @@ const OrderFormFields: React.FC = () => {
 
   const renderForm = () => (
     <Grid container spacing={2} justifyContent="center">
-      {watchStep > 0 && watchTransaction != null && (
-        <Grid item xs={12}>
-          <Alert severity="info">
-            Rappel : vous avez sélectionné un ancien paiement étant intitulé "<strong>{watchTransaction.comment}</strong>" pour un total de <strong>{watchTransaction.amount} €</strong>.
-          </Alert>
-        </Grid>
-      )}
       {watchStep === 0 && (
         <>
           <Grid item xs={12}>
@@ -503,32 +484,12 @@ const OrderFormFields: React.FC = () => {
               1. Utilisateur
             </StepTitle>
             <Typography paragraph>
-              Choisissez l'utilisateur qui bénéficiera de la commande.
-              Optionnellement vous pouvez indiquer un ancien paiement (celui-ci doit alors correspondre à l'utilisateur).
+              Choisissez l'utilisateur qui bénéficiera des achats.
             </Typography>
           </Grid>
           <Grid item xs={12}>
             <SelectUser name="user" noMatchId />
           </Grid>
-          {watchUser != null && watchTransaction !== undefined && (
-            <>
-              <Grid item xs={12}>
-                <Alert severity="info">
-                  L'ancien paiement disparaitra automatiquement de la liste lorsque la commande aura été créée.
-                </Alert>
-              </Grid>
-              <Grid item xs={12}>
-                <OptionalField onDelete={() => setValue('billing.transaction', undefined)}>
-                  <SelectTransaction name="billing.transaction" userId={watchUser.id} noMatchId />
-                </OptionalField>
-              </Grid>
-            </>
-          )}
-          {watchTransaction === undefined && watchPayment === undefined && (
-            <Grid item xs={12}>
-              <CreateButton label="Lier à un ancien paiement" onClick={() => setValue('billing.transaction', null)} disabled={!watchUser} />
-            </Grid>
-          )}
         </>
       )}
 
@@ -727,15 +688,7 @@ const OrderFormFields: React.FC = () => {
             </Grid>
           )}
           {watchUser != null && (
-            watchTransaction !== undefined ? (
-              <>
-                <Grid item xs={12}>
-                  <OptionalField onDelete={() => setValue('billing.transaction', undefined)}>
-                    <SelectTransaction name="billing.transaction" userId={watchUser.id} noMatchId disabled />
-                  </OptionalField>
-                </Grid>
-              </>
-            ) : watchPayment !== undefined ? (
+            watchPayment !== undefined ? (
               <Grid item xs={12}>
                 <OptionalField onDelete={() => setValue('billing.newPayment', undefined)}>
                   <Grid container spacing={2}>
@@ -748,45 +701,37 @@ const OrderFormFields: React.FC = () => {
                       <SelectTransactionType name="billing.newPayment.type" />
                     </Grid>
                     <Grid item xs={12}>
-                      <CheckboxElement name="billing.newPayment.overrideAmount" label="Définir un autre prix pour cette commande" />
+                      <CheckboxElement name="billing.newPayment.overrideAmount" label="Définir un autre montant pour le paiement" />
                     </Grid>
                   </Grid>
                 </OptionalField>
               </Grid>
             ) : null)}
-          {watchTransaction === undefined && watchPayment === undefined && (
+          {watchPayment === undefined && (
             <Grid item xs={12}>
               <CreateButton label="Créer un nouveau paiement" onClick={() => setValue('billing.newPayment', { overrideAmount: false })} />
             </Grid>
           )}
-          {watchTransaction === undefined && (
-            <Grid item xs={12}>
-              <DatePickerElement name="billing.date" label="Date" inputProps={{ fullWidth: true }} />
-            </Grid>
-          )}
+          <Grid item xs={12}>
+            <DatePickerElement name="billing.date" label="Date" inputProps={{ fullWidth: true }} />
+          </Grid>
           <Grid item xs={12}>
             <TextFieldElement name="notes" label="Notes" fullWidth />
           </Grid>
 
-          {!!orderPreview && ((
-            (watchTransaction && watchTransaction.amount !== orderPreview.computedAmount)
-            || (!watchTransaction && !watchPayment && orderPreview.computedAmount > 0)
-          ) ? (
+          {!!orderPreview && (watchPayment?.overrideAmount === undefined && orderPreview.computedAmount !== (watchPayment?.amount ?? 0)
+           ? (
             <Grid item xs={12}>
               <Alert severity="warning">
                 {orderPreview.computedAmount > 0 ? (
                   <>
-                    Le montant de la commande est de <strong>{orderPreview.computedAmount} €</strong> tandis que le paiement de l'utilisateur revient à <strong>{watchTransaction?.amount ?? watchPayment?.amount ?? 0} €</strong>.
-                    {watchTransaction && !watchForceTransaction && (
-                      <>
-                        {' '}
-                        <Link href="#" onClick={() => setValue('billing.forceTransaction', true)}>Continuer ?</Link>
-                      </>
-                    )}
+                    Le montant des articles est de <strong>{orderPreview.computedAmount} €</strong> tandis que le paiement de l'utilisateur revient à <strong>{watchPayment?.amount ?? 0} €</strong>.
+                    Pour indiquer que vous avez reçu de l'argent de la part de l'utilisateur, cliquez sur "créer un nouveau paiement".
                   </>
                 ) : (
                   <>
-                    Le montant de la commande est de <strong>0 €</strong>, aucun paiement n'est attendu.
+                    Le montant des articles est de <strong>0 €</strong>, aucun paiement n'est attendu.
+                    Pour supprimer le paiement, cliquez sur le bouton de suppression à droite.
                   </>
                 )}
               </Alert>
@@ -858,10 +803,8 @@ type CreateFieldValues = ValidateSubtype<
       existingCoupons?: { coupon?: Coupon, courseRegistrationIds?: number[] }[],
       trialCourseRegistration?: { courseRegistrationId?: number, newPrice?: number },
       replacementCourseRegistrations?: { fromCourseRegistrationId?: number, toCourseRegistrationId?: number }[],
-      transaction?: Transaction | null,
       newPayment?: { amount?: number, overrideAmount?: boolean, type?: TransactionType },
       date?: Date,
-      forceTransaction?: boolean,
     },
   }>;
 
@@ -878,11 +821,11 @@ const useProceduresToInvalidate = () => {
   return [order.find, order.findAll, order.findUpdate];
 };
 
-const commonFormProps = ({ user, transaction }: { user?: User, transaction?: Transaction }) => {
+const commonFormProps = ({ user }: { user?: User }) => {
   const defaultValues = orderFormDefaultValues();
   return {
     icon: <ShoppingCart />,
-    defaultValues: { ...defaultValues, user, billing: { ...defaultValues.billing, transaction } },
+    defaultValues: { ...defaultValues, user, billing: { ...defaultValues.billing } },
     urlSuccessFor: (data: any) => `/administration/paiements`, // TODO
     urlCancel: `/administration/paiements`,
   };
@@ -893,10 +836,6 @@ const querySchema = z.object({
     (a) => a ? parseInt(z.string().parse(a), 10) : undefined,
     z.number().int().min(0).optional()
   ),
-  transactionId: z.preprocess(
-    (a) => a ? parseInt(z.string().parse(a), 10) : undefined,
-    z.number().int().min(0).optional()
-  ),
 });
 
 export const OrderCreateForm: React.FC = () => {
@@ -904,10 +843,8 @@ export const OrderCreateForm: React.FC = () => {
   const queryInitialValues = useMemo(() => {
     const parsed = querySchema.safeParse(router.query);
     if (parsed.success) {
-      const { userId, transactionId } = parsed.data;
-      return {
-        userId, transactionId,
-      };
+      const { userId } = parsed.data;
+      return { userId };
     } else {
       return {};
     }
@@ -916,15 +853,14 @@ export const OrderCreateForm: React.FC = () => {
   const invalidate = useProceduresToInvalidate();
 
   const userData = trpc.useQueries(t => queryInitialValues.userId !== undefined ? [t.user.find({ id: queryInitialValues.userId })] : ([] as any[]));
-  const transactionData = trpc.useQueries(t => queryInitialValues.transactionId !== undefined ? [t.transaction.find({ id: queryInitialValues.transactionId })] : ([] as any[]));
 
-  return (userData.length === 0 || (userData[0].data && !userData[0].isLoading)) && (transactionData.length === 0 || (transactionData[0].data && !transactionData[0].isLoading)) ? (
+  return (userData.length === 0 || (userData[0].data && !userData[0].isLoading)) ? (
     <CreateFormContent
-      {...commonFormProps({ ...(userData.length === 0 ? {} : { user: userData[0].data as any}), ...(transactionData.length === 0 ? {} : { transaction: transactionData[0].data as any}) })}
-      title="Création d'une commande"
+      {...commonFormProps({ ...(userData.length === 0 ? {} : { user: userData[0].data as any}) })}
+      title="Création d'un paiement"
       schema={orderCreateSchema}
       mutationProcedure={trpc.order.create}
-      successMessage={(data) => `La commande a été enregistrée.`}
+      successMessage={(data) => `Le paiement a été enregistrée.`}
       invalidate={invalidate}
       hiddenControls
     >
@@ -936,22 +872,22 @@ export const OrderCreateForm: React.FC = () => {
 export const OrderUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) => {
   return (
     <UpdateFormContent
-      title="Modification d'une commande"
+      title="Modification d'un paiement"
       icon={<ShoppingCart />}
       schema={orderUpdateSchema}
       mutationProcedure={trpc.order.update}
       queryProcedure={trpc.order.findUpdate}
       querySchema={orderFindTransformSchema}
       queryParams={queryData}
-      successMessage={() => 'La commande a été mise à jour'}
+      successMessage={() => 'Le paiement a été mise à jour'}
       defaultValues={{}}
-      urlSuccessFor={({ id }) => `/administration/paiements/commandes/${id}`}
+      urlSuccessFor={({ id }) => `/administration/paiements/${id}`}
       urlCancel={`/administration/paiements`}
       invalidate={useProceduresToInvalidate()}
     >
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <DatePickerElement name="date" label="Date de la commande" inputProps={{ fullWidth: true }} />
+          <DatePickerElement name="date" label="Date du paiement" inputProps={{ fullWidth: true }} />
         </Grid>
         <Grid item xs={12}>
           <TextFieldElement name="notes" label="Notes (visibles seulement par vous)" multiline rows={4} fullWidth />

@@ -39,7 +39,7 @@ export const QuickOrderDialog: React.FC<QuickOrderDialogProps> = ({ courseRegist
       <DialogContent>
         <DialogContentText>
           <Typography>
-            Ce bouton vous permet de créer automatiquement une commande à partir d'une séance pour un utilisateur, en utilisant une carte.
+            Ce bouton vous permet de créer automatiquement un paiement à transaction nulle à partir d'une séance pour un utilisateur, en utilisant une carte.
             Ceci ne fonctionne que si l'utilisateur possède une carte en cours de validité.
           </Typography>
         </DialogContentText>

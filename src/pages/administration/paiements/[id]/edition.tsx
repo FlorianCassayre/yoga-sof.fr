@@ -1,11 +1,11 @@
 import React from 'react';
 import { useRouter } from 'next/router';
-import { TransactionUpdateForm } from '../../../../components/form/forms/transaction';
+import { OrderUpdateForm } from '../../../../components/form/forms/order';
 
-export default function TransactionUpdate() {
+export default function OrderUpdate() {
   const router = useRouter();
 
   return (
-    <TransactionUpdateForm queryData={router.query} />
+    <OrderUpdateForm queryData={router.query} />
   );
 }

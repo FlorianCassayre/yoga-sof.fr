@@ -11,7 +11,6 @@ import {
   couponRouter, membershipModelRouter
 } from './routers';
 import { router } from './trpc';
-import { transactionRouter } from './routers/transaction';
 import { membershipRouter } from './routers/membership';
 import { orderModelRouter } from './routers/order';
 import { statisticsRouter } from './routers/statisticsRouter';
@@ -26,7 +25,6 @@ export const appRouter =
     public: publicRouter,
     self: selfRouter,
     user: userRouter,
-    transaction: transactionRouter,
     couponModel: couponModelRouter,
     coupon: couponRouter,
     membershipModel: membershipModelRouter,

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { prisma, readTransaction, writeTransaction } from '../prisma';
 import { orderCreateSchema, orderUpdateSchema } from '../../common/schemas/order';
-import { Coupon, CourseRegistration, Membership, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { createCoupon, findCoupons } from './coupon';
 import { createMembership } from './membership';
@@ -72,7 +72,6 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
 
   const { data } = args;
   const user = await prisma.user.findUniqueOrThrow({ where: { id: data.user.id } });
-  const transaction = data.billing.transaction !== undefined ? await prisma.transaction.findUniqueOrThrow({ where: { id: data.billing.transaction.id } }) : null;
 
   // We keep only the orders that are active (= not deleted)
   const activeArgs = { active: true };
@@ -106,16 +105,6 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
     data.purchases.newMemberships?.map(({ membershipModel: { id } }) => prisma.membershipModel.findUniqueOrThrow({ where: { id } })) ?? []
   ));
   const memberships = makeRecord(await Promise.all((data.purchases.existingMemberships ?? []).map(({ id }) => prisma.membership.findUniqueOrThrow({ where: { id }, include: { ordersPurchased: { where: activeArgs } } }))));
-
-  // Transaction
-  if (transaction !== null) {
-    if (user.id !== transaction.userId) {
-      throw new ServiceError(ServiceErrorCode.OrderTransactionDifferentUser);
-    }
-    if (transaction.orderId !== null) {
-      throw new ServiceError(ServiceErrorCode.OrderTransactionAlreadyLinked);
-    }
-  }
 
   // Course registrations (general)
   if (anyPurchasedCourseRegistrationIds.map(id => courseRegistrations[id]).some(({ isUserCanceled }) => isUserCanceled)) {
@@ -182,14 +171,11 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
   )
   const computedAmount = totalAmountCourses + totalAmountCoupons + totalAmountMemberships;
 
-  // The date is always defined (by default it is the current day). For transactions, it's not used (not shown in the UI), but still defined
-  const date = transaction?.date ?? data.billing.date;
+  // The date is always defined (by default it is the current day)
+  const date = data.billing.date;
 
-  const amountPaid = transaction?.amount ?? (data.billing.newPayment ? (data.billing.newPayment?.overrideAmount ? data.billing?.newPayment?.amount : computedAmount) : 0) ?? 0;
-  if (
-    (transaction === null || !data.billing.forceTransaction)
-    && amountPaid !== computedAmount && !data.billing.newPayment?.overrideAmount
-  ) { // If no override, check that the payment corresponds to the amount
+  const amountPaid = (data.billing.newPayment ? (data.billing.newPayment?.overrideAmount ? data.billing?.newPayment?.amount : computedAmount) : 0) ?? 0;
+  if (amountPaid !== computedAmount && !data.billing.newPayment?.overrideAmount) { // If no override, check that the payment corresponds to the amount
     throw new ServiceError(ServiceErrorCode.OrderPaymentAmountMismatch);
   }
 
@@ -198,7 +184,7 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
   const newCouponsCreated = await Promise.all(data.purchases.newCoupons?.map(c => createCoupon(prisma, { data: { couponModelId: c.couponModel.id, userId: user.id } })) ?? []);
   const newMembershipsCreated = await Promise.all(data.purchases.newMemberships?.map(m => createMembership(prisma, { data: { membershipModelId: m.membershipModel.id, yearStart: m.year, users: [user.id] } })) ?? []);
 
-  const order = await prisma.order.create({
+  return prisma.order.create({
     data: {
       userId: user.id,
       date: date,
@@ -235,26 +221,14 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
       purchasedCourseRegistrations: {
         connect: paidCourseRegistrationIds.map(id => ({ id })),
       },
-      payment: transaction ? {
-        create: {
-          amount: transaction.amount,
-          type: transaction.type,
-        },
-      } : data.billing.newPayment && amountPaid > 0 ? {
+      payment: data.billing.newPayment && amountPaid > 0 ? {
         create: {
           amount: amountPaid, // Take into account the override
           type: data.billing.newPayment.type,
         },
       } : undefined,
-      transaction: transaction ? {
-        connect: {
-          id: transaction.id,
-        },
-      } : undefined,
     },
   });
-
-  return order;
 };
 
 export const updateOrder = async (args: { where: Prisma.OrderWhereUniqueInput, data: Omit<z.infer<typeof orderUpdateSchema>, 'id'> }) => writeTransaction(async prisma => {
@@ -263,7 +237,7 @@ export const updateOrder = async (args: { where: Prisma.OrderWhereUniqueInput, d
 });
 
 export const deleteOrder = async (args: { where: Prisma.OrderWhereUniqueInput }) => writeTransaction(async prisma =>
-  prisma.order.update({ where: args.where, data: { active: false, transaction: { disconnect: true } } })
+  prisma.order.update({ where: args.where, data: { active: false /*transaction: { disconnect: true }*/ } }) // Keep them connected
 );
 
 export const createOrderAutomatically = async (args: { where: { courseRegistrationId: number } }) => writeTransaction(async prisma => {
