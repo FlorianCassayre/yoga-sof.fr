@@ -173,20 +173,22 @@ export const mergeUsers = async (args: { data: z.infer<typeof usersMergeSchema> 
     ...secondaryUser.orders.map(({ id }) => prisma.order.update({ where: { id }, data: { userId: mainUserId } })),
   ]);
 
-  let shouldDeleteUser = true;
+  const deleteSecondaryUser = ({ soft }: { soft?: boolean } = {}) =>
+    !soft
+      ? prisma.user.delete({ where: { id: secondaryUser.id } })
+      : prisma.user.update({ where: { id: secondaryUser.id }, data: { disabled: true } });
+
   if (
     // Verified email takes precedence over non verified email, which takes precedence over no email
     secondaryUser.email !== null && mainUser.email === null
     || secondaryUser.emailVerified !== null && mainUser.emailVerified === null
   ) {
+    await deleteSecondaryUser();
     await prisma.user.update({ where: { id: mainUserId }, data: { emailVerified: secondaryUser.emailVerified, email: secondaryUser.email } });
   } else if (mainUser.emailVerified !== null && secondaryUser.emailVerified !== null) {
-    shouldDeleteUser = false;
-  }
-  if (shouldDeleteUser) {
-    await prisma.user.delete({ where: { id: secondaryUser.id } });
+    await deleteSecondaryUser({ soft: true });
   } else {
-    await prisma.user.update({ where: { id: secondaryUser.id }, data: { disabled: true } });
+    await deleteSecondaryUser();
   }
 
   return prisma.user.findUniqueOrThrow({ where: { id: mainUserId } });
