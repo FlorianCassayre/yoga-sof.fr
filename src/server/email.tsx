@@ -28,7 +28,7 @@ const transporter = nodemailer.createTransport(NODEMAILER_CONFIGURATION);
 const sendEmail = async (to: string | null, cc: string | null, subject: string, contentHtml: string) => {
   const parameters = {
     from: `"${NAME_FROM}" <${process.env.EMAIL_FROM}>`,
-    replyTo: `${NAME_FROM}" <${process.env.EMAIL_REPLY_TO}>`,
+    replyTo: `"${NAME_FROM}" <${process.env.EMAIL_REPLY_TO}>`,
     to: to ?? undefined,
     cc: cc ?? undefined,
     subject,
