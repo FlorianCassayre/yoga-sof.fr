@@ -209,6 +209,8 @@ model EmailMessage {
 enum TransactionType {
   CASH
   HELLO_ASSO
+  CHECK
+  TRANSFER
 }
 
 model Transaction {
