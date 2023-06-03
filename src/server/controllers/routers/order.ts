@@ -9,13 +9,13 @@ import {
   updateOrder
 } from '../../services/order';
 import { z } from 'zod';
-import { prisma, writeTransaction } from '../../prisma';
+import { prisma, readTransaction, writeTransaction } from '../../prisma';
 
 export const orderModelRouter = router({
   find: adminProcedure
     .input(orderFindSchema)
     .query(async ({ input: { id } }) => {
-      return findOrder({ where: { id } });
+      return readTransaction(prisma => findOrder(prisma, { where: { id } }));
     }),
   findUpdate: adminProcedure
     .input(orderFindSchema)
@@ -30,7 +30,11 @@ export const orderModelRouter = router({
     .query(async ({ input: { userId } }) => findItemsWithNoOrder({ where: { userId } })),
   create: adminProcedure
     .input(orderCreateSchema)
-    .mutation(async ({ input }) => writeTransaction(prisma => createOrder(prisma, { data: input }))),
+    .mutation(async ({ input }) => {
+      const [result, callback] = await writeTransaction(prisma => createOrder(prisma, { data: input }));
+      await callback();
+      return result;
+    }),
   update: adminProcedure
     .input(orderUpdateSchema)
     .mutation(async ({ input: { id, ...data } }) => updateOrder({ where: { id }, data })),

@@ -1,6 +1,6 @@
-import type { RouterOutput } from '../server/controllers/types';
 import type { Prisma } from '@prisma/client';
 import { displayCouponName, displayMembershipName } from './display';
+import type { findOrder } from '../server/services/order';
 
 export enum OrderItemType {
   Membership,
@@ -26,7 +26,7 @@ interface OrderItemOptions<T> {
   formatDiscountCourseRegistrationReplacement: (courseRegistration: CourseRegistrationWithCourse) => T | string;
 }
 
-export const orderToItems = <T>(order: RouterOutput['order']['find'], options: OrderItemOptions<T>): OrderItem<T>[] => {
+export const orderToItems = <T>(order: Awaited<ReturnType<typeof findOrder>>, options: OrderItemOptions<T>): OrderItem<T>[] => {
   const makeCourseRegistrationsTableData =
     (items: (Omit<OrderItem<T>, 'item'> & { courseRegistration: CourseRegistrationWithCourse })[]): OrderItem<T>[] =>
       [...items]

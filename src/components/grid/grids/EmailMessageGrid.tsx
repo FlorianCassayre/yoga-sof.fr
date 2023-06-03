@@ -1,9 +1,22 @@
 import React, { useState } from 'react';
-import { Box, Dialog, DialogContent, DialogTitle, Grid, IconButton, Stack, TextField } from '@mui/material';
-import { Close, Visibility } from '@mui/icons-material';
+import {
+  Box, Chip,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  Grid,
+  IconButton, InputLabel,
+  OutlinedInput,
+  Select,
+  Stack,
+  TextField,
+  Tooltip
+} from '@mui/material';
+import { Close, InsertDriveFile, Visibility } from '@mui/icons-material';
 import { GridColDef, GridRenderCellParams, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
-import { EmailMessage, EmailMessageType } from '@prisma/client';
+import { EmailMessage, EmailMessageType, EmailMessageAttachment } from '@prisma/client';
 import { relativeTimestamp, userColumn } from './common';
 import { formatDateDDsMMsYYYYsHHhMMmSSs } from '../../../common/date';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
@@ -11,11 +24,41 @@ import { EmailMessageTypeNames } from '../../../common/emailMessages';
 import { trpc } from '../../../common/trpc';
 import { RouterOutput } from '../../../server/controllers/types';
 import { GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
+import { deserializeBuffer } from '../../../common/serialize';
+
+interface DownloadAttachmentButtonProps {
+  id: number;
+  filename: string;
+}
+
+const DownloadAttachmentButton: React.FC<DownloadAttachmentButtonProps> = ({ id, filename }) => {
+  const { isFetching, refetch } = trpc.emailMessage.findAttachment.useQuery({ id }, {
+    enabled: false,
+    onSuccess: (data) => {
+      const buffer = deserializeBuffer(data.file);
+      const blob = new Blob([buffer]);
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = data.filename;
+      link.click();
+      link.remove();
+    },
+  });
+  return (
+    <Tooltip title={filename}>
+      <span>
+        <IconButton size="small" disabled={isFetching} onClick={() => refetch()}>
+          <InsertDriveFile />
+        </IconButton>
+      </span>
+    </Tooltip>
+  );
+};
 
 interface EmailDetailsDialogProps {
   open: boolean;
   onClose: () => void;
-  data: EmailMessage;
+  data: EmailMessage & { attachments: Pick<EmailMessageAttachment, 'id' | 'filename'>[] };
 }
 
 const EmailDetailsDialog: React.FunctionComponent<EmailDetailsDialogProps> = ({ open, onClose, data }) => {
@@ -58,6 +101,28 @@ const EmailDetailsDialog: React.FunctionComponent<EmailDetailsDialogProps> = ({ 
             <Grid item xs={12}>
               <TextField label="Message" variant="outlined" value={data.message} InputProps={{ readOnly: true }} fullWidth multiline />
             </Grid>
+            {data.attachments.length > 0 && ( // Not sure why we need all this mess for such a basic feature...
+              <Grid item xs={12}>
+                <FormControl sx={{ width: '100%' }}>
+                  <InputLabel>Fichiers joints</InputLabel>
+                  <Select
+                    multiple
+                    variant="outlined"
+                    value={data.attachments.map(({ filename }) => filename)}
+                    readOnly
+                    input={<OutlinedInput label="Fichier joints" />}
+                    size="small"
+                    renderValue={(selected) => (
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {selected.map((value, i) => (
+                          <Chip key={value} label={value} icon={<InsertDriveFile />} />
+                        ))}
+                      </Box>
+                    )}
+                  />
+                </FormControl>
+              </Grid>
+            )}
           </Grid>
         </DialogContent>
       </Dialog>
@@ -72,15 +137,15 @@ interface EmailMessageGridProps {
 }
 
 export const EmailMessageGrid: React.FunctionComponent<EmailMessageGridProps> = ({ sent, collapsible, collapsedSummary }) => {
-  const [open, setOpen] = useState(false);
-  const [dialogData, setDialogData] = useState<EmailMessage | null>(null);
+  type EmailMessageItem = RouterOutput['emailMessage']['findAll'][0];
 
-  const handleDialogOpen = (row: EmailMessage) => {
+  const [open, setOpen] = useState(false);
+  const [dialogData, setDialogData] = useState<EmailMessageItem | null>(null);
+
+  const handleDialogOpen = (row: EmailMessageItem) => {
     setDialogData(row);
     setOpen(true);
   };
-
-  type EmailMessageItem = RouterOutput['emailMessage']['findAll'][0];
 
   const columns: GridColDef<EmailMessageItem>[] = [
     {
@@ -129,6 +194,19 @@ export const EmailMessageGrid: React.FunctionComponent<EmailMessageGridProps> = 
     },
     relativeTimestamp({ field: 'createdAt', headerName: 'Date de création', flex: 1 }),
     relativeTimestamp({ field: 'sentAt', headerName: `Date d'envoi`, flex: 1 }),
+    {
+      field: 'attachments',
+      headerName: 'Attachés',
+      minWidth: 90,
+      flex: 1,
+      renderCell: ({ value }: GridRenderCellParams<EmailMessageItem, Omit<EmailMessageAttachment, 'file'>[]>) => !!value && value.length > 0 && (
+        <Stack direction="row" spacing={1}>
+          {value.map(({ id, filename }) => (
+            <DownloadAttachmentButton key={id} id={id} filename={filename} />
+          ))}
+        </Stack>
+      ),
+    },
   ];
 
   return (

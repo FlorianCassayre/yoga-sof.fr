@@ -8,8 +8,9 @@ import {
 import {
   EmailMessageTemplateCourseAdultRegistrationConfirmation,
   EmailMessageTemplateCourseAdultReminderNewcomer,
-  EmailMessageTemplateCourseCanceled
+  EmailMessageTemplateCourseCanceled, EmailMessageTemplateOrderCreatedInformation
 } from '../../contents/emailMessages';
+import Mail from 'nodemailer/lib/mailer';
 
 const NAME_FROM = 'Yoga Sof';
 
@@ -25,25 +26,26 @@ export const NODEMAILER_CONFIGURATION = {
 
 const transporter = nodemailer.createTransport(NODEMAILER_CONFIGURATION);
 
-const sendEmail = async (to: string | null, cc: string | null, subject: string, contentHtml: string) => {
-  const parameters = {
+const sendEmail = async (to: string | null, cc: string | null, subject: string, contentHtml: string, attachments?: { filename: string, file: Buffer }[]) => {
+  const parameters: Mail.Options = {
     from: `"${NAME_FROM}" <${process.env.EMAIL_FROM}>`,
     replyTo: `"${NAME_FROM}" <${process.env.EMAIL_REPLY_TO}>`,
     to: to ?? undefined,
     cc: cc ?? undefined,
     subject,
     html: contentHtml,
+    attachments: attachments?.map(({ filename, file }) => ({ filename, content: file })),
   };
 
   if (process.env.NODE_ENV && process.env.NODE_ENV !== 'development') {
     await transporter.sendMail(parameters);
   } else {
     console.warn('The system tried to send an email inside the development environment. Because this feature is disabled the content is shown below instead:');
-    console.warn(parameters);
+    console.warn({ ...parameters, attachments: attachments?.map(o => ({ ...o, file: `(${o.file.length} bytes)` })) });
   }
 };
 
-const dispatchEmail = async (tx: Prisma.TransactionClient, user: Pick<User, 'id' | 'email' | 'customEmail'>, managedByUser: Pick<User, 'email' | 'customEmail'> | null, emailType: EmailMessageType, subject: string, contentHtml: string): Promise<() => Promise<void>> => {
+const dispatchEmail = async (tx: Prisma.TransactionClient, user: Pick<User, 'id' | 'email' | 'customEmail'>, managedByUser: Pick<User, 'email' | 'customEmail'> | null, emailType: EmailMessageType, subject: string, contentHtml: string, attachments?: { filename: string, file: Buffer }[]): Promise<() => Promise<void>> => {
   const { id: userId } = user;
 
   const actualToEmail = user.customEmail || user.email;
@@ -60,12 +62,15 @@ const dispatchEmail = async (tx: Prisma.TransactionClient, user: Pick<User, 'id'
       ccAddress: actualCcEmail,
       subject,
       message: contentHtml,
+      attachments: {
+        create: attachments,
+      },
     },
   });
 
   return async () => {
     try {
-      await sendEmail(actualToEmail, actualCcEmail, subject, contentHtml);
+      await sendEmail(actualToEmail, actualCcEmail, subject, contentHtml, attachments);
     } catch (e) {
       console.warn(`Warning, could not send email with id ${emailRecordId}`);
       console.error(e);
@@ -84,7 +89,8 @@ const dispatchEmailFromComponent = async <
   Props extends Args & { user: Prisma.UserGetPayload<{ select: { managedByUser: { select: { email: true, customEmail: true } } } }> },
 >
 (prisma: Prisma.TransactionClient, template: EmailMessageTemplate<Args>, props: Props) => {
-  return dispatchEmail(prisma, props.user, props.user.managedByUser, template.type, template.subject(props), renderToStaticMarkup(template.body(props)));
+  const attachments = template.attachments !== undefined ? await template.attachments(prisma, props) : undefined;
+  return dispatchEmail(prisma, props.user, props.user.managedByUser, template.type, template.subject(props), renderToStaticMarkup(template.body(props)), attachments);
 }
 
 export const notifyCourseCanceled = async (prisma: Prisma.TransactionClient, course: Prisma.CourseGetPayload<{ include: { registrations: { include: { user: { include: { managedByUser: true } } } } } }>) => {
@@ -203,5 +209,16 @@ export const notifyCourseRegistration = async (
     prisma,
     EmailMessageTemplateCourseAdultRegistrationConfirmation,
     { user, registrations }
+  );
+};
+
+export const notifyOrderCreated = async (
+  prisma: Prisma.TransactionClient,
+  order: Prisma.OrderGetPayload<{ include: { payment: true, user: { include: { managedByUser: true } } } }>,
+) => {
+  return dispatchEmailFromComponent(
+    prisma,
+    EmailMessageTemplateOrderCreatedInformation,
+    { user: order.user, order }
   );
 };

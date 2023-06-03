@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { prisma } from '../prisma';
 
 export const findEmailMessages = async ({ where: { sent } }: { where: { sent?: boolean } }) =>
@@ -6,5 +5,14 @@ export const findEmailMessages = async ({ where: { sent } }: { where: { sent?: b
     where: sent === undefined ? undefined : sent ? { NOT: { sentAt: null } } : { sentAt: null },
     include: {
       user: true,
+      attachments: {
+        select: {
+          id: true,
+          filename: true,
+        },
+      },
     },
   });
+
+export const findEmailMessageAttachments = ({ where: { id } }: { where: { id: number } }) =>
+  prisma.emailMessageAttachment.findUniqueOrThrow({ where: { id } });

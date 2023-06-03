@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   AutocompleteElement, CheckboxElement,
-  DatePickerElement, DeepPartial,
+  DatePickerElement, DeepPartial, SwitchElement,
   TextFieldElement, useFieldArray,
   useFormContext
 } from 'react-hook-form-mui';
@@ -718,6 +718,9 @@ const OrderFormFields: React.FC = () => {
           <Grid item xs={12}>
             <TextFieldElement name="notes" label="Notes" fullWidth />
           </Grid>
+          <Grid item xs={12}>
+            <SwitchElement name="notify" label="Notifier l'utilisateur avec une copie de la facture" />
+          </Grid>
 
           {!!orderPreview && (watchPayment?.overrideAmount === undefined && orderPreview.computedAmount !== (watchPayment?.amount ?? 0)
            ? (
@@ -791,6 +794,7 @@ type CreateFieldValues = ValidateSubtype<
     step: number,
     user?: User,
     notes?: string,
+    notify: boolean,
     purchases: {
       courseRegistrations?: (CourseRegistration & { course: Course })[],
       newCoupons?: { couponModel?: CouponModel }[],
@@ -814,6 +818,7 @@ const orderFormDefaultValues = (): CreateFieldValues => ({
   billing: {
     date: new Date(),
   },
+  notify: true,
 });
 
 const useProceduresToInvalidate = () => {

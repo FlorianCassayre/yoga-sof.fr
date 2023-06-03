@@ -1,9 +1,10 @@
 import { displayCourseName, displayUserName } from '../src/common/display';
-import { Course, CourseRegistration, EmailMessageType } from '@prisma/client';
+import { Course, CourseRegistration, EmailMessageType, Order, OrderPayment } from '@prisma/client';
 import { urlForLocation } from '../src/common/urls';
 import { LocationHome } from '../src/common/config';
 import React from 'react';
 import { EmailMessageTemplate, EmailMessageWithContentTemplate } from '../src/common/emailMessages';
+import { generatePdfOrderReceipt } from '../src/server/services/pdf';
 
 const withContent = <Props extends {},>
 (template: EmailMessageTemplate<Props>): EmailMessageWithContentTemplate<Props> => {
@@ -34,6 +35,7 @@ const withContent = <Props extends {},>
         .
       </>
     ),
+    attachments: template.attachments,
   };
 };
 
@@ -142,4 +144,22 @@ export const EmailMessageTemplateCourseAdultRegistrationConfirmation: EmailMessa
       <br />
     </>
   ),
+});
+
+export const EmailMessageTemplateOrderCreatedInformation: EmailMessageWithContentTemplate<{ order: Order & { payment: OrderPayment | null } }> = withContent({
+  type: EmailMessageType.ORDER_CREATED,
+  subject: () => `Confirmation de paiement`,
+  body: ({ order }) => (
+    <>
+      Je confirme bonne réception du paiement d'un montant de {order?.payment?.amount ?? 0} € en faveur de Yoga Sof.
+      <br />
+      Vous trouverez en fichier joint la facture contenant le détail des articles acquittés.
+      <br />
+      <br />
+    </>
+  ),
+  attachments: async (prisma, { order }) => {
+    const file = await generatePdfOrderReceipt(prisma, { where: { id: order.id } });
+    return [{ filename: `Facture n°${order.id} - Yoga Sof.pdf`, file }];
+  },
 });

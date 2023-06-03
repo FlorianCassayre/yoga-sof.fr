@@ -5,8 +5,9 @@ import { Prisma } from '@prisma/client';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { createCoupon, findCoupons } from './coupon';
 import { createMembership } from './membership';
+import { notifyOrderCreated } from '../email';
 
-export const findOrder = async (args: { where: Prisma.OrderWhereUniqueInput }) => {
+export const findOrder = async (prisma: Prisma.TransactionClient, args: { where: Prisma.OrderWhereUniqueInput }) => {
   const courseRegistrationArgs = {
     include: {
       course: true,
@@ -184,7 +185,7 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
   const newCouponsCreated = await Promise.all(data.purchases.newCoupons?.map(c => createCoupon(prisma, { data: { couponModelId: c.couponModel.id, userId: user.id } })) ?? []);
   const newMembershipsCreated = await Promise.all(data.purchases.newMemberships?.map(m => createMembership(prisma, { data: { membershipModelId: m.membershipModel.id, yearStart: m.year, users: [user.id] } })) ?? []);
 
-  return prisma.order.create({
+  const order = await prisma.order.create({
     data: {
       userId: user.id,
       date: date,
@@ -228,7 +229,19 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
         },
       } : undefined,
     },
+    include: {
+      payment: true,
+      user: {
+        include: {
+          managedByUser: true,
+        },
+      },
+    },
   });
+
+  const callback = data.notify ? await notifyOrderCreated(prisma, order) : async () => {};
+
+  return [order, callback] as const;
 };
 
 export const updateOrder = async (args: { where: Prisma.OrderWhereUniqueInput, data: Omit<z.infer<typeof orderUpdateSchema>, 'id'> }) => writeTransaction(async prisma => {
@@ -240,28 +253,33 @@ export const deleteOrder = async (args: { where: Prisma.OrderWhereUniqueInput })
   prisma.order.update({ where: args.where, data: { active: false /*transaction: { disconnect: true }*/ } }) // Keep them connected
 );
 
-export const createOrderAutomatically = async (args: { where: { courseRegistrationId: number } }) => writeTransaction(async prisma => {
-  const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id: args.where.courseRegistrationId } });
-  const coupon = (await findCoupons({ where: { includeDisabled: false, userId: courseRegistration.userId } })).filter(c => c.orderCourseRegistrations.length < c.quantity).sort((a, b) => b.orderCourseRegistrations.length - a.orderCourseRegistrations.length)[0];
-  if (coupon === undefined) {
-    throw new ServiceError(ServiceErrorCode.UserHasNoCoupons);
-  }
-  return createOrder(prisma, {
-    data: {
-      user: { id: courseRegistration.userId },
-      purchases: {
-        courseRegistrations: [{ id: courseRegistration.id }],
+export const createOrderAutomatically = async (args: { where: { courseRegistrationId: number } }) => {
+  const [result, callback] = await writeTransaction(async prisma => {
+    const courseRegistration = await prisma.courseRegistration.findUniqueOrThrow({ where: { id: args.where.courseRegistrationId } });
+    const coupon = (await findCoupons({ where: { includeDisabled: false, userId: courseRegistration.userId } })).filter(c => c.orderCourseRegistrations.length < c.quantity).sort((a, b) => b.orderCourseRegistrations.length - a.orderCourseRegistrations.length)[0];
+    if (coupon === undefined) {
+      throw new ServiceError(ServiceErrorCode.UserHasNoCoupons);
+    }
+    return createOrder(prisma, {
+      data: {
+        user: { id: courseRegistration.userId },
+        purchases: {
+          courseRegistrations: [{ id: courseRegistration.id }],
+        },
+        billing: {
+          existingCoupons: [{
+            coupon: { id: coupon.id },
+            courseRegistrationIds: [courseRegistration.id],
+          }],
+          date: new Date(),
+        },
+        notify: false, // No need to notify the user about it
       },
-      billing: {
-        existingCoupons: [{
-          coupon: { id: coupon.id },
-          courseRegistrationIds: [courseRegistration.id],
-        }],
-        date: new Date(),
-      },
-    },
+    });
   });
-});
+  await callback(); // Pedantic
+  return result;
+}
 
 export const findItemsWithNoOrder = async (args: { where?: { userId?: number } } = {}) => readTransaction(async prisma => {
   const baseItem = {

@@ -188,6 +188,7 @@ enum EmailMessageType {
   SESSION_CANCELED
   SESSION_REMINDER_NEWCOMER
   SESSION_REGISTRATION
+  ORDER_CREATED
   OTHER
 }
 
@@ -202,8 +203,19 @@ model EmailMessage {
   message            String           @db.Text
   createdAt          DateTime         @default(now()) @map("created_at")
   sentAt             DateTime?        @map("sent_at")
+  attachments        EmailMessageAttachment[]
 
   @@map("email_message")
+}
+
+model EmailMessageAttachment {
+  id             Int          @id @default(autoincrement())
+  emailMessageId Int          @map("email_message_id")
+  emailMessage   EmailMessage @relation(fields: [emailMessageId], references: [id])
+  filename       String       @db.Text
+  file           Bytes
+
+  @@map("email_message_attachment")
 }
 
 enum TransactionType {

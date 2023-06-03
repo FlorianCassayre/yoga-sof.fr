@@ -178,6 +178,7 @@ const orderCreateStep4PaymentBase = orderCreateStep3DiscountsBase.merge(z.object
     date: z.date(),
   })),
   notes: z.string().optional(),
+  notify: z.boolean(),
 }));
 
 export const refinePaymentType: z.RefinementEffect<z.infer<typeof orderCreateStep4PaymentBase>>['refinement'] = (data, ctx) => {
