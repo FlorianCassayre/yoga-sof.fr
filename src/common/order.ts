@@ -2,7 +2,17 @@ import type { RouterOutput } from '../server/controllers/types';
 import type { Prisma } from '@prisma/client';
 import { displayCouponName, displayMembershipName } from './display';
 
+export enum OrderItemType {
+  Membership,
+  Coupon,
+  CourseNormal,
+  CourseCoupon,
+  CourseTrial,
+  CourseReplacement,
+}
+
 interface OrderItem<T> {
+  type: OrderItemType;
   item: T | string;
   oldPrice?: number;
   price: number;
@@ -29,33 +39,39 @@ export const orderToItems = <T>(order: RouterOutput['order']['find'], options: O
     ...[...order.purchasedMemberships]
       .sort(({ dateStart: a }, { dateStart: b }) => a.getTime() - b.getTime())
       .map(m => ({
+        type: OrderItemType.Membership,
         item: displayMembershipName(m),
         price: m.price,
       })),
     ...[...order.purchasedCoupons]
       .sort(({ createdAt: a }, { createdAt: b }) => a.getTime() - b.getTime())
       .map(c => ({
+        type: OrderItemType.Coupon,
         item: displayCouponName(c),
         price: c.price,
       })),
     ...makeCourseRegistrationsTableData([
       ...order.purchasedCourseRegistrations.map(r => ({
+        type: OrderItemType.CourseNormal,
         courseRegistration: r,
         price: r.course.price,
       })),
       ...order.usedCouponCourseRegistrations.map(({ courseRegistration, coupon }) => ({
+        type: OrderItemType.CourseCoupon,
         courseRegistration,
         oldPrice: courseRegistration.course.price,
         price: 0,
         discount: displayCouponName(coupon),
       })),
       ...order.trialCourseRegistrations.map(({ courseRegistration, price }) => ({
+        type: OrderItemType.CourseTrial,
         courseRegistration,
         oldPrice: courseRegistration.course.price,
         price: price,
         discount: `Séance d'essai`,
       })),
       ...order.replacementCourseRegistrations.map(({ fromCourseRegistration, toCourseRegistration }) => ({
+        type: OrderItemType.CourseReplacement,
         courseRegistration: toCourseRegistration,
         oldPrice: toCourseRegistration.course.price,
         price: 0,

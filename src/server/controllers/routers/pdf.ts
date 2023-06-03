@@ -5,7 +5,8 @@ import { facturePdf } from '../../../../contents/pdf/facture';
 import { createPdf } from '../../pdf';
 import { displayCourseName, displayUserEmail, displayUserName } from '../../../common/display';
 import { findOrder } from '../../services/order';
-import { orderToItems } from '../../../common/order';
+import { OrderItemType, orderToItems } from '../../../common/order';
+
 
 export const pdfRouter = router({
   orderReceipt: adminProcedure
@@ -16,6 +17,14 @@ export const pdfRouter = router({
         formatItemCourseRegistration: (courseRegistration) => displayCourseName(courseRegistration.course),
         formatDiscountCourseRegistrationReplacement: (fromCourseRegistration) => 'Remplacement',
       });
+      const createStars = (n: number): string => `${new Array(n + 1).fill('*').join('')}`;
+      const remarks: Partial<Record<OrderItemType, { short: string, detailed: string }>> = {
+        [OrderItemType.Membership]: { short: 'Période indiquée', detailed: `L'adhésion dure un an et est valable pour la période indiquée. L'adhésion est nominative.` },
+        [OrderItemType.Coupon]: { short: '12 mois', detailed: `La carte est valable 12 mois à compter de la date d'émission de cette facture. La carte est nominative et ne peut pas être utilisée par d'autres personnes.` },
+        [OrderItemType.CourseNormal]: { short: '3 mois', detailed: `La séance est valable pour la date et heure indiquées. Il est possible de la reporter pour une autre séance ayant lieu au maximum 3 mois après la date initiale (sous conditions). La séance reportée ne peut pas être cédée à une autre personne.` },
+      };
+      const typeDetails = Object.keys(remarks).map(type => parseInt(type) as OrderItemType).filter(type => items.some(i => i.type === type));
+      const typeDetailsIndex = Object.fromEntries(typeDetails.map((type, i) => [type, i])) as Partial<Record<OrderItemType, number>>;
       const buffer = await createPdf(facturePdf({
         id,
         date: order.date,
@@ -32,15 +41,19 @@ export const pdfRouter = router({
           fullname: displayUserName(order.user),
           email: displayUserEmail(order.user) ?? '',
         },
-        items: items.map(({ item, oldPrice, price, discount }) => ({
+        items: items.map(({ type, item, price, discount }) => ({
           title: item,
           subtitle: discount,
           price,
-          remark: '',
+          remark: (() => {
+            const remark = remarks[type];
+            return remark !== undefined ? `${remark.short} ${createStars(typeDetailsIndex[type] ?? 0)}` : '';
+          })(),
         })),
         transactionType: order.payment?.type ?? null,
         subtotal: order.computedAmount,
         total: order.payment?.amount ?? 0,
+        details: typeDetails.map(type => createStars(typeDetailsIndex[type] ?? 0) + ' : ' + (remarks[type]?.detailed ?? '')),
         insurance: 'Assurance AXA',
       }));
       return serializeBuffer(buffer);

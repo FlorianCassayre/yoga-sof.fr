@@ -28,6 +28,7 @@ interface FactureProps {
   subtotal: number;
   total: number;
   transactionType: TransactionType | null;
+  details: string[];
   insurance: string;
 }
 
@@ -117,11 +118,11 @@ export const facturePdf: PdfTemplate<FactureProps> = (p) => ({
       layout: 'lightHorizontalLines',
       table: {
         headerRows: 1,
-        widths: ['*', /*'auto',*/ 'auto'],
+        widths: ['*', 'auto', 'auto'],
         body: [
           [
             { text: 'Article', bold: true },
-            //{ text: 'Validité', bold: true },
+            { text: 'Validité', bold: true },
             { text: 'Prix', bold: true },
           ],
           ...p.items.map((i) => [
@@ -132,8 +133,8 @@ export const facturePdf: PdfTemplate<FactureProps> = (p) => ({
               ],
               margin: [0, 5],
             },
-            //i.remark,
-            { text: `${i.price} €`, alignment: 'right', margin: [0, 5] }
+            { text: i.remark, margin: [0, 5] },
+            { text: `${i.price} €`, alignment: 'right', margin: [0, 5] },
           ]),
         ],
       },
@@ -174,11 +175,16 @@ export const facturePdf: PdfTemplate<FactureProps> = (p) => ({
     },
     {
       columns: [[
-        ...(p.paid ? [{ text: 'Facture payée', bold: true, decoration: 'underline', marginBottom: 5 } as any] : []),
+        ...(p.paid ? [{ text: [{ text: 'Facture acquittée', bold: true, decoration: 'underline' } as any, ' ', `(voir date d'émission)`], marginBottom: 5 }] : []),
         ...(p.transactionType !== null ? [`Moyen de paiement : ${TransactionTypeNames[p.transactionType]}`] : []),
       ]],
-      margin: [0, 25, 0, 0]
-    }
+      margin: [0, 15, 0, 0]
+    },
+    ...(p.details.length > 0 ? [{
+      stack: p.details.map(d => ({ text: d, marginTop: 5 })),
+      fontSize: 8,
+      marginTop: 12,
+    }] : []),
   ],
   ...(p.paid ? {
     watermark: {
