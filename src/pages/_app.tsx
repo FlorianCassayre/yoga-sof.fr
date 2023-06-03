@@ -24,6 +24,8 @@ import { fr } from 'date-fns/locale';
 import { trpc } from '../common/trpc';
 import { MDXComponents } from 'mdx/types';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { UserType } from '../common/all';
+import { AuthGuard } from '../components/AuthGuard';
 
 function Paragraph({ children }: JSX.IntrinsicElements['p']) {
   return (
@@ -74,11 +76,19 @@ const LayoutProvider = ({ router, children }: LayoutProviderProps): JSX.Element 
       </>
     );
   } else if (router.pathname.startsWith('/administration')) {
-    return (
-      <GuardedBackofficeContainer>
-        {children}
-      </GuardedBackofficeContainer>
-    );
+    if (router.pathname.startsWith('/administration/pdf/')) {
+      return (
+        <AuthGuard allowedUserTypes={[UserType.Admin]}>
+          {children}
+        </AuthGuard>
+      );
+    } else {
+      return (
+        <GuardedBackofficeContainer>
+          {children}
+        </GuardedBackofficeContainer>
+      );
+    }
   } else {
     return (
       <FrontsiteContainer>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BackofficeContent } from '../../../../components/layout/admin/BackofficeContent';
-import { Delete, Edit, InfoOutlined, ShoppingCart } from '@mui/icons-material';
+import { Delete, Edit, InfoOutlined, PictureAsPdf, ShoppingCart } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { useSchemaQuery } from '../../../../components/hooks/useSchemaQuery';
 import { trpc } from '../../../../common/trpc';
@@ -10,14 +10,14 @@ import { orderFindTransformSchema } from '../../../../common/schemas/order';
 import { RouterOutput } from '../../../../server/controllers/types';
 import { Box, Card, Chip, Grid, Stack } from '@mui/material';
 import { CourseLink } from '../../../../components/link/CourseLink';
-import { Prisma } from '@prisma/client';
-import { displayCouponName, displayMembershipName, displayUserName } from '../../../../common/display';
+import { displayUserName } from '../../../../common/display';
 import { InformationTableCard } from '../../../../components/InformationTableCard';
 import { formatDateDDsMMsYYYYsHHhMMmSSs, formatDateDDsmmYYYY } from '../../../../common/date';
 import { UserLink } from '../../../../components/link/UserLink';
 import { DeleteOrderDialog } from '../../../../components/DeleteOrderDialog';
 import { useSnackbar } from 'notistack';
 import { PurchasesTable } from '../../../../components/PurchasesTable';
+import { orderToItems } from '../../../../common/order';
 
 interface OrderViewContentProps {
   order: RouterOutput['order']['find'];
@@ -39,65 +39,24 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
     },
   });
 
-  type PurchaseTableItem = Parameters<typeof PurchasesTable>[0]['rows'][0];
-  const makeCourseRegistrationsTableData =
-    (items: (Omit<PurchaseTableItem, 'item'> & { courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true } }> })[]): PurchaseTableItem[] =>
-      [...items]
-        .sort(({ courseRegistration: { course: { dateStart: a } } }, { courseRegistration: { course: { dateStart: b } } }) => a.getTime() - b.getTime())
-        .map(({ courseRegistration, ...item }) => ({
-          item: <CourseLink course={courseRegistration.course} />,
-          ...item,
-        }));
-  const purchasesTableData: PurchaseTableItem[] =
-    [
-      ...[...order.purchasedMemberships]
-        .sort(({ dateStart: a }, { dateStart: b }) => a.getTime() - b.getTime())
-        .map(m => ({
-          item: displayMembershipName(m),
-          price: m.price,
-        })),
-      ...[...order.purchasedCoupons]
-        .sort(({ createdAt: a }, { createdAt: b }) => a.getTime() - b.getTime())
-        .map(c => ({
-          item: displayCouponName(c),
-          price: c.price,
-        })),
-      ...makeCourseRegistrationsTableData([
-        ...order.purchasedCourseRegistrations.map(r => ({
-          courseRegistration: r,
-          price: r.course.price,
-        })),
-        ...order.usedCouponCourseRegistrations.map(({ courseRegistration, coupon }) => ({
-          courseRegistration,
-          oldPrice: courseRegistration.course.price,
-          price: 0,
-          discount: displayCouponName(coupon),
-        })),
-        ...order.trialCourseRegistrations.map(({ courseRegistration, price }) => ({
-          courseRegistration,
-          oldPrice: courseRegistration.course.price,
-          price: price,
-          discount: `Séance d'essai`,
-        })),
-        ...order.replacementCourseRegistrations.map(({ fromCourseRegistration, toCourseRegistration }) => ({
-          courseRegistration: toCourseRegistration,
-          oldPrice: toCourseRegistration.course.price,
-          price: 0,
-          discount: (
-            <Stack direction="row" alignItems="center" gap={1}>
-              <Box>Remplacement :</Box>
-              <CourseLink course={fromCourseRegistration.course} />
-            </Stack>
-          ),
-        }))
-      ]),
-    ];
+  const purchasesTableData = orderToItems(order, {
+    formatItemCourseRegistration: (courseRegistration) => (
+      <CourseLink course={courseRegistration.course} />
+    ),
+    formatDiscountCourseRegistrationReplacement: (fromCourseRegistration) => (
+      <Stack direction="row" alignItems="center" gap={1}>
+        <Box>Remplacement :</Box>
+        <CourseLink course={fromCourseRegistration.course} />
+      </Stack>
+    ),
+  });
 
   return (
     <BackofficeContent
       title={`Paiement du ${formatDateDDsmmYYYY(order.date)} pour ${displayUserName(order.user)}`}
       icon={<ShoppingCart />}
       actions={[
+        { name: 'Imprimer', icon: <PictureAsPdf />, url: { pathname: '/administration/pdf/factures/[id]', query: { id: order.id } } },
         { name: 'Modifier', icon: <Edit />, url: { pathname: '/administration/paiements/[id]/edition', query: { id: order.id, redirect: router.asPath } } },
         { name: 'Supprimer', icon: <Delete />, onClick: () => setDeleteDialogOpen(true), disabled: isDeleteLoading },
       ]}
