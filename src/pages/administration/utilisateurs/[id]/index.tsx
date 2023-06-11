@@ -19,10 +19,10 @@ import { Box, Card, CardContent, Chip, Grid, Stack, Tooltip, Typography } from '
 import { getUserStatistics } from '../../../../common/user';
 import { trpc } from '../../../../common/trpc';
 import { useSnackbar } from 'notistack';
-import { DisableUserDialog } from '../../../../components/DisableUserDialog';
-import { RenableUserDialog } from '../../../../components/RenableUserDialog';
+import { DisableUserDialog } from '../../../../components/dialogs/DisableUserDialog';
+import { RenableUserDialog } from '../../../../components/dialogs/RenableUserDialog';
 import { BackofficeContentLoading } from '../../../../components/layout/admin/BackofficeContentLoading';
-import { DeleteUserDialog } from '../../../../components/DeleteUserDialog';
+import { DeleteUserDialog } from '../../../../components/dialogs/DeleteUserDialog';
 import { BackofficeContentError } from '../../../../components/layout/admin/BackofficeContentError';
 import { CouponGrid } from '../../../../components/grid/grids/CouponGrid';
 import { MembershipGrid } from '../../../../components/grid/grids/MembershipGrid';

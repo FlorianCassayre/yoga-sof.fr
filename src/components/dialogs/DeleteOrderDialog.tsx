@@ -1,25 +1,25 @@
-import React, { useState } from 'react';
-import { Course, User } from '@prisma/client';
+import React from 'react';
+import { Order, User } from '@prisma/client';
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle, TextField,
-  Typography
+  DialogTitle, Typography
 } from '@mui/material';
-import { displayCourseName, displayUserName } from '../common/display';
+import { displayUserName } from '../../common/display';
 import { grey } from '@mui/material/colors';
+import { formatDateDDsmmYYYY } from '../../common/date';
 
-interface DisableUserDialogProps {
-  user: User;
+interface DeleteOrderDialogProps {
+  order: Pick<Order, 'date'> & { user: Parameters<typeof displayUserName>[0] };
   open: boolean;
   setOpen: (open: boolean) => void;
   onConfirm: () => void;
 }
 
-export const DisableUserDialog: React.FC<DisableUserDialogProps> = ({ user, open, setOpen, onConfirm }) => {
+export const DeleteOrderDialog: React.FC<DeleteOrderDialogProps> = ({ order, open, setOpen, onConfirm }) => {
   const handleClose = () => {
     setOpen(false);
   };
@@ -34,14 +34,14 @@ export const DisableUserDialog: React.FC<DisableUserDialogProps> = ({ user, open
       onClose={handleClose}
     >
       <DialogTitle>
-        Désactiver le compte utilisateur
+        Supprimer le paiement
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
           <Typography paragraph>
-            Souhaitez-vous vraiment désactiver le compte utilisateur <strong>{displayUserName(user)}</strong> ?
-            Cet utilisateur ne sera plus en mesure de se connecter au site et son profil n'apparaitra plus dans la liste.
-            Vous pourrez le réactiver à tout moment.
+            Souhaitez-vous vraiment supprimer le paiement du <strong>{formatDateDDsmmYYYY(order.date)}</strong> de l'utilisateur <strong>{displayUserName(order.user)}</strong> ?
+            Après la suppression tous les articles seront à nouveau marqués comme impayés.
+            Cette opération n'est pas réversible, cependant les données supprimées seront tout de même conservées.
           </Typography>
         </DialogContentText>
       </DialogContent>

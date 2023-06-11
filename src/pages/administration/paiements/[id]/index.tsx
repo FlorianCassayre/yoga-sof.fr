@@ -14,7 +14,7 @@ import { displayUserName } from '../../../../common/display';
 import { InformationTableCard } from '../../../../components/InformationTableCard';
 import { formatDateDDsMMsYYYYsHHhMMmSSs, formatDateDDsmmYYYY } from '../../../../common/date';
 import { UserLink } from '../../../../components/link/UserLink';
-import { DeleteOrderDialog } from '../../../../components/DeleteOrderDialog';
+import { DeleteOrderDialog } from '../../../../components/dialogs/DeleteOrderDialog';
 import { useSnackbar } from 'notistack';
 import { PurchasesTable } from '../../../../components/PurchasesTable';
 import { orderToItems } from '../../../../common/order';

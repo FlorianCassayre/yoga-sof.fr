@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import { GridColDef, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { AsyncGrid } from '../AsyncGrid';
 import { courseColumn, orderColumn, relativeTimestamp, userColumn } from './common';
-import { CancelCourseRegistrationDialog } from '../../CancelCourseRegistrationDialog';
+import { CancelCourseRegistrationDialog } from '../../dialogs/CancelCourseRegistrationDialog';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../common/trpc';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
@@ -12,7 +12,7 @@ import { getCourseStatus } from '../../../common/course';
 import { getUserLatestMembership } from '../../../common/user';
 import { Chip } from '@mui/material';
 import { RouterOutput } from '../../../server/controllers/types';
-import { QuickOrderDialog } from '../../QuickOrderDialog';
+import { QuickOrderDialog } from '../../dialogs/QuickOrderDialog';
 
 interface GridActionsAttendanceProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>;

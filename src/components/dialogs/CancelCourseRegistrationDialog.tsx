@@ -8,7 +8,7 @@ import {
   DialogContentText,
   DialogTitle,
 } from '@mui/material';
-import { displayCourseName, displayUserName } from '../common/display';
+import { displayCourseName, displayUserName } from '../../common/display';
 import { grey } from '@mui/material/colors';
 
 interface CancelCourseRegistrationDialogProps {

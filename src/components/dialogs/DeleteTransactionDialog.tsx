@@ -1,5 +1,5 @@
 import React from 'react';
-import { Course, CourseRegistration, Order, Transaction, User } from '@prisma/client';
+import { Transaction, User } from '@prisma/client';
 import {
   Button,
   Dialog,
@@ -9,17 +9,17 @@ import {
   DialogTitle,
   Typography
 } from '@mui/material';
-import { displayTransactionWithUserName } from '../common/display';
+import { displayTransactionWithUserName } from '../../common/display';
 import { grey } from '@mui/material/colors';
 
-interface QuickOrderDialogProps {
-  courseRegistration: CourseRegistration & { user: User } & { course: Course };
+interface DeleteTransactionDialogProps {
+  transaction: Transaction & { user: User };
   open: boolean;
   setOpen: (open: boolean) => void;
   onConfirm: () => void;
 }
 
-export const QuickOrderDialog: React.FC<QuickOrderDialogProps> = ({ courseRegistration, open, setOpen, onConfirm }) => {
+export const DeleteTransactionDialog: React.FC<DeleteTransactionDialogProps> = ({ transaction, open, setOpen, onConfirm }) => {
   const handleClose = () => {
     setOpen(false);
   };
@@ -34,14 +34,13 @@ export const QuickOrderDialog: React.FC<QuickOrderDialogProps> = ({ courseRegist
       onClose={handleClose}
     >
       <DialogTitle>
-        Payer une séance à partir d'une carte
+        Confirmer la suppression du paiement
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          <Typography>
-            Ce bouton vous permet de créer automatiquement un paiement à transaction nulle à partir d'une séance pour un utilisateur, en utilisant une carte.
-            Ceci ne fonctionne que si l'utilisateur possède une carte en cours de validité.
-            L'utilisateur ne recevra pas d'email de confirmation contenant la facture.
+          <Typography paragraph>
+            Souhaitez-vous vraiment supprimer le paiement de <strong>{displayTransactionWithUserName(transaction)}</strong> ?
+            Cette opération n'est pas réversible.
           </Typography>
         </DialogContentText>
       </DialogContent>

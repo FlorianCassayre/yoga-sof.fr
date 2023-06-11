@@ -10,7 +10,7 @@ import { GridColDef, GridRowParams, GridValueGetterParams } from '@mui/x-data-gr
 import { AsyncGrid } from '../AsyncGrid';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../common/trpc';
-import { FrontsiteCancelCourseRegistrationDialog } from '../../FrontsiteCancelCourseRegistrationDialog';
+import { FrontsiteCancelCourseRegistrationDialog } from '../../dialogs/FrontsiteCancelCourseRegistrationDialog';
 import { CourseStatusChip } from '../../CourseStatusChip';
 import { relativeTimestamp, simpleOrderColumn } from './common';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';

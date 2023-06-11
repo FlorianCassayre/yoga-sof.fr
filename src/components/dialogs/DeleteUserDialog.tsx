@@ -1,25 +1,25 @@
-import React from 'react';
-import { Order, User } from '@prisma/client';
+import React, { useState } from 'react';
+import { Course, User } from '@prisma/client';
 import {
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
-  DialogTitle, Typography
+  DialogTitle, TextField,
+  Typography
 } from '@mui/material';
-import { displayUserName } from '../common/display';
+import { displayCourseName, displayUserName } from '../../common/display';
 import { grey } from '@mui/material/colors';
-import { formatDateDDsmmYYYY } from '../common/date';
 
-interface DeleteOrderDialogProps {
-  order: Pick<Order, 'date'> & { user: Parameters<typeof displayUserName>[0] };
+interface DeleteUserDialogProps {
+  user: User;
   open: boolean;
   setOpen: (open: boolean) => void;
   onConfirm: () => void;
 }
 
-export const DeleteOrderDialog: React.FC<DeleteOrderDialogProps> = ({ order, open, setOpen, onConfirm }) => {
+export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ user, open, setOpen, onConfirm }) => {
   const handleClose = () => {
     setOpen(false);
   };
@@ -34,14 +34,16 @@ export const DeleteOrderDialog: React.FC<DeleteOrderDialogProps> = ({ order, ope
       onClose={handleClose}
     >
       <DialogTitle>
-        Supprimer le paiement
+        Supprimer le compte utilisateur
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
           <Typography paragraph>
-            Souhaitez-vous vraiment supprimer le paiement du <strong>{formatDateDDsmmYYYY(order.date)}</strong> de l'utilisateur <strong>{displayUserName(order.user)}</strong> ?
-            Après la suppression tous les articles seront à nouveau marqués comme impayés.
-            Cette opération n'est pas réversible, cependant les données supprimées seront tout de même conservées.
+            Souhaitez-vous vraiment supprimer le compte utilisateur <strong>{displayUserName(user)}</strong> ?
+            Cette opération n'est pas réversible.
+          </Typography>
+          <Typography paragraph>
+            Remarquez en outre que la suppression n'est possible à la seule condition que l'utilisateur ne se soit jamais connecté au site, et qu'aucune inscription à des séances n'ait été effectuée dans le passé.
           </Typography>
         </DialogContentText>
       </DialogContent>

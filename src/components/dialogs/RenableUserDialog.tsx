@@ -1,5 +1,5 @@
-import React from 'react';
-import { Transaction, User } from '@prisma/client';
+import React, { useState } from 'react';
+import { Course, User } from '@prisma/client';
 import {
   Button,
   Dialog,
@@ -9,17 +9,17 @@ import {
   DialogTitle,
   Typography
 } from '@mui/material';
-import { displayTransactionWithUserName } from '../common/display';
+import { displayUserName } from '../../common/display';
 import { grey } from '@mui/material/colors';
 
-interface DeleteTransactionDialogProps {
-  transaction: Transaction & { user: User };
+interface RenableUserDialogProps {
+  user: User;
   open: boolean;
   setOpen: (open: boolean) => void;
   onConfirm: () => void;
 }
 
-export const DeleteTransactionDialog: React.FC<DeleteTransactionDialogProps> = ({ transaction, open, setOpen, onConfirm }) => {
+export const RenableUserDialog: React.FC<RenableUserDialogProps> = ({ user, open, setOpen, onConfirm }) => {
   const handleClose = () => {
     setOpen(false);
   };
@@ -34,13 +34,13 @@ export const DeleteTransactionDialog: React.FC<DeleteTransactionDialogProps> = (
       onClose={handleClose}
     >
       <DialogTitle>
-        Confirmer la suppression du paiement
+        Réactiver le compte utilisateur
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
           <Typography paragraph>
-            Souhaitez-vous vraiment supprimer le paiement de <strong>{displayTransactionWithUserName(transaction)}</strong> ?
-            Cette opération n'est pas réversible.
+            Souhaitez-vous vraiment réactiver le compte utilisateur <strong>{displayUserName(user)}</strong> ?
+            Cet utilisateur pourra à nouveau se connecter au site et s'inscrire à des séances.
           </Typography>
         </DialogContentText>
       </DialogContent>

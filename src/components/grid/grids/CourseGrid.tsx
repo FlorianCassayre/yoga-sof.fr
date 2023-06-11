@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 import { CourseStatusChip } from '../../CourseStatusChip';
 import { GridRenderCellParams, GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
 import { Box } from '@mui/material';
-import { CancelCourseDialog } from '../../CancelCourseDialog';
+import { CancelCourseDialog } from '../../dialogs/CancelCourseDialog';
 import { trpc } from '../../../common/trpc';
 import { useSnackbar } from 'notistack';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';

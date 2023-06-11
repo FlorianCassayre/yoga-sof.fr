@@ -9,17 +9,17 @@ import {
   DialogTitle, TextField,
   Typography
 } from '@mui/material';
-import { displayCourseName, displayUserName } from '../common/display';
+import { displayCourseName, displayUserName } from '../../common/display';
 import { grey } from '@mui/material/colors';
 
-interface DeleteUserDialogProps {
+interface DisableUserDialogProps {
   user: User;
   open: boolean;
   setOpen: (open: boolean) => void;
   onConfirm: () => void;
 }
 
-export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ user, open, setOpen, onConfirm }) => {
+export const DisableUserDialog: React.FC<DisableUserDialogProps> = ({ user, open, setOpen, onConfirm }) => {
   const handleClose = () => {
     setOpen(false);
   };
@@ -34,16 +34,14 @@ export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ user, open, 
       onClose={handleClose}
     >
       <DialogTitle>
-        Supprimer le compte utilisateur
+        Désactiver le compte utilisateur
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
           <Typography paragraph>
-            Souhaitez-vous vraiment supprimer le compte utilisateur <strong>{displayUserName(user)}</strong> ?
-            Cette opération n'est pas réversible.
-          </Typography>
-          <Typography paragraph>
-            Remarquez en outre que la suppression n'est possible à la seule condition que l'utilisateur ne se soit jamais connecté au site, et qu'aucune inscription à des séances n'ait été effectuée dans le passé.
+            Souhaitez-vous vraiment désactiver le compte utilisateur <strong>{displayUserName(user)}</strong> ?
+            Cet utilisateur ne sera plus en mesure de se connecter au site et son profil n'apparaitra plus dans la liste.
+            Vous pourrez le réactiver à tout moment.
           </Typography>
         </DialogContentText>
       </DialogContent>

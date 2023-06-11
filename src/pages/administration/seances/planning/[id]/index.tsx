@@ -34,7 +34,7 @@ import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../../../../common/dat
 import { CourseStatusChip } from '../../../../../components/CourseStatusChip';
 import { useSnackbar } from 'notistack';
 import { trpc } from '../../../../../common/trpc';
-import { CancelCourseDialog } from '../../../../../components/CancelCourseDialog';
+import { CancelCourseDialog } from '../../../../../components/dialogs/CancelCourseDialog';
 import { BackofficeContentLoading } from '../../../../../components/layout/admin/BackofficeContentLoading';
 import { BackofficeContentError } from '../../../../../components/layout/admin/BackofficeContentError';
 
