@@ -1,4 +1,5 @@
 import { prisma } from '../prisma';
+import { PaymentRecipient } from '@prisma/client';
 
 const sum = (array: number[]): number => array.reduce((a, b) => a + b, 0);
 
@@ -39,30 +40,31 @@ export const findAggregatedPayments = async ({ aggregation }: { aggregation: Dat
   })();
   const actualDateMax = new Date();
 
-  const data: Record<string, number> = {};
+  const data: Record<string, Record<PaymentRecipient, number>> = {};
   const groupBy = aggregationOperators[aggregation], next = aggregationNext[aggregation];
+  const initialValue = () => Object.fromEntries(Object.keys(PaymentRecipient).map(key => [key as PaymentRecipient, 0])) as Record<PaymentRecipient, number>;
 
   let date = dateMin;
-  data[groupBy(date)] = 0;
+  data[groupBy(date)] = initialValue();
   while (groupBy(date) < groupBy(actualDateMax)) {
     const nextDate = next(date);
     const key = groupBy(nextDate);
-    data[key] = 0;
+    data[key] = initialValue();
     date = nextDate;
   }
 
   payments.forEach(payment => {
     const key = groupBy(payment.order.date);
-    data[key] += payment.amount;
+    data[key][payment.recipient] += payment.amount;
   });
 
   const sortedData = Object.entries(data).sort(([a], [b]) => a < b ? -1 : 1);
   return { aggregation, data: sortedData };
 };
 
-export const findPaymentsCategories = async () => {
+export const findPaymentsCategories = async ({ recipient }: { recipient?: PaymentRecipient } = {}) => {
   const payments = await prisma.orderPayment.findMany({
-    where: { order: { active: true } },
+    where: { recipient, order: { active: true } },
     include: {
       order: {
         include: {

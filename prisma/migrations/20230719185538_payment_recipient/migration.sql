@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `order_payment` ADD COLUMN `recipient` ENUM('ORGANIZATION', 'ENTERPRISE') NOT NULL DEFAULT 'ORGANIZATION';
+ALTER TABLE `order_payment` ALTER COLUMN `recipient` DROP DEFAULT;

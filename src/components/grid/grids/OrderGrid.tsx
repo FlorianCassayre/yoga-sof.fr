@@ -10,6 +10,7 @@ import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { Edit, Visibility } from '@mui/icons-material';
 import { RouterOutput } from '../../../server/controllers/types';
 import { GridRenderCellParams, GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
+import { PaymentRecipientNames } from '../../../common/payment';
 
 interface OrderGridProps {
   userId?: number;
@@ -45,6 +46,11 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       },
       minWidth: 150,
       flex: 1.5,
+    },
+    {
+      field: 'payment.recipient',
+      headerName: 'Bénéficiaire',
+      valueGetter: ({ row: { payment } }: GridValueGetterParams<OrderItem>): string | null => payment !== null ? PaymentRecipientNames[payment.recipient] : null,
     },
     {
       field: 'payment.amount',

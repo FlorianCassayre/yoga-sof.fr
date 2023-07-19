@@ -331,11 +331,17 @@ model OrderReplacementCourseRegistration {
   @@map("order_replacement_course_registration")
 }
 
+enum PaymentRecipient {
+  ORGANIZATION
+  ENTERPRISE
+}
+
 model OrderPayment {
-  orderId Int   @id @map("order_id")
-  order   Order @relation(fields: [orderId], references: [id])
-  amount  Int   @db.UnsignedInt
-  type    TransactionType
+  orderId   Int   @id @map("order_id")
+  order     Order @relation(fields: [orderId], references: [id])
+  amount    Int   @db.UnsignedInt
+  type      TransactionType
+  recipient PaymentRecipient
 
   @@map("order_payment")
 }

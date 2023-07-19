@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { prisma, readTransaction, writeTransaction } from '../prisma';
 import { orderCreateSchema, orderUpdateSchema } from '../../common/schemas/order';
-import { Prisma } from '@prisma/client';
+import { PaymentRecipient, Prisma } from '@prisma/client';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import { createCoupon, findCoupons } from './coupon';
 import { createMembership } from './membership';
@@ -148,6 +148,18 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
 
   // ---
 
+  // Recipient (may not necessarily be used)
+  const hasMemberships = !!(data.purchases.newMemberships?.length || data.purchases.existingMemberships?.length);
+  const hasAnythingOtherThanMemberships = !!(data.purchases.courseRegistrations?.length || data.purchases.newCoupons?.length || data.purchases.existingCoupons?.length);
+  let recipient: PaymentRecipient | null;
+  if (hasMemberships && !hasAnythingOtherThanMemberships) {
+    recipient = PaymentRecipient.ORGANIZATION;
+  } else if (!hasMemberships && hasAnythingOtherThanMemberships) {
+    recipient = PaymentRecipient.ENTERPRISE;
+  } else {
+    recipient = null;
+  }
+
   // Total
   const sum = (array: number[]): number => array.reduce((a, b) => a + b, 0);
 
@@ -178,6 +190,22 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
   const amountPaid = (data.billing.newPayment ? (data.billing.newPayment?.overrideAmount ? data.billing?.newPayment?.amount : computedAmount) : 0) ?? 0;
   if (amountPaid !== computedAmount && !data.billing.newPayment?.overrideAmount) { // If no override, check that the payment corresponds to the amount
     throw new ServiceError(ServiceErrorCode.OrderPaymentAmountMismatch);
+  }
+
+  let payment;
+  if (data.billing.newPayment && amountPaid > 0) {
+    if (recipient === null) {
+      throw new ServiceError(ServiceErrorCode.OrderCannotInferRecipient);
+    }
+    payment = {
+      create: {
+        amount: amountPaid, // Take into account the override
+        type: data.billing.newPayment.type,
+        recipient,
+      },
+    };
+  } else {
+    payment = undefined;
   }
 
   // ---
@@ -222,12 +250,7 @@ export const createOrder = async (prisma: Prisma.TransactionClient, args: { data
       purchasedCourseRegistrations: {
         connect: paidCourseRegistrationIds.map(id => ({ id })),
       },
-      payment: data.billing.newPayment && amountPaid > 0 ? {
-        create: {
-          amount: amountPaid, // Take into account the override
-          type: data.billing.newPayment.type,
-        },
-      } : undefined,
+      payment,
     },
     include: {
       payment: true,

@@ -17,7 +17,8 @@ import { UserLink } from '../../../../components/link/UserLink';
 import { DeleteOrderDialog } from '../../../../components/dialogs/DeleteOrderDialog';
 import { useSnackbar } from 'notistack';
 import { PurchasesTable } from '../../../../components/PurchasesTable';
-import { orderToItems } from '../../../../common/order';
+import { canGenerateInvoice, orderToItems } from '../../../../common/order';
+import { PaymentRecipientNames } from '../../../../common/payment';
 
 interface OrderViewContentProps {
   order: RouterOutput['order']['find'];
@@ -56,7 +57,7 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
       title={`Paiement du ${formatDateDDsmmYYYY(order.date)} pour ${displayUserName(order.user)}`}
       icon={<ShoppingCart />}
       actions={[
-        { name: 'Imprimer', icon: <PictureAsPdf />, url: { pathname: '/administration/pdf/factures/[id]', query: { id: order.id } } },
+        ...(canGenerateInvoice(order) ? [{ name: 'Imprimer', icon: <PictureAsPdf />, url: { pathname: '/administration/pdf/factures/[id]', query: { id: order.id } } }] : []),
         { name: 'Modifier', icon: <Edit />, url: { pathname: '/administration/paiements/[id]/edition', query: { id: order.id, redirect: router.asPath } } },
         { name: 'Supprimer', icon: <Delete />, onClick: () => setDeleteDialogOpen(true), disabled: isDeleteLoading },
       ]}
@@ -69,6 +70,10 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
                 header: 'Utilisateur',
                 value: <UserLink user={order.user} />,
               },
+              ...(order.payment ? [{
+                header: 'Bénéficiaire',
+                value: PaymentRecipientNames[order.payment.recipient],
+              }] : []),
               {
                 header: 'Date',
                 value: formatDateDDsmmYYYY(order.date),

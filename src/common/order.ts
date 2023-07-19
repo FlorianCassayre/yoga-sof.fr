@@ -1,6 +1,7 @@
 import type { Prisma } from '@prisma/client';
 import { displayCouponName, displayMembershipName } from './display';
 import type { findOrder } from '../server/services/order';
+import { PaymentRecipient } from '@prisma/client';
 
 export enum OrderItemType {
   Membership,
@@ -80,3 +81,6 @@ export const orderToItems = <T>(order: Awaited<ReturnType<typeof findOrder>>, op
     ]),
   ];
 }
+
+export const canGenerateInvoice = (order: Prisma.OrderGetPayload<{ select: { payment: { select: { recipient: true } } } }>): boolean =>
+  order.payment === null || order.payment.recipient === PaymentRecipient.ENTERPRISE;

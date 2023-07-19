@@ -1,12 +1,16 @@
 import { findOrder } from './order';
-import { OrderItemType, orderToItems } from '../../common/order';
+import { canGenerateInvoice, OrderItemType, orderToItems } from '../../common/order';
 import { displayCourseName, displayUserEmail, displayUserName } from '../../common/display';
 import { createPdf } from '../pdf';
 import { facturePdf } from '../../../contents/pdf/facture';
 import { Prisma } from '@prisma/client';
+import { ServiceError, ServiceErrorCode } from './helpers/errors';
 
 export const generatePdfOrderReceipt = async (prisma: Prisma.TransactionClient, { where: { id } }: { where: { id: number } }) => {
   const order = await findOrder(prisma, { where: { id } });
+  if (!canGenerateInvoice(order)) {
+    throw new ServiceError(ServiceErrorCode.OrderInvoiceInapplicable);
+  }
   const items = orderToItems(order, {
     formatItemCourseRegistration: (courseRegistration) => displayCourseName(courseRegistration.course),
     formatDiscountCourseRegistrationReplacement: (fromCourseRegistration) => 'Remplacement',

@@ -33,6 +33,8 @@ export enum ServiceErrorCode {
   CoursePriceCannotBeModified,
   UserHasNoCoupons,
   UsersCannotBeMerged,
+  OrderCannotInferRecipient,
+  OrderInvoiceInapplicable,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -77,4 +79,6 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.CoursePriceCannotBeModified]: `Le prix de la séance ne peut plus être modifié`,
   [ServiceErrorCode.UserHasNoCoupons]: `L'utilisateur ne possède aucune carte qui puisse être utilisée`,
   [ServiceErrorCode.UsersCannotBeMerged]: `Ces utilisateurs ne peuvent pas être fusionnés`,
+  [ServiceErrorCode.OrderCannotInferRecipient]: `Le bénéficiaire ne peut pas être déduit à partir des articles de ce paiement`,
+  [ServiceErrorCode.OrderInvoiceInapplicable]: `Une facture ne peut pas être générée pour ce type de paiement`,
 };
