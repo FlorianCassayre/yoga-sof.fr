@@ -1,4 +1,4 @@
-import { adminProcedure, router } from '../trpc';
+import { backofficeReadProcedure, backofficeWriteProcedure, router } from '../trpc';
 import { membershipCreateLegacySchema, membershipFindSchema } from '../../../common/schemas/membership';
 import { z } from 'zod';
 import {
@@ -9,22 +9,22 @@ import {
 } from '../../services/membership';
 
 export const membershipRouter = router({
-  find: adminProcedure
+  find: backofficeReadProcedure
     .input(membershipFindSchema)
     .query(async ({ input: { id } }) => findMembership({ where: { id } })),
-  findAll: adminProcedure
+  findAll: backofficeReadProcedure
     .input(z.object({
       includeDisabled: z.boolean().optional(),
       userId: z.number().int().min(0).optional(),
       noOrder: z.boolean().optional(),
     }))
     .query(async ({ input: { includeDisabled, userId, noOrder } }) => findMemberships({ where: { includeDisabled: !!includeDisabled, userId, noOrder } })),
-  create: adminProcedure
+  create: backofficeWriteProcedure
     .input(membershipCreateLegacySchema)
     .mutation(async ({ input: { membershipModelId, dateStart, users }, ctx: { session } }) =>
       createMembershipLegacy({ data: { membershipModelId, dateStart, users } })
     ),
-  disable: adminProcedure
+  disable: backofficeWriteProcedure
     .input(membershipFindSchema)
     .mutation(async ({ input: { id } }) => disableMembership({ where: { id } })),
 });

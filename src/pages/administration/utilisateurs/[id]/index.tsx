@@ -29,6 +29,7 @@ import { MembershipGrid } from '../../../../components/grid/grids/MembershipGrid
 import { OrderGrid } from '../../../../components/grid/grids/OrderGrid';
 import { UserInformationTableCard } from '../../../../components/UserInformationTableCard';
 import { UnpaidItemsGrid } from '../../../../components/grid/grids/UnpaidItemsGrid';
+import { useBackofficeWritePermission } from '../../../../components/hooks/usePermission';
 
 interface GridItemStatisticProps {
   value: number;
@@ -58,6 +59,7 @@ interface AdminUserContentProps {
 }
 
 const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user }: AdminUserContentProps) => {
+  const hasWritePermission = useBackofficeWritePermission();
   const title = `Utilisateur ${displayUserName(user)}`;
   const statistics = getUserStatistics(user);
   const trpcClient = trpc.useContext();
@@ -102,15 +104,15 @@ const AdminUserContent: React.FunctionComponent<AdminUserContentProps> = ({ user
         </Stack>
       }
       icon={<Person />}
-      actions={[
+      actions={hasWritePermission ? [
         { name: 'Modifier', icon: <Edit />, url: { pathname: '/administration/utilisateurs/[id]/edition', query: { id: user.id, redirect: router.asPath } } },
         { name: user.disabled ? 'Réactiver le compte' : 'Désactiver le compte', icon: <Block />, onClick: () => setDisableDialogOpen(true), disabled: isDisablingLoading },
         { name: 'Supprimer', icon: <Delete />, onClick: () => setDeleteDialogOpen(true), disabled: isDeleteLoading },
-      ]}
-      quickActions={[
+      ] : []}
+      quickActions={hasWritePermission ? [
         { name: 'Inscrire à des séances', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { userId: user.id, redirect: router.asPath } } },
         { name: 'Créer un paiement', icon: <ShoppingCart />, url: { pathname: `/administration/paiements/creation`, query: { userId: user.id, redirect: router.asPath } } },
-      ]}
+      ] : []}
     >
       <DisableUserDialog user={user} open={isDisableDialogOpen && !user.disabled} setOpen={setDisableDialogOpen} onConfirm={() => mutateDisable({ id: user.id, disabled: true })} />
       <RenableUserDialog user={user} open={isDisableDialogOpen && user.disabled} setOpen={setDisableDialogOpen} onConfirm={() => mutateDisable({ id: user.id, disabled: false })} />

@@ -15,6 +15,7 @@ import { useSnackbar } from 'notistack';
 import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 import { RouterOutput } from '../../../server/controllers/types';
+import { useBackofficeWritePermission } from '../../hooks/usePermission';
 
 const CourseGridActions = ({ row: course }: GridRowParams<Course>): React.ReactElement[] => {
   const router = useRouter();
@@ -57,6 +58,7 @@ interface CourseGridProps {
 }
 
 export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, canceled, readOnly }) => {
+  const hasWritePermission = useBackofficeWritePermission();
   type CourseItem = RouterOutput['course']['findAll'][0];
   const columns: GridColDef<CourseItem>[] = [
     {
@@ -145,7 +147,7 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, c
       minWidth: 100,
       flex: 1,
     },
-    ...(!readOnly ? [{
+    ...(!readOnly && hasWritePermission ? [{
       field: 'actions',
       type: 'actions',
       minWidth: 130,

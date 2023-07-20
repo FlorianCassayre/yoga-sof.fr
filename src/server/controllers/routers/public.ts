@@ -1,5 +1,4 @@
-import { findCourseModels, findCourses } from '../../services';
-import { Prisma } from '@prisma/client';
+import { findCourseModels } from '../../services';
 import { procedure, router } from '../trpc';
 import { prisma } from '../../prisma';
 

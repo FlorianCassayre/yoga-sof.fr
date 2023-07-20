@@ -15,40 +15,41 @@ import {
   usersMergeSchema,
   userUpdateSchema,
 } from '../../../common/schemas/user';
-import { adminProcedure, router } from '../trpc';
+import { backofficeReadProcedure, backofficeWriteProcedure, router } from '../trpc';
 import { readTransaction, writeTransaction } from '../../prisma';
 
 export const userRouter = router({
-  find: adminProcedure
+  find: backofficeReadProcedure
     .input(z.strictObject({
       id: z.number().int().min(0),
     }))
     .query(async ({ input: { id } }) => findUser({ where: { id } })),
-  findAll: adminProcedure
+  findAll: backofficeReadProcedure
     .input(z.strictObject({
       disabled: z.boolean().optional(),
+      role: z.boolean().optional(),
     }))
-    .query(async ({ input: { disabled } }) => findUsers({ where: { disabled } })),
-  findUpdate: adminProcedure
+    .query(async ({ input: { disabled, role } }) => findUsers({ where: { disabled, role } })),
+  findUpdate: backofficeReadProcedure
     .input(z.strictObject({
       id: z.number().int().min(0),
     }))
     .query(async ({ input: { id } }) => {
       return readTransaction(async (prisma) => findUserUpdate(prisma, { where: { id } }));
     }),
-  create: adminProcedure
+  create: backofficeWriteProcedure
     .input(userCreateSchema)
     .mutation(async ({ input }) => writeTransaction(async (prisma) => createUser(prisma, { data: input }))),
-  update: adminProcedure
+  update: backofficeWriteProcedure
     .input(userUpdateSchema)
     .mutation(async ({ input: { id, ...data } }) => updateUser({ where: { id }, data })),
-  disabled: adminProcedure
+  disabled: backofficeWriteProcedure
     .input(userDisableSchema)
     .mutation(async ({ input: { id, ...data } }) => updateUserDisable({ where: { id }, data })),
-  delete: adminProcedure
+  delete: backofficeWriteProcedure
     .input(userFindSchema)
     .mutation(async ({ input: { id } }) => deleteUser({ where: { id } })),
-  merge: adminProcedure
+  merge: backofficeWriteProcedure
     .input(usersMergeSchema)
     .mutation(async ({ input: data }) => mergeUsers({ data }))
 });

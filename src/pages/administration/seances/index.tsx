@@ -9,6 +9,7 @@ import { AsyncGrid } from '../../../components/grid';
 import { trpc } from '../../../common/trpc';
 import { GridColDef } from '@mui/x-data-grid';
 import { CourseGrid } from '../../../components/grid/grids/CourseGrid';
+import { useBackofficeWritePermission } from '../../../components/hooks/usePermission';
 
 /*function AdminHomeLayout() {
   const { data: session } = useSession();
@@ -87,14 +88,16 @@ import { CourseGrid } from '../../../components/grid/grids/CourseGrid';
 }*/
 
 const AdminHomeContent: React.FC = () => {
+  const hasWritePermission = useBackofficeWritePermission();
+
   return (
     <BackofficeContent
       title="Séances"
       icon={<DateRange />}
-      quickActions={[
+      quickActions={hasWritePermission ? [
         { icon: <DateRange />, name: 'Planification de séances', url: '/administration/seances/planning/creation' },
         { icon: <Event />, name: 'Nouveau modèle de séance', url: '/administration/seances/modeles/creation' },
-      ]}
+      ] : []}
     >
       <Typography variant="h6" component="div">
         Modèles de séances

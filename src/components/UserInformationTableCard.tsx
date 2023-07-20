@@ -1,14 +1,15 @@
 import React from 'react';
 import { Box, Chip, Stack, Tooltip } from '@mui/material';
-import { Close, Done, Info, QuestionMark } from '@mui/icons-material';
+import { Close, Done, Info, QuestionMark, ShieldOutlined } from '@mui/icons-material';
 import { formatDateDDsMMsYYYY, formatDateDDsMMsYYYYsHHhMMmSSs, formatTimestampRelative } from '../common/date';
 import { AuthProviders } from '../common/providers';
 import { grey } from '@mui/material/colors';
 import { UserLink } from './link/UserLink';
 import { InformationTableCard } from './InformationTableCard';
 import { getUserLatestMembership } from '../common/user';
-import { Prisma } from '@prisma/client';
+import { Prisma, UserRole } from '@prisma/client';
 import { ChipLink } from './ChipLink';
+import { RoleNames } from '../common/role';
 
 interface UserProvidedInformationChipProps {
   original: string;
@@ -41,6 +42,10 @@ export const UserInformationTableCard: React.FC<UserInformationTableCardProps> =
   return (
     <InformationTableCard
       rows={[
+        ...(user.role !== UserRole.MEMBER ? [{
+          header: 'Rôle',
+          value: <Chip label={RoleNames[user.role]} color="warning" variant="outlined" icon={<ShieldOutlined />} size="small" />,
+        }] : []),
         {
           header: 'Statut',
           value: user.disabled ? (

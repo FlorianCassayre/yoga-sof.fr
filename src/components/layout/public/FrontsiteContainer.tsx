@@ -10,10 +10,10 @@ import {
   Instagram, LinkedIn,
   Logout
 } from '@mui/icons-material';
-import { UserType } from '../../../common/all';
 import { IconYoga } from '../../icons';
 import { COMETE_URL, EMAIL_CONTACT, FACEBOOK_PAGE_URL, INSTAGRAM_URL, LINKEDIN_URL } from '../../../common/config';
 import { useRouter } from 'next/router';
+import { Permissions } from '../../../common/role';
 
 interface FrontsiteContainerProps {
   children: React.ReactNode;
@@ -40,7 +40,7 @@ export const FrontsiteContainer: React.FC<FrontsiteContainerProps> = ({ children
       return {
         title: session.displayName ?? session.displayEmail ?? '?',
         children: [
-          ...(session.userType === UserType.Admin ? [{
+          ...(Permissions.ReadBackoffice.includes(session.role) ? [{
             children: [
               { title: 'Administration', icon: <AdminPanelSettings />, url: '/administration' },
             ]

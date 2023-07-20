@@ -6,7 +6,7 @@ import {
 } from '../../services';
 import { z } from 'zod';
 import { courseRegistrationCreateSchema } from '../../../common/schemas/courseRegistration';
-import { adminProcedure, router } from '../trpc';
+import { backofficeReadProcedure, backofficeWriteProcedure, router } from '../trpc';
 import { readTransaction, writeTransaction } from '../../prisma';
 
 const selectorSchema = z.strictObject({
@@ -17,13 +17,13 @@ const selectorSchema = z.strictObject({
 });
 
 export const courseRegistrationRouter = router({
-  findAll: adminProcedure
+  findAll: backofficeReadProcedure
     .query(async () => readTransaction(async (prisma) => findCourseRegistrations(prisma))),
-  findAllEvents: adminProcedure
+  findAllEvents: backofficeReadProcedure
     .input(selectorSchema)
     .query(async ({ input: { courseId, userId, attended, isCanceled } }) =>
       readTransaction(async (prisma) => findCourseRegistrationEvents(prisma, { courseId, userId, attended, isCanceled }))),
-  findAllActive: adminProcedure
+  findAllActive: backofficeReadProcedure
     .input(selectorSchema.merge(z.object({ noOrder: z.boolean().optional() })))
     .query(async ({ input: { courseId, userId, noOrder, attended, isCanceled } }) => {
       // TODO extract this logic
@@ -49,21 +49,21 @@ export const courseRegistrationRouter = router({
         },
       }));
     }),
-  findAllForReplacement: adminProcedure
+  findAllForReplacement: backofficeReadProcedure
     .input(z.strictObject({ userId: z.number().int().min(0).optional() }))
     .query(async ({ input: { userId } }) => findCourseRegistrationsForReplacement({ where: { userId } })),
-  create: adminProcedure
+  create: backofficeWriteProcedure
     .input(courseRegistrationCreateSchema)
     .mutation(async ({ input: { courses, users, notify } }) => {
         const [result, sendMailsCallback] = await writeTransaction(async (prisma) => createCourseRegistrations(prisma, { data: { courses, users, notify, admin: true } }));
         await sendMailsCallback();
         return result;
     }),
-  cancel: adminProcedure
+  cancel: backofficeWriteProcedure
     .input(z.strictObject({ id: z.number().int().min(0) }))
     .mutation(async ({ input: { id } }) =>
       writeTransaction(async (prisma) => cancelCourseRegistration(prisma, { where: { id }, data: { admin: true } }))),
-  attended: adminProcedure
+  attended: backofficeWriteProcedure
     .input(z.strictObject({ id: z.number().int().min(0), attended: z.boolean().nullable() }))
     .mutation(async ({ input: { id, attended } }) =>
       updateCourseRegistrationAttendance({ where: { id }, data: { attended } })),

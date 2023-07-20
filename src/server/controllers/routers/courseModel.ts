@@ -6,23 +6,23 @@ import {
   updateCourseModel
 } from '../../services';
 import { courseModelCreateSchema, courseModelFindSchema, courseModelUpdateSchema } from '../../../common/schemas';
-import { adminProcedure, router } from '../trpc';
+import { backofficeReadProcedure, backofficeWriteProcedure, router } from '../trpc';
 
 export const courseModelRouter = router({
-  find: adminProcedure
+  find: backofficeReadProcedure
     .input(courseModelFindSchema)
     .query(async ({ input: { id } }) => {
       return findCourseModel({ where: { id } });
     }),
-  findAll: adminProcedure
+  findAll: backofficeReadProcedure
     .query(async () => findCourseModels()),
-  create: adminProcedure
+  create: backofficeWriteProcedure
     .input(courseModelCreateSchema)
     .mutation(async ({ input }) => createCourseModel({ data: input })),
-  update: adminProcedure
+  update: backofficeWriteProcedure
     .input(courseModelUpdateSchema)
     .mutation(async ({ input: { id, ...data } }) => updateCourseModel({ where: { id }, data })),
-  delete: adminProcedure
+  delete: backofficeWriteProcedure
     .input(courseModelFindSchema)
     .mutation(async ({ input: { id } }) => await deleteCourseModel({ where: { id } })),
 });

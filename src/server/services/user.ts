@@ -1,4 +1,4 @@
-import { Prisma, User } from '@prisma/client';
+import { Prisma, UserRole } from '@prisma/client';
 import { prisma, writeTransaction } from '../prisma';
 import {
   userCreateSchema,
@@ -9,8 +9,8 @@ import {
   userUpdateSelfSchema
 } from '../../common/schemas/user';
 import { z } from 'zod';
-import { isWhitelistedAdmin } from './adminWhitelist';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
+import { Permissions } from '../../common/role';
 
 export const findUser = async (args: { where: Prisma.UserWhereUniqueInput }) =>
   prisma.user.findUniqueOrThrow({
@@ -45,8 +45,8 @@ export const findUser = async (args: { where: Prisma.UserWhereUniqueInput }) =>
     },
   });
 
-export const findUsers = async (args: { where?: { disabled?: boolean } } = {}) =>
-  prisma.user.findMany(args);
+export const findUsers = async (args: { where?: { disabled?: boolean, role?: boolean } } = {}) =>
+  prisma.user.findMany({ where: { AND: [{ disabled: args.where?.disabled }], NOT: args.where?.role ? { role: UserRole.MEMBER } : undefined } });
 
 export const findUserUpdate = async (prisma: Prisma.TransactionClient, args: { where: Prisma.UserWhereUniqueInput }) => {
   const { id, name, email, customName, customEmail, managedByUserId } = await prisma.user.findUniqueOrThrow({ where: args.where, select: { id: true, name: true, email: true, customName: true, customEmail: true, managedByUserId: true } });
@@ -99,8 +99,8 @@ export const updateUserDisable = async (args: { where: Prisma.UserWhereUniqueInp
   userDisableSchema.parse({ ...args.where, ...args.data });
   await writeTransaction(async (prisma) => {
     if (args.data.disabled) {
-      const user = await prisma.user.findUniqueOrThrow({ where: args.where, select: { email: true } });
-      if (await isWhitelistedAdmin(prisma, user)) {
+      const user = await prisma.user.findUniqueOrThrow({ where: args.where, select: { email: true, role: true } });
+      if (Permissions.DisableableUser.includes(user.role)) {
         throw new ServiceError(ServiceErrorCode.UserCannotBeDisabled);
       }
     }

@@ -16,9 +16,6 @@
     "update-production": "bash scripts/update-production.sh",
     "run-production": "bash scripts/run-production.sh"
   },
-  "prisma": {
-    "seed": "node prisma/seed.js"
-  },
   "dependencies": {
     "@emotion/react": "^11.10.8",
     "@emotion/styled": "^11.10.8",

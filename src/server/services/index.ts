@@ -1,4 +1,4 @@
-export * from './adminWhitelist';
+export * from './role';
 export * from './couponModel';
 export * from './course';
 export * from './courseModel';

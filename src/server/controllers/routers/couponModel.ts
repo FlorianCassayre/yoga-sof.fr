@@ -4,24 +4,24 @@ import {
   findCouponModels,
   updateCouponModel
 } from '../../services';
-import { adminProcedure, router } from '../trpc';
+import { backofficeReadProcedure, backofficeWriteProcedure, router } from '../trpc';
 import { couponModelCreateSchema, couponModelFindSchema, couponModelUpdateSchema } from '../../../common/schemas/couponModel';
 
 export const couponModelRouter = router({
-  find: adminProcedure
+  find: backofficeReadProcedure
     .input(couponModelFindSchema)
     .query(async ({ input: { id } }) => {
       return findCouponModel({ where: { id } });
     }),
-  findAll: adminProcedure
+  findAll: backofficeReadProcedure
     .query(async () => findCouponModels()),
-  create: adminProcedure
+  create: backofficeWriteProcedure
     .input(couponModelCreateSchema)
     .mutation(async ({ input }) => createCouponModel({ data: input })),
-  update: adminProcedure
+  update: backofficeWriteProcedure
     .input(couponModelUpdateSchema)
     .mutation(async ({ input: { id, ...data } }) => updateCouponModel({ where: { id }, data })),
-  delete: adminProcedure
+  delete: backofficeWriteProcedure
     .input(couponModelFindSchema)
     .mutation(async ({ input: { id } }) => {
       await deleteCouponModel({ where: { id } });

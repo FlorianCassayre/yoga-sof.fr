@@ -19,6 +19,7 @@ import { DecorateProcedure } from '@trpc/react-query/shared';
 import { useRouter } from 'next/router';
 import { grey } from '@mui/material/colors';
 import { ConvertInput, InputIdentifier, ProcedureQueryArray } from '../server/controllers/types';
+import { useBackofficeWritePermission } from './hooks/usePermission';
 
 type ProcedureMutateIdentifier = Procedure<'mutation', ProcedureParams<AnyRootConfig, unknown, InputIdentifier, unknown, unknown, unknown, unknown>>;
 
@@ -138,10 +139,12 @@ export const ModelCards = <T extends InputIdentifier, TProcedureFindAll extends 
   urlEditFor,
   urlCreate,
   createLabel,
-  readOnly,
+  readOnly: componentReadOnly,
   skeletonCardHeight,
 }: ModelCardsProps<T, TProcedureFindAll, TProcedureDelete>): React.ReactElement => {
   const { data, isError, isLoading } = procedureFindAll.useQuery(undefined);
+  const hasWritePermission = useBackofficeWritePermission();
+  const readOnly = componentReadOnly || !hasWritePermission;
 
   return (
     <Grid container spacing={2}>

@@ -11,12 +11,14 @@ import { Edit, Visibility } from '@mui/icons-material';
 import { RouterOutput } from '../../../server/controllers/types';
 import { GridRenderCellParams, GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
 import { PaymentRecipientNames } from '../../../common/payment';
+import { useBackofficeWritePermission } from '../../hooks/usePermission';
 
 interface OrderGridProps {
   userId?: number;
 }
 
 export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) => {
+  const hasWritePermission = useBackofficeWritePermission();
   type OrderItem = RouterOutput['order']['findAll'][0];
   const columns: GridColDef<OrderItem>[] = [
     {
@@ -51,10 +53,12 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       field: 'payment.recipient',
       headerName: 'Bénéficiaire',
       valueGetter: ({ row: { payment } }: GridValueGetterParams<OrderItem>): string | null => payment !== null ? PaymentRecipientNames[payment.recipient] : null,
+      minWidth: 120,
+      flex: 1,
     },
     {
       field: 'payment.amount',
-      headerName: 'Montant payé',
+      headerName: 'Payé',
       valueGetter: ({ row: { payment } }: GridValueGetterParams<OrderItem>): number | null => payment?.amount ?? null,
       valueFormatter: ({ value }: GridValueFormatterParams<number | null>) => `${value ?? 0} €`,
       minWidth: 100,
@@ -86,14 +90,14 @@ export const OrderGrid: React.FunctionComponent<OrderGridProps> = ({ userId }) =
       minWidth: 300,
       flex: 2,
     },
-    {
+    ...(hasWritePermission ? [{
       field: 'actions',
       type: 'actions',
       minWidth: 50,
       getActions: ({ row }: GridRowParams<OrderItem>) => [
         <GridActionsCellItemTooltip icon={<Edit />} label="Modifier" href={{ pathname: '/administration/paiements/[id]/edition', query: { id: row.id } }} />,
       ],
-    },
+    } satisfies GridColDef<OrderItem>] : []),
   ];
 
   return (

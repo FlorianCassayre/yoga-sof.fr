@@ -25,6 +25,7 @@ import { MembershipTypeNames } from '../../../common/membership';
 import { grey } from '@mui/material/colors';
 import { RouterOutput } from '../../../server/controllers/types';
 import { GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
+import { useBackofficeWritePermission } from '../../hooks/usePermission';
 
 interface DisableMembershipDialogProps {
   membership: Membership;
@@ -102,6 +103,7 @@ interface MembershipGridProps {
 }
 
 export const MembershipGrid: React.FunctionComponent<MembershipGridProps> = ({ userId, collapsible, collapsedSummary }) => {
+  const hasWritePermission = useBackofficeWritePermission();
   type MembershipItem = RouterOutput['membership']['findAll'][0];
   const columns: GridColDef<MembershipItem>[] = [
     {
@@ -144,11 +146,11 @@ export const MembershipGrid: React.FunctionComponent<MembershipGridProps> = ({ u
       headerName: 'Payée',
       valueGetter: ({ row }: GridValueGetterParams<MembershipItem>) => row.ordersPurchased.map(({ id }) => id)[0],
     }),
-    {
+    ...(hasWritePermission ? [{
       field: 'actions',
       type: 'actions',
       getActions: MembershipGridActions,
-    },
+    } satisfies GridColDef<MembershipItem>] : []),
   ];
 
   return (

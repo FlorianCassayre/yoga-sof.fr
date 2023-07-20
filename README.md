@@ -53,7 +53,7 @@ The command essentially does the following:
 * `npm run build` to generate the production build (this operation consumes some memory, make sure the machine has enough)
 * `npm run start-production` to start the production server
 
-For a fresh install, you can additionally run `npx dotenv -e .env.production -- npx prisma db seed` to populate the
+For a fresh install, you can additionally run `npx dotenv -e .env.production` to populate the
 database with the initial whitelisted email addresses, as defined in `SEED_EMAILS_ADMIN`.
 
 For a normal update, you may use the command `npm run update-production`. This command assumes that both the favicon and the environment did not change.

@@ -1,7 +1,7 @@
 import React from 'react';
 import { AuthGuard } from '../../AuthGuard';
-import { UserType } from '../../../common/all';
 import { BackofficeContainer } from './BackofficeContainer';
+import { Permissions } from '../../../common/role';
 
 interface GuardedBackofficeContainerProps {
   children: React.ReactNode;
@@ -9,7 +9,7 @@ interface GuardedBackofficeContainerProps {
 
 export const GuardedBackofficeContainer: React.FC<GuardedBackofficeContainerProps> = ({ children }) => {
   return (
-    <AuthGuard allowedUserTypes={[UserType.Admin]}>
+    <AuthGuard allowedRoles={Permissions.ReadBackoffice}>
       <BackofficeContainer>
         {children}
       </BackofficeContainer>

@@ -19,12 +19,14 @@ import { useSnackbar } from 'notistack';
 import { PurchasesTable } from '../../../../components/PurchasesTable';
 import { canGenerateInvoice, orderToItems } from '../../../../common/order';
 import { PaymentRecipientNames } from '../../../../common/payment';
+import { useBackofficeWritePermission } from '../../../../components/hooks/usePermission';
 
 interface OrderViewContentProps {
   order: RouterOutput['order']['find'];
 }
 
 const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
+  const hasWritePermission = useBackofficeWritePermission();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const trpcClient = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
@@ -58,8 +60,10 @@ const OrderViewContent: React.FC<OrderViewContentProps> = ({ order }) => {
       icon={<ShoppingCart />}
       actions={[
         ...(canGenerateInvoice(order) ? [{ name: 'Imprimer', icon: <PictureAsPdf />, url: { pathname: '/administration/pdf/factures/[id]', query: { id: order.id } } }] : []),
-        { name: 'Modifier', icon: <Edit />, url: { pathname: '/administration/paiements/[id]/edition', query: { id: order.id, redirect: router.asPath } } },
-        { name: 'Supprimer', icon: <Delete />, onClick: () => setDeleteDialogOpen(true), disabled: isDeleteLoading },
+        ...(hasWritePermission ? [
+          { name: 'Modifier', icon: <Edit />, url: { pathname: '/administration/paiements/[id]/edition', query: { id: order.id, redirect: router.asPath } } },
+          { name: 'Supprimer', icon: <Delete />, onClick: () => setDeleteDialogOpen(true), disabled: isDeleteLoading },
+        ] : []),
       ]}
     >
       <Grid container spacing={2} justifyContent="center">

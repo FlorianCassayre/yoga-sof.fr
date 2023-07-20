@@ -37,6 +37,7 @@ import { trpc } from '../../../../../common/trpc';
 import { CancelCourseDialog } from '../../../../../components/dialogs/CancelCourseDialog';
 import { BackofficeContentLoading } from '../../../../../components/layout/admin/BackofficeContentLoading';
 import { BackofficeContentError } from '../../../../../components/layout/admin/BackofficeContentError';
+import { useBackofficeWritePermission } from '../../../../../components/hooks/usePermission';
 
 interface CourseNavigationProps {
   courseId: number;
@@ -121,6 +122,7 @@ interface CourseContentProps {
 
 const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: CourseContentProps) => {
   const router = useRouter();
+  const hasWritePermission = useBackofficeWritePermission();
   const status = getCourseStatusWithRegistrations(course);
   const { enqueueSnackbar } = useSnackbar();
   const [confirmCancelDialogOpen, setConfirmCancelDialogOpen] = useState(false);
@@ -141,15 +143,15 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
     <BackofficeContent
       title={displayCourseName(course)}
       icon={<Event />}
-      actions={[
+      actions={hasWritePermission ? [
         { name: 'Modifier mes notes', icon: <Notes />, url: { pathname: `/administration/seances/planning/[id]/notes`, query: { id: course.id, redirect: router.asPath } } },
         ...(!course.isCanceled && (!status.isBeforeStart || status.isInExtendedPeriod) ? [{ name: isCheckingAttendance ? `Ne plus faire l'appel` : `Faire l'appel`, icon: <EmojiPeople />, onClick: () => setCheckingAttendance(!isCheckingAttendance) }] : []),
         ...(!course.isCanceled && (status.isBeforeStart || status.isInExtendedPeriod) ? [{ name: 'Modifier la séance', icon: <Edit />, url: { pathname: `/administration/seances/planning/[id]/edition`, query: { id: course.id, redirect: router.asPath } } }] : []),
         ...(!course.isCanceled && (!status.isAfterEnd || status.isInExtendedPeriod) ? [{ name: 'Annuler la séance', icon: <Cancel />, onClick: () => setConfirmCancelDialogOpen(true), disabled: isCanceling }] : []),
-      ]}
-      quickActions={[
+      ] : []}
+      quickActions={hasWritePermission ? [
         ...(status.canRegister ? [{ name: 'Inscrire des utilisateurs', icon: <Assignment />, url: { pathname: `/administration/inscriptions/creation`, query: { courseId: course.id, redirect: router.asPath } } }] : []),
-      ]}
+      ] : []}
     >
       <CancelCourseDialog
         course={course}
@@ -205,17 +207,16 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
               {!course.isCanceled && !status.isBeforeStart && status.presenceNotFilled && (
                 <Alert severity="warning" sx={{ mt: 2 }}>
                   La présence n'a pas encore été entièrement remplie.
-                  {!isCheckingAttendance && (
+                  {!isCheckingAttendance && hasWritePermission && (
                     <>
                       {' '}
                       <MuiLink href="#" onClick={e => { e.stopPropagation(); e.preventDefault(); setCheckingAttendance(true) }}>Faire l'appel ?</MuiLink>
                     </>
                   )}
-
                 </Alert>
               )}
             </CardContent>
-            {status.canRegister && (
+            {status.canRegister && hasWritePermission && (
               <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Link href={{ pathname: '/administration/inscriptions/creation', query: { courseId: course.id, redirect: router.asPath } }} passHref legacyBehavior>
                   <Tooltip title="Inscrire des utilisateurs">
@@ -235,23 +236,29 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
               {!course.notes && (
                 <Alert severity="info" sx={{ mt: 1 }}>
                   Aucune note pour cette séance.
-                  {' '}
-                  <Link href={`/administration/seances/planning/${course.id}/notes`} passHref legacyBehavior>
-                    <MuiLink>Écrire une note ?</MuiLink>
-                  </Link>
+                  {hasWritePermission && (
+                    <>
+                      {' '}
+                      <Link href={`/administration/seances/planning/${course.id}/notes`} passHref legacyBehavior>
+                        <MuiLink>Écrire une note ?</MuiLink>
+                      </Link>
+                    </>
+                  )}
                 </Alert>
               )}
               <Typography paragraph sx={{ fontStyle: 'italic', mb: 0 }}>
                 {course.notes}
               </Typography>
             </CardContent>
-            <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Link href={{ pathname: '/administration/seances/planning/[id]/notes', query: { id: course.id, redirect: router.asPath } }} passHref legacyBehavior>
-                <Tooltip title="Modifier">
-                  <IconButton size="small"><Edit /></IconButton>
-                </Tooltip>
-              </Link>
-            </CardActions>
+            {hasWritePermission && (
+              <CardActions sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Link href={{ pathname: '/administration/seances/planning/[id]/notes', query: { id: course.id, redirect: router.asPath } }} passHref legacyBehavior>
+                  <Tooltip title="Modifier">
+                    <IconButton size="small"><Edit /></IconButton>
+                  </Tooltip>
+                </Link>
+              </CardActions>
+            )}
           </Card>
         </Grid>
       </Grid>

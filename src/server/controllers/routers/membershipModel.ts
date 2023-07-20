@@ -4,24 +4,24 @@ import {
   findMembershipModels,
   updateMembershipModel
 } from '../../services';
-import { adminProcedure, router } from '../trpc';
+import { backofficeReadProcedure, backofficeWriteProcedure, router } from '../trpc';
 import { membershipModelCreateSchema, membershipModelFindSchema, membershipModelUpdateSchema } from '../../../common/schemas/membershipModel';
 
 export const membershipModelRouter = router({
-  find: adminProcedure
+  find: backofficeReadProcedure
     .input(membershipModelFindSchema)
     .query(async ({ input: { id } }) => {
       return findMembershipModel({ where: { id } });
     }),
-  findAll: adminProcedure
+  findAll: backofficeReadProcedure
     .query(async () => findMembershipModels()),
-  create: adminProcedure
+  create: backofficeWriteProcedure
     .input(membershipModelCreateSchema)
     .mutation(async ({ input }) => createMembershipModel({ data: input })),
-  update: adminProcedure
+  update: backofficeWriteProcedure
     .input(membershipModelUpdateSchema)
     .mutation(async ({ input: { id, ...data } }) => updateMembershipModel({ where: { id }, data })),
-  delete: adminProcedure
+  delete: backofficeWriteProcedure
     .input(membershipModelFindSchema)
     .mutation(async ({ input: { id } }) => {
       await deleteMembershipModel({ where: { id } });

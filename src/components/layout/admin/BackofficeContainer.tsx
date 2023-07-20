@@ -15,6 +15,8 @@ import { signOut, useSession } from 'next-auth/react';
 import { Typography } from '@mui/material';
 import pkg from '../../../../package.json';
 import { useRouter } from 'next/router';
+import { displayUserName } from '../../../common/display';
+import { RoleNames } from '../../../common/role';
 
 interface BackofficeContainerProps {
   children: React.ReactNode;
@@ -54,7 +56,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
         {
           title: 'Administration',
           children: [
-            { title: 'Administrateurs', icon: <AdminPanelSettings />, url: '/administration/administrateurs' },
+            { title: 'Rôles', icon: <AdminPanelSettings />, url: '/administration/roles' },
             { title: 'Emails', icon: <Email />, url: '/administration/emails' },
             { title: 'Paramètres', icon: <Settings />, url: '/administration/parametres' },
           ],
@@ -67,7 +69,7 @@ export const BackofficeContainer: React.FC<BackofficeContainerProps> = ({ childr
       ]}
       profileMenu={{
         children: [
-          { title: 'Profil', icon: <People />, url: { pathname: '/administration/utilisateurs/[id]', query: { id: session?.userId } } },
+          { title: `${session!.displayName ?? session!.displayEmail ?? ''} (${RoleNames[session!.role]})`, icon: <People />, url: { pathname: '/administration/utilisateurs/[id]', query: { id: session?.userId } } },
           { title: 'Se déconnecter', icon: <Logout />, onClick: () => signOut({ redirect: true, callbackUrl: '/' }) },
         ]
       }}

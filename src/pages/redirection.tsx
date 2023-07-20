@@ -1,8 +1,8 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
-import { UserType } from '../common/all';
 import { CssBaseline, LinearProgress } from '@mui/material';
+import { Permissions } from '../common/role';
 
 export default function Redirection() {
   const router = useRouter();
@@ -14,10 +14,8 @@ export default function Redirection() {
       if (session === null) {
         router.replace({ pathname: '/connexion', query: router.query.r ? { r: router.query.r } : undefined });
       } else {
-        const defaultRedirections: Record<UserType, string> = {
-          [UserType.Regular]: '/inscription',
-          [UserType.Admin]: '/administration',
-        };
+        const canReadBackoffice = Permissions.ReadBackoffice.includes(session.role);
+        const defaultRedirection = canReadBackoffice ? '/administration' : '/inscription';
         const { r: requestedRedirection } = router.query;
         // Prevent open redirect vulnerability
         let sanitizedRequestedRedirection: null | string = null;
@@ -27,11 +25,11 @@ export default function Redirection() {
           }
         }
         // Shortcut for admins
-        if (session.userType === UserType.Admin && sanitizedRequestedRedirection && !sanitizedRequestedRedirection.startsWith('/administration')) {
+        if (canReadBackoffice && sanitizedRequestedRedirection && !sanitizedRequestedRedirection.startsWith('/administration')) {
           sanitizedRequestedRedirection = null;
         }
         const redirection =
-          sanitizedRequestedRedirection ?? defaultRedirections[session.userType];
+          sanitizedRequestedRedirection ?? defaultRedirection;
         router.replace(redirection);
       }
     }

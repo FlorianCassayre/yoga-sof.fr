@@ -13,6 +13,7 @@ import { getUserLatestMembership } from '../../../common/user';
 import { Chip } from '@mui/material';
 import { RouterOutput } from '../../../server/controllers/types';
 import { QuickOrderDialog } from '../../dialogs/QuickOrderDialog';
+import { useBackofficeWritePermission } from '../../hooks/usePermission';
 
 interface GridActionsAttendanceProps {
   courseRegistration: Prisma.CourseRegistrationGetPayload<{ include: { course: true, user: true } }>;
@@ -92,6 +93,7 @@ interface CourseRegistrationGridProps {
 }
 
 export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationGridProps> = ({ courseId, userId, attended, attendance, attendanceModifiable }) => {
+  const hasWritePermission = useBackofficeWritePermission();
   const trpcClient = trpc.useContext();
   const { enqueueSnackbar } = useSnackbar();
   const [quickOrderOpen, setQuickOrderOpen] = useState(false);
@@ -117,7 +119,7 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
       headerName: 'Présence',
       minWidth: 150,
       getActions: ({ row }: GridRowParams<CourseRegistrationItem>) => [
-        <GridActionsAttendance courseRegistration={row} readOnly={!attendanceModifiable} />,
+        <GridActionsAttendance courseRegistration={row} readOnly={!attendanceModifiable || !hasWritePermission} />,
       ],
     } satisfies GridColDef<CourseRegistrationItem>] : []),
     ...(userId !== undefined ? [] : [userColumn({ field: 'user', flex: 1 })]),
@@ -142,14 +144,14 @@ export const CourseRegistrationGrid: React.FunctionComponent<CourseRegistrationG
       valueGetter: ({ row }: GridValueGetterParams<CourseRegistrationItem>) =>
         [row.orderUsedCoupons.map(o => o.order), row.orderTrial.map(o => o.order), row.orderReplacementTo.map(o => o.order), row.orderPurchased]
           .flat().map(({ id }) => id)[0],
-    }, { onClickNo: !isMutatingQuickOrder ? ({ row: courseRegistration }) => { setQuickOrderCourseRegistration(courseRegistration); setQuickOrderOpen(true) } : undefined }),
-    {
+    }, hasWritePermission ? { onClickNo: !isMutatingQuickOrder ? ({ row: courseRegistration }) => { setQuickOrderCourseRegistration(courseRegistration); setQuickOrderOpen(true) } : undefined } : {}),
+    ...(hasWritePermission ? [{
       field: 'actions',
       type: 'actions',
       getActions: ({ row }: GridRowParams<CourseRegistrationItem>) => !row.isUserCanceled ? [
         <GridActionCancel courseRegistration={row} />,
       ] : [],
-    },
+    } satisfies GridColDef<CourseRegistrationItem>] : []),
   ];
 
   return (

@@ -24,8 +24,8 @@ import { fr } from 'date-fns/locale';
 import { trpc } from '../common/trpc';
 import { MDXComponents } from 'mdx/types';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { UserType } from '../common/all';
 import { AuthGuard } from '../components/AuthGuard';
+import { Permissions } from '../common/role';
 
 function Paragraph({ children }: JSX.IntrinsicElements['p']) {
   return (
@@ -78,7 +78,7 @@ const LayoutProvider = ({ router, children }: LayoutProviderProps): JSX.Element 
   } else if (router.pathname.startsWith('/administration')) {
     if (router.pathname.startsWith('/administration/pdf/')) {
       return (
-        <AuthGuard allowedUserTypes={[UserType.Admin]}>
+        <AuthGuard allowedRoles={Permissions.ReadBackoffice}>
           {children}
         </AuthGuard>
       );

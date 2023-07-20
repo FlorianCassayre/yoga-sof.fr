@@ -7,15 +7,17 @@ import { UnpaidItemsGrid } from '../../../components/grid/grids/UnpaidItemsGrid'
 import {
   CourseRegistrationForReplacementGrid
 } from '../../../components/grid/grids/CourseRegistrationForReplacementGrid';
+import { useBackofficeWritePermission } from '../../../components/hooks/usePermission';
 
 export default function AdminPayments() {
+  const hasWritePermission = useBackofficeWritePermission();
   return (
     <BackofficeContent
       title="Paiements"
       icon={<Payments />}
-      quickActions={[
+      quickActions={hasWritePermission ? [
         { icon: <ShoppingCart />, name: 'Enregistrer un paiement', url: '/administration/paiements/creation' },
-      ]}
+      ] : []}
     >
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>
         Derniers paiements enregistrés

@@ -27,7 +27,7 @@ declare global {
       UPDATE_TOKEN: string;
       CRON_TOKEN: string;
 
-      SEED_EMAILS_ADMIN: string;
+      SEED_EMAILS_ADMIN?: string;
     }
   }
 }

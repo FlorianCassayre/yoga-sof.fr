@@ -1,5 +1,4 @@
 import {
-  adminWhitelistRouter,
   courseModelRouter,
   courseRegistrationRouter,
   courseRouter,
@@ -17,7 +16,6 @@ import { statisticsRouter } from './routers/statisticsRouter';
 
 export const appRouter =
   router({
-    adminWhitelist: adminWhitelistRouter,
     course: courseRouter,
     courseModel: courseModelRouter,
     courseRegistration: courseRegistrationRouter,

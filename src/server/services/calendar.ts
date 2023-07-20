@@ -1,10 +1,11 @@
 import { createEvents, DateArray } from 'ics';
-import { Course, Prisma } from '@prisma/client';
+import { Course, Prisma, UserRole } from '@prisma/client';
 import { CourseTypeNames } from '../../common/course';
 import { CourseTypeLocation, EMAIL_CONTACT } from '../../common/config';
 import { formatDateDDsMMsYYYY, formatTimeHHhMM } from '../../common/date';
 import { prisma } from '../prisma';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
+import { Permissions } from '../../common/role';
 
 const uidFor = (type: string, id: number) => `${type}#${id}@yoga-sof.fr`;
 
@@ -110,13 +111,7 @@ export const getCalendarForRequest = async (token: string, coach: boolean): Prom
 
     let icsDataString: string;
     if (coach) {
-      const isEmailAdminWhitelisted = user.email && !!(await prisma.adminWhitelist.count({
-        where: {
-          email: user.email,
-        },
-      }));
-
-      if (isEmailAdminWhitelisted) {
+      if (Permissions.ReadCoachCalendar.includes(user.role)) {
         // For now, we return all (non canceled) events, however if this starts to get large we can trim it
 
         const nonCanceledCourses = await prisma.course.findMany({

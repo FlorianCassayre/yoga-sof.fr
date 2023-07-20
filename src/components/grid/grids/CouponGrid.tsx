@@ -22,6 +22,7 @@ import { displayCouponName } from '../../../common/display';
 import { RouterOutput } from '../../../server/controllers/types';
 import { GridComparatorFn } from '@mui/x-data-grid/models/gridSortModel';
 import { GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
+import { useBackofficeWritePermission } from '../../hooks/usePermission';
 
 interface CouponCodeProps {
   code: string;
@@ -122,6 +123,7 @@ interface CouponGridProps {
 }
 
 export const CouponGrid: React.FunctionComponent<CouponGridProps> = ({ userId, collapsible, collapsedSummary }) => {
+  const hasWritePermission = useBackofficeWritePermission();
   type CouponItem = RouterOutput['coupon']['findAll'][0];
 
   const columns: GridColDef<CouponItem>[] = [
@@ -181,11 +183,11 @@ export const CouponGrid: React.FunctionComponent<CouponGridProps> = ({ userId, c
       headerName: 'Payée',
       valueGetter: ({ row }: GridValueGetterParams<CouponItem>) => row.ordersPurchased.map(({ id }) => id)[0],
     }),
-    {
+    ...(hasWritePermission ? [{
       field: 'actions',
       type: 'actions',
       getActions: CouponGridActions,
-    },
+    } satisfies GridColDef<CouponItem>] : []),
   ];
 
   return (

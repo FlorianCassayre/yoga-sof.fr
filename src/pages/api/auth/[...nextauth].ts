@@ -9,10 +9,10 @@ import {
   NODEMAILER_CONFIGURATION,
   prisma,
   readTransaction,
-  sendVerificationRequest,
+  sendVerificationRequest, writeTransaction
 } from '../../../server';
-import { UserType } from '../../../common/all';
-import { isWhitelistedAdmin } from '../../../server/services';
+import { isInitiallyAdmin } from '../../../server/services';
+import { UserRole } from '@prisma/client';
 
 export const nextAuthOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -90,22 +90,24 @@ export const nextAuthOptions: NextAuthOptions = {
         throw new Error(); // Shouldn't happen?
       }
 
-      const isEmailAdminWhitelisted = await readTransaction(async (prisma) => {
-        await prisma.user.update({
-          where: {
-            id: user.id,
-          },
-          data: {
-            lastActivity: new Date().toISOString(),
-          },
-        });
-
-        return await isWhitelistedAdmin(prisma, user);
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          lastActivity: new Date().toISOString(),
+        },
       });
+
+      if (isInitiallyAdmin(user) && user.role !== UserRole.ADMINISTRATOR) {
+        const newRole = UserRole.ADMINISTRATOR;
+        await prisma.user.update({ where: { id: user.id }, data: { role: newRole } });
+        user.role = newRole;
+      }
 
       // We extend the `session` object to contain information about the permissions of the user
       session.userId = user.id;
-      session.userType = isEmailAdminWhitelisted ? UserType.Admin : UserType.Regular;
+      session.role = user.role;
       session.displayName = user.customName ? user.customName : user.name;
       session.displayEmail = user.customEmail ? user.customEmail : user.email;
       session.publicAccessToken = user.publicAccessToken;

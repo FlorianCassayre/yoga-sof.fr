@@ -8,6 +8,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  ADMINISTRATOR
+  MANAGER
+  ASSOCIATE
+  MEMBER
+}
+
 // Start of the next-auth models
 
 model Account {
@@ -58,6 +65,7 @@ model User {
 
   // Begin user custom fields
 
+  role                UserRole             @default(MEMBER)
   customEmail         String?              @map("custom_email")
   customName          String?              @map("custom_name")
   publicAccessToken   String               @default(uuid()) @map("public_access_token")
@@ -103,12 +111,6 @@ model LockEntity {
   id LockEntityType @id
 
   @@map("lock_entity")
-}
-
-model AdminWhitelist {
-  email String @unique
-
-  @@map("admin_whitelist")
 }
 
 enum CourseType {
