@@ -5,6 +5,7 @@ import { LocationHome } from '../src/common/config';
 import React from 'react';
 import { EmailMessageTemplate, EmailMessageWithContentTemplate } from '../src/common/emailMessages';
 import { generatePdfOrderReceipt } from '../src/server/services/pdf';
+import { canGenerateInvoice } from '../src/common/order';
 
 const withContent = <Props extends {},>
 (template: EmailMessageTemplate<Props>): EmailMessageWithContentTemplate<Props> => {
@@ -152,14 +153,22 @@ export const EmailMessageTemplateOrderCreatedInformation: EmailMessageWithConten
   body: ({ order }) => (
     <>
       Je confirme bonne réception du paiement d'un montant de {order?.payment?.amount ?? 0} € en faveur de Yoga Sof.
-      <br />
-      Vous trouverez en fichier joint la facture contenant le détail des articles acquittés.
+      {canGenerateInvoice(order) && (
+        <>
+          <br />
+          Vous trouverez en fichier joint la facture contenant le détail des articles acquittés.
+        </>
+      )}
       <br />
       <br />
     </>
   ),
   attachments: async (prisma, { order }) => {
-    const file = await generatePdfOrderReceipt(prisma, { where: { id: order.id } });
-    return [{ filename: `Facture n°${order.id} - Yoga Sof.pdf`, file }];
+    if (canGenerateInvoice(order)) {
+      const file = await generatePdfOrderReceipt(prisma, { where: { id: order.id } });
+      return [{ filename: `Facture n°${order.id} - Yoga Sof.pdf`, file }];
+    } else {
+      return [];
+    }
   },
 });
