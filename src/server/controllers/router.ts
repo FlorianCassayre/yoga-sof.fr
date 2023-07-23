@@ -13,6 +13,8 @@ import { router } from './trpc';
 import { membershipRouter } from './routers/membership';
 import { orderModelRouter } from './routers/order';
 import { statisticsRouter } from './routers/statisticsRouter';
+import { otherPaymentCategoryRouter } from './routers/otherPaymentCategory';
+import { otherPaymentRouter } from './routers/otherPayment';
 
 export const appRouter =
   router({
@@ -30,6 +32,8 @@ export const appRouter =
     order: orderModelRouter,
     statistics: statisticsRouter,
     pdf: pdfRouter,
+    otherPaymentCategory: otherPaymentCategoryRouter,
+    otherPayment: otherPaymentRouter,
   });
 
 export type AppRouter = typeof appRouter;

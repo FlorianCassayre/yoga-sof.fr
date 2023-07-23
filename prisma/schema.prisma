@@ -225,6 +225,7 @@ enum TransactionType {
   HELLO_ASSO
   CHECK
   TRANSFER
+  AUTOMATIC_DEBIT
 }
 
 model Transaction {
@@ -369,4 +370,26 @@ model Order {
   transaction Transaction?
 
   @@map("order")
+}
+
+model OtherPaymentCategory {
+  id            Int    @id @default(autoincrement())
+  name          String @db.Text
+  otherPayments OtherPayment[]
+
+  @@map("other_payment_category")
+}
+
+model OtherPayment {
+  id          Int                  @id @default(autoincrement())
+  categoryId  Int                  @map("category_id")
+  category    OtherPaymentCategory @relation(fields: [categoryId], references: [id])
+  description String               @db.Text
+  amountCents Int                  @map("amount_cents")
+  provider    String               @db.Text
+  recipient   PaymentRecipient
+  date        DateTime             @db.Date
+  createdAt   DateTime             @default(now()) @map("created_at")
+
+  @@map("other_payment")
 }

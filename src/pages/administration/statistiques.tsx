@@ -3,7 +3,18 @@ import { BackofficeContent } from '../../components/layout/admin/BackofficeConte
 import { Timeline } from '@mui/icons-material';
 import { Box, Grid, Skeleton, Stack, Typography, useTheme } from '@mui/material';
 import { trpc } from '../../common/trpc';
-import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from 'recharts';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ReferenceLine,
+  ResponsiveContainer,
+  XAxis,
+  YAxis
+} from 'recharts';
 import { PaymentRecipient } from '@prisma/client';
 import { PaymentRecipientNames } from '../../common/payment';
 
@@ -14,16 +25,18 @@ interface ColorLegendProps {
 const ColorLegend: React.FC<ColorLegendProps> = ({ items }) => {
   const legendSize = 16;
   return (
-    <Stack direction="row" spacing={{ xs: 2, sm: 4 }} justifyContent="center">
+    <Grid container columnGap={{ xs: 2, sm: 4 }} rowGap={2} justifyContent="center">
       {items.map(({ name, color }, index) => (
-        <Stack key={index} direction="row" spacing={1} alignItems="center">
-          <Box width={legendSize} height={legendSize} sx={{ borderRadius: 1, backgroundColor: color }} />
-          <Box>
-            {name}
-          </Box>
-        </Stack>
+        <Grid key={index} item xs="auto">
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Box width={legendSize} height={legendSize} sx={{ borderRadius: 1, backgroundColor: color }} />
+            <Box>
+              {name}
+            </Box>
+          </Stack>
+        </Grid>
       ))}
-    </Stack>
+    </Grid>
   );
 }
 
@@ -39,14 +52,24 @@ const AggregatedTotalPayments: React.FC = () => {
     <Stack direction="column">
       <ResponsiveContainer width="100%" height={height}>
         <BarChart
-          data={data.data.map(([name, value]) => ({ name, organization: value[PaymentRecipient.ORGANIZATION], enterprise: value[PaymentRecipient.ENTERPRISE] }))}
+          data={data.data.map(([name, value]) => ({
+            name,
+            organizationIncomes: value[PaymentRecipient.ORGANIZATION].incomes,
+            organizationExpenses: -value[PaymentRecipient.ORGANIZATION].expenses,
+            enterpriseIncomes: value[PaymentRecipient.ENTERPRISE].incomes,
+            enterpriseExpenses: -value[PaymentRecipient.ENTERPRISE].expenses,
+          }))}
+          stackOffset="sign"
           margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis unit=" €" />
-          <Bar dataKey="organization" stackId="value" fill={legend[0].color} />
-          <Bar dataKey="enterprise" stackId="value" fill={legend[1].color} />
+          <ReferenceLine y={0} stroke="#000" />
+          <Bar dataKey="organizationIncomes" stackId="value" fill={legend[0].color} />
+          <Bar dataKey="organizationExpenses" stackId="value" fill={legend[0].color} />
+          <Bar dataKey="enterpriseIncomes" stackId="value" fill={legend[1].color} />
+          <Bar dataKey="enterpriseExpenses" stackId="value" fill={legend[1].color} />
         </BarChart>
       </ResponsiveContainer>
       <ColorLegend items={legend} />
@@ -58,16 +81,19 @@ const AggregatedTotalPayments: React.FC = () => {
 
 interface ProportionPieProps {
   recipient: PaymentRecipient;
+  expenses: boolean;
 }
 
-const ProportionPie: React.FC<ProportionPieProps> = ({ recipient }) => {
+const ProportionPie: React.FC<ProportionPieProps> = ({ recipient, expenses }) => {
   const { data, isLoading } = trpc.statistics.findPaymentsCategories.useQuery({ recipient });
   const theme = useTheme();
-  const dataArray = useMemo(() => data ? [
-    { name: 'Séances', value: data.courseRegistrations, color: theme.palette.info.light },
-    { name: 'Cartes', value: data.coupons, color: theme.palette.success.light },
-    { name: 'Adhésions', value: data.memberships, color: theme.palette.secondary.light },
-  ].filter(({ value }) => value > 0).sort(({ value: v1 }, { value: v2 }) => v2 - v1) : undefined, [data]);
+  const minOpacity = 0.25;
+  const dataArray = useMemo(() => data ?
+    (() => {
+      const bucket = data[!expenses ? 'incomes' : 'expenses']
+      return bucket.map((item, i) => ({ ...item, color: `rgba(3, 169, 244, ${minOpacity + (1 - minOpacity) * (bucket.length - i) / bucket.length})` }))
+    })()
+    : undefined, [data]);
   // From: https://recharts.org/en-US/examples/PieChartWithCustomizedLabel
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }: { cx: number, cy: number, midAngle: number, innerRadius: number, outerRadius: number, percent: number, index: number }) => {
@@ -86,6 +112,9 @@ const ProportionPie: React.FC<ProportionPieProps> = ({ recipient }) => {
     <Stack direction="column" spacing={2} sx={{ mb: 2 }}>
       <Typography variant="h6" component="div" sx={{ textAlign: 'center' }}>
         {PaymentRecipientNames[recipient]}
+      </Typography>
+      <Typography variant="subtitle2" component="div" sx={{ textAlign: 'center', color: !expenses ? 'success.main' : 'error.main' }} style={{ marginTop: 0 }}>
+        {!expenses ? 'Recettes' : 'Dépenses'}
       </Typography>
       {dataArray.some(({ value }) => value > 0) ? (
         <>
@@ -128,24 +157,26 @@ export default function AdminStatistics() {
       icon={<Timeline />}
     >
       <Typography variant="h6" component="div">
-        Répartition des recettes
+        Répartition des recettes et dépenses
       </Typography>
       <Typography paragraph>
-        Répartition des recettes par type d'article.
+        Répartition des recettes et dépenses par type d'article.
       </Typography>
       <Grid container>
-        {Object.keys(PaymentRecipient).map(recipient => (
-          <Grid key={recipient} item lg={6} xs={12}>
-            <ProportionPie recipient={recipient as PaymentRecipient} />
-          </Grid>
-        ))}
+        {[false, true].map(expenses =>
+          Object.keys(PaymentRecipient).map(recipient => (
+            <Grid key={`${recipient}-${expenses}`} item lg={6} xs={12}>
+              <ProportionPie recipient={recipient as PaymentRecipient} expenses={expenses} />
+            </Grid>
+          ))
+        )}
       </Grid>
 
       <Typography variant="h6" component="div">
-        Recettes par mois
+        Recettes et dépenses par mois
       </Typography>
       <Typography paragraph>
-        Les recettes mensuelles.
+        Les recettes et dépenses mensuelles.
       </Typography>
       <AggregatedTotalPayments />
     </BackofficeContent>

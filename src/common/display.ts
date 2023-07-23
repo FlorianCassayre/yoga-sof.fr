@@ -4,7 +4,7 @@ import {
   Course,
   CourseModel,
   Membership,
-  MembershipModel,
+  MembershipModel, OtherPayment, OtherPaymentCategory,
   Transaction,
   User
 } from '@prisma/client';
@@ -76,3 +76,8 @@ export const displayMembershipModelNameWithoutPrice = ({ id: type }: Pick<Member
 
 export const displayMembershipName = ({ type, dateStart, dateEnd }: Pick<Membership, 'type' | 'dateStart' | 'dateEnd'>, capitalize = true) =>
   `${capitalize ? 'Adhésion' : 'adhésion'} ${MembershipTypeNames[type].toLowerCase()} du ${formatDateDDsMMsYYYY(dateStart)} au ${formatDateDDsMMsYYYY(dateEnd)}`;
+
+export const displayOtherPaymentCategoryName = ({ name }: Pick<OtherPaymentCategory, 'name'>) => name;
+
+export const displayOtherPaymentName = ({ amountCents, date }: Pick<OtherPayment, 'amountCents' | 'date'>, capitalize = true) =>
+  `${capitalize ? 'Transaction' : 'transaction'} de ${(amountCents / 100).toFixed(2).replace('.', ',')} € du ${formatDateDDsmmYYYY(date)}`;

@@ -83,7 +83,7 @@ export const CourseRegistrationCreateBatchForm = () => {
       title="Inscription d'utilisateurs à des séances"
       schema={courseRegistrationCreateSchema}
       mutationProcedure={trpc.courseRegistration.create}
-      successMessage={(data) => data.length + (data.length > 1 ? ` inscriptions ont été effectuées` : ` inscription a été effectuée`)}
+      successMessage={(data) => data.length + (data.length > 1 ? ` inscriptions ont été effectuées.` : ` inscription a été effectuée.`)}
       invalidate={useProceduresToInvalidate()}
     >
       <CourseRegistrationBatchFormFields />

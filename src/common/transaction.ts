@@ -5,4 +5,5 @@ export const TransactionTypeNames: { [K in TransactionType]: string } = {
   [TransactionType.HELLO_ASSO]: 'HelloAsso',
   [TransactionType.CHECK]: 'Chèque',
   [TransactionType.TRANSFER]: 'Virement',
+  [TransactionType.AUTOMATIC_DEBIT]: 'Prélèvement',
 }
