@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OtherPaymentCategory, PaymentRecipient } from '@prisma/client';
+import { PaymentRecipient, TransactionType } from '@prisma/client';
 
 export const otherPaymentFindSchema = z.object({
   id: z.number().int().min(0),
@@ -12,7 +12,8 @@ const otherPaymentSchemaBase = z.object({
   description: z.string(),
   provider: z.string(),
   recipient: z.nativeEnum(PaymentRecipient),
-  amount: z.number(),//.regex(/^\d+(\.\d{1,2})?$/, `Le montant n'est pas valide`),
+  amount: z.number(),
+  type: z.nativeEnum(TransactionType),
   date: z.date(),
 });
 

@@ -3,9 +3,9 @@ import { prisma } from '../prisma';
 import { otherPaymentCreateSchema, otherPaymentUpdateSchema } from '../../common/schemas/otherPayment';
 import { z } from 'zod';
 
-const transformFromForm = ({ category: { id }, amount, ...rest }: z.infer<typeof otherPaymentCreateSchema>): Pick<OtherPayment, 'description' | 'amountCents' | 'provider' | 'recipient' | 'date'> & { category: { connect: { id: number } } } =>
+const transformFromForm = ({ category: { id }, amount, ...rest }: z.infer<typeof otherPaymentCreateSchema>): Pick<OtherPayment, 'type' | 'description' | 'amountCents' | 'provider' | 'recipient' | 'date'> & { category: { connect: { id: number } } } =>
   ({ category: { connect: { id } }, amountCents: Math.round(amount * 100), ...rest });
-const transformToForm = ({ amountCents, ...rest }: Prisma.OtherPaymentGetPayload<{ select: { id: true, category: true, description: true, amountCents: true, provider: true, recipient: true, date: true } }>): z.infer<typeof otherPaymentUpdateSchema> =>
+const transformToForm = ({ amountCents, ...rest }: Prisma.OtherPaymentGetPayload<{ select: { id: true, category: true, type: true, description: true, amountCents: true, provider: true, recipient: true, date: true } }>): z.infer<typeof otherPaymentUpdateSchema> =>
   ({ amount: amountCents / 100, ...rest });
 
 export const findOtherPayment = async (args: { where: Prisma.OtherPaymentWhereUniqueInput }) =>

@@ -21,6 +21,7 @@ import { trpc } from '../../../common/trpc';
 import { SelectOtherPaymentCategory } from '../fields/SelectOtherPaymentCategory';
 import { SelectPaymentRecipient } from '../fields/SelectPaymentRecipient';
 import { InputPrice } from '../fields';
+import { SelectTransactionType } from '../fields/SelectTransactionType';
 
 const OtherPaymentFormFields = () => {
   return (
@@ -46,6 +47,9 @@ const OtherPaymentFormFields = () => {
         <InputPrice name="amount" label="Montant" allowNegative />
       </Grid>
       <Grid item xs={12} sm={6}>
+        <SelectTransactionType name="type" />
+      </Grid>
+      <Grid item xs={12}>
         <DatePickerElement name="date" label="Date" inputProps={{ fullWidth: true }} />
       </Grid>
     </Grid>

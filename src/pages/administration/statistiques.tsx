@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { BackofficeContent } from '../../components/layout/admin/BackofficeContent';
 import { Timeline } from '@mui/icons-material';
-import { Box, Grid, Skeleton, Stack, Typography, useTheme } from '@mui/material';
+import { Box, Grid, Skeleton, Stack, Typography } from '@mui/material';
 import { trpc } from '../../common/trpc';
 import {
   Bar,
@@ -17,20 +17,24 @@ import {
 } from 'recharts';
 import { PaymentRecipient } from '@prisma/client';
 import { PaymentRecipientNames } from '../../common/payment';
+import { cyan, teal } from '@mui/material/colors';
 
 interface ColorLegendProps {
-  items: { name: string, color: string }[],
+  items: { name: string, color: string }[];
+  disabled: Partial<Record<string, boolean>>;
+  onToggle: (id: number) => void;
 }
 
-const ColorLegend: React.FC<ColorLegendProps> = ({ items }) => {
+const ColorLegend: React.FC<ColorLegendProps> = ({ items, disabled, onToggle }) => {
   const legendSize = 16;
+  const isVisible = (index: number): boolean => !disabled[index];
   return (
     <Grid container columnGap={{ xs: 2, sm: 4 }} rowGap={2} justifyContent="center">
       {items.map(({ name, color }, index) => (
         <Grid key={index} item xs="auto">
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Box width={legendSize} height={legendSize} sx={{ borderRadius: 1, backgroundColor: color }} />
-            <Box>
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ cursor: 'pointer' }} onClick={() => onToggle(index)}>
+            <Box width={legendSize} height={legendSize} sx={{ borderRadius: 1, backgroundColor: color, filter: isVisible(index) ? undefined : 'grayscale(100%)' }} />
+            <Box sx={{ textDecoration: isVisible(index) ? undefined : 'line-through' }}>
               {name}
             </Box>
           </Stack>
@@ -42,11 +46,11 @@ const ColorLegend: React.FC<ColorLegendProps> = ({ items }) => {
 
 const AggregatedTotalPayments: React.FC = () => {
   const { data, isLoading } = trpc.statistics.findAggregatedPayments.useQuery({ aggregation: 'month' as any });
-  const theme = useTheme();
+  const [disabled, setDisabled] = useState<Partial<Record<number, boolean>>>({});
   const height = 300;
   const legend = [
-    { name: PaymentRecipientNames[PaymentRecipient.ORGANIZATION], color: theme.palette.warning.light },
-    { name: PaymentRecipientNames[PaymentRecipient.ENTERPRISE], color: theme.palette.error.light },
+    { name: PaymentRecipientNames[PaymentRecipient.ORGANIZATION], color: cyan[500] },
+    { name: PaymentRecipientNames[PaymentRecipient.ENTERPRISE], color: teal[500] },
   ];
   return !isLoading ? !!data ? (
     <Stack direction="column">
@@ -66,13 +70,13 @@ const AggregatedTotalPayments: React.FC = () => {
           <XAxis dataKey="name" />
           <YAxis unit=" €" />
           <ReferenceLine y={0} stroke="#000" />
-          <Bar dataKey="organizationIncomes" stackId="value" fill={legend[0].color} />
-          <Bar dataKey="organizationExpenses" stackId="value" fill={legend[0].color} />
-          <Bar dataKey="enterpriseIncomes" stackId="value" fill={legend[1].color} />
-          <Bar dataKey="enterpriseExpenses" stackId="value" fill={legend[1].color} />
+          {!disabled[0] && <Bar dataKey="organizationIncomes" stackId="value" fill={legend[0].color} />}
+          {!disabled[0] && <Bar dataKey="organizationExpenses" stackId="value" fill={legend[0].color} />}
+          {!disabled[1] && <Bar dataKey="enterpriseIncomes" stackId="value" fill={legend[1].color} />}
+          {!disabled[1] && <Bar dataKey="enterpriseExpenses" stackId="value" fill={legend[1].color} />}
         </BarChart>
       </ResponsiveContainer>
-      <ColorLegend items={legend} />
+      <ColorLegend items={legend} disabled={disabled} onToggle={(index) => setDisabled({ ...disabled, [index]: !disabled[index] })} />
     </Stack>
   ) : null : (
     <Skeleton variant="rectangular" height={height} />
@@ -86,7 +90,7 @@ interface ProportionPieProps {
 
 const ProportionPie: React.FC<ProportionPieProps> = ({ recipient, expenses }) => {
   const { data, isLoading } = trpc.statistics.findPaymentsCategories.useQuery({ recipient });
-  const theme = useTheme();
+  const [disabled, setDisabled] = useState<Record<number, boolean>>({});
   const minOpacity = 0.25;
   const dataArray = useMemo(() => data ?
     (() => {
@@ -94,6 +98,7 @@ const ProportionPie: React.FC<ProportionPieProps> = ({ recipient, expenses }) =>
       return bucket.map((item, i) => ({ ...item, color: `rgba(3, 169, 244, ${minOpacity + (1 - minOpacity) * (bucket.length - i) / bucket.length})` }))
     })()
     : undefined, [data]);
+  const dataArrayFiltered = useMemo(() => dataArray !== undefined ? dataArray.filter((_, index) => !disabled[index]) : undefined, [dataArray, disabled]);
   // From: https://recharts.org/en-US/examples/PieChartWithCustomizedLabel
   const RADIAN = Math.PI / 180;
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }: { cx: number, cy: number, midAngle: number, innerRadius: number, outerRadius: number, percent: number, index: number }) => {
@@ -108,7 +113,7 @@ const ProportionPie: React.FC<ProportionPieProps> = ({ recipient, expenses }) =>
   };
   const height = 250;
   const startAngle = 45;
-  return !isLoading ? !!dataArray ? (
+  return !isLoading ? !!dataArray && !!dataArrayFiltered ? (
     <Stack direction="column" spacing={2} sx={{ mb: 2 }}>
       <Typography variant="h6" component="div" sx={{ textAlign: 'center' }}>
         {PaymentRecipientNames[recipient]}
@@ -121,7 +126,7 @@ const ProportionPie: React.FC<ProportionPieProps> = ({ recipient, expenses }) =>
           <ResponsiveContainer width="100%" height={height}>
             <PieChart >
               <Pie
-                data={dataArray}
+                data={dataArrayFiltered}
                 labelLine={false}
                 label={renderCustomizedLabel}
                 outerRadius={height / 2}
@@ -129,13 +134,13 @@ const ProportionPie: React.FC<ProportionPieProps> = ({ recipient, expenses }) =>
                 endAngle={360 + startAngle}
                 dataKey="value"
               >
-                {dataArray.map((entry, index) => (
+                {dataArrayFiltered.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} style={{ outline: 'none' }} />
                 ))}
               </Pie>
             </PieChart>
           </ResponsiveContainer>
-          <ColorLegend items={dataArray} />
+          <ColorLegend items={dataArray} disabled={disabled} onToggle={(index: number) => setDisabled({ ...disabled, [index]: !disabled[index] })} />
         </>
       ) : (
         <Typography sx={{ textAlign: 'center' }}>

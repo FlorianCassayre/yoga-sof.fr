@@ -9,11 +9,13 @@ import { GridActionsCellItemTooltip } from '../../GridActionsCellItemTooltip';
 import { Add, Delete, Edit, Remove } from '@mui/icons-material';
 import { useRouter } from 'next/router';
 import { GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
-import { PaymentRecipient } from '@prisma/client';
+import { PaymentRecipient, TransactionType } from '@prisma/client';
 import { PaymentRecipientNames } from '../../../common/payment';
 import { formatDateDDsmmYYYY } from '../../../common/date';
 import { DeleteOtherPaymentDialog } from '../../dialogs/DeleteOtherPaymentDialog';
 import { Box, Stack } from '@mui/material';
+import { relativeTimestamp } from './common';
+import { TransactionTypeNames } from '../../../common/transaction';
 
 type OtherPaymentItem = RouterOutput['otherPayment']['findAll'][0];
 
@@ -85,6 +87,13 @@ export const OtherPaymentGrid: React.FunctionComponent = () => {
       }
     },
     {
+      field: 'type',
+      headerName: 'Moyen de paiement',
+      valueFormatter: ({ value }: GridValueFormatterParams<TransactionType | null>) => value !== null ? TransactionTypeNames[value] : undefined,
+      minWidth: 200,
+      flex: 1,
+    },
+    {
       field: 'provider',
       headerName: 'Client',
       minWidth: 200,
@@ -104,6 +113,11 @@ export const OtherPaymentGrid: React.FunctionComponent = () => {
       minWidth: 200,
       flex: 1,
     },
+    relativeTimestamp({
+      field: 'createdAt',
+      headerName: `Date de création`,
+      flex: 1,
+    }),
     ...(hasWritePermission ? [{
       field: 'actions',
       type: 'actions',
