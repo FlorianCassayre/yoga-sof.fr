@@ -85,7 +85,7 @@ export const EmailMessageTemplateCourseAdultReminderNewcomer: EmailMessageWithCo
       Essayez d'être ponctuel(le) en arrivant 5 minutes avant pour vous installer.
       <br />
       <br />
-      Apportez simplement votre tapis et couverture (ou plaid), portez une tenue confortable, mais vous pouvez également vous changer et utiliser les toilettes sur place.
+      Apportez simplement votre tapis et votre couverture (ou plaid), portez une tenue confortable, mais vous pouvez également vous changer et utiliser les toilettes sur place.
       <br />
       <br />
       Vous trouverez dans la salle ce qu'il faut pour adapter votre posture et pratiquer sereinement.
