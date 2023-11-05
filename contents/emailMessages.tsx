@@ -4,7 +4,7 @@ import { urlForLocation } from '../src/common/urls';
 import { LocationHome } from '../src/common/config';
 import React from 'react';
 import { EmailMessageTemplate, EmailMessageWithContentTemplate } from '../src/common/emailMessages';
-import { generatePdfOrderReceipt } from '../src/server/services/pdf';
+import { generatePdfOrderInvoice } from '../src/server/services/pdf';
 import { canGenerateInvoice } from '../src/common/order';
 
 const withContent = <Props extends {},>
@@ -165,7 +165,7 @@ export const EmailMessageTemplateOrderCreatedInformation: EmailMessageWithConten
   ),
   attachments: async (prisma, { order }) => {
     if (canGenerateInvoice(order)) {
-      const file = await generatePdfOrderReceipt(prisma, { where: { id: order.id } });
+      const file = await generatePdfOrderInvoice(prisma, { where: { id: order.id } });
       return [{ filename: `Facture n°${order.id} - Yoga Sof.pdf`, file }];
     } else {
       return [];

@@ -9,7 +9,7 @@ import { useRouter } from 'next/router';
 export default function Facture() {
   const router = useRouter();
   const { id } = router.query;
-  const result = useSchemaQuery(trpc.pdf.orderReceipt, { id }, orderFindTransformSchema);
+  const result = useSchemaQuery(trpc.pdf.orderInvoice, { id }, orderFindTransformSchema);
   return result ? (
     <PdfContainer pdf={result.data !== undefined ? deserializeBuffer(result.data) : undefined} isError={result.isError} />
   ) : null;

@@ -3,8 +3,9 @@ import { formatDateDDsMMsYYYY } from '../../src/common/date';
 import { TransactionType } from '@prisma/client';
 import { TransactionTypeNames } from '../../src/common/transaction';
 
-interface FactureProps {
+export interface FactureProps {
   id: number;
+  customId: boolean;
   date: Date;
   paid: boolean;
   transmitter: {
@@ -30,6 +31,7 @@ interface FactureProps {
   transactionType: TransactionType | null;
   details: string[];
   insurance: string;
+  siret: string;
 }
 
 export const facturePdf: PdfTemplate<FactureProps> = (p) => ({
@@ -52,7 +54,7 @@ export const facturePdf: PdfTemplate<FactureProps> = (p) => ({
           width: 'auto',
           alignment: 'right',
           columns: [[
-            { text: `Facture n° ${p.id}`, bold: true, marginBottom: 5 },
+            { text: `Facture n° ${p.customId ? 'P' : ''}${p.id}`, bold: true, marginBottom: 5 },
             `Date d'émission : ${formatDateDDsMMsYYYY(p.date)}`,
           ]],
         }
@@ -74,6 +76,7 @@ export const facturePdf: PdfTemplate<FactureProps> = (p) => ({
                     stack: [
                       p.transmitter.organization,
                       p.transmitter.fullname,
+                      `SIRET ${p.siret}`,
                       ...p.transmitter.address,
                       p.transmitter.phone,
                       p.transmitter.email,

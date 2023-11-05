@@ -1,6 +1,6 @@
 import React from 'react';
 import { BackofficeContent } from '../../../components/layout/admin/BackofficeContent';
-import { Payments, ShoppingCart } from '@mui/icons-material';
+import { Payments, PictureAsPdf, ShoppingCart } from '@mui/icons-material';
 import { Typography } from '@mui/material';
 import { OrderGrid } from '../../../components/grid/grids/OrderGrid';
 import { UnpaidItemsGrid } from '../../../components/grid/grids/UnpaidItemsGrid';
@@ -17,6 +17,7 @@ export default function AdminPayments() {
       icon={<Payments />}
       quickActions={hasWritePermission ? [
         { icon: <ShoppingCart />, name: 'Enregistrer un paiement', url: '/administration/paiements/creation' },
+        { icon: <PictureAsPdf />, name: 'Générer une facture libre', url: '/administration/paiements/facture' },
       ] : []}
     >
       <Typography variant="h6" component="div" sx={{ mt: 2 }}>

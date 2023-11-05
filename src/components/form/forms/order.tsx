@@ -72,6 +72,7 @@ import { PurchasesTable } from '../../PurchasesTable';
 import { ParsedUrlQuery } from 'querystring';
 import { FieldPathByValue } from 'react-hook-form/dist/types/path/eager';
 import { DeepNullable, ValidateSubtype } from '../../../common/utils';
+import { CreateButton } from '../../CreateButton';
 
 interface BinaryDialogProps {
   open: boolean;
@@ -185,20 +186,6 @@ export const SelectDependentCouponModel = <TFieldPath extends ArrayFieldPath>({ 
   );
 };
 
-
-interface CreateButtonProps {
-  label: string;
-  disabled?: boolean;
-  onClick: () => void;
-}
-
-const CreateButton: React.FC<CreateButtonProps> = ({ label, disabled, onClick }) => {
-  return (
-    <Box sx={{ p: 0, border: '1px dashed lightgrey', borderRadius: 1 }}>
-      <Button disabled={disabled} onClick={() => onClick()} startIcon={<AddBox />} sx={{ width: '100%' }}>{label}</Button>
-    </Box>
-  );
-};
 
 interface OptionalFieldProps {
   children: React.ReactNode;
