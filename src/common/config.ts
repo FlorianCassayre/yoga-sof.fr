@@ -2,6 +2,8 @@ import { CourseType } from '@prisma/client';
 
 export const IS_REGISTRATION_DISABLED = false;
 
+export const WEBSITE_URL = 'https://yoga-sof.fr';
+
 // eslint-disable-next-line no-useless-concat
 export const EMAIL_CONTACT = 'contact' + '@' + 'yoga-sof.fr';
 

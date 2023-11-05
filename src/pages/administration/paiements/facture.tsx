@@ -1,5 +1,5 @@
-import React from 'react';
-import { Add, ArrowDownward, ArrowUpward, Delete, PictureAsPdf, Print } from '@mui/icons-material';
+import React, { useMemo } from 'react';
+import { Add, ArrowDownward, ArrowUpward, ContentCopy, Delete, PictureAsPdf, Print } from '@mui/icons-material';
 import { BackofficeContent } from '../../../components/layout/admin/BackofficeContent';
 import { Alert, Box, Button, Card, Grid, IconButton, Stack } from '@mui/material';
 import { trpc } from '../../../common/trpc';
@@ -10,7 +10,7 @@ import {
   FormContainer,
   SwitchElement,
   TextFieldElement,
-  useFieldArray
+  useFieldArray, useFormContext
 } from 'react-hook-form-mui';
 import { freeInvoiceSchema } from '../../../common/schemas/invoice';
 import { PdfContainer } from '../../../components/layout/mixed/PdfContainer';
@@ -20,6 +20,9 @@ import { InputId } from '../../../components/form/fields/InputId';
 import { InputPrice } from '../../../components/form/fields';
 import { SelectTransactionType } from '../../../components/form/fields/SelectTransactionType';
 import { CreateButton } from '../../../components/CreateButton';
+import { getRoute } from 'next-type-safe-routes';
+import { WEBSITE_URL } from '../../../common/config';
+import { useRouter } from 'next/router';
 
 interface InvoiceFormFieldsProps {
   disabled: boolean;
@@ -27,6 +30,12 @@ interface InvoiceFormFieldsProps {
 
 const InvoiceFormFields: React.FC<InvoiceFormFieldsProps> = ({ disabled }) => {
   const { fields, append, remove, swap } = useFieldArray({ name: 'items' });
+  const { getValues } = useFormContext();
+  const handleCopyPermalink = () => {
+    const values = getValues();
+    const url = WEBSITE_URL + getRoute({ route: '/administration/paiements/facture', query: { data: JSON.stringify(values) } });
+    window.navigator.clipboard.writeText(url);
+  };
   return (
     <Grid container spacing={2}>
       <Grid item xs={12} sm={6}>
@@ -88,10 +97,15 @@ const InvoiceFormFields: React.FC<InvoiceFormFieldsProps> = ({ disabled }) => {
       <Grid item xs={12}>
         <SwitchElement name="paid" label="Payée" disabled={disabled} />
       </Grid>
-      <Grid item xs={12} textAlign="right">
-        <Button type="submit" variant="contained" disabled={disabled} startIcon={<Print />}>
-          Générer la facture
-        </Button>
+      <Grid item xs={12}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="flex-end">
+          <Button variant="contained" color="inherit" disabled={disabled} startIcon={<ContentCopy />} onClick={() => handleCopyPermalink()}>
+            Copier le lien vers cette facture
+          </Button>
+          <Button type="submit" variant="contained" disabled={disabled} startIcon={<Print />}>
+            Générer la facture
+          </Button>
+        </Stack>
       </Grid>
     </Grid>
   );
@@ -118,6 +132,20 @@ const defaultValuesFor = (): DeepPartial<z.infer<typeof freeInvoiceSchema>> => (
 });
 
 export default function InvoiceGenerator() {
+  const router = useRouter();
+  const actualDefaultValues = useMemo(() => {
+    const defaults = defaultValuesFor();
+    let jsonParsed: any = null;
+    try {
+      jsonParsed = { ...JSON.parse(router.query.data as any), date: defaults.date };
+    } catch (e) {}
+    const parsed = freeInvoiceSchema.safeParse(jsonParsed);
+    if (parsed.success) {
+      return parsed.data;
+    } else {
+      return defaults;
+    }
+  }, [router]);
   const { mutate: generatePdf, data: pdfData, isLoading: isPdfLoading, isError: isPdfError, data } = trpc.pdf.freeInvoice.useMutation();
   return (
     <BackofficeContent
@@ -131,7 +159,7 @@ export default function InvoiceGenerator() {
           Veuillez remarquer en outre que ces factures utilisent <strong>une autre numérotation</strong> (préfixe "P") que celles générées automatiquement, et dont vous avez l'entière responsabilité.
         </Alert>
         <FormContainer
-          defaultValues={defaultValuesFor()}
+          defaultValues={actualDefaultValues}
           onSuccess={(fields) => generatePdf(fields as any)}
           resolver={zodResolver(freeInvoiceSchema)}
         >

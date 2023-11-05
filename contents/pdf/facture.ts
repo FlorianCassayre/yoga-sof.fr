@@ -11,6 +11,7 @@ export interface FactureProps {
   transmitter: {
     organization: string;
     website: string;
+    siret: string;
     fullname: string;
     address: [string, string];
     phone: string;
@@ -29,9 +30,9 @@ export interface FactureProps {
   subtotal: number;
   total: number;
   transactionType: TransactionType | null;
+  conditions?: string[],
   details: string[];
   insurance: string;
-  siret: string;
 }
 
 export const facturePdf: PdfTemplate<FactureProps> = (p) => ({
@@ -48,6 +49,7 @@ export const facturePdf: PdfTemplate<FactureProps> = (p) => ({
               margin: [0, 0, 0, 5],
             },
             p.transmitter.website,
+            { text: `SIRET ${p.transmitter.siret}`, marginTop: 2 },
           ]],
         },
         {
@@ -76,7 +78,6 @@ export const facturePdf: PdfTemplate<FactureProps> = (p) => ({
                     stack: [
                       p.transmitter.organization,
                       p.transmitter.fullname,
-                      `SIRET ${p.siret}`,
                       ...p.transmitter.address,
                       p.transmitter.phone,
                       p.transmitter.email,
@@ -176,6 +177,10 @@ export const facturePdf: PdfTemplate<FactureProps> = (p) => ({
       alignment: 'right',
       text: 'TVA non applicable, article 293B du code général des impôts',
     },
+    ...(p.conditions ? [{
+      stack: p.conditions.map(text => ({ text, marginTop: 2 })),
+      marginTop: 15,
+    }] : []),
     {
       columns: [[
         ...(p.paid ? [{ text: [{ text: 'Facture acquittée', bold: true, decoration: 'underline' } as any, ' ', `(voir date d'émission)`], marginBottom: 5 }] : []),

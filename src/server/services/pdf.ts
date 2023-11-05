@@ -7,8 +7,7 @@ import { Prisma } from '@prisma/client';
 import { ServiceError, ServiceErrorCode } from './helpers/errors';
 import {
   INVOICE_INSURANCE,
-  INVOICE_ORDER_REMARKS,
-  INVOICE_SIRET_NUMBER,
+  INVOICE_ORDER_REMARKS, INVOICE_PAYMENT_CONDITIONS,
   INVOICE_TRANSMITTER
 } from '../../../contents/pdf/factureData';
 
@@ -51,7 +50,6 @@ export const generatePdfOrderInvoice = async (prisma: Prisma.TransactionClient, 
     total: order.payment?.amount ?? 0,
     details: typeDetails.map(type => createStars(typeDetailsIndex[type] ?? 0) + ' : ' + (INVOICE_ORDER_REMARKS[type]?.detailed ?? '')),
     insurance: INVOICE_INSURANCE,
-    siret: INVOICE_SIRET_NUMBER,
   }));
 };
 
@@ -82,8 +80,8 @@ export const generatePdfFreeInvoice = (data: Omit<FactureProps, 'customId' | 'tr
     items: actualItems, // Replace it
     subtotal,
     total,
+    conditions: INVOICE_PAYMENT_CONDITIONS,
     details: remarks.map((remark, i) => createStars(i) + ' : ' + remark),
     insurance: INVOICE_INSURANCE,
-    siret: INVOICE_SIRET_NUMBER,
   }));
 };

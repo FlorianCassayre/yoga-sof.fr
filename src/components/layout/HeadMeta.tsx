@@ -1,6 +1,7 @@
 import Head from 'next/head';
 import React from 'react';
 import { useRouter } from 'next/router';
+import { WEBSITE_URL } from '../../common/config';
 
 interface HeadMetaProps {
   title?: string;
@@ -10,7 +11,7 @@ interface HeadMetaProps {
 export const HeadMeta: React.FC<HeadMetaProps> = ({ title, description }) => {
   const router = useRouter();
   const path = router.asPath;
-  const canonicalUrl = 'https://yoga-sof.fr' + (path !== '/' ? path : '');
+  const canonicalUrl = WEBSITE_URL + (path !== '/' ? path : '');
   const banner = '/images/maison-japon.jpg';
   return (
     <Head>
