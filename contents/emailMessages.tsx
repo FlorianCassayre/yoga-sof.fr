@@ -108,6 +108,7 @@ export const EmailMessageTemplateCourseAdultReminderNewcomer: EmailMessageWithCo
           {' '}
           l'impasse est petite, il n'y a qu'une place devant la maison.
         </li>
+        <li>Pour les trajets courts, privilégiez la marche ou le vélo.</li>
       </ul>
       <br />
       Je vous souhaite une belle pratique !
