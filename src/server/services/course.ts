@@ -10,7 +10,7 @@ import { courseCreateManySchema } from '../../common/schemas/course';
 export const findCourse = async (args: { where: Prisma.CourseWhereUniqueInput }) =>
   prisma.course.findUniqueOrThrow({ where: args.where, include: { registrations: true } });
 
-export const findUpdateCourse = (args: { where: Prisma.CourseWhereUniqueInput }) => prisma.course.findUniqueOrThrow({ where: args.where, select: { id: true, slots: true, price: true } });
+export const findUpdateCourse = (args: { where: Prisma.CourseWhereUniqueInput }) => prisma.course.findUniqueOrThrow({ where: args.where, select: { id: true, slots: true, price: true, visible: true } });
 
 export const findUpdateCourseNotes = (args: { where: Prisma.CourseWhereUniqueInput }) => prisma.course.findUniqueOrThrow({ where: args.where, select: { id: true, notes: true } });
 
@@ -38,7 +38,7 @@ export const findCoursesRelated = async (args: { where: Prisma.CourseWhereUnique
   };
 });
 
-export const updateCourse = async (args: { where: Prisma.CourseWhereUniqueInput, data: Partial<Pick<Course, 'slots' | 'price' | 'notes'>> }) => {
+export const updateCourse = async (args: { where: Prisma.CourseWhereUniqueInput, data: Partial<Pick<Course, 'slots' | 'price' | 'visible' | 'notes'>> }) => {
   const { where: { id }, data: { slots, price } } = args;
   return await writeTransaction(async (prisma) => {
     const course = await prisma.course.findUniqueOrThrow({ where: args.where, select: { isCanceled: true, dateEnd: true, price: true, registrations: { select: { isUserCanceled: true, orderPurchased: { select: { id: true } } } } } });
@@ -95,9 +95,9 @@ export const cancelCourse = async (args: { where: Prisma.CourseWhereUniqueInput,
   return result;
 };
 
-export const createCourses = async (args: { data: Pick<Course, 'type' | 'price' | 'slots'> & { timeStart: string, timeEnd: string, dates: Date[] } }) => {
+export const createCourses = async (args: { data: Pick<Course, 'type' | 'price' | 'slots' | 'visible'> & { timeStart: string, timeEnd: string, dates: Date[] } }) => {
   courseCreateManySchema.parse({ ...args.data });
-  const { data: { type, price, slots, timeStart, timeEnd, dates } } = args;
+  const { data: { type, price, slots, visible, timeStart, timeEnd, dates } } = args;
   dates.sort((a, b) => a.getTime() - b.getTime());
   const withTime = (date: Date, time: string): Date => {
     const copy = new Date(date);
@@ -114,6 +114,7 @@ export const createCourses = async (args: { data: Pick<Course, 'type' | 'price' 
         type,
         price,
         slots,
+        visible,
         dateStart: withTime(date, timeStart),
         dateEnd: withTime(date, timeEnd)
       };

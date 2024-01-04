@@ -53,16 +53,17 @@ export const courseRouter = router({
   })*/
   createMany: backofficeWriteProcedure
     .input(courseCreateManySchema)
-    .mutation(async ({ input: { type, timeStart, timeEnd, price, slots, dates } }) =>
-      createCourses({ data: { type, price, slots, timeStart, timeEnd, dates } })),
+    .mutation(async ({ input: { type, timeStart, timeEnd, price, slots, visible, dates } }) =>
+      createCourses({ data: { type, price, slots, timeStart, timeEnd, visible, dates } })),
   update: backofficeWriteProcedure
     .input(z.strictObject({
       id: z.number().int().min(0),
       slots: z.number().int().min(0),
       price: z.number().int().min(0),
+      visible: z.boolean(),
     }))
-    .mutation(async ({ input: { id, slots, price } }) =>
-      await updateCourse({ where: { id }, data: { slots, price } })),
+    .mutation(async ({ input: { id, slots, price, visible } }) =>
+      await updateCourse({ where: { id }, data: { slots, price, visible } })),
   updateNotes: backofficeWriteProcedure
     .input(courseUpdateNotesSchema)
     .mutation(async ({ input: { id, notes } }) => {

@@ -71,6 +71,9 @@ export const createCourseRegistrations = async (prisma: Prisma.TransactionClient
     const newRegistrationsForUser: (typeof newRegistrationsPerUser)[0][1] = [];
     for (const courseId of args.data.courses) {
       const course = await prisma.course.findUniqueOrThrow({ where: { id: courseId }, include: { registrations: { where: { isUserCanceled: false } } } });
+      if (!admin && !course.visible) {
+        throw new ServiceError(ServiceErrorCode.CourseRestricted);
+      }
       if (course.isCanceled) {
         throw new ServiceError(ServiceErrorCode.CourseCanceledNoRegistration);
       }

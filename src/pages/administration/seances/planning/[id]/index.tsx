@@ -10,7 +10,7 @@ import {
   Edit,
   EmojiPeople,
   Event, KeyboardDoubleArrowLeft, KeyboardDoubleArrowRight,
-  Notes
+  Notes, Public, VisibilityOff,
 } from '@mui/icons-material';
 import { Course, Prisma } from '@prisma/client';
 import { useRouter } from 'next/router';
@@ -171,6 +171,14 @@ const CourseContent: React.FunctionComponent<CourseContentProps> = ({ course }: 
               { header: 'Prix', value: `${course.price} €` },
               { header: 'Date', value: formatDateDDsMMsYYYY(course.dateStart) },
               { header: 'Heures', value: `${formatTimeHHhMM(course.dateStart)} à ${formatTimeHHhMM(course.dateEnd)}` },
+              { header: 'Visibilité', value:
+                  <Chip
+                    label={course.visible ? 'Publique' : 'Cachée'}
+                    color={course.visible ? undefined : 'error'}
+                    icon={course.visible ? <Public /> : <VisibilityOff />}
+                    variant="outlined" size="small"
+                  />
+              },
             ]}
           />
         </Grid>

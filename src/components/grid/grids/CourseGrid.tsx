@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cancel, Edit, Notes, Visibility } from '@mui/icons-material';
+import { Cancel, Edit, Notes, Public, Visibility, VisibilityOff } from '@mui/icons-material';
 import { formatDateDDsmmYYYY, formatTimeHHhMM, formatWeekday } from '../../../common/date';
 import { Course, CourseType } from '@prisma/client';
 import { CourseTypeNames, getCourseStatusWithRegistrations } from '../../../common/course';
@@ -8,7 +8,7 @@ import { AsyncGrid } from '../AsyncGrid';
 import { useRouter } from 'next/router';
 import { CourseStatusChip } from '../../CourseStatusChip';
 import { GridRenderCellParams, GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
-import { Box } from '@mui/material';
+import { Box, Tooltip } from '@mui/material';
 import { CancelCourseDialog } from '../../dialogs/CancelCourseDialog';
 import { trpc } from '../../../common/trpc';
 import { useSnackbar } from 'notistack';
@@ -139,6 +139,17 @@ export const CourseGrid: React.FunctionComponent<CourseGridProps> = ({ future, c
           </Box>
         )
       },
+    },
+    {
+      field: 'visible',
+      headerName: 'Visibilité',
+      minWidth: 80,
+      flex: 0.5,
+      renderCell: ({ row: { visible } }: GridRenderCellParams<CourseItem>) => (
+        <Tooltip title={visible ? 'Publique' : 'Cachée'}>
+          {visible ? <Public color="action"/> : <VisibilityOff color="error"/>}
+        </Tooltip>
+      ),
     },
     {
       field: 'notes',

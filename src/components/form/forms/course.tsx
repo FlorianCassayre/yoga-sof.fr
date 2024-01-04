@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   DatePickerElement,
-  FormContainer,
+  FormContainer, SwitchElement,
   TextFieldElement,
-  useFormContext
+  useFormContext,
 } from 'react-hook-form-mui';
 import { z } from 'zod';
 import {
@@ -181,8 +181,9 @@ const DatesSelectionList = () => {
   );
 };
 
-const courseFormDefaultValues: { dates: Date[], modelId?: number } = {
+const courseFormDefaultValues: { dates: Date[], modelId?: number, visible: boolean } = {
   dates: [] satisfies Date[],
+  visible: true,
 };
 
 const useProceduresToInvalidate = () => {
@@ -262,6 +263,9 @@ const CourseCreateFormContent = () => {
       <Grid item xs={12}>
         <InputPrice name="price" disabled={isUsingModel} />
       </Grid>
+      <Grid item xs={12}>
+        <SwitchElement name="visible" label="Visible"/>
+      </Grid>
       <Grid item xs={12} container justifyContent="center">
         <Grid item xs={12} md={6} lg={4}>
           <DatesSelectionList />
@@ -315,6 +319,9 @@ export const CourseUpdateForm = ({ queryData }: { queryData: ParsedUrlQuery }) =
         </Grid>
         <Grid item xs={12}>
           <InputPrice name="price" />
+        </Grid>
+        <Grid item xs={12}>
+          <SwitchElement name="visible" label="Visible" />
         </Grid>
       </Grid>
     </UpdateFormContent>

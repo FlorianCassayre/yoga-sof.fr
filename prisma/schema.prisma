@@ -143,6 +143,7 @@ model Course {
   price             Int                  @db.UnsignedInt
   dateStart         DateTime             @db.Timestamp(0) @map("date_start")
   dateEnd           DateTime             @db.Timestamp(0) @map("date_end")
+  visible           Boolean              @default(true)
   isCanceled        Boolean              @default(false) @map("is_canceled")
   cancelationReason String?              @db.Text @map("cancelation_reason")
   notes             String?              @db.Text

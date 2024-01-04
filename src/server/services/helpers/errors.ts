@@ -35,6 +35,7 @@ export enum ServiceErrorCode {
   UsersCannotBeMerged,
   OrderCannotInferRecipient,
   OrderInvoiceInapplicable,
+  CourseRestricted,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -81,4 +82,5 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.UsersCannotBeMerged]: `Ces utilisateurs ne peuvent pas être fusionnés`,
   [ServiceErrorCode.OrderCannotInferRecipient]: `Le bénéficiaire ne peut pas être déduit à partir des articles de ce paiement`,
   [ServiceErrorCode.OrderInvoiceInapplicable]: `Une facture ne peut pas être générée pour ce type de paiement`,
+  [ServiceErrorCode.CourseRestricted]: `L'inscription à cette séance est restreinte`,
 };
