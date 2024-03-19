@@ -11,7 +11,7 @@ import {
   Stack, Step,
   StepLabel,
   Stepper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography,
-  Link as MuiLink, Radio
+  Link as MuiLink, Radio, useTheme
 } from '@mui/material';
 import {
   Add,
@@ -158,6 +158,7 @@ const CourseRegistrationFormStep1UserSelection: React.FC<CourseRegistrationFormS
 }
 
 const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'userCourses'>> = ({ courses, userCourses }) => {
+  const theme = useTheme();
   const { watch, setValue } = useFormContext<CourseRegistrationFieldValues>();
   const watchCourseIds = watch('courseIds');
   const alreadyRegisteredCourseSet = useMemo(() => new Set<number>(userCourses.map(({ course: { id } }) => id)), [userCourses]);
@@ -166,18 +167,9 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
   type CourseItem = (typeof courses)[0];
   const columns: GridColDef<CourseItem>[] = [
     {
-      field: 'type',
-      headerName: 'Type de séance',
-      minWidth: 200,
-      flex: 1,
-      valueGetter: ({ value }: GridValueFormatterParams<CourseType>) => CourseTypeNames[value],
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
       field: 'date',
       headerName: 'Date et horaire',
-      minWidth: 350,
+      minWidth: 330,
       flex: 2,
       valueGetter: ({ row: { dateStart } }: GridValueGetterParams<CourseItem>) => dateStart,
       renderCell: ({ row: { dateStart, dateEnd } }: GridRenderCellParams<CourseItem>) =>
@@ -186,9 +178,18 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
       align: 'center',
     },
     {
+      field: 'type',
+      headerName: 'Type de séance',
+      minWidth: 120,
+      flex: 1,
+      valueGetter: ({ value }: GridValueFormatterParams<CourseType>) => CourseTypeNames[value],
+      headerAlign: 'center',
+      align: 'center',
+    },
+    {
       field: 'slots',
       headerName: 'Places restantes / disponibles',
-      minWidth: 250,
+      minWidth: 220,
       flex: 1,
       valueGetter: ({ row: { slots, registrations } }: GridValueGetterParams<CourseItem>) => slots - registrations,
       renderCell: ({ row: { slots, registrations } }: GridRenderCellParams<CourseItem>) => (
@@ -226,6 +227,24 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
       disableColumnMenu
       disableColumnSelector
       sx={{
+        [theme.breakpoints.only('xs')]: {
+          mx: -2,
+          borderRadius: 0,
+          borderLeft: 'none',
+          borderRight: 'none',
+          // Scroll
+          '& .MuiDataGrid-virtualScroller::-webkit-scrollbar': {
+            width: '0.4em',
+          },
+          '& .MuiDataGrid-virtualScroller::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+          },
+          '& .MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb': {
+            backgroundColor: '#888',
+          },
+          '& .MuiDataGrid-virtualScroller::-webkit-scrollbar-thumb:hover': {
+            background: '#555',
+        },
         // TODO factor out this code
         [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
           outline: "none"
@@ -239,6 +258,7 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
         // Disable select all
         '& .MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer': {
           display: 'none'
+        },
         },
       }}
     />
@@ -596,6 +616,7 @@ const CourseRegistrationForm: React.FC<Pick<CourseRegistrationFormProps, 'course
 interface CourseRegistrationFormWidgetProps {}
 
 export const CourseRegistrationFormWidget: React.FC<CourseRegistrationFormWidgetProps> = () => {
+  const theme = useTheme();
   const { status, data: session } = useSession();
   const isAuthenticated = useMemo(() => status === 'authenticated', [status]);
   const { data: coursesData, isError: isCoursesError } = trpc.public.findAllFutureCourses.useQuery(undefined, {
@@ -603,7 +624,7 @@ export const CourseRegistrationFormWidget: React.FC<CourseRegistrationFormWidget
   });
 
   return (
-    <Card variant="outlined">
+    <Card variant="outlined" sx={{ [theme.breakpoints.only('xs')]: { mx: -2, borderRadius: 0, borderLeft: 'none', borderRight: 'none' } }}>
       <CardContent>
         {status === 'unauthenticated' ? (
           <Box textAlign="center" sx={{ py: 2 }}>
