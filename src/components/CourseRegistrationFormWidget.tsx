@@ -218,6 +218,7 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
       onRowSelectionModelChange={selected => setValue('courseIds', selected.map(id => typeof id === 'string' ? parseInt(id) : id).filter(id => !alreadyRegisteredCourseSet.has(id)))}
       isRowSelectable={({ row }: GridRowParams<(typeof courses)[0]>) => !alreadyRegisteredCourseSet.has(row.id) && row.registrations < row.slots}
       localeText={{
+        noRowsLabel: 'Pas de séances disponibles pour le moment',
         footerRowSelected: () => {
           const actualCount = watchCourseIds.length;
           return actualCount === 0 ? '' : `${actualCount} séance${actualCount > 1 ? 's' : ''} sélectionnée${actualCount > 1 ? 's' : ''}`;

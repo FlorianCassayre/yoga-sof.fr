@@ -57,6 +57,7 @@ export const AsyncGrid = <
       disableColumnMenu
       disableColumnSelector
       disableRowSelectionOnClick
+      localeText={{ noRowsLabel: 'Aucun résultat' }}
       sx={{
         // Disable the annoying focus outline
         [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
