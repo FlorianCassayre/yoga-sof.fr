@@ -31,6 +31,14 @@ export const displayCourseName = ({ type, dateStart, dateEnd }: Pick<Course, 'ty
 ].join(' ');
 //formatDayRange(dateStart, dateEnd, false),
 
+export const displayCourseWeeklyName = ({ dateStart, dateEnd }: Pick<Course, 'dateStart' | 'dateEnd'>) => [
+  formatWeekday(dateStart, true),
+  'de',
+  formatTimeHHhMM(dateStart),
+  'à',
+  formatTimeHHhMM(dateEnd),
+].join(' ');
+
 export const displayCourseModelName = ({ type, weekday, timeStart, timeEnd, bundle }: CourseModel, capitalize = true) => [
   capitalize ? CourseTypeNames[type] : CourseTypeNames[type].toLowerCase(),
   'le',

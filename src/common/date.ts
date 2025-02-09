@@ -85,12 +85,6 @@ export const formatTimestampRelative = (date: Date | string) => {
   return `Il y a ${suffix}`;
 }
 
-export const formatDayRange = (start: Date | string, end: Date | string, capitalize = true): string => {
-  //const dateString = dateLiteralFormatter.format(new Date(start));
-  //return [capitalize ? capitalizeFirst(dateString) : dateString, 'de', formatTimeRange(start, end)].join(' ');
-  return '';
-};
-
 export const formatWeekday = (date: Date | string, capitalize = true) => {
   const weekday = WeekdayNames[(new Date(date).getDay() - 1 + WeekdayNames.length) % WeekdayNames.length];
   return capitalize ? weekday : weekday.toLowerCase();

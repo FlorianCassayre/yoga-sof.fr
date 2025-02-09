@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useMemo } from 'react';
+import React, { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import {
   Alert,
@@ -11,17 +11,17 @@ import {
   Stack, Step,
   StepLabel,
   Stepper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography,
-  Link as MuiLink, Radio, useTheme
+  Link as MuiLink, Radio, useTheme, IconButton, MenuItem, Menu, ListItemIcon, ListItemText, Badge
 } from '@mui/material';
 import {
   Add,
   ArrowBack,
   ArrowForward,
   ArrowRight,
-  Check, CheckCircle,
+  Check, CheckCircle, Clear,
   Face2TwoTone,
   Face3TwoTone,
-  FaceTwoTone,
+  FaceTwoTone, FilterList,
   Login, Person, PersonAdd
 } from '@mui/icons-material';
 import Link from 'next/link';
@@ -44,6 +44,7 @@ import { blue } from '@mui/material/colors';
 import { userSchemaBase } from '../common/schemas/user';
 import { DeepNullable, ValidateSubtype } from '../common/utils';
 import { z } from 'zod';
+import { displayCourseWeeklyName } from '../common/display';
 
 const ErrorAlert: React.FC = () => (
   <Box textAlign="center">
@@ -157,10 +158,15 @@ const CourseRegistrationFormStep1UserSelection: React.FC<CourseRegistrationFormS
   );
 }
 
-const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' | 'userCourses'>> = ({ courses, userCourses }) => {
+interface CourseSelectionGridProps extends Pick<CourseRegistrationFormProps, 'courses' | 'userCourses'> {
+  filteredCourseIds: Set<number>;
+}
+
+const CourseSelectionGrid: React.FC<CourseSelectionGridProps> = ({ courses, filteredCourseIds, userCourses }) => {
   const theme = useTheme();
   const { watch, setValue } = useFormContext<CourseRegistrationFieldValues>();
   const watchCourseIds = watch('courseIds');
+  const filteredCourses = useMemo(() => courses.filter(({ id }) => filteredCourseIds.has(id)), [courses, filteredCourseIds]);
   const alreadyRegisteredCourseSet = useMemo(() => new Set<number>(userCourses.map(({ course: { id } }) => id)), [userCourses]);
 
   const rowsPerPageOptions = [10];
@@ -205,7 +211,7 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
   ];
   return (
     <DataGrid
-      rows={courses}
+      rows={filteredCourses}
       columns={columns}
       initialState={{
         sorting: { sortModel: [{ field: 'date', sort: 'asc' }] },
@@ -215,7 +221,12 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
       sortingOrder={['asc', 'desc']}
       checkboxSelection
       rowSelectionModel={[...watchCourseIds, ...Array.from(alreadyRegisteredCourseSet)]}
-      onRowSelectionModelChange={selected => setValue('courseIds', selected.map(id => typeof id === 'string' ? parseInt(id) : id).filter(id => !alreadyRegisteredCourseSet.has(id)))}
+      onRowSelectionModelChange={selected => {
+        const newSelected = selected.map(id => typeof id === 'string' ? parseInt(id) : id).filter(id => !alreadyRegisteredCourseSet.has(id));
+        const invisible = watchCourseIds.filter(id => !filteredCourseIds.has(id));
+        const uniqueCourses = Array.from(new Set([...invisible, ...newSelected])).sort((a, b) => a - b);
+        setValue('courseIds', uniqueCourses);
+      }}
       isRowSelectable={({ row }: GridRowParams<(typeof courses)[0]>) => !alreadyRegisteredCourseSet.has(row.id) && row.registrations < row.slots}
       localeText={{
         noRowsLabel: 'Pas de séances disponibles pour le moment',
@@ -266,24 +277,112 @@ const CourseSelectionGrid: React.FC<Pick<CourseRegistrationFormProps, 'courses' 
   );
 };
 
+interface SelectedFilter {
+  key: string;
+  courseIds: number[];
+}
+
+interface FilterCoursesButtonProps extends Pick<CourseRegistrationFormProps, 'courses'> {
+  selectedFilterKey: string | null;
+  setSelectedFilter: (value: SelectedFilter | null) => void;
+}
+
+const FilterCoursesButton: React.FC<FilterCoursesButtonProps> = ({ courses, selectedFilterKey, setSelectedFilter }) => {
+  const deducedModels = useMemo(() => {
+    const record: Record<string, typeof courses> = {};
+    courses.forEach((course) => {
+      const key = displayCourseWeeklyName(course);
+      if (record[key] === undefined) {
+        record[key] = [];
+      }
+      record[key].push(course);
+    });
+    const sortedEntries = Object.entries(record).sort(([, array1], [, array2]) => {
+      const a = array1[0].dateStart, b = array2[0].dateStart;
+      if (a.getDay() !== b.getDay()) {
+        return a.getDay() - b.getDay();
+      }
+      return formatTimeHHhMM(a).localeCompare(formatTimeHHhMM(b))
+    });
+    return Object.fromEntries(sortedEntries);
+  }, [courses]);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = !!anchorEl;
+  const handleButtonClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => setAnchorEl(e.currentTarget), [setAnchorEl]);
+  const handleClose = useCallback(() => setAnchorEl(null), [setAnchorEl]);
+  const handleOptionClick = (key: string) => {
+    setSelectedFilter(key !== selectedFilterKey ? { key, courseIds: deducedModels[key].map(({ id }) => id) } : null);
+    handleClose();
+  };
+  return (
+    <Stack direction="row" spacing={0.5}>
+      <IconButton size="small" disabled={selectedFilterKey === null} sx={{ visibility: selectedFilterKey === null ? 'hidden' : undefined }} onClick={() => setSelectedFilter(null)}>
+        <Clear />
+      </IconButton>
+      <Badge badgeContent={selectedFilterKey !== null ? 1 : 0} color="primary">
+        <IconButton size="small" color={selectedFilterKey !== null ? 'primary' : 'default'} onClick={handleButtonClick}>
+          <FilterList />
+        </IconButton>
+      </Badge>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        {Object.entries(deducedModels).map(([keyAndLabel, filteredCourses]) => (
+          <MenuItem key={keyAndLabel} selected={selectedFilterKey === keyAndLabel} onClick={() => handleOptionClick(keyAndLabel)}>
+            <ListItemIcon>
+              {selectedFilterKey === keyAndLabel && (
+                <Check />
+              )}
+            </ListItemIcon>
+            <ListItemText>
+              {keyAndLabel}
+            </ListItemText>
+            <Typography variant="body2" sx={{ color: 'text.secondary', ml: 2 }}>
+              ({filteredCourses.length})
+            </Typography>
+          </MenuItem>
+        ))}
+      </Menu>
+    </Stack>
+  );
+}
+
 const CourseRegistrationFormStep2CoursesSelection: React.FC<CourseRegistrationFormProps & { isLoading: boolean, isError: boolean }> = ({ courses, userCourses, session, isLoading, isError }) => {
   const { watch } = useFormContext<CourseRegistrationFieldValues>();
   const watchUserId = watch('userId');
   const watchName = watch('name');
+  const [selectedFilter, setSelectedFilter] = useState<SelectedFilter | null>(null);
+  const filteredCourseIds = useMemo(
+    () => selectedFilter === null ? new Set(courses.map(({ id }) => id)) : new Set(selectedFilter.courseIds),
+    [courses, selectedFilter]
+  );
   return isError ? (
     <ErrorAlert />
-  ) : isLoading || !courses || !userCourses ? (
+  ) : isLoading ? (
     <Box textAlign="center">
       <CircularProgress sx={{ my: 3 }} />
     </Box>
   ) : (
     <Box>
-      <Box sx={{ mb: 2 }}>
-        Sélectionnez les séances pour lesquelles vous souhaitez{' '}
-        {watchUserId === session.userId ? 'vous inscrire' : <>inscrire <strong>{watchName}</strong></>}
-        {' '}:
-      </Box>
-      <CourseSelectionGrid courses={courses} userCourses={userCourses} />
+      <Stack direction="row" spacing={1} justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+        <Box>
+          Sélectionnez les séances pour lesquelles vous souhaitez{' '}
+          {watchUserId === session.userId ? 'vous inscrire' : <>inscrire <strong>{watchName}</strong></>}
+          {' '}:
+        </Box>
+        <FilterCoursesButton courses={courses} selectedFilterKey={selectedFilter?.key ?? null} setSelectedFilter={setSelectedFilter} />
+      </Stack>
+      <CourseSelectionGrid courses={courses} filteredCourseIds={filteredCourseIds} userCourses={userCourses} />
     </Box>
   );
 };
