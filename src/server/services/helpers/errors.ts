@@ -36,6 +36,8 @@ export enum ServiceErrorCode {
   OrderCannotInferRecipient,
   OrderInvoiceInapplicable,
   CourseRestricted,
+  CourseWaitingListCannotSubscribed,
+  CourseWaitingListNotFound,
 }
 
 export class ServiceError<T extends ServiceErrorCode> extends Error {
@@ -83,4 +85,6 @@ export const ServiceErrorCodeMessages: { [K in ServiceErrorCode]: string } = {
   [ServiceErrorCode.OrderCannotInferRecipient]: `Le bénéficiaire ne peut pas être déduit à partir des articles de ce paiement`,
   [ServiceErrorCode.OrderInvoiceInapplicable]: `Une facture ne peut pas être générée pour ce type de paiement`,
   [ServiceErrorCode.CourseRestricted]: `L'inscription à cette séance est restreinte`,
+  [ServiceErrorCode.CourseWaitingListCannotSubscribed]: `L'utilisateur ne peut pas s'inscrire sur la liste d'attente pour cette séance`,
+  [ServiceErrorCode.CourseWaitingListNotFound]: `La séance sur liste d'attente n'a pas été trouvée`,
 };

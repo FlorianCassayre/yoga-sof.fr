@@ -4,6 +4,7 @@ import { Assignment } from '@mui/icons-material';
 import { Typography } from '@mui/material';
 import { CourseRegistrationEventGrid } from '../../../components/grid/grids/CourseRegistrationEventGrid';
 import { CourseRegistrationGrid } from '../../../components/grid/grids/CourseRegistrationGrid';
+import { CourseWaitingListGrid } from '../../../components/grid/grids/CourseWaitingListGrid';
 
 export default function AdminCourseRegistrations() {
   return (
@@ -31,6 +32,14 @@ export default function AdminCourseRegistrations() {
         La colonne adhésion indique si l'utilisateur possède un statut d'adhérent le jour de la séance.
       </Typography>
       <CourseRegistrationGrid />
+
+      <Typography variant="h6" component="div" sx={{ mt: 2 }}>
+        Liste d'attente
+      </Typography>
+      <Typography paragraph>
+        Utilisateurs en attente d'inscription pour des séances complètes.
+      </Typography>
+      <CourseWaitingListGrid />
     </BackofficeContent>
   );
 }

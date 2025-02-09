@@ -8,7 +8,7 @@ import {
 import {
   EmailMessageTemplateCourseAdultRegistrationConfirmation,
   EmailMessageTemplateCourseAdultReminderNewcomer,
-  EmailMessageTemplateCourseCanceled, EmailMessageTemplateOrderCreatedInformation
+  EmailMessageTemplateCourseCanceled, EmailMessageTemplateCourseWaitingList, EmailMessageTemplateOrderCreatedInformation
 } from '../../contents/emailMessages';
 import Mail from 'nodemailer/lib/mailer';
 
@@ -222,3 +222,61 @@ export const notifyOrderCreated = async (
     { user: order.user, order }
   );
 };
+
+export const notifyCourseWaitingList = () =>
+  writeTransaction(async (prisma) => {
+    const now = new Date();
+    const candidateSubscriptions = await prisma.courseWaitingList.findMany({
+      where: {
+        isNotified: false,
+        course: {
+          dateStart: { gt: now },
+          isCanceled: false,
+          visible: true,
+        }
+      },
+      include: {
+        user: {
+          include: {
+            managedByUser: true,
+          },
+        },
+        course: {
+          include: {
+            registrations: {
+              select: { userId: true },
+              where: { isUserCanceled: false }
+            },
+          }
+        },
+      }
+    });
+    // User is not already registered and there are open slots available
+    const subscriptionsToNotify = candidateSubscriptions.filter(subscription =>
+      subscription.course.registrations.every(({ userId }) => subscription.userId !== userId) &&
+      subscription.course.registrations.length < subscription.course.slots
+    );
+    await prisma.courseWaitingList.updateMany({
+      where: {
+        id: {
+          in: subscriptionsToNotify.map(({ id }) => id),
+        },
+      },
+      data: {
+        isNotified: true,
+        notifiedAt: new Date().toISOString(),
+      },
+    });
+
+    const callbacks = await Promise.all(
+      subscriptionsToNotify
+        .map(subscription => dispatchEmailFromComponent(
+          prisma,
+          EmailMessageTemplateCourseWaitingList,
+          { user: subscription.user, course: subscription.course },
+        )),
+    );
+    return async () => {
+      await Promise.all(callbacks.map(callback => callback()));
+    };
+  });

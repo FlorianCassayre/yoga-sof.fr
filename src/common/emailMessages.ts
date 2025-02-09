@@ -7,6 +7,7 @@ export const EmailMessageTypeNames: { [K in EmailMessageType]: string } = {
   [EmailMessageType.SESSION_REMINDER_NEWCOMER]: 'Rappel de séance pour nouveaux arrivants',
   [EmailMessageType.SESSION_REGISTRATION]: 'Inscription à des séances',
   [EmailMessageType.ORDER_CREATED]: 'Confirmation de paiement',
+  [EmailMessageType.COURSE_WAITING_LIST]: 'Place disponible pour une séance',
   [EmailMessageType.OTHER]: 'Autre',
 };
 

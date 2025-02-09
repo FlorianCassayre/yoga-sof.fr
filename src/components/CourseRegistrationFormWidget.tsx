@@ -22,12 +22,12 @@ import {
   Face2TwoTone,
   Face3TwoTone,
   FaceTwoTone, FilterList,
-  Login, Person, PersonAdd
+  Login, Notes, NotificationAdd, NotificationsActive, Person, PersonAdd
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { DataGrid, gridClasses, GridColDef, GridRowParams, GridValueGetterParams } from '@mui/x-data-grid';
 import { trpc } from '../common/trpc';
-import { CourseType } from '@prisma/client';
+import { Course, CourseType } from '@prisma/client';
 import { CourseTypeNames } from '../common/course';
 import { GridRenderCellParams, GridValueFormatterParams } from '@mui/x-data-grid/models/params/gridCellParams';
 import { formatDateDDsmmYYYY, formatTimeHHhMM, formatWeekday } from '../common/date';
@@ -36,7 +36,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { frontsiteCourseRegistrationSchema } from '../common/schemas/frontsiteCourseRegistration';
 // @ts-ignore
 import { RegistrationNoticePersonalInformation, RegistrationNoticeRecap } from '../../contents/inscription.mdx';
-import { useSnackbar } from 'notistack';
+import { enqueueSnackbar, useSnackbar } from 'notistack';
 import { DirtyFormUnloadAlert } from './form/fields/DirtyFormUnloadAlert';
 import { courses } from './contents/common/courses';
 import { Session } from 'next-auth';
@@ -45,6 +45,8 @@ import { userSchemaBase } from '../common/schemas/user';
 import { DeepNullable, ValidateSubtype } from '../common/utils';
 import { z } from 'zod';
 import { displayCourseWeeklyName } from '../common/display';
+import { GridActionsCellItemTooltip } from './GridActionsCellItemTooltip';
+import { CourseWaitingListAction } from './CourseWaitingListAction';
 
 const ErrorAlert: React.FC = () => (
   <Box textAlign="center">
@@ -165,6 +167,7 @@ interface CourseSelectionGridProps extends Pick<CourseRegistrationFormProps, 'co
 const CourseSelectionGrid: React.FC<CourseSelectionGridProps> = ({ courses, filteredCourseIds, userCourses }) => {
   const theme = useTheme();
   const { watch, setValue } = useFormContext<CourseRegistrationFieldValues>();
+  const watchUserId = watch('userId');
   const watchCourseIds = watch('courseIds');
   const filteredCourses = useMemo(() => courses.filter(({ id }) => filteredCourseIds.has(id)), [courses, filteredCourseIds]);
   const alreadyRegisteredCourseSet = useMemo(() => new Set<number>(userCourses.map(({ course: { id } }) => id)), [userCourses]);
@@ -207,7 +210,16 @@ const CourseSelectionGrid: React.FC<CourseSelectionGridProps> = ({ courses, filt
       ),
       headerAlign: 'center',
       align: 'center',
-    }
+    },
+    {
+      field: 'actions',
+      type: 'actions',
+      headerName: '',
+      flex: 1,
+      maxWidth: 50,
+      getActions: ({ row }) => row.registrations >= row.slots && !alreadyRegisteredCourseSet.has(row.id) ? [<CourseWaitingListAction userId={watchUserId!} courseId={row.id} />] : [],
+      sortable: false,
+    },
   ];
   return (
     <DataGrid

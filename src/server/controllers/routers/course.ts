@@ -47,6 +47,8 @@ export const courseRouter = router({
         include: { registrations: true },
       });
     }),
+  findWaitingList: backofficeReadProcedure
+    .query(async () => prisma.courseWaitingList.findMany({ include: { user: true, course: true } })),
   /*.query('findAllPaginated', {
   input: schemaWithPagination,
   resolve: async ({ input: { pagination } }) => findCoursesPaginated({ pagination }),

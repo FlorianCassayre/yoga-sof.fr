@@ -173,3 +173,20 @@ export const EmailMessageTemplateOrderCreatedInformation: EmailMessageWithConten
     }
   },
 });
+
+export const EmailMessageTemplateCourseWaitingList: EmailMessageWithContentTemplate<{ course: Course }> = withContent({
+  type: EmailMessageType.COURSE_WAITING_LIST,
+  subject: ({ course }) => `Place disponible pour la ${displayCourseName(course, false)}`,
+  body: ({ course }) => (
+    <>
+      Vous aviez demandé à être notifié(e) des disponibilités de la {displayCourseName(course, false)}.
+      <br />
+      <br />
+      Nous avons le plaisir de vous informer qu'une place vient de se libérer.
+      <br />
+      Vous pouvez à présent vous y inscrire en suivant <a href={`${process.env.NEXTAUTH_URL}/inscription`}>ce lien</a>.
+      <br />
+      <br />
+    </>
+  ),
+});

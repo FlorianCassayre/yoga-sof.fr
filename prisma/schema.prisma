@@ -83,6 +83,7 @@ model User {
   coupons             Coupon[]
   memberships         Membership[]         @relation("user_membership")
   orders              Order[]
+  courseWaitingList   CourseWaitingList[]
 
   disabled            Boolean              @default(false)
 
@@ -151,6 +152,7 @@ model Course {
   createdAt         DateTime             @default(now()) @map("created_at")
   updatedAt         DateTime             @updatedAt @map("updated_at")
   registrations     CourseRegistration[]
+  waitingList       CourseWaitingList[]
   bundle            CourseBundle?        @relation(fields: [bundleId], references: [id])
 
   @@map("course")
@@ -187,11 +189,25 @@ model CourseBundle {
   @@map("course_bundle")
 }
 
+model CourseWaitingList {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @map("user_id")
+  user       User      @relation(fields: [userId], references: [id])
+  courseId   Int       @map("course_id")
+  course     Course    @relation(fields: [courseId], references: [id])
+  isNotified Boolean   @default(false) @map("is_user_canceled")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  notifiedAt DateTime? @map("canceled_at")
+
+  @@map("course_waiting_list")
+}
+
 enum EmailMessageType {
   SESSION_CANCELED
   SESSION_REMINDER_NEWCOMER
   SESSION_REGISTRATION
   ORDER_CREATED
+  COURSE_WAITING_LIST
   OTHER
 }
 

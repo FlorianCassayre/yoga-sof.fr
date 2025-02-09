@@ -15,6 +15,13 @@ import { User } from '@prisma/client';
 import { displayUserName } from '../../../common/display';
 import { findCouponsPublic } from '../../services/coupon';
 import { findMembershipsPublic } from '../../services/membership';
+import {
+  unsubscribeUserWaitingListPublic,
+  findUserWaitingListSubscriptionPublic,
+  subscribeUserWaitingListPublic
+} from '../../services/courseWaitingList';
+import { id } from 'date-fns/locale';
+import email from 'next-auth/core/lib/email/signin';
 
 // It is important to control the data that we return from this router, since it is accessible to any logged-in user
 
@@ -35,6 +42,16 @@ export const selfRouter = router({
       return await readTransaction(async (prisma) => {
         await validateControlsUser(prisma, { where: { id: requesterId, userId } });
         return findCourseRegistrationsPublic(prisma, { userId, future, userCanceled });
+      });
+    }),
+  findAllWaitingListSubscriptions: userProcedure
+    .input(z.strictObject({
+      userId: z.number().int().min(0),
+    }))
+    .query(async ({ input: { userId }, ctx: { session: { userId: requesterId } } }) => {
+      return await readTransaction(async (prisma) => {
+        await validateControlsUser(prisma, { where: { id: requesterId, userId } });
+        return findUserWaitingListSubscriptionPublic(prisma, { where: { userId } });
       });
     }),
   findAllCoupons: userProcedure
@@ -105,5 +122,27 @@ export const selfRouter = router({
         return sendMailCallback;
       });
       await sendMailCallback();
+    }),
+  subscribeWaitingList: userProcedure
+    .input(z.strictObject({
+      userId: z.number().int().min(0),
+      courseId: z.number().int().min(0),
+    }))
+    .mutation(async ({ input: { userId, courseId }, ctx: { session: { userId: requesterId } } }) => {
+      await writeTransaction(async (prisma) => {
+        await validateControlsUser(prisma, { where: { id: requesterId, userId } });
+        await subscribeUserWaitingListPublic(prisma, { where: { userId, courseId } });
+      });
+    }),
+  unsubscribeWaitingList: userProcedure
+    .input(z.strictObject({
+      userId: z.number().int().min(0),
+      courseId: z.number().int().min(0),
+    }))
+    .mutation(async ({ input: { userId, courseId }, ctx: { session: { userId: requesterId } } }) => {
+      await writeTransaction(async (prisma) => {
+        await validateControlsUser(prisma, { where: { id: requesterId, userId } });
+        await unsubscribeUserWaitingListPublic(prisma, { where: { userId, courseId } });
+      });
     }),
 });
