@@ -104,9 +104,9 @@ export const EmailMessageTemplateCourseAdultReminderNewcomer: EmailMessageWithCo
       <ul>
         <li>Vous pouvez stationner votre vélo sur le côté gauche du jardin, près du conteneur vert.</li>
         <li>
-          Pour les véhicules, privilégiez le parking du cimetière, juste à l'entrée de la rue des Moissonneurs pour ne pas déranger les voisins,
+          Pour les véhicules, privilégiez le parking du cimetière, juste à l'entrée de la rue des Moissonneurs ou bien celui du Foyer Saint-Laurent si vous arrivez depuis la rue de Flogensbourg pour ne pas déranger les voisins,
           {' '}
-          l'impasse est petite, il n'y a qu'une place devant la maison.
+          l'impasse est petite, il n'y a qu'une place pour un véhicule devant la maison.
         </li>
         <li>Pour les trajets courts, privilégiez la marche ou le vélo.</li>
       </ul>
