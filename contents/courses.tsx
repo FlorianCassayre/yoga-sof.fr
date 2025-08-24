@@ -25,7 +25,7 @@ export const coursesExplicit: Record<CourseType, CourseDataExplicit> = {
     duration: `1h`,
     price: `87 à 90 €/ trimestre et cotisation 15 €/an pour l'association Yoga-Sof`,
     location: <Link href={LocationComete.googleUrl} target="_blank" rel="noreferrer nofollow">La Comète Salle Orion 16 Rue du 20 Novembre, 68220 Hésingue</Link>,
-    stuff: `Venir en tenue souple et confortable qui ne serre pas au niveau de l'abdomen; tapis, accessoires et autre matériel fournis`,
+    stuff: `Venir en tenue souple et confortable qui ne serre pas au niveau de l'abdomen ; tapis, accessoires et autre matériel fournis`,
     registration: `Informations ou inscriptions me contacter pour faire connaissance avant la séance d'essai`,
   },
   [CourseType.YOGA_ADULT_CHILD]: {
@@ -37,7 +37,7 @@ export const coursesExplicit: Record<CourseType, CourseDataExplicit> = {
     duration: `1h`,
     price: `22 € duos, 30 € trios, 40 € quattuor`,
     location: <Link href={LocationComete.googleUrl} target="_blank" rel="noreferrer nofollow">La Comète Salle Orion 16 Rue du 20 Novembre, 68220 Hésingue</Link>,
-    stuff: `Venir en tenue souple et confortable qui ne sert pas au niveau de l'abdomen; tapis, accessoires et autre matériel fournis`,
+    stuff: `Venir en tenue souple et confortable qui ne sert pas au niveau de l'abdomen ; tapis, accessoires et autre matériel fournis`,
     registration: `Informations ou inscriptions sur liste d'attente me contacter par mail`,
   },
 };
