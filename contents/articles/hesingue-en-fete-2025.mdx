@@ -1,0 +1,58 @@
+import { parseGaufresDataContent, formatEuro } from '../../src/components/contents/articles/sales';
+import { SalesChart } from '../../src/components/contents/articles/SalesChart';
+import { SalesDayTable } from '../../src/components/contents/articles/SalesDayTable';
+import { SalesItemsChart } from '../../src/components/contents/articles/SalesItemsChart';
+import { YogaImage } from '../../src/components/contents/yoga/YogaImage';
+import { FrontsiteContent } from '../../src/components/layout/public/FrontsiteContent';
+import gaufres2025 from  '../data/gaufres-2025.json';
+
+export const meta = {
+  title: 'Hésingue en fête 2025',
+};
+
+export const data = parseGaufresDataContent(gaufres2025);
+
+export const sold2024 = 329;
+
+<p/>
+
+Le week-end du **5 au 7 septembre 2025** s'est tenue la quatrième édition de **[Hésingue en fête](https://www.lacometehesingue.fr/programmation/hesingue-en-fete-1)**. L'association **Yoga-Sof** était présente cette année encore, pour contribuer à animer ce festival familial autour de [La Comète](https://www.lacometehesingue.fr).
+
+<YogaImage src="/images/gaufres-2025.jpg" alt="Stand de gaufres pour Hésingue en fête 2025" />
+
+<p/>
+
+C'est **une réussite** sur tous les points (ambiance, qualité des animations, fréquentation, et météo) avec une organisation irréprochable de l'équipe de La Comète, du personnel municipal et des nombreux bénévoles hésinguois.
+
+De notre côté, divers **jeux de société** étaient mis à disposition des enfants, et nos membres se sont volontiers joints pour jouer avec eux. D'autre part, l'association tenait un point d'information sur le Yoga, et un stand de **gaufres bios et locales** dans l'optique de renflouer les caisses de l'association.
+
+Ainsi, **{data.totalSold}** gaufres ont été vendues pendant toute la durée de l'événement, pour un total de **{formatEuro(data.totalSoldEuro, false)}**. En tenant compte des frais engagés, les bénéfices réels pour l'association ont été de **{formatEuro(data.totalProfitsEuro, false)}**.
+Pour mémoire, l'année dernière l'association avait vendu {sold2024} gaufres, soit une augmentation de {(100 * (data.totalSold / sold2024 - 1)).toFixed(0)} % cette année.
+
+<SalesDayTable data={data.days} />
+
+<p/>
+
+_(\*) Marge d'erreur d'environ 1%._
+
+À titre d'information, les garnitures des gaufres suivaient la distribution suivante :
+
+<SalesItemsChart data={data} />
+
+<p/>
+
+Enfin, voici le nombre total de ventes, heure par heure :
+
+<SalesChart data={data.days} />
+
+Vous pouvez retrouver les données brutes [ici](https://github.com/FlorianCassayre/yoga-sof.fr/tree/master/contents/data/gaufres-2025.json).
+
+<YogaImage src="/images/gaufres-2025-alt.jpg" alt="Jeux avec les enfants à Hésingue en fête 2025" />
+
+<p/>
+
+**Au nom de l'association, je souhaite remercier chaleureusement tous les membres qui ont investi de leur temps pour la réussite de cet événement.** Et évidemment, aux habitants qui nous ont généreusement soutenu.
+
+_Un événement interne sera organisé avec les participants du stand, sous la forme d'une séance de brain ball._
+
+export default ({ children }) => <FrontsiteContent {...meta}>{children}</FrontsiteContent>

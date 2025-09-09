@@ -1,0 +1,50 @@
+{
+  "items": [
+    { "code": "N", "label": "Nature", "price": 2 },
+    { "code": "S", "label": "Sucre", "price": 2 },
+    { "code": "F", "label": "Confiture", "price": 2.5 },
+    { "code": "M", "label": "Miel", "price": 3 },
+    { "code": "C", "label": "Chocolat", "price": 3 },
+    { "code": "CC", "label": "Chocolat + coco", "price": 4 },
+    { "code": "CB", "label": "Chocolat + banane", "price": 4 },
+    { "code": "BC", "label": "Banane + coco", "price": 4 },
+    { "code": "BS", "label": "Banane + sucre", "price": 4 },
+    { "code": "RB", "label": "Rhum + banane", "price": 4.5 }
+  ],
+  "saleCodes": ["S", "CB", "CB", "C", "S", "S", "C", "CC", "CB", "RB", "S", "F", "RB", "RB", "RB", "BC", "C", "C", "RB", "CB", "C", "C", "CC", "C", "CB", "C", "C", "C", "S", "S", "S", "C", "CC", "S", "CB", "S", "C", "S", "S", "CC", "C", "C", "C", "S", "S", "S", "S", "S", "C", "N", "C", "CC", "CC", "C", "C", "F", "C", "C", "C", "C", "C", "N", "C", "C", "C", "CC", "S", "S", "C", "S", "S", "C", "C", "C", "C", "CB", "C", "C", "C", "C", "S", "S", "S", "S", "BC", "S", "S", "CB", "CC", "C", "C", "C", "C", "CB", "C", "S", "S", "CC", "S", "S", "CB", "CB", "RB", "RB", "S", "CB", "S", "C", "C", "CB", "CB", "N", "S", "C", "F", "C", "C", "C", "C", "C", "C", "C", "C", "BC", "S", "C", "C", "C", "CC", "C", "CB", "C", "C", "C", "CC", "CC", "C", "C", "CC", "F", "F", "C", "C", "S", "S", "C", "C", "C", "C", "CB", "C", "S", "C", "CB", "CB", "CB", "C", "S", "C", "C", "C", "C", "CB", "F", "BC", "RB", "S", "C", "C", "C", "CB", "C", "F", "C", "C", "C", "S", "C", "C", "C", "S", "C", "C", "C", "S", "C", "C", "C", "S", "C", "S", "C", "CB", "C", "CB", "S", "S", "S", "C", "CC", "C", "S", "F", "C", "C", "C", "C", "C", "CC", "C", "C", "C", "CB", "CB", "C", "C", "S", "S", "C", "C", "C", "S", "S", "N", "C", "C", "C", "C", "C", "CC", "S", "S", "N", "N", "S", "S", "C", "C", "C", "M", "C", "RB", "RB", "C", "CC", "RB", "S", "S", "N", "CB", "S", "S", "F", "CB", "C", "C", "C", "RB", "CB", "C", "C", "C", "C", "S", "C", "C", "S", "CB", "S", "C", "C", "RB", "C", "C", "CB", "C", "S", "S", "C", "C", "S", "CB", "C", "C", "C", "CC", "S", "S", "S", "F", "S", "CB", "F", "CB", "S", "C", "C", "CC", "CC", "C", "C", "C", "C", "CC", "CB", "S", "F", "CB", "CB", "CB", "C", "C", "M", "C", "C", "CC", "S", "C", "BC", "S", "BC", "CB", "C", "S", "F", "C", "S", "CC", "CC", "F", "RB", "RB", "C", "BC", "CB", "CB", "CB", "C", "C", "CB", "CB", "CC", "S", "C", "CB", "N", "S", "CB", "CC", "C", "C", "CC", "C", "C", "CB", "CB", "RB", "RB", "CC", "C", "C", "S", "C", "S", "S", "CB", "CB", "S", "C", "S", "BC", "C", "C", "CC", "S", "CC", "C", "C", "C", "S", "C", "C", "C", "C", "RB", "C", "CB", "CB", "C", "C", "S", "C", "C", "S", "C", "C", "S", "C", "C", "C", "C", "S", "C", "C", "C", "BC", "C", "C", "C", "S", "C", "C", "C", "S", "C", "S", "M", "C", "C", "M", "CC", "S", "S", "F", "C", "F", "RB", "S", "CB", "C", "C", "C", "S", "CC", "C", "CC", "C", "C", "C", "CB", "BC", "C", "S", "CC", "CB", "C", "N", "S", "C", "C", "CB", "C", "C", "C", "C", "C", "C", "S", "M", "CC", "C", "C", "S", "C", "S", "C", "C", "S", "CB", "CC", "S", "CB", "S", "S", "S", "CC", "CC", "CB", "CB", "M", "C", "S", "C", "S", "CB", "CB", "S", "C", "C", "C", "C", "C", "S", "S", "S", "CB", "C", "CB", "C", "C", "C", "F", "C", "S", "N", "C", "C", "BC", "S", "S", "C", "C", "C", "C", "C", "S", "C", "S", "BC", "S", "F", "C", "C", "S", "C", "S", "CB", "F", "CB", "S", "CC", "S", "C", "N", "CC", "S", "C", "M", "M", "CC", "M", "C", "CC", "BC", "CB", "CB", "S", "C", "C", "C", "C", "C", "S", "C", "C", "F", "RB", "RB", "S", "C", "CC", "C", "C", "C", "C", "F", "C", "C", "CC", "C", "CB", "CB", "CB", "S", "C", "C", "C", "C", "CC", "C", "C", "C", "M", "M", "M"],
+  "saleTimes": [null, "19:15", null, null, null, null, null, "21:00", null, null, "21:16", null, null, null, null, null, null, "21:35", null, null, null, null, null, null, null, null, "22:00", null, null, null, null, null, null, "15:22", "15:34", null, null, null, "15:40", "15:47", "15:50", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "16:40", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "17:15", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "18:00", null, null, null, null, null, "18:30", null, null, null, null, null, null, null, null, null, null, null, null, "19:00", "19:16", "19:17", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "20:04", "20:05", "20:05", "20:07", "20:07", "20:11", "20:11", "20:11", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "20:41", null, null, "20:48", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "21:30", null, null, null, null, null, null, null, null, null, null, null, null, "22:00", null, null, null, null, null, null, null, null, null, "23:00", "12:00", "12:10", "12:21", "12:28", null, null, null, null, null, null, null, null, null, "13:05", null, null, "13:18", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "13:45", null, null, null, null, null, null, null, null, null, null, null, null, "13:55", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "14:45", null, null, null, null, null, null, null, null, null, null, null, null, "15:00", null, null, null, null, null, null, null, "15:17", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "16:12", null, null, null, null, "16:16", null, null, null, null, null, null, null, null, "16:25", null, null, null, null, null, "16:29", null, null, null, null, null, "16:35", null, null, null, null, null, null, null, null, null, null, "16:42", null, null, "16:50", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "17:01", null, null, null, null, null, null, null, null, "17:10", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, "17:34", null, null, "17:41", null, null, null, null, null, null, null, null, null, null, null, "18:00", null, null, null, null, null, null, null, null, null, null],
+  "saleDays": [{ "day": "2025-09-05", "timeLabel": "18h - 23h", "startIndex": 0 }, { "day": "2025-09-06", "timeLabel": "14h - 23h", "startIndex": 29 },{ "day": "2025-09-07", "timeLabel": "11h - 18h", "startIndex": 309 }],
+  "halfDays": {
+    "cashAmounts": [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50],
+    "cash": [
+      [0, 0, 0, 0, 0, 2, 15, 12, 15, 10, 2, 0],
+      [0, 0, 0, 0, 0, 3, 17, 15, 11, 7, 6, 0],
+      [0, 0, 0, 0, 0, 3, 17, 15, 15, 7, 2, 0],
+      [0, 0, 2, 6, 4, 17, 29, 9, 10, 30, 11, 7],
+      [0, 0, 0, 0, 0, 5, 20, 9, 10, 5, 2, 0],
+      [0, 0, 0, 2, 9, 15, 24, 19, 15, 13, 20, 3]
+    ],
+    "couponAmounts": [2, 2.5, 3, 4, 4.5],
+    "coupons": [
+      [0, 0, 0, 0, 0],
+      [1, 0, 7, 3, 5],
+      [0, 0, 0, 0, 0],
+      [0, 0, 7, 10, 2],
+      [0, 0, 0, 0, 0],
+      [4, 1, 20, 28, 5]
+    ]
+  },
+  "days": {
+    "donations": [
+      0,
+      0,
+      4
+    ],
+    "owed": [
+      0,
+      0,
+      3
+    ]
+  },
+  "expenses": [40.3, 17, 32.69, 60, 98.96, 14.72, 21.53, 20, 26.8, 6, 60, 9.5, 7.4]
+}
