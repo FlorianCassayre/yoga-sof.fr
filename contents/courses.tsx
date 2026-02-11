@@ -13,8 +13,8 @@ export const coursesExplicit: Record<CourseType, CourseDataExplicit> = {
     group: `4-6 personnes`,
     duration: `1h15`,
     price: `400 € les 32 séances ou 140 € les 10 séances ou 16 € / séance + cotisation annuelle association 15 € / personne ou 20 € / famille`,
-    location: <>À mon domicile au <Link href={LocationHome.googleUrl} target="_blank" rel="noreferrer nofollow">8 rue des moissonneurs, 68220 Hésingue</Link>. Je peux également venir chez vous si vous constituez un petit groupe, n'hésitez pas à me contacter pour cela.</>,
-    stuff: `Tapis de Yoga et une couverture, portez une tenue confortable. Vous pourrez emprunter sur place des blocs, sangles, élastiques, coussins, bolster, balles et ballons.`,
+    location: <>À mon domicile au <Link href={LocationHome.googleUrl} target="_blank" rel="noreferrer nofollow">8 rue des moissonneurs, 68220 Hésingue</Link> parkings à proximité, arrêt de bus Halliers, ligne 1 Distribus. Prestations à votre domicile, me contacter.</>,
+    stuff: `Tapis de Yoga et une couverture, portez une tenue confortable. Vous pourrez emprunter sur place des blocs, sangles, élastiques, coussins, bolster, rouleaux, balles et ballons.`,
     registration: `Inscription en ligne depuis le site, ou bien me contacter`,
   },
   [CourseType.YOGA_CHILD]: {
