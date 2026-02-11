@@ -33,7 +33,7 @@ const withContent = <Props extends {},>
         Vous pouvez consulter ou annuler vos inscriptions en suivant
         {' '}
         <a href={`${process.env.NEXTAUTH_URL}/mes-inscriptions`}>ce lien</a>
-        .
+        ou depuis le site en cliquant sur votre nom en haut.
       </>
     ),
     attachments: template.attachments,
