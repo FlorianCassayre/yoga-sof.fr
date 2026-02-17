@@ -11,9 +11,9 @@ export const FACEBOOK_PAGE_URL = 'https://www.facebook.com/Yoga-Sof-102478218061
 
 export const COMETE_URL = 'https://www.lacometehesingue.fr/les-associations/yoga-sof';
 
-export const INSTAGRAM_URL = 'https://www.instagram.com/yoga.sof.hesingue';
+export const INSTAGRAM_URL = 'https://www.instagram.com/yogasof.hesingue';
 
-export const LINKEDIN_URL = 'https://www.linkedin.com/in/sodigital';
+export const LINKEDIN_URL = 'https://www.linkedin.com/company/102190228/';
 
 interface Location {
   name: string;
