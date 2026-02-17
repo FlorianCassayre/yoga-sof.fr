@@ -9,7 +9,7 @@ export const EMAIL_CONTACT = 'contact' + '@' + 'yoga-sof.fr';
 
 export const FACEBOOK_PAGE_URL = 'https://www.facebook.com/Yoga-Sof-102478218061902';
 
-export const COMETE_URL = 'https://www.lacometehesingue.fr/les-associations/yoga-sof';
+export const COMETE_URL = 'https://www.lacometehesingue.fr/activites/yoga-pour-enfants';
 
 export const INSTAGRAM_URL = 'https://www.instagram.com/yogasof.hesingue';
 

@@ -8,7 +8,7 @@ interface AboutQuotedProps {
 
 export const AboutQuoted: React.FC<AboutQuotedProps> = ({ children }) => {
   return (
-    <Typography paragraph align="justify">
+    <Typography paragraph align="justify" sx={{ fontStyle: 'italic' }}>
       <FormatQuoteTwoTone sx={{ mr: 1, mb: -1, transform: 'rotate(180deg)' }} />
       {children}
       <FormatQuoteTwoTone sx={{ ml: 1, mt: -1 }} />
