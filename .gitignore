@@ -5,5 +5,8 @@ node_modules
 
 tsconfig.tsbuildinfo
 drizzle
+.next
+next-env.d.ts
 
 .env
+
