@@ -1,0 +1,8 @@
+{
+  "name": "@yoga-sof/public",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  }
+}
