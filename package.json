@@ -3,7 +3,9 @@
   "private": true,
   "packageManager": "pnpm@11.24.0",
   "scripts": {
-    "check": "tsc --noEmit && pnpm -r --parallel typecheck"
+    "check": "tsc --noEmit && pnpm -r --parallel typecheck",
+    "db:push": "pnpm -F @yoga-sof/core exec drizzle-kit push",
+    "db:seed": "pnpm -F @yoga-sof/core exec tsx src/seed.ts"
   },
   "devDependencies": {
     "typescript": "^7.0.2"
