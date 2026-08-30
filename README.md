@@ -3,6 +3,7 @@
 ## Installation
 
 You will need Node and pnpm:
+
 ```shell
 pnpm i
 ```
@@ -41,6 +42,7 @@ docker run --name yoga-sof-postgres -e POSTGRES_USER=yoga_sof -e POSTGRES_PASSWO
 ### Environment variable
 
 Then you need to update `.env` with the correct environment variable:
+
 ```shell
 DATABASE_URL=postgresql://yoga_sof:change-me@localhost:5432/yoga_sof
 ```

@@ -7,6 +7,7 @@ tsconfig.tsbuildinfo
 drizzle
 .next
 next-env.d.ts
+.eslintcache
 
 .env
 

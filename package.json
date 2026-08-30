@@ -3,14 +3,37 @@
   "private": true,
   "packageManager": "pnpm@11.24.0",
   "scripts": {
-    "check": "tsc --noEmit && pnpm -r --parallel typecheck",
     "dev": "pnpm -r dev",
     "build": "pnpm -r build",
     "start": "pnpm -r start",
     "db:push": "pnpm -F @yoga-sof/core exec drizzle-kit push",
-    "db:seed": "pnpm -F @yoga-sof/core exec tsx src/seed.ts"
+    "db:seed": "pnpm -F @yoga-sof/core exec tsx src/seed.ts",
+    "check": "eslint . --cache --max-warnings=0 && prettier --cache --check . && tsc --noEmit && pnpm -r --parallel typecheck",
+    "fix": "eslint . --cache --max-warnings=0 --fix && prettier --cache --write ."
   },
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "arrowParens": "always"
+  },
+  "browserslist": [
+    "defaults"
+  ],
   "devDependencies": {
-    "typescript": "^7.0.2"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-compat": "^7.0.2",
+    "eslint-plugin-import-x": "^4.17.1",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.5",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "globals": "^17.11.0",
+    "prettier": "^3.9.6",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.68.0"
   }
 }
