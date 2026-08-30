@@ -36,7 +36,30 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
 
-  apps/admin: {}
+  apps/admin:
+    dependencies:
+      next:
+        specifier: 'catalog:'
+        version: 16.3.3(@types/node@20.19.43)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      react:
+        specifier: 'catalog:'
+        version: 19.2.8
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.2.8(react@19.2.8)
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 20.19.43
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: 'catalog:'
+        version: 19.2.5(@types/react@19.2.18)
+      babel-plugin-react-compiler:
+        specifier: 'catalog:'
+        version: 1.0.0
 
   apps/public:
     dependencies:

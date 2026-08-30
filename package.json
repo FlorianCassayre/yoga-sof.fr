@@ -4,9 +4,9 @@
   "packageManager": "pnpm@11.24.0",
   "scripts": {
     "check": "tsc --noEmit && pnpm -r --parallel typecheck",
-    "dev": "pnpm -F @yoga-sof/public exec next dev",
-    "build": "pnpm -F @yoga-sof/public exec next build",
-    "start": "pnpm -F @yoga-sof/public exec next start",
+    "dev": "pnpm -r dev",
+    "build": "pnpm -r build",
+    "start": "pnpm -r start",
     "db:push": "pnpm -F @yoga-sof/core exec drizzle-kit push",
     "db:seed": "pnpm -F @yoga-sof/core exec tsx src/seed.ts"
   },
