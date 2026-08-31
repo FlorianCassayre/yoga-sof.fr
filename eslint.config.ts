@@ -120,6 +120,7 @@ export default defineConfig(
         },
       ],
       'react/jsx-curly-brace-presence': 'error',
+      'react/no-unescaped-entities': 'off',
     },
   },
   // eslint-plugin-react-hooks

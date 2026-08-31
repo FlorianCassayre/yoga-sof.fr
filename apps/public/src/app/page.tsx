@@ -1,5 +1,13 @@
+import { HomeCoursesSection } from '../home/HomeCoursesSection';
+import { HomeIntroductionSection } from '../home/HomeIntroductionSection';
+
 const Home = () => {
-  return <main>Hello world</main>;
+  return (
+    <>
+      <HomeIntroductionSection />
+      <HomeCoursesSection />
+    </>
+  );
 };
 
 export default Home;
