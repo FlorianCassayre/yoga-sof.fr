@@ -1,21 +1,25 @@
 'use client';
 
-import { Stack, Typography } from '@mui/material';
 import { CalendarPlus } from 'lucide-react';
 
-import { CreateFab } from '../../components/CreateFab';
+import { PageLayout } from '../../components/page/PageLayout';
 import { CourseGrid } from './CourseGrid';
+import { CourseIcon } from './CourseIcon';
 
 export const CoursesPage = () => {
   return (
-    <Stack spacing={2}>
-      <Typography variant="h5">Séances</Typography>
+    <PageLayout
+      icon={CourseIcon}
+      title="Séances"
+      actions={[
+        {
+          children: [
+            { label: 'Nouvelle séance', icon: CalendarPlus, href: '/seances/creation', fab: true },
+          ],
+        },
+      ]}
+    >
       <CourseGrid />
-      <CreateFab
-        items={[
-          { icon: <CalendarPlus size={20} />, label: 'Nouvelle séance', href: '/seances/creation' },
-        ]}
-      />
-    </Stack>
+    </PageLayout>
   );
 };

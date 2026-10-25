@@ -1,8 +1,7 @@
 'use client';
 
-import { type SvgIconProps, Typography } from '@mui/material';
-import { InputAdornment, Stack } from '@mui/material';
-import type { ComponentType } from 'react';
+import { InputAdornment, Stack, Typography } from '@mui/material';
+import type { LucideIcon } from 'lucide-react';
 import type { FieldPath, FieldValues } from 'react-hook-form';
 import { useFormContext } from 'react-hook-form';
 import { SelectElement } from 'react-hook-form-mui';
@@ -16,7 +15,7 @@ interface EnumSelectElementProps<
   label: string;
   values: readonly Value[];
   labels: Record<Value, string>;
-  icons?: Partial<Record<Value, ComponentType<SvgIconProps>>>;
+  icons?: Partial<Record<Value, LucideIcon>>;
   disabled?: boolean;
 }
 
@@ -33,7 +32,7 @@ export const EnumSelectElement = <
   disabled,
 }: EnumSelectElementProps<TFieldValues, TName, Value>) => {
   const { watch } = useFormContext<TFieldValues>();
-  const SelectedIcon: ComponentType<SvgIconProps> | undefined = icons?.[watch(name) as Value];
+  const SelectedIcon: LucideIcon | undefined = icons?.[watch(name) as Value];
 
   return (
     <SelectElement<TFieldValues, TName>
@@ -41,13 +40,13 @@ export const EnumSelectElement = <
       label={label}
       disabled={disabled}
       options={values.map((value) => {
-        const Icon: ComponentType<SvgIconProps> | undefined = icons?.[value];
+        const Icon: LucideIcon | undefined = icons?.[value];
 
         return {
           id: value,
           label: (
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-              {Icon && <Icon color="action" />}
+              {Icon && <Icon size={18} />}
               <Typography>{labels[value]}</Typography>
             </Stack>
           ),
@@ -58,7 +57,7 @@ export const EnumSelectElement = <
           renderValue: (selected) => labels[selected as Value],
           startAdornment: SelectedIcon ? (
             <InputAdornment position="start">
-              <SelectedIcon color="action" />
+              <SelectedIcon size={18} />
             </InputAdornment>
           ) : undefined,
         },

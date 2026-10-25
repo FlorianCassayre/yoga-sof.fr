@@ -3,6 +3,7 @@
 import { notFound } from 'next/navigation';
 import type { FieldValues } from 'react-hook-form';
 
+import { isNotFoundError } from '../../server/isNotFoundError';
 import { FormFields } from './FormFields';
 import type { FormProps, IdVersion } from './types';
 
@@ -29,8 +30,12 @@ export const FormLoader = <Row extends IdVersion, Values extends FieldValues>({
     return null;
   }
 
-  if (!query.data) {
+  if (isNotFoundError(query.error)) {
     notFound();
+  }
+
+  if (!query.data) {
+    return null;
   }
 
   return (

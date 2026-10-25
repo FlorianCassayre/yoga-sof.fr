@@ -1,22 +1,20 @@
 'use client';
 
 import { IconButton } from '@mui/material';
-import { DataGrid, type GridColDef } from '@mui/x-data-grid';
-import { keepPreviousData } from '@tanstack/react-query';
+import { type GridColDef } from '@mui/x-data-grid';
 import { COURSE_TYPE_LABELS, type CourseVisibility } from '@yoga-sof/core';
-import type { CourseSortField } from '@yoga-sof/core/server';
 import { dateTimeFormatter } from '@yoga-sof/ui/dateTimeFormatter';
 import { Eye } from 'lucide-react';
 import Link from 'next/link';
 
-import { useDataGrid } from '../../components/grid/useDataGrid';
+import { DataGrid } from '../../components/grid/DataGrid';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
 import { VisibilityChip } from './visibility/VisibilityChip';
 
 type CourseRow = RouterOutputs['course']['list']['rows'][number];
 
-const columns: (GridColDef<CourseRow> & { field: keyof CourseRow | 'actions' })[] = [
+const columns: GridColDef<CourseRow>[] = [
   {
     field: 'actions',
     headerName: '',
@@ -59,10 +57,5 @@ const columns: (GridColDef<CourseRow> & { field: keyof CourseRow | 'actions' })[
 ];
 
 export const CourseGrid = () => {
-  const grid = useDataGrid<CourseRow, CourseSortField>(columns);
-  const courses = api.course.list.useQuery(grid.queryInput, {
-    placeholderData: keepPreviousData,
-  });
-
-  return <DataGrid {...grid.dataGridProps(courses)} />;
+  return <DataGrid columns={columns} procedure={api.course.list} />;
 };

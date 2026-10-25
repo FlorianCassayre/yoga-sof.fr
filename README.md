@@ -46,3 +46,19 @@ Then you need to update `.env` with the correct environment variable:
 ```shell
 DATABASE_URL=postgresql://yoga_sof:change-me@localhost:5432/yoga_sof
 ```
+
+## Google authentication
+
+Authentication uses Google. Create an OAuth client ([Google Cloud Console](https://console.cloud.google.com/apis/credentials)), one per environment, of type "Web application" and with:
+
+|                  | Development                                      | Production                                     |
+|------------------|--------------------------------------------------|------------------------------------------------|
+| Allowed origins  | `http://localhost:3000`                          | `https://yoga-sof.fr`                          |
+| Redirection URIs | `http://localhost:3000/api/auth/callback/google` | `https://yoga-sof.fr/api/auth/callback/google` |
+
+Then set the credentials of the development client in `.env`:
+
+```shell
+AUTH_GOOGLE_ID=<client id>
+AUTH_GOOGLE_SECRET=<client secret>
+```

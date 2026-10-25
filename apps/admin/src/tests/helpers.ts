@@ -8,8 +8,8 @@ export const renderWithProviders = (ui: ReactElement, queryClient = new QueryCli
   ...render(createElement(QueryClientProvider, { client: queryClient }, ui)),
 });
 
-export const fakeQuery = <Row>(data: Row | null) => ({
-  useQuery: () => ({ data, isPending: false }),
+export const fakeQuery = <Row>(data: Row | null, error: unknown = null) => ({
+  useQuery: () => ({ data, error, isPending: false }),
 });
 
 export const fakeMutation = <Row, Input>(resolve: (input: Input) => Row | Promise<Row>) => {

@@ -13,6 +13,7 @@ export interface FieldProps {
 export interface GetProcedure<Row extends IdVersion> {
   useQuery(input: { id: number }): {
     data: Row | null | undefined;
+    error: unknown;
     isPending: boolean;
   };
 }

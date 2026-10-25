@@ -1,4 +1,4 @@
-import type { CourseVisibility } from './courseVisibility';
+import type { CourseVisibility } from './CourseVisibility';
 
 export const COURSE_VISIBILITY_LABELS: Record<CourseVisibility, string> = {
   public: 'Publique',

@@ -1,0 +1,97 @@
+diff --git a/index.d.ts b/index.d.ts
+index e3ec4865f902ce30f30ec115a9242ebb3c8f92ae..fc2487573d30f876cbe03a75169a80bbbe114d9d 100644
+--- a/index.d.ts
++++ b/index.d.ts
+@@ -19,3 +19,4 @@ import { DefaultSchema, SqlFlavorOptions } from "./lib/utils.js";
+ import type { Adapter } from "@auth/core/adapters";
+ export declare function DrizzleAdapter<SqlFlavor extends SqlFlavorOptions>(db: SqlFlavor, schema?: DefaultSchema<SqlFlavor>): Adapter;
+ //# sourceMappingURL=index.d.ts.map
++export { defineTables } from "./lib/pg.js";
+diff --git a/index.js b/index.js
+index e1678f7074f4c8a9729eecca98beb09eea27f265..074faa7748471cecdecae7844f1acd87395b7a18 100644
+--- a/index.js
++++ b/index.js
+@@ -16,21 +16,13 @@
+  * @module @auth/drizzle-adapter
+  */
+ import { is } from "drizzle-orm";
+-import { MySqlDatabase } from "drizzle-orm/mysql-core";
+-import { PgDatabase } from "drizzle-orm/pg-core";
+-import { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
+-import { MySqlDrizzleAdapter } from "./lib/mysql.js";
++import { PgAsyncDatabase } from "drizzle-orm/pg-core";
+ import { PostgresDrizzleAdapter } from "./lib/pg.js";
+-import { SQLiteDrizzleAdapter } from "./lib/sqlite.js";
+ export function DrizzleAdapter(db, schema) {
+-    if (is(db, MySqlDatabase)) {
+-        return MySqlDrizzleAdapter(db, schema);
+-    }
+-    else if (is(db, PgDatabase)) {
++    if (is(db, PgAsyncDatabase)) {
+         return PostgresDrizzleAdapter(db, schema);
+     }
+-    else if (is(db, BaseSQLiteDatabase)) {
+-        return SQLiteDrizzleAdapter(db, schema);
+-    }
+     throw new Error(`Unsupported database type (${typeof db}) in Auth.js Drizzle adapter.`);
+ }
++
++export { defineTables } from "./lib/pg.js";
+diff --git a/lib/pg.d.ts b/lib/pg.d.ts
+index 02c47ed10ac652994b1b1323e4c8fd716d93240e..6c4f6d0b50345e07eea0973950f91323ab303ef0 100644
+--- a/lib/pg.d.ts
++++ b/lib/pg.d.ts
+@@ -8,21 +8,20 @@ type DefaultPostgresColumn<T extends {
+     dataType: "string" | "number" | "boolean" | "date";
+     notNull: boolean;
+     isPrimaryKey?: boolean;
+-    columnType: "PgVarchar" | "PgText" | "PgBoolean" | "PgTimestamp" | "PgInteger" | "PgUUID";
+-}> = PgColumn<{
++}> = PgColumn<T["dataType"], {
+     name: string;
+-    isAutoincrement: boolean;
++    dataType: T["dataType"];
++    tableName: string;
++    notNull: T["notNull"];
++    hasDefault: boolean;
+     isPrimaryKey: T["isPrimaryKey"] extends true ? true : false;
++    isAutoincrement: boolean;
+     hasRuntimeDefault: boolean;
+-    generated: GeneratedColumnConfig<T["data"]> | undefined;
+-    columnType: T["columnType"];
+     data: T["data"];
+     driverParam: string | number | boolean;
+-    notNull: T["notNull"];
+-    hasDefault: boolean;
+-    enumValues: any;
+-    dataType: T["dataType"];
+-    tableName: string;
++    enumValues: string[] | undefined;
++    generated: unknown;
++    identity: undefined;
+ }>;
+ export type DefaultPostgresUsersTable = PgTableWithColumns<{
+     name: string;
+diff --git a/lib/utils.d.ts b/lib/utils.d.ts
+index 371208781272d1d7c9c85418bf309e055d221452..328e8823a10fcf241b5152058dd00eeaaf32d55a 100644
+--- a/lib/utils.d.ts
++++ b/lib/utils.d.ts
+@@ -1,14 +1,6 @@
+-import type { MySqlQueryResultHKT, PreparedQueryHKTBase } from "drizzle-orm/mysql-core";
+-import { MySqlDatabase } from "drizzle-orm/mysql-core";
+-import { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
+-import { BaseSQLiteDatabase } from "drizzle-orm/sqlite-core";
+-import { DefaultMySqlSchema } from "./mysql.js";
++import type { PgAsyncDatabase } from "drizzle-orm/pg-core";
+ import { DefaultPostgresSchema } from "./pg.js";
+-import { DefaultSQLiteSchema } from "./sqlite.js";
+-type AnyPostgresDatabase = PgDatabase<PgQueryResultHKT, any>;
+-type AnyMySqlDatabase = MySqlDatabase<MySqlQueryResultHKT, PreparedQueryHKTBase, any>;
+-type AnySQLiteDatabase = BaseSQLiteDatabase<"sync" | "async", any, any>;
+-export type SqlFlavorOptions = AnyPostgresDatabase | AnyMySqlDatabase | AnySQLiteDatabase;
+-export type DefaultSchema<Flavor extends SqlFlavorOptions> = Flavor extends AnyMySqlDatabase ? DefaultMySqlSchema : Flavor extends AnyPostgresDatabase ? DefaultPostgresSchema : Flavor extends AnySQLiteDatabase ? DefaultSQLiteSchema : never;
++type AnyPostgresDatabase = PgAsyncDatabase<any>;
++export type SqlFlavorOptions = AnyPostgresDatabase;
++export type DefaultSchema<Flavor extends SqlFlavorOptions> = DefaultPostgresSchema;
+ export {};
+-//# sourceMappingURL=utils.d.ts.map

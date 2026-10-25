@@ -1,7 +1,7 @@
 'use client';
 
 import { Box } from '@mui/material';
-import { UiRootLayout } from '@yoga-sof/ui/UiRootLayout';
+import { AppProvider } from '@yoga-sof/ui/AppProvider';
 
 import { Footer } from '../layout/Footer';
 import { Navbar } from '../layout/Navbar';
@@ -9,7 +9,7 @@ import { theme } from '../theme/theme';
 
 const RootLayout = ({ children }: LayoutProps<'/'>) => {
   return (
-    <UiRootLayout theme={theme}>
+    <AppProvider theme={theme}>
       <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Navbar />
         <Box component="main" sx={{ flexGrow: 1 }}>
@@ -17,7 +17,7 @@ const RootLayout = ({ children }: LayoutProps<'/'>) => {
         </Box>
         <Footer />
       </Box>
-    </UiRootLayout>
+    </AppProvider>
   );
 };
 

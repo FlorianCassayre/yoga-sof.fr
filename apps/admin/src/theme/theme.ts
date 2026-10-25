@@ -1,5 +1,6 @@
 import { createTheme, type ThemeOptions } from '@mui/material';
 import { muiFrenchLocale } from '@yoga-sof/ui/muiFrenchLocale';
+import { theme as baseTheme } from '@yoga-sof/ui/theme/theme';
 
 import { MuiDataGrid } from './components/MuiDataGrid';
 
@@ -22,4 +23,4 @@ const themeOptions: ThemeOptions = {
   },
 };
 
-export const theme = createTheme(themeOptions, muiFrenchLocale);
+export const theme = createTheme(themeOptions, baseTheme, muiFrenchLocale);

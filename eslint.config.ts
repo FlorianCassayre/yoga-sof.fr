@@ -74,6 +74,7 @@ export default defineConfig(
               group: [
                 '@mui/*/*',
                 '!@mui/material/locale',
+                '!@mui/material-nextjs/*',
                 '!@mui/x-data-grid/locales',
                 '!@mui/x-data-grid/themeAugmentation',
                 '!@mui/x-date-pickers/locales',

@@ -112,9 +112,9 @@ export const Navbar = () => {
 
               <Button
                 id="btn-reserve-nav"
+                href="/connexion"
                 variant="contained"
                 size="small"
-                // TODO onClick
                 startIcon={<UserRound size={14} />}
               >
                 Espace pratiquant

@@ -1,15 +1,17 @@
-'use client';
+import { auth } from '@yoga-sof/ui/auth';
+import { connexionUrl } from '@yoga-sof/ui/connexionUrl';
+import { redirect } from 'next/navigation';
 
-import { UiRootLayout } from '@yoga-sof/ui/UiRootLayout';
+import { AdminProviders } from '../layout/AdminProviders';
 
-import { AdminLayout } from '../layout/AdminLayout';
-import { api, trpcClient } from '../server/api';
-import { theme } from '../theme/theme';
+const RootLayout = async ({ children }: LayoutProps<'/'>) => {
+  const session = await auth();
 
-const RootLayout = ({ children }: LayoutProps<'/'>) => (
-  <UiRootLayout theme={theme} trpc={{ api, client: trpcClient }}>
-    <AdminLayout>{children}</AdminLayout>
-  </UiRootLayout>
-);
+  if (!session) {
+    redirect(connexionUrl(process.env.NEXT_ADMIN_SITE_URL));
+  }
+
+  return <AdminProviders>{children}</AdminProviders>;
+};
 
 export default RootLayout;

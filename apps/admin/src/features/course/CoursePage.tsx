@@ -1,12 +1,15 @@
 'use client';
 
-import { Button, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { COURSE_TYPE_LABELS } from '@yoga-sof/core';
 import { dateTimeFormatter } from '@yoga-sof/ui/dateTimeFormatter';
-import Link from 'next/link';
+import { Pencil } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
+import { PageLayout } from '../../components/page/PageLayout';
 import { api } from '../../server/api';
+import { isNotFoundError } from '../../server/isNotFoundError';
+import { CourseIcon } from './CourseIcon';
 import { VisibilityChip } from './visibility/VisibilityChip';
 
 interface CoursePageProps {
@@ -20,18 +23,24 @@ export const CoursePage = ({ id }: CoursePageProps) => {
     return null;
   }
 
-  if (!course.data) {
+  if (isNotFoundError(course.error)) {
     notFound();
   }
 
+  if (!course.data) {
+    return null;
+  }
+
   return (
-    <Stack spacing={2}>
-      <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-        <Typography variant="h5">Séance</Typography>
-        <Button component={Link} href={`/seances/${id}/edition`} variant="contained">
-          Modifier
-        </Button>
-      </Stack>
+    <PageLayout
+      icon={CourseIcon}
+      title="Séance"
+      actions={[
+        {
+          children: [{ label: 'Modifier', icon: Pencil, href: `/seances/${id}/edition` }],
+        },
+      ]}
+    >
       <Stack spacing={0.5}>
         <Typography>Type : {COURSE_TYPE_LABELS[course.data.type]}</Typography>
         <Typography>Début : {dateTimeFormatter.format(course.data.startsAt)}</Typography>
@@ -46,6 +55,6 @@ export const CoursePage = ({ id }: CoursePageProps) => {
           <Typography>Notes : {course.data.internalNotes}</Typography>
         )}
       </Stack>
-    </Stack>
+    </PageLayout>
   );
 };

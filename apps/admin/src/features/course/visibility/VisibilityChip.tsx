@@ -14,7 +14,7 @@ export const VisibilityChip = ({ visibility }: VisibilityChipProps) => {
 
   return (
     <Chip
-      icon={<Icon />}
+      icon={<Icon size={20} />}
       label={COURSE_VISIBILITY_LABELS[visibility]}
       variant="outlined"
       color={visibility === 'private' ? 'warning' : 'default'}

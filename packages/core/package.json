@@ -13,6 +13,8 @@
     "test:integration": "vitest run --passWithNoTests --include '**/*.integration.test.ts'"
   },
   "dependencies": {
+    "@auth/core": "catalog:",
+    "@auth/drizzle-adapter": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "pg": "catalog:",

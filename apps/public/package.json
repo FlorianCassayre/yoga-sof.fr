@@ -5,7 +5,9 @@
     "dev": "next dev -p 3000",
     "build": "next build",
     "start": "next start -p 3000",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:unit": "vitest run --passWithNoTests --exclude '**/*.integration.test.ts'"
   },
   "dependencies": {
     "@emotion/react": "catalog:",
@@ -15,6 +17,7 @@
     "@mui/material": "catalog:",
     "@mui/x-data-grid": "catalog:",
     "@yoga-sof/ui": "workspace:*",
+    "dotenv": "catalog:",
     "lucide-react": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
@@ -24,6 +27,7 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "babel-plugin-react-compiler": "catalog:"
+    "babel-plugin-react-compiler": "catalog:",
+    "vitest": "catalog:"
   }
 }

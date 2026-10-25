@@ -2,6 +2,7 @@ import { and, asc, eq } from 'drizzle-orm';
 import type { z } from 'zod';
 
 import { db } from '../../db/db';
+import { assertConflict, assertFound } from '../../errors';
 import { paginatedList, sortOrder } from '../../list';
 import type {
   courseCreateSchema,
@@ -23,7 +24,9 @@ export const courseService = {
   get: async ({ id }: z.infer<typeof courseGetSchema>) => {
     const [row] = await db.select().from(coursesTable).where(eq(coursesTable.id, id)).limit(1);
 
-    return row ?? null;
+    assertFound(row, 'La séance est introuvable');
+
+    return row;
   },
 
   create: async (values: z.infer<typeof courseCreateSchema>) => {
@@ -39,6 +42,8 @@ export const courseService = {
       .where(and(eq(coursesTable.id, id), eq(coursesTable.version, version)))
       .returning();
 
-    return row ?? null;
+    assertConflict(row, 'La séance a été modifiée entre-temps, rechargez la page.');
+
+    return row;
   },
 };

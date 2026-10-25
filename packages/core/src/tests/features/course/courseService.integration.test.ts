@@ -3,6 +3,7 @@ import { afterAll, describe, expect, it } from 'vitest';
 import type { z } from 'zod';
 
 import { db } from '../../../db/db';
+import { ServiceError } from '../../../errors';
 import type { courseCreateSchema } from '../../../features/course/courseSchemas';
 import { courseService } from '../../../features/course/courseService';
 import { coursesTable } from '../../../features/course/coursesTable';
@@ -49,12 +50,18 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
     });
     expect(updated?.version).toBe(created.version + 1);
 
-    const stale = await courseService.update({
-      ...values,
-      id: created.id,
-      version: created.version,
-    });
-    expect(stale).toBeNull();
+    await expect(
+      courseService.update({
+        ...values,
+        id: created.id,
+        version: created.version,
+      }),
+    ).rejects.toThrow(ServiceError);
+  });
+
+  it('throws on an unknown course', async () => {
+    await expect(courseService.get({ id: -100 })).rejects.toThrow(ServiceError);
+    await expect(courseService.get({ id: -100 })).rejects.toThrow('La séance est introuvable');
   });
 
   it('lists courses with pagination', async () => {

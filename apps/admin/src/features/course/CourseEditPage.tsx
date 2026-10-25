@@ -1,8 +1,8 @@
 'use client';
 
-import { Stack, Typography } from '@mui/material';
-
+import { PageLayout } from '../../components/page/PageLayout';
 import { CourseForm } from './CourseForm';
+import { CourseIcon } from './CourseIcon';
 
 interface CourseEditPageProps {
   id: string;
@@ -10,9 +10,8 @@ interface CourseEditPageProps {
 
 export const CourseEditPage = ({ id }: CourseEditPageProps) => {
   return (
-    <Stack spacing={2}>
-      <Typography variant="h5">Modifier la séance</Typography>
+    <PageLayout icon={CourseIcon} title="Modifier la séance">
       <CourseForm id={Number(id)} />
-    </Stack>
+    </PageLayout>
   );
 };

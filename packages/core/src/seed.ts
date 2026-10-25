@@ -5,7 +5,6 @@ config({ path: '../../.env' });
 import { asc } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 
-import { usersTable } from './db/schema';
 import { coursesTable } from './features/course';
 
 const db = drizzle({
@@ -22,15 +21,6 @@ const NOTES = [
   'Remplacer par Sophiens le jour même',
   '',
 ];
-
-async function seedUsers() {
-  await db.delete(usersTable);
-  await db.insert(usersTable).values([
-    { name: 'John', age: 30, email: 'john@example.com' },
-    { name: 'Marie', age: 42, email: 'marie@example.com' },
-  ]);
-  console.log('Users seeded!');
-}
 
 async function seedCourses() {
   await db.delete(coursesTable);
@@ -64,7 +54,6 @@ async function seedCourses() {
 }
 
 async function main() {
-  await seedUsers();
   await seedCourses();
 }
 

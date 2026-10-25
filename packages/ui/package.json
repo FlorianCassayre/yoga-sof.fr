@@ -3,23 +3,30 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./UiRootLayout": "./src/UiRootLayout.tsx",
+    "./AppProvider": "./src/AppProvider.tsx",
     "./ZodProvider": "./src/ZodProvider.tsx",
+    "./auth": "./src/auth.ts",
+    "./connexionUrl": "./src/connexionUrl.ts",
     "./dateTimeFormatter": "./src/dateTimeFormatter.ts",
-    "./muiFrenchLocale": "./src/muiFrenchLocale.ts"
+    "./muiFrenchLocale": "./src/muiFrenchLocale.ts",
+    "./theme/theme": "./src/theme/theme.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@mui/material": "catalog:",
+    "@mui/material-nextjs": "^9.5.0",
     "@mui/x-data-grid": "catalog:",
     "@mui/x-date-pickers": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@trpc/client": "catalog:",
     "@trpc/react-query": "catalog:",
     "@trpc/server": "catalog:",
+    "@yoga-sof/core": "workspace:^",
     "date-fns": "catalog:",
+    "next": "catalog:",
+    "next-auth": "catalog:",
     "notistack": "catalog:",
     "react": "catalog:",
     "zod": "catalog:"

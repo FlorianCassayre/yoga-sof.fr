@@ -1,14 +1,13 @@
 'use client';
 
-import { Stack, Typography } from '@mui/material';
-
+import { PageLayout } from '../../components/page/PageLayout';
 import { CourseForm } from './CourseForm';
+import { CourseIcon } from './CourseIcon';
 
 export const CourseCreatePage = () => {
   return (
-    <Stack spacing={2}>
-      <Typography variant="h5">Nouvelle séance</Typography>
+    <PageLayout icon={CourseIcon} title="Nouvelle séance">
       <CourseForm />
-    </Stack>
+    </PageLayout>
   );
 };

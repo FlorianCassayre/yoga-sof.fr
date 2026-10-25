@@ -31,6 +31,7 @@ const Fields = ({ disabled }: FieldProps) => (
 interface RenderFormOptions {
   id?: number;
   row?: TestRow | null;
+  error?: unknown;
   createResult?: (values: TestValues) => TestRow | Promise<TestRow>;
   updateResult?: (values: TestValues & IdVersion) => TestRow | Promise<TestRow>;
   queryClient?: QueryClient;
@@ -39,6 +40,7 @@ interface RenderFormOptions {
 const renderForm = ({
   id,
   row: currentRow = null,
+  error,
   createResult = () => ({ ...row, id: 99, version: 1 }),
   updateResult = () => row,
   queryClient = new QueryClient(),
@@ -49,7 +51,7 @@ const renderForm = ({
   renderWithProviders(
     <Form<TestRow, TestValues>
       id={id}
-      get={fakeQuery<TestRow>(currentRow)}
+      get={fakeQuery<TestRow>(currentRow, error)}
       create={create}
       update={update}
       defaultValues={(r) => ({ internalNotes: r?.internalNotes ?? 'draft' })}
@@ -114,9 +116,15 @@ describe('Form', () => {
   });
 
   it('404s when the row is missing', () => {
-    renderForm({ id: 1 });
+    renderForm({ id: 1, error: { data: { serviceError: true } } });
 
     expect(notFound).toHaveBeenCalled();
+  });
+
+  it('does not 404 on other errors', () => {
+    renderForm({ id: 1, error: { data: { code: 'INTERNAL_SERVER_ERROR' } } });
+
+    expect(notFound).not.toHaveBeenCalled();
   });
 
   it('shows an error snackbar on failure and does not redirect', async () => {
