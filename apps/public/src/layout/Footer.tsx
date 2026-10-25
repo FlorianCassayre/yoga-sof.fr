@@ -15,18 +15,82 @@ import {
   Typography,
 } from '@mui/material';
 import { ArrowUp, Facebook, Instagram, Mail, MapPin, Phone, X } from 'lucide-react';
+import type { ComponentProps, ReactNode } from 'react';
 import { useState } from 'react';
 
-import { CONTACT_INFO } from '../config';
-import { NATURAL_PALETTE } from '../theme';
+import { CONTACT_INFO } from '../features/contact/contactInfo';
+import { NATURAL_PALETTE } from '../theme/palette';
 import { Logo } from './Logo';
+
+const NAV_ITEMS = [
+  { href: '#methode', label: 'Méthode De Gasquet' },
+  { href: '#cours', label: 'Nos Cours' },
+  { href: '#planning', label: 'Planning Hebdo' },
+  { href: '#tarifs', label: 'Tarifs & Carnets' },
+  { href: '#sophie', label: 'Sophie Richaud' },
+  { href: '#lieux', label: 'Lieux à Hésingue' },
+  { href: '#contact', label: 'Contact & Inscription' },
+];
+
+const SCHEDULE = [
+  { label: 'Lundi/Mardi (Enfants)', value: '17h15 - 18h15' },
+  { label: 'Mardi/Jeudi (Matin)', value: '09h45 - 11h00' },
+  { label: 'Mercredi (Après-midi)', value: '16h00 & 17h45' },
+  { label: 'Jeudi (Fin d\u2019aprèm)', value: '16h30 - 17h45' },
+  { label: 'Samedi (Parent-Enfant)', value: '10h00 (Mensuel)' },
+];
+
+const LOCATIONS = [
+  { name: 'Studio (adultes)', address: '8 rue des Moissonneurs, 68220 Hésingue' },
+  { name: 'La Comète (enfants)', address: '16 rue du 20 Novembre, 68220 Hésingue' },
+];
+
+const MENTIONS = [
+  {
+    title: 'Éditeur du site :',
+    text: 'Association Yoga-Sof (Loi 1901), domiciliée au 8 rue des Moissonneurs, 68220 Hésingue.',
+  },
+  {
+    title: 'Responsable de la publication :',
+    text: 'Sophie Richaud-Cassayre (contact@yoga-sof.fr - 06 58 48 33 45).',
+  },
+  {
+    title: 'Enseignements :',
+    text: "Enseignement du Hatha Yoga et de la méthode Yoga Sans Dégâts certifiée par l'Institut De Gasquet (Paris).",
+  },
+  {
+    title: 'Données personnelles :',
+    text: 'Les informations transmises via les formulaires de contact et de réservation sont strictement destinées à la gestion des inscriptions et ne sont jamais cédées ni vendues à des tiers.',
+  },
+];
+
+const FooterTitle = ({ children }: { children: ReactNode }) => (
+  <Typography variant="overline" sx={{ color: '#FFFFFF', display: 'block', mb: 2 }}>
+    {children}
+  </Typography>
+);
+
+const FooterIconButton = (
+  props: ComponentProps<typeof IconButton> & {
+    component?: 'a';
+    href?: string;
+    target?: string;
+    rel?: string;
+  },
+) => (
+  <IconButton
+    {...props}
+    size="small"
+    sx={{
+      bgcolor: NATURAL_PALETTE.mossDark,
+      color: '#FFFFFF',
+      '&:hover': { bgcolor: 'primary.main' },
+    }}
+  />
+);
 
 export const Footer = () => {
   const [showMentions, setShowMentions] = useState(false);
-
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
 
   return (
     <Box
@@ -35,7 +99,6 @@ export const Footer = () => {
         bgcolor: NATURAL_PALETTE.forest,
         pt: { xs: 8, md: 10 },
         pb: 6,
-        borderTop: `1px solid ${NATURAL_PALETTE.mossDark}`,
       }}
     >
       <Container maxWidth="lg">
@@ -44,102 +107,53 @@ export const Footer = () => {
           spacing={5}
           sx={{ pb: 6, borderBottom: `1px solid ${NATURAL_PALETTE.mossDark}` }}
         >
-          {/* Col 1: Brand & Presentation */}
           <Grid size={{ xs: 12, md: 6, lg: 4 }}>
             <Stack spacing={2.5}>
               <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
                 <Logo />
                 <Box>
-                  <Typography
-                    variant="h5"
-                    sx={{ color: '#FFFFFF', fontWeight: 700, lineHeight: 1.1 }}
-                  >
+                  <Typography variant="h5" sx={{ color: '#FFFFFF' }}>
                     Yoga-Sof
                   </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: NATURAL_PALETTE.sageLight,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.06em',
-                    }}
-                  >
+                  <Typography variant="overline" sx={{ color: NATURAL_PALETTE.sageLight }}>
                     Hésingue
                   </Typography>
                 </Box>
               </Stack>
 
-              <Typography
-                variant="body2"
-                sx={{ color: '#C5C5B5', lineHeight: 1.6, fontSize: '0.8125rem' }}
-              >
+              <Typography variant="body2" sx={{ color: NATURAL_PALETTE.mist }}>
                 Studio de Hatha Yoga et Yoga Sans Dégâts selon la méthode De Gasquet. Séances pour
                 adultes en petits groupes (4-6 personnes), yoga enfants, ateliers parent-enfant.
               </Typography>
 
               <Stack direction="row" spacing={1.5}>
-                <IconButton
-                  component="a"
-                  href={CONTACT_INFO.socials.facebook}
-                  target="_blank"
-                  rel="noreferrer"
-                  size="small"
-                  sx={{
-                    bgcolor: NATURAL_PALETTE.mossDark,
-                    color: '#FFFFFF',
-                    '&:hover': { bgcolor: 'primary.main' },
-                  }}
-                >
-                  <Facebook size={16} />
-                </IconButton>
-                <IconButton
-                  component="a"
-                  href={CONTACT_INFO.socials.instagram}
-                  target="_blank"
-                  rel="noreferrer"
-                  size="small"
-                  sx={{
-                    bgcolor: NATURAL_PALETTE.mossDark,
-                    color: '#FFFFFF',
-                    '&:hover': { bgcolor: 'primary.main' },
-                  }}
-                >
-                  <Instagram size={16} />
-                </IconButton>
+                {[
+                  { href: CONTACT_INFO.socials.facebook, icon: Facebook },
+                  { href: CONTACT_INFO.socials.instagram, icon: Instagram },
+                ].map(({ href, icon: Icon }) => (
+                  <FooterIconButton
+                    key={href}
+                    component="a"
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Icon size={16} />
+                  </FooterIconButton>
+                ))}
               </Stack>
             </Stack>
           </Grid>
 
-          {/* Col 2: Navigation Links */}
           <Grid size={{ xs: 6, md: 3, lg: 2 }}>
-            <Typography
-              variant="caption"
-              sx={{
-                color: '#FFFFFF',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                display: 'block',
-                mb: 2,
-              }}
-            >
-              Navigation
-            </Typography>
+            <FooterTitle>Navigation</FooterTitle>
             <Stack spacing={1.25}>
-              {[
-                { href: '#methode', label: 'Méthode De Gasquet' },
-                { href: '#cours', label: 'Nos Cours' },
-                { href: '#planning', label: 'Planning Hebdo' },
-                { href: '#tarifs', label: 'Tarifs & Carnets' },
-                { href: '#sophie', label: 'Sophie Richaud' },
-                { href: '#lieux', label: 'Lieux à Hésingue' },
-                { href: '#contact', label: 'Contact & Inscription' },
-              ].map((item) => (
+              {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   underline="none"
-                  sx={{ color: '#C5C5B5', fontSize: '0.8125rem', '&:hover': { color: '#FFFFFF' } }}
+                  sx={{ color: NATURAL_PALETTE.mist, '&:hover': { color: '#FFFFFF' } }}
                 >
                   {item.label}
                 </Link>
@@ -147,109 +161,35 @@ export const Footer = () => {
             </Stack>
           </Grid>
 
-          {/* Col 3: Practical Hours */}
           <Grid size={{ xs: 6, md: 3, lg: 3 }}>
-            <Typography
-              variant="caption"
-              sx={{
-                color: '#FFFFFF',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                display: 'block',
-                mb: 2,
-              }}
-            >
-              Créneaux Principaux
-            </Typography>
-            <Stack spacing={1.5} sx={{ fontSize: '0.8125rem', color: '#C5C5B5' }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  borderBottom: `1px solid ${NATURAL_PALETTE.mossDark}`,
-                  pb: 0.75,
-                }}
-              >
-                <Typography variant="caption" sx={{ color: 'inherit' }}>
-                  Lundi/Mardi (Enfants)
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
-                  17h15 - 18h15
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  borderBottom: `1px solid ${NATURAL_PALETTE.mossDark}`,
-                  pb: 0.75,
-                }}
-              >
-                <Typography variant="caption" sx={{ color: 'inherit' }}>
-                  Mardi/Jeudi (Matin)
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
-                  09h45 - 11h00
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  borderBottom: `1px solid ${NATURAL_PALETTE.mossDark}`,
-                  pb: 0.75,
-                }}
-              >
-                <Typography variant="caption" sx={{ color: 'inherit' }}>
-                  Mercredi (Après-midi)
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
-                  16h00 & 17h45
-                </Typography>
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  borderBottom: `1px solid ${NATURAL_PALETTE.mossDark}`,
-                  pb: 0.75,
-                }}
-              >
-                <Typography variant="caption" sx={{ color: 'inherit' }}>
-                  Jeudi (Fin d'aprèm)
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
-                  16h30 - 17h45
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Typography variant="caption" sx={{ color: 'inherit' }}>
-                  Samedi (Parent-Enfant)
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
-                  10h00 (Mensuel)
-                </Typography>
-              </Box>
+            <FooterTitle>Créneaux Principaux</FooterTitle>
+            <Stack spacing={1.5} sx={{ color: NATURAL_PALETTE.mist }}>
+              {SCHEDULE.map(({ label, value }, i) => (
+                <Box
+                  key={label}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    ...(i < SCHEDULE.length - 1 && {
+                      borderBottom: `1px solid ${NATURAL_PALETTE.mossDark}`,
+                      pb: 0.75,
+                    }),
+                  }}
+                >
+                  <Typography variant="caption" sx={{ color: 'inherit' }}>
+                    {label}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#FFFFFF', fontWeight: 600 }}>
+                    {value}
+                  </Typography>
+                </Box>
+              ))}
             </Stack>
           </Grid>
 
-          {/* Col 4: Contact & Locations */}
           <Grid size={{ xs: 12, md: 6, lg: 3 }}>
-            <Typography
-              variant="caption"
-              sx={{
-                color: '#FFFFFF',
-                fontWeight: 700,
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                display: 'block',
-                mb: 2,
-              }}
-            >
-              Contact & Adresses
-            </Typography>
-            <Stack spacing={1.5} sx={{ fontSize: '0.8125rem', color: '#C5C5B5' }}>
+            <FooterTitle>Contact & Adresses</FooterTitle>
+            <Stack spacing={1.5} sx={{ color: NATURAL_PALETTE.mist }}>
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                 <Phone size={14} color={NATURAL_PALETTE.moss} />
                 <Link
@@ -270,57 +210,29 @@ export const Footer = () => {
                   {CONTACT_INFO.email}
                 </Link>
               </Stack>
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start', pt: 0.5 }}>
-                <Box
-                  component={MapPin}
-                  sx={{
-                    width: 14,
-                    height: 14,
-                    color: NATURAL_PALETTE.moss,
-                    mt: '2px',
-                    flexShrink: 0,
-                  }}
-                />
-                <Box>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: '#FFFFFF', fontWeight: 600, display: 'block' }}
-                  >
-                    Studio (adultes)
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: 'inherit' }}>
-                    8 rue des Moissonneurs, 68220 Hésingue
-                  </Typography>
-                </Box>
-              </Stack>
-              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
-                <Box
-                  component={MapPin}
-                  sx={{
-                    width: 14,
-                    height: 14,
-                    color: NATURAL_PALETTE.moss,
-                    mt: '2px',
-                    flexShrink: 0,
-                  }}
-                />
-                <Box>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: '#FFFFFF', fontWeight: 600, display: 'block' }}
-                  >
-                    La Comète (enfants)
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: 'inherit' }}>
-                    16 rue du 20 Novembre, 68220 Hésingue
-                  </Typography>
-                </Box>
-              </Stack>
+              {LOCATIONS.map(({ name, address }) => (
+                <Stack key={name} direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
+                  <Box
+                    component={MapPin}
+                    sx={{ width: 14, height: 14, color: NATURAL_PALETTE.moss, mt: '2px' }}
+                  />
+                  <Box>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: '#FFFFFF', fontWeight: 600, display: 'block' }}
+                    >
+                      {name}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'inherit' }}>
+                      {address}
+                    </Typography>
+                  </Box>
+                </Stack>
+              ))}
             </Stack>
           </Grid>
         </Grid>
 
-        {/* Bottom Bar */}
         <Box
           sx={{
             pt: 4,
@@ -329,7 +241,6 @@ export const Footer = () => {
             justifyContent: 'space-between',
             alignItems: 'center',
             gap: 2,
-            fontSize: '0.75rem',
             color: NATURAL_PALETTE.sageLight,
           }}
         >
@@ -344,90 +255,43 @@ export const Footer = () => {
               variant="text"
               size="small"
               onClick={() => setShowMentions(true)}
-              sx={{
-                color: 'inherit',
-                textDecoration: 'underline',
-                p: 0,
-                minWidth: 'auto',
-                fontSize: '0.75rem',
-                textTransform: 'none',
-              }}
+              sx={{ color: 'inherit', textDecoration: 'underline', p: 0, minWidth: 'auto' }}
             >
               Mentions Légales
             </Button>
           </Stack>
 
-          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
-            <IconButton
-              size="small"
-              onClick={scrollToTop}
-              aria-label="Retour en haut de page"
-              sx={{
-                bgcolor: NATURAL_PALETTE.mossDark,
-                color: '#FFFFFF',
-                '&:hover': { bgcolor: 'primary.main' },
-              }}
-            >
-              <ArrowUp size={14} />
-            </IconButton>
-          </Stack>
+          <FooterIconButton onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <ArrowUp size={14} />
+          </FooterIconButton>
         </Box>
       </Container>
 
-      {/* Legal Mentions Dialog */}
       <Dialog
         open={showMentions}
         onClose={() => setShowMentions(false)}
         maxWidth="sm"
         fullWidth
-        slotProps={{
-          paper: {
-            sx: {
-              borderRadius: 4,
-              p: 1,
-            },
-          },
-        }}
+        slotProps={{ paper: { sx: { p: 1 } } }}
       >
         <DialogTitle
           sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Mentions Légales & Confidentialité
-          </Typography>
+          <Typography variant="h6">Mentions Légales & Confidentialité</Typography>
           <IconButton onClick={() => setShowMentions(false)} size="small">
             <X size={18} />
           </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ color: 'text.secondary', fontSize: '0.8125rem' }}>
+        <DialogContent sx={{ color: 'text.secondary' }}>
           <Stack spacing={2} sx={{ pt: 1 }}>
-            <Typography variant="body2">
-              <Box component="strong" sx={{ color: 'text.primary' }}>
-                Éditeur du site :
-              </Box>{' '}
-              Association Yoga-Sof (Loi 1901), domiciliée au 8 rue des Moissonneurs, 68220 Hésingue.
-            </Typography>
-            <Typography variant="body2">
-              <Box component="strong" sx={{ color: 'text.primary' }}>
-                Responsable de la publication :
-              </Box>{' '}
-              Sophie Richaud-Cassayre (contact@yoga-sof.fr - 06 58 48 33 45).
-            </Typography>
-            <Typography variant="body2">
-              <Box component="strong" sx={{ color: 'text.primary' }}>
-                Enseignements :
-              </Box>{' '}
-              Enseignement du Hatha Yoga et de la méthode Yoga Sans Dégâts certifiée par l'Institut
-              De Gasquet (Paris).
-            </Typography>
-            <Typography variant="body2">
-              <Box component="strong" sx={{ color: 'text.primary' }}>
-                Données personnelles :
-              </Box>{' '}
-              Les informations transmises via les formulaires de contact et de réservation sont
-              strictement destinées à la gestion des inscriptions et ne sont jamais cédées ni
-              vendues à des tiers.
-            </Typography>
+            {MENTIONS.map(({ title, text }) => (
+              <Typography key={title} variant="body2">
+                <Box component="strong" sx={{ color: 'text.primary' }}>
+                  {title}
+                </Box>{' '}
+                {text}
+              </Typography>
+            ))}
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>

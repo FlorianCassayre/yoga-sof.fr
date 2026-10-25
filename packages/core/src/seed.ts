@@ -1,44 +1,71 @@
-import 'dotenv/config';
-
 import { config } from 'dotenv';
-import { eq } from 'drizzle-orm';
+
+config({ path: '../../.env' });
+
+import { asc } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/node-postgres';
 
 import { usersTable } from './db/schema';
-
-config({ path: '../../.env' });
+import { coursesTable } from './features/course';
 
 const db = drizzle({
   connection: process.env.DATABASE_URL!,
 });
 
+const COURSE_COUNT = 50;
+
+const NOTES = [
+  'Salle attenante réservée',
+  'Prévoir tapis supplémentaires',
+  '',
+  'Cours confirmé avec la mairie',
+  'Remplacer par Sophiens le jour même',
+  '',
+];
+
+async function seedUsers() {
+  await db.delete(usersTable);
+  await db.insert(usersTable).values([
+    { name: 'John', age: 30, email: 'john@example.com' },
+    { name: 'Marie', age: 42, email: 'marie@example.com' },
+  ]);
+  console.log('Users seeded!');
+}
+
+async function seedCourses() {
+  await db.delete(coursesTable);
+
+  const courses = Array.from(
+    { length: COURSE_COUNT },
+    (_, index): typeof coursesTable.$inferInsert => {
+      const day = new Date();
+      day.setUTCHours(0, 0, 0, 0);
+      day.setUTCDate(day.getUTCDate() + index);
+      const start = new Date(day);
+      start.setUTCHours(9 + (index % 4) * 2);
+      const end = new Date(start);
+      end.setUTCHours(end.getUTCHours() + 2);
+
+      return {
+        type: index % 2 === 0 ? 'adulte' : 'enfant',
+        startsAt: start,
+        endsAt: end,
+        capacity: 8 + (index % 4) * 4,
+        registeredCount: index % 5 === 0 ? 0 : (index * 3) % 10,
+        visibility: index % 2 === 0 ? 'public' : 'private',
+        internalNotes: NOTES[index % NOTES.length] ?? '',
+      };
+    },
+  );
+
+  await db.insert(coursesTable).values(courses);
+  const count = await db.select().from(coursesTable).orderBy(asc(coursesTable.startsAt));
+  console.log(`Seeded ${count.length} courses!`);
+}
+
 async function main() {
-  const user: typeof usersTable.$inferInsert = {
-    name: 'John',
-    age: 30,
-    email: 'john@example.com',
-  };
-  await db.insert(usersTable).values(user);
-  console.log('New user created!');
-  const users = await db.select().from(usersTable);
-  console.log('Getting all users from the database: ', users);
-  /*
-  const users: {
-    id: number;
-    name: string;
-    age: number;
-    email: string;
-  }[]
-  */
-  await db
-    .update(usersTable)
-    .set({
-      age: 31,
-    })
-    .where(eq(usersTable.email, user.email));
-  console.log('User info updated!');
-  await db.delete(usersTable).where(eq(usersTable.email, user.email));
-  console.log('User deleted!');
+  await seedUsers();
+  await seedCourses();
 }
 
 void main();

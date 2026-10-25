@@ -1,5 +1,5 @@
-import { HomeCoursesSection } from '../home/HomeCoursesSection';
-import { HomeIntroductionSection } from '../home/HomeIntroductionSection';
+import { HomeCoursesSection } from '../features/home/HomeCoursesSection';
+import { HomeIntroductionSection } from '../features/home/HomeIntroductionSection';
 
 const Home = () => {
   return (

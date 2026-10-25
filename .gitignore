@@ -2,6 +2,7 @@
 .idea
 
 node_modules
+.pnpm-store
 
 tsconfig.tsbuildinfo
 drizzle

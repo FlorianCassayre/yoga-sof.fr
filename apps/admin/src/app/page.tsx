@@ -1,5 +1,7 @@
+import { redirect } from 'next/navigation';
+
 const Home = () => {
-  return <main>Hello world</main>;
+  redirect('/seances');
 };
 
 export default Home;

@@ -1,0 +1,30 @@
+{
+  "name": "@yoga-sof/ui",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./UiRootLayout": "./src/UiRootLayout.tsx",
+    "./ZodProvider": "./src/ZodProvider.tsx",
+    "./dateTimeFormatter": "./src/dateTimeFormatter.ts",
+    "./muiFrenchLocale": "./src/muiFrenchLocale.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mui/material": "catalog:",
+    "@mui/x-data-grid": "catalog:",
+    "@mui/x-date-pickers": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@trpc/client": "catalog:",
+    "@trpc/react-query": "catalog:",
+    "@trpc/server": "catalog:",
+    "date-fns": "catalog:",
+    "notistack": "catalog:",
+    "react": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "catalog:"
+  }
+}

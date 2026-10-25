@@ -10,10 +10,12 @@
   "dependencies": {
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
-    "@fontsource-variable/cormorant": "^5.3.0",
-    "@fontsource/plus-jakarta-sans": "^5.3.0",
+    "@fontsource-variable/cormorant": "catalog:",
+    "@fontsource/plus-jakarta-sans": "catalog:",
     "@mui/material": "catalog:",
-    "lucide-react": "^0.546.0",
+    "@mui/x-data-grid": "catalog:",
+    "@yoga-sof/ui": "workspace:*",
+    "lucide-react": "catalog:",
     "next": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:"

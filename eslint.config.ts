@@ -171,6 +171,12 @@ export default defineConfig(
     files: ['apps/*/src/**/*.{ts,tsx}', 'packages/*/src/**/*.{ts,tsx}'],
     extends: [compat.configs['flat/recommended']],
   },
+  {
+    files: ['**/src/tests/**'],
+    rules: {
+      'compat/compat': 'off',
+    },
+  },
   // eslint-config-prettier
   prettier, // Important: this needs to be the last entry
 );
