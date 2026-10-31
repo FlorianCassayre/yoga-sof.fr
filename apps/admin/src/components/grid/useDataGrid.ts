@@ -21,12 +21,15 @@ interface ListQueryResult<Row extends GridValidRowModel> {
 
 export const useDataGrid = <Row extends GridValidRowModel, SortField extends string>(
   columns: (GridColDef<Row> & { field: keyof Row | 'actions' })[],
+  defaultSort: { field: SortField; sort: 'asc' | 'desc' },
 ) => {
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 10,
   });
-  const [sortModel, setSortModel] = useState<GridSortModel>([]);
+  const [sortModel, setSortModel] = useState<{ field: SortField; sort: 'asc' | 'desc' }[]>([
+    defaultSort,
+  ]);
 
   const paginationModelChange = (model: GridPaginationModel) => {
     setPaginationModel((previous) =>
@@ -34,12 +37,17 @@ export const useDataGrid = <Row extends GridValidRowModel, SortField extends str
     );
   };
 
+  const sortModelChange = (model: GridSortModel) => {
+    const sort = model.flatMap(({ field, sort }) =>
+      sort === 'asc' || sort === 'desc' ? [{ field: field as SortField, sort }] : [],
+    );
+    setSortModel(sort.length === 0 ? [defaultSort] : sort);
+  };
+
   const queryInput: ListQueryInput<SortField> = {
     page: paginationModel.page,
     pageSize: paginationModel.pageSize,
-    sort: sortModel.flatMap(({ field, sort }) =>
-      sort === 'asc' || sort === 'desc' ? [{ field: field as SortField, sort }] : [],
-    ),
+    sort: sortModel,
   };
 
   const dataGridProps = ({ data, isFetching }: ListQueryResult<Row>): DataGridProps<Row> => ({
@@ -49,7 +57,7 @@ export const useDataGrid = <Row extends GridValidRowModel, SortField extends str
     paginationModel,
     onPaginationModelChange: paginationModelChange,
     sortModel,
-    onSortModelChange: setSortModel,
+    onSortModelChange: sortModelChange,
     loading: isFetching,
   });
 

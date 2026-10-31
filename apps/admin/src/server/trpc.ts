@@ -30,6 +30,11 @@ export const trpc = initTRPC.create({
       };
     }
 
+    if (error.code !== 'INTERNAL_SERVER_ERROR') {
+      return { ...shape, data };
+    }
+
+    console.error(error);
     return { ...shape, message: 'Une erreur est survenue.', data };
   },
 });

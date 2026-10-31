@@ -10,6 +10,7 @@ export const MuiDataGrid: Components['MuiDataGrid'] = {
     disableColumnResize: true,
     paginationMode: 'server',
     sortingMode: 'server',
+    sortingOrder: ['asc', 'desc'],
     pageSizeOptions: [10, 20, 50],
   },
   styleOverrides: {

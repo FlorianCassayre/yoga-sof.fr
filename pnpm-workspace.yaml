@@ -12,6 +12,7 @@ catalog:
   '@emotion/react': ^11.14.0
   '@emotion/styled': ^11.14.1
   '@eslint/js': ^10.0.1
+  '@faker-js/faker': ^10.6.0
   '@fontsource-variable/cormorant': ^5.3.0
   '@fontsource/plus-jakarta-sans': ^5.3.0
   '@mui/material': ^9.5.0

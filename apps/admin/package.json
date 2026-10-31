@@ -21,6 +21,7 @@
     "@trpc/server": "catalog:",
     "@yoga-sof/core": "workspace:*",
     "@yoga-sof/ui": "workspace:*",
+    "date-fns": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "lucide-react": "catalog:",

@@ -9,10 +9,12 @@
     "./connexionUrl": "./src/connexionUrl.ts",
     "./dateTimeFormatter": "./src/dateTimeFormatter.ts",
     "./muiFrenchLocale": "./src/muiFrenchLocale.ts",
-    "./theme/theme": "./src/theme/theme.ts"
+    "./theme/theme": "./src/theme/theme.ts",
+    "./timestamp": "./src/timestamp.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@mui/material": "catalog:",
@@ -32,6 +34,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@types/react": "catalog:"
+    "@types/react": "catalog:",
+    "vitest": "catalog:"
   }
 }

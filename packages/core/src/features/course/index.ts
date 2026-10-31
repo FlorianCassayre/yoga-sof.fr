@@ -1,3 +1,4 @@
+export * from './courseLabel';
 export * from './coursesTable';
 export * from './type/CourseType';
 export * from './type/courseTypeEnum';

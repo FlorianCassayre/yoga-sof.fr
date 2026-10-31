@@ -1,36 +1,29 @@
-import { TRPCError } from '@trpc/server';
 import {
   courseCreateSchema,
   courseEditSchema,
   courseGetSchema,
   courseListSchema,
   courseService,
+  withTransaction,
 } from '@yoga-sof/core/server';
 
 import { trpc } from '../../server/trpc';
 
 export const courseRouter = trpc.router({
-  list: trpc.procedure.input(courseListSchema).query(({ input }) => courseService.list(input)),
-  get: trpc.procedure.input(courseGetSchema).query(({ input }) => courseService.get(input)),
-  create: trpc.procedure.input(courseCreateSchema).mutation(async ({ input }) => {
-    const row = await courseService.create(input);
-
-    if (row === null) {
-      throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Création impossible.' });
-    }
-
-    return row;
-  }),
-  update: trpc.procedure.input(courseEditSchema).mutation(async ({ input }) => {
-    const row = await courseService.update(input);
-
-    if (row === null) {
-      throw new TRPCError({
-        code: 'CONFLICT',
-        message: 'La séance a été modifiée entre-temps.',
-      });
-    }
-
-    return row;
-  }),
+  list: trpc.procedure
+    .input(courseListSchema)
+    .query(({ input }) =>
+      withTransaction((tx) => courseService.list(input, tx), { readOnly: true }),
+    ),
+  get: trpc.procedure
+    .input(courseGetSchema)
+    .query(({ input }) =>
+      withTransaction((tx) => courseService.get(input, tx), { readOnly: true }),
+    ),
+  create: trpc.procedure
+    .input(courseCreateSchema)
+    .mutation(({ input }) => withTransaction((tx) => courseService.create(input, tx))),
+  update: trpc.procedure
+    .input(courseEditSchema)
+    .mutation(({ input }) => withTransaction((tx) => courseService.update(input, tx))),
 });

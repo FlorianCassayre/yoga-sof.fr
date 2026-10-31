@@ -10,7 +10,7 @@ export interface FieldProps {
   disabled: boolean;
 }
 
-export interface GetProcedure<Row extends IdVersion> {
+export interface GetProcedure<Row> {
   useQuery(input: { id: number }): {
     data: Row | null | undefined;
     error: unknown;
@@ -18,7 +18,7 @@ export interface GetProcedure<Row extends IdVersion> {
   };
 }
 
-export interface MutationProcedure<Row extends IdVersion, Input> {
+export interface MutationProcedure<Row, Input> {
   useMutation(): {
     mutateAsync(input: Input): Promise<Row>;
     isPending: boolean;
@@ -26,15 +26,16 @@ export interface MutationProcedure<Row extends IdVersion, Input> {
   };
 }
 
-export interface FormProps<Row extends IdVersion, Values extends FieldValues> {
+export interface FormProps<Row, Values extends FieldValues> {
   id?: number;
-  get: GetProcedure<Row>;
+  get?: GetProcedure<Row>;
   create: MutationProcedure<Row, Values>;
-  update: MutationProcedure<Row, Values & IdVersion>;
+  update?: MutationProcedure<Row, Values & IdVersion>;
   defaultValues: (row: Row | undefined) => Values;
   redirectTo: (row: Row) => string;
   createdMessage: string;
-  updatedMessage: string;
+  updatedMessage?: string;
+  submitLabel?: string;
   cancelHref: string;
   children: ComponentType<FieldProps>;
 }

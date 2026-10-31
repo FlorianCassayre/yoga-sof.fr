@@ -11,5 +11,6 @@ export const sortSchema = <Columns extends Record<string, true>>(columns: Column
   return z
     .object({ field: z.enum(fields), sort: z.enum(['asc', 'desc']) })
     .array()
-    .optional();
+    .min(1)
+    .max(1);
 };

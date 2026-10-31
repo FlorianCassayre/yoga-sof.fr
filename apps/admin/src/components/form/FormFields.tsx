@@ -7,14 +7,26 @@ import type { DefaultValues, FieldValues } from 'react-hook-form';
 import { FormContainer } from 'react-hook-form-mui';
 
 import { FormShell } from './FormShell';
-import type { FormProps, IdVersion } from './types';
+import type { FormProps, IdVersion, MutationProcedure } from './types';
 
-type FormFieldsProps<Row extends IdVersion, Values extends FieldValues> = Omit<
+// Placeholder mutation so the useMutation hook keeps a stable call order when
+// no update procedure is provided (create-only forms).
+const stubUpdate = <Row, Input>(): MutationProcedure<Row, Input> => ({
+  useMutation: () => ({
+    mutateAsync: () => {
+      throw new Error('Aucune procédure de modification.');
+    },
+    isPending: false,
+    error: null,
+  }),
+});
+
+type FormFieldsProps<Row, Values extends FieldValues> = Omit<
   FormProps<Row, Values>,
   'id' | 'get'
 > & { row: Row | undefined };
 
-export const FormFields = <Row extends IdVersion, Values extends FieldValues>({
+export const FormFields = <Row, Values extends FieldValues>({
   row,
   create,
   update,
@@ -22,6 +34,7 @@ export const FormFields = <Row extends IdVersion, Values extends FieldValues>({
   redirectTo,
   createdMessage,
   updatedMessage,
+  submitLabel,
   cancelHref,
   children,
 }: FormFieldsProps<Row, Values>) => {
@@ -29,19 +42,28 @@ export const FormFields = <Row extends IdVersion, Values extends FieldValues>({
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const createMutation = create.useMutation();
-  const updateMutation = update.useMutation();
+  const updateMutation = (update ?? stubUpdate<Row, Values & IdVersion>()).useMutation();
   const Fields = children;
 
   return (
     <FormContainer<Values>
       defaultValues={defaultValues(row) as DefaultValues<Values>}
       onSuccess={(values) => {
-        (row
-          ? updateMutation.mutateAsync({ ...values, id: row.id, version: row.version })
+        (row && update
+          ? updateMutation.mutateAsync({
+              ...values,
+              id: (row as Row & IdVersion).id,
+              version: (row as Row & IdVersion).version,
+            })
           : createMutation.mutateAsync(values)
         )
           .then(async (saved) => {
-            enqueueSnackbar(row ? updatedMessage : createdMessage, { variant: 'success' });
+            enqueueSnackbar(
+              row ? (updatedMessage ?? 'Modifications enregistrées.') : createdMessage,
+              {
+                variant: 'success',
+              },
+            );
             await queryClient.invalidateQueries();
             router.push(redirectTo(saved));
           })
@@ -53,11 +75,11 @@ export const FormFields = <Row extends IdVersion, Values extends FieldValues>({
       }}
     >
       <FormShell
-        submitLabel={row ? 'Enregistrer' : 'Créer'}
-        submitting={updateMutation.isPending || createMutation.isPending}
+        submitLabel={submitLabel ?? (row ? 'Enregistrer' : 'Créer')}
+        submitting={createMutation.isPending || updateMutation.isPending}
         cancelHref={cancelHref}
       >
-        <Fields disabled={updateMutation.isPending || createMutation.isPending} />
+        <Fields disabled={createMutation.isPending || updateMutation.isPending} />
       </FormShell>
     </FormContainer>
   );

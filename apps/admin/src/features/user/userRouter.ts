@@ -1,4 +1,4 @@
-import { userGetSchema, userListSchema, userService } from '@yoga-sof/core/server';
+import { userGetSchema, userListSchema, userService, withTransaction } from '@yoga-sof/core/server';
 import { auth } from '@yoga-sof/ui/auth';
 
 import { trpc } from '../../server/trpc';
@@ -8,8 +8,12 @@ export const userRouter = trpc.router({
     const session = await auth();
     const id = session?.user?.id;
 
-    return id ? userService.get({ id }) : null;
+    return id ? withTransaction((tx) => userService.get({ id }, tx), { readOnly: true }) : null;
   }),
-  list: trpc.procedure.input(userListSchema).query(({ input }) => userService.list(input)),
-  get: trpc.procedure.input(userGetSchema).query(({ input }) => userService.get(input)),
+  list: trpc.procedure
+    .input(userListSchema)
+    .query(({ input }) => withTransaction((tx) => userService.list(input, tx), { readOnly: true })),
+  get: trpc.procedure
+    .input(userGetSchema)
+    .query(({ input }) => withTransaction((tx) => userService.get(input, tx), { readOnly: true })),
 });

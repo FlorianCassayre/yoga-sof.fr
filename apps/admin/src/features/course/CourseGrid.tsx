@@ -3,11 +3,11 @@
 import { IconButton } from '@mui/material';
 import { type GridColDef } from '@mui/x-data-grid';
 import { COURSE_TYPE_LABELS, type CourseVisibility } from '@yoga-sof/core';
-import { dateTimeFormatter } from '@yoga-sof/ui/dateTimeFormatter';
 import { Eye } from 'lucide-react';
 import Link from 'next/link';
 
 import { DataGrid } from '../../components/grid/DataGrid';
+import { DateTimeCell } from '../../components/grid/DateTimeCell';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
 import { VisibilityChip } from './visibility/VisibilityChip';
@@ -37,14 +37,14 @@ const columns: GridColDef<CourseRow>[] = [
     headerName: 'Début',
     type: 'dateTime',
     flex: 1,
-    valueFormatter: (value) => dateTimeFormatter.format(value),
+    renderCell: (params) => <DateTimeCell value={params.row.startsAt} />,
   },
   {
     field: 'endsAt',
     headerName: 'Fin',
     type: 'dateTime',
     flex: 1,
-    valueFormatter: (value) => dateTimeFormatter.format(value),
+    renderCell: (params) => <DateTimeCell value={params.row.endsAt} />,
   },
   { field: 'capacity', headerName: 'Capacité', type: 'number', width: 110 },
   { field: 'registeredCount', headerName: 'Inscrits', type: 'number', width: 110 },
@@ -57,5 +57,11 @@ const columns: GridColDef<CourseRow>[] = [
 ];
 
 export const CourseGrid = () => {
-  return <DataGrid columns={columns} procedure={api.course.list} />;
+  return (
+    <DataGrid
+      columns={columns}
+      defaultSort={{ field: 'startsAt', sort: 'asc' }}
+      procedure={api.course.list}
+    />
+  );
 };

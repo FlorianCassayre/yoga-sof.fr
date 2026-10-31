@@ -1,9 +1,10 @@
-import { and, asc, eq } from 'drizzle-orm';
+import { gt } from 'drizzle-orm';
 import type { z } from 'zod';
 
-import { db } from '../../db/db';
-import { assertConflict, assertFound } from '../../errors';
-import { paginatedList, sortOrder } from '../../list';
+import type { DbTransaction } from '../../db/db';
+import { createRow, getRow, updateRow } from '../../db/rows';
+import { paginatedList } from '../../list';
+import { courseLabelSql } from './courseLabelSql';
 import type {
   courseCreateSchema,
   courseEditSchema,
@@ -13,37 +14,28 @@ import type {
 import { coursesTable } from './coursesTable';
 
 export const courseService = {
-  list: ({ sort, ...params }: z.infer<typeof courseListSchema>) => {
-    const orderBys = (sort ?? []).map((item) => sortOrder(coursesTable, item));
+  list: (input: z.infer<typeof courseListSchema>, tx: DbTransaction) =>
+    paginatedList<typeof coursesTable.$inferSelect>(tx, coursesTable, input, {
+      searchColumns: [courseLabelSql],
+      where: input.upcoming ? gt(coursesTable.endsAt, new Date()) : undefined,
+    }),
 
-    return paginatedList<typeof coursesTable.$inferSelect>(db, coursesTable, params, {
-      orderBy: orderBys.length === 0 ? [asc(coursesTable.startsAt)] : orderBys,
-    });
-  },
+  get: ({ id }: z.infer<typeof courseGetSchema>, tx: DbTransaction) =>
+    getRow<typeof coursesTable.$inferSelect>(tx, coursesTable, id, 'La séance est introuvable'),
 
-  get: async ({ id }: z.infer<typeof courseGetSchema>) => {
-    const [row] = await db.select().from(coursesTable).where(eq(coursesTable.id, id)).limit(1);
+  create: (values: z.infer<typeof courseCreateSchema>, tx: DbTransaction) =>
+    createRow<typeof coursesTable.$inferSelect>(
+      tx,
+      coursesTable,
+      values,
+      'Création de la séance impossible.',
+    ),
 
-    assertFound(row, 'La séance est introuvable');
-
-    return row;
-  },
-
-  create: async (values: z.infer<typeof courseCreateSchema>) => {
-    const [row] = await db.insert(coursesTable).values(values).returning();
-
-    return row ?? null;
-  },
-
-  update: async ({ id, version, ...values }: z.infer<typeof courseEditSchema>) => {
-    const [row] = await db
-      .update(coursesTable)
-      .set({ ...values, version: version + 1 })
-      .where(and(eq(coursesTable.id, id), eq(coursesTable.version, version)))
-      .returning();
-
-    assertConflict(row, 'La séance a été modifiée entre-temps, rechargez la page.');
-
-    return row;
-  },
+  update: (values: z.infer<typeof courseEditSchema>, tx: DbTransaction) =>
+    updateRow<typeof coursesTable.$inferSelect>(
+      tx,
+      coursesTable,
+      values,
+      'La séance a été modifiée entre-temps, rechargez la page.',
+    ),
 };

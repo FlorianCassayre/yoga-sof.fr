@@ -5,14 +5,17 @@ import type { FieldValues } from 'react-hook-form';
 
 import { isNotFoundError } from '../../server/isNotFoundError';
 import { FormFields } from './FormFields';
-import type { FormProps, IdVersion } from './types';
+import type { FormProps, GetProcedure } from './types';
 
-type FormLoaderProps<Row extends IdVersion, Values extends FieldValues> = Omit<
+type FormLoaderProps<Row, Values extends FieldValues> = Omit<
   FormProps<Row, Values>,
-  'id'
-> & { id: number };
+  'id' | 'get'
+> & {
+  id: number;
+  get: GetProcedure<Row>;
+};
 
-export const FormLoader = <Row extends IdVersion, Values extends FieldValues>({
+export const FormLoader = <Row, Values extends FieldValues>({
   id,
   get,
   create,
@@ -21,6 +24,7 @@ export const FormLoader = <Row extends IdVersion, Values extends FieldValues>({
   redirectTo,
   createdMessage,
   updatedMessage,
+  submitLabel,
   cancelHref,
   children,
 }: FormLoaderProps<Row, Values>) => {
@@ -47,6 +51,7 @@ export const FormLoader = <Row extends IdVersion, Values extends FieldValues>({
       redirectTo={redirectTo}
       createdMessage={createdMessage}
       updatedMessage={updatedMessage}
+      submitLabel={submitLabel}
       cancelHref={cancelHref}
     >
       {children}

@@ -10,13 +10,21 @@ interface Row {
 
 const columns: (GridColDef<Row> & { field: keyof Row | 'actions' })[] = [{ field: 'capacity' }];
 
+const defaultSort = { field: 'capacity', sort: 'asc' } as const;
+
 const details = { api: undefined as never, apiRef: undefined as never };
 
 describe('useDataGrid', () => {
   it('resets the page when the page size changes', () => {
-    const { result, rerender } = renderHook(() => useDataGrid<Row, 'capacity'>(columns));
+    const { result, rerender } = renderHook(() =>
+      useDataGrid<Row, 'capacity'>(columns, defaultSort),
+    );
 
-    expect(result.current.queryInput).toEqual({ page: 0, pageSize: 10, sort: [] });
+    expect(result.current.queryInput).toEqual({
+      page: 0,
+      pageSize: 10,
+      sort: [{ field: 'capacity', sort: 'asc' }],
+    });
 
     act(() => {
       result.current
@@ -25,11 +33,17 @@ describe('useDataGrid', () => {
     });
     rerender();
 
-    expect(result.current.queryInput).toEqual({ page: 0, pageSize: 20, sort: [] });
+    expect(result.current.queryInput).toEqual({
+      page: 0,
+      pageSize: 20,
+      sort: [{ field: 'capacity', sort: 'asc' }],
+    });
   });
 
   it('maps the sort model to the query input', () => {
-    const { result, rerender } = renderHook(() => useDataGrid<Row, 'capacity'>(columns));
+    const { result, rerender } = renderHook(() =>
+      useDataGrid<Row, 'capacity'>(columns, defaultSort),
+    );
 
     act(() => {
       result.current
@@ -41,8 +55,20 @@ describe('useDataGrid', () => {
     expect(result.current.queryInput.sort).toEqual([{ field: 'capacity', sort: 'desc' }]);
   });
 
-  it('drops invalid sort entries', () => {
-    const { result, rerender } = renderHook(() => useDataGrid<Row, 'capacity'>(columns));
+  it('snaps back to the default sort when the sort model is empty or invalid', () => {
+    const { result, rerender } = renderHook(() =>
+      useDataGrid<Row, 'capacity'>(columns, defaultSort),
+    );
+
+    act(() => {
+      result.current.dataGridProps({ isFetching: false }).onSortModelChange?.([], details);
+    });
+    rerender();
+
+    expect(result.current.dataGridProps({ isFetching: false }).sortModel).toEqual([
+      { field: 'capacity', sort: 'asc' },
+    ]);
+    expect(result.current.queryInput.sort).toEqual([{ field: 'capacity', sort: 'asc' }]);
 
     act(() => {
       result.current
@@ -51,6 +77,9 @@ describe('useDataGrid', () => {
     });
     rerender();
 
-    expect(result.current.queryInput.sort).toEqual([]);
+    expect(result.current.dataGridProps({ isFetching: false }).sortModel).toEqual([
+      { field: 'capacity', sort: 'asc' },
+    ]);
+    expect(result.current.queryInput.sort).toEqual([{ field: 'capacity', sort: 'asc' }]);
   });
 });

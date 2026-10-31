@@ -4,9 +4,9 @@ import type { FieldValues } from 'react-hook-form';
 
 import { FormFields } from './FormFields';
 import { FormLoader } from './FormLoader';
-import type { FormProps, IdVersion } from './types';
+import type { FormProps } from './types';
 
-export const Form = <Row extends IdVersion, Values extends FieldValues>({
+export const Form = <Row, Values extends FieldValues>({
   id,
   get,
   create,
@@ -15,6 +15,7 @@ export const Form = <Row extends IdVersion, Values extends FieldValues>({
   redirectTo,
   createdMessage,
   updatedMessage,
+  submitLabel,
   cancelHref,
   children,
 }: FormProps<Row, Values>) => {
@@ -25,13 +26,14 @@ export const Form = <Row extends IdVersion, Values extends FieldValues>({
     redirectTo,
     createdMessage,
     updatedMessage,
+    submitLabel,
     cancelHref,
     children,
   };
 
-  return id == null ? (
-    <FormFields<Row, Values> row={undefined} {...commonProps} />
-  ) : (
+  return id != null && get ? (
     <FormLoader<Row, Values> id={id} get={get} {...commonProps} />
+  ) : (
+    <FormFields<Row, Values> row={undefined} {...commonProps} />
   );
 };

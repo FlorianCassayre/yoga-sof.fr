@@ -3,7 +3,7 @@
 import { Stack, Typography } from '@mui/material';
 import { COURSE_TYPE_LABELS } from '@yoga-sof/core';
 import { dateTimeFormatter } from '@yoga-sof/ui/dateTimeFormatter';
-import { Pencil } from 'lucide-react';
+import { CalendarPlus, Pencil } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 import { PageLayout } from '../../components/page/PageLayout';
@@ -37,7 +37,15 @@ export const CoursePage = ({ id }: CoursePageProps) => {
       title="Séance"
       actions={[
         {
-          children: [{ label: 'Modifier', icon: Pencil, href: `/seances/${id}/edition` }],
+          children: [
+            { label: 'Modifier', icon: Pencil, href: `/seances/${id}/edition` },
+            {
+              label: 'Inscrire des utilisateurs',
+              icon: CalendarPlus,
+              href: `/inscriptions/creation/${id}`,
+              fab: true,
+            },
+          ],
         },
       ]}
     >

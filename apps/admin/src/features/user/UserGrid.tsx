@@ -23,5 +23,11 @@ const columns: GridColDef<UserRow>[] = [
 ];
 
 export const UserGrid = () => {
-  return <DataGrid columns={columns} procedure={api.user.list} />;
+  return (
+    <DataGrid
+      columns={columns}
+      defaultSort={{ field: 'name', sort: 'asc' }}
+      procedure={api.user.list}
+    />
+  );
 };

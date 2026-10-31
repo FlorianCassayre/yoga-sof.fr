@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import {
   createSelectByIdSchema,
   createVersionedInsertSchema,
@@ -15,7 +17,9 @@ const SORTABLE_COLUMNS = {
   visibility: true,
 } as const satisfies SortableColumns<typeof coursesTable>;
 
-export const courseListSchema = createListSchema(SORTABLE_COLUMNS);
+export const courseListSchema = createListSchema(SORTABLE_COLUMNS).extend({
+  upcoming: z.boolean().optional(),
+});
 
 export const courseGetSchema = createSelectByIdSchema(coursesTable);
 
