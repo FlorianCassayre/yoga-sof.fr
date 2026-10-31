@@ -2,7 +2,7 @@ import { auth } from '@yoga-sof/ui/auth';
 import { connexionUrl } from '@yoga-sof/ui/connexionUrl';
 import { redirect } from 'next/navigation';
 
-import { AdminProviders } from '../layout/AdminProviders';
+import { AdminProviders } from '../components/layout/AdminProviders';
 
 const RootLayout = async ({ children }: LayoutProps<'/'>) => {
   const session = await auth();

@@ -5,7 +5,7 @@ import type { z } from 'zod';
 import { db } from '../../../db/db';
 import { withTransaction } from '../../../db/withTransaction';
 import { ServiceError } from '../../../errors';
-import { usersTable } from '../../../features/auth/tables';
+import { usersTable } from '../../../features/auth/authTables';
 import type { courseCreateSchema } from '../../../features/course/courseSchemas';
 import { coursesTable } from '../../../features/course/coursesTable';
 import { courseUserRegistrationService } from '../../../features/courseUserRegistration/courseUserRegistrationService';
@@ -227,12 +227,12 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseUserRegistrat
     expect(inscription.date).toEqual(registration.createdAt);
 
     const annulation = registrationEvents.find(
-      (row) => row.type === 'annulation' && row.userId === cancelerId,
+      (row) => row.type === 'annulation' && row.userId === otherUserId,
     );
     if (!annulation) {
       throw new Error('expected annulation event');
     }
-    expect(annulation).toMatchObject({ courseId, userName: 'Annuleur Test' });
+    expect(annulation).toMatchObject({ courseId, userName: 'Autre Test' });
     expect(annulation.date).toEqual(canceledAt);
   });
 
@@ -269,5 +269,55 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseUserRegistrat
     await expect(
       db.insert(courseUserRegistrationsTable).values({ courseId, userId: createUserId }),
     ).rejects.toThrow();
+  });
+
+  it('filters registrations and events by course and user', async () => {
+    const byCourse = await withTransaction((tx) =>
+      courseUserRegistrationService.list(
+        { page: 0, pageSize: 50, sort: [{ field: 'createdAt', sort: 'desc' }], courseId },
+        tx,
+      ),
+    );
+    expect(byCourse.total).toBe(2);
+    expect(byCourse.rows.every((row) => row.courseId === courseId)).toBe(true);
+
+    const byUser = await withTransaction((tx) =>
+      courseUserRegistrationService.list(
+        { page: 0, pageSize: 50, sort: [{ field: 'createdAt', sort: 'desc' }], userId },
+        tx,
+      ),
+    );
+    expect(byUser.total).toBe(1);
+    expect(byUser.rows[0]?.userId).toBe(userId);
+
+    const forOtherUser = await withTransaction((tx) =>
+      courseUserRegistrationService.list(
+        {
+          page: 0,
+          pageSize: 50,
+          sort: [{ field: 'createdAt', sort: 'desc' }],
+          userId: otherUserId,
+        },
+        tx,
+      ),
+    );
+    expect(forOtherUser.total).toBe(0);
+
+    const eventsForCourse = await withTransaction((tx) =>
+      courseUserRegistrationService.listEvents(
+        { page: 0, pageSize: 50, sort: [{ field: 'date', sort: 'desc' }], courseId },
+        tx,
+      ),
+    );
+    expect(eventsForCourse.total).toBe(6);
+    expect(eventsForCourse.rows.every((row) => row.courseId === courseId)).toBe(true);
+
+    const eventsForOtherUser = await withTransaction((tx) =>
+      courseUserRegistrationService.listEvents(
+        { page: 0, pageSize: 50, sort: [{ field: 'date', sort: 'desc' }], userId: otherUserId },
+        tx,
+      ),
+    );
+    expect(eventsForOtherUser.total).toBe(2);
   });
 });

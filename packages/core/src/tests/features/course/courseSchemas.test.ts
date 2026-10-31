@@ -19,6 +19,25 @@ describe('courseCreateSchema', () => {
     expect(result.startsAt).toEqual(values.startsAt);
   });
 
+  it('rejects empty inputs instead of coercing them to default values', () => {
+    expect(courseCreateSchema.safeParse({ ...values, capacity: '' }).success).toBe(false);
+    expect(courseCreateSchema.safeParse({ ...values, startsAt: null }).success).toBe(false);
+    expect(courseCreateSchema.safeParse({ ...values, startsAt: '' }).success).toBe(false);
+  });
+
+  it('requires the séance to start and end the same day', () => {
+    const nextDay = new Date(values.endsAt);
+    nextDay.setDate(nextDay.getDate() + 1);
+
+    const result = courseCreateSchema.safeParse({ ...values, endsAt: nextDay });
+
+    expect(result.success).toBe(false);
+    expect(result.success ? null : result.error.issues[0]!.message).toBe(
+      'La séance doit débuter et se terminer le même jour.',
+    );
+    expect(result.success ? null : result.error.issues[0]!.path).toEqual(['endsAt']);
+  });
+
   it('rejects invalid values', () => {
     expect(courseCreateSchema.safeParse({ ...values, type: 'ado' }).success).toBe(false);
     expect(courseCreateSchema.safeParse({ ...values, capacity: 'dix' }).success).toBe(false);

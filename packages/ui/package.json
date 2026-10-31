@@ -7,10 +7,9 @@
     "./ZodProvider": "./src/ZodProvider.tsx",
     "./auth": "./src/auth.ts",
     "./connexionUrl": "./src/connexionUrl.ts",
-    "./dateTimeFormatter": "./src/dateTimeFormatter.ts",
-    "./muiFrenchLocale": "./src/muiFrenchLocale.ts",
+    "./muiAppLocale": "./src/muiAppLocale.ts",
     "./theme/theme": "./src/theme/theme.ts",
-    "./timestamp": "./src/timestamp.ts"
+    "./trpc": "./src/trpc.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -31,7 +30,8 @@
     "next-auth": "catalog:",
     "notistack": "catalog:",
     "react": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "superjson": "catalog:"
   },
   "devDependencies": {
     "@types/react": "catalog:",

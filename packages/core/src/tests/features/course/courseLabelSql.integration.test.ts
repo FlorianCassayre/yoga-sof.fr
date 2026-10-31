@@ -10,11 +10,6 @@ import { courseService } from '../../../features/course/courseService';
 import { coursesTable } from '../../../features/course/coursesTable';
 import type { CourseType } from '../../../features/course/type/CourseType';
 
-// The SQL label renders times in Europe/Paris; pin the process timezone so the
-// date-fns baseline matches.
-const previousTimezone = process.env.TZ;
-process.env.TZ = 'Europe/Paris';
-
 const MARKER = 'courseLabelSql-test';
 
 interface LabelCase {
@@ -73,11 +68,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseLabelSql', ()
   afterAll(async () => {
     if (ids.length > 0) {
       await db.delete(coursesTable).where(inArray(coursesTable.id, ids));
-    }
-    if (previousTimezone === undefined) {
-      delete process.env.TZ;
-    } else {
-      process.env.TZ = previousTimezone;
     }
     await db.$client.end();
   });

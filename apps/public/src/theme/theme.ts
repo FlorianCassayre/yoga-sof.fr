@@ -4,7 +4,7 @@ import '@fontsource/plus-jakarta-sans/700.css';
 import '@fontsource-variable/cormorant';
 
 import { createTheme, type ThemeOptions } from '@mui/material';
-import { muiFrenchLocale } from '@yoga-sof/ui/muiFrenchLocale';
+import { muiAppLocale } from '@yoga-sof/ui/muiAppLocale';
 import { theme as baseTheme } from '@yoga-sof/ui/theme/theme';
 
 import { MuiAppBar } from './components/MuiAppBar';
@@ -38,4 +38,4 @@ const themeOptions: ThemeOptions = {
   },
 };
 
-export const theme = createTheme(themeOptions, baseTheme, muiFrenchLocale);
+export const theme = createTheme(themeOptions, baseTheme, muiAppLocale);

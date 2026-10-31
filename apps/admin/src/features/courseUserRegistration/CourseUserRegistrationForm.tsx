@@ -2,7 +2,7 @@
 
 import { Stack } from '@mui/material';
 import { skipToken } from '@tanstack/react-query';
-import { courseLabel } from '@yoga-sof/core';
+import { courseLabel, courseUserRegistrationCreateSchema } from '@yoga-sof/core';
 import { notFound } from 'next/navigation';
 import { SwitchElement } from 'react-hook-form-mui';
 
@@ -74,6 +74,7 @@ export const CourseUserRegistrationForm = ({ courseId }: CourseUserRegistrationF
   return (
     <Form<void, CourseUserRegistrationFormValues>
       create={api.registration.create}
+      schema={courseUserRegistrationCreateSchema}
       defaultValues={() => ({
         courses: presetCourseQuery.data ? [presetCourseQuery.data] : [],
         users: [],

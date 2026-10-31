@@ -3,10 +3,10 @@
 import {
   COURSE_TYPE_LABELS,
   COURSE_VISIBILITY_LABELS,
+  courseCreateSchema,
   courseTypeEnum,
   courseVisibilityEnum,
 } from '@yoga-sof/core';
-import type { courseCreateSchema } from '@yoga-sof/core/server';
 import { TextFieldElement } from 'react-hook-form-mui';
 import { DateTimePickerElement } from 'react-hook-form-mui/date-pickers';
 import type { z } from 'zod';
@@ -31,6 +31,7 @@ export const CourseForm = ({ id }: { id?: number }) => {
       get={api.course.get}
       create={api.course.create}
       update={api.course.update}
+      schema={courseCreateSchema}
       defaultValues={(course) => {
         const startsAt = new Date();
         startsAt.setDate(startsAt.getDate() + 1);

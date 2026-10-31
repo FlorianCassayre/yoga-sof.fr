@@ -6,8 +6,7 @@ import {
   courseService,
   withTransaction,
 } from '@yoga-sof/core/server';
-
-import { trpc } from '../../server/trpc';
+import { trpc } from '@yoga-sof/ui/trpc';
 
 export const courseRouter = trpc.router({
   list: trpc.procedure

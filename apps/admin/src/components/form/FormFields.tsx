@@ -3,7 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useSnackbar } from 'notistack';
-import type { DefaultValues, FieldValues } from 'react-hook-form';
+import { type DefaultValues, type FieldPath, type FieldValues, useForm } from 'react-hook-form';
 import { FormContainer } from 'react-hook-form-mui';
 
 import { FormShell } from './FormShell';
@@ -30,6 +30,7 @@ export const FormFields = <Row, Values extends FieldValues>({
   row,
   create,
   update,
+  schema,
   defaultValues,
   redirectTo,
   createdMessage,
@@ -41,14 +42,38 @@ export const FormFields = <Row, Values extends FieldValues>({
   const router = useRouter();
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const form = useForm<Values>({ defaultValues: defaultValues(row) as DefaultValues<Values> });
   const createMutation = create.useMutation();
   const updateMutation = (update ?? stubUpdate<Row, Values & IdVersion>()).useMutation();
   const Fields = children;
 
+  // Client-side mirror of the server schema: failing fields turn red with the
+  // shared French messages instead of submitting coerced default values.
+  const validate = (values: Values): values is Values => {
+    if (!schema) {
+      return true;
+    }
+    const result = schema.safeParse(values);
+    if (result.success) {
+      return true;
+    }
+    for (const issue of result.error.issues) {
+      form.setError(issue.path.join('.') as FieldPath<Values>, {
+        type: 'manual',
+        message: issue.message,
+      });
+    }
+
+    return false;
+  };
+
   return (
     <FormContainer<Values>
-      defaultValues={defaultValues(row) as DefaultValues<Values>}
+      formContext={form}
       onSuccess={(values) => {
+        if (!validate(values)) {
+          return;
+        }
         (row && update
           ? updateMutation.mutateAsync({
               ...values,

@@ -3,8 +3,8 @@
 import { Box } from '@mui/material';
 import { AppProvider } from '@yoga-sof/ui/AppProvider';
 
-import { Footer } from '../layout/Footer';
-import { Navbar } from '../layout/Navbar';
+import { Footer } from '../components/layout/Footer';
+import { Navbar } from '../components/layout/Navbar';
 import { theme } from '../theme/theme';
 
 const RootLayout = ({ children }: LayoutProps<'/'>) => {

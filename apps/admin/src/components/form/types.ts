@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import type { FieldValues } from 'react-hook-form';
+import type { z } from 'zod';
 
 export interface IdVersion {
   id: number;
@@ -31,6 +32,7 @@ export interface FormProps<Row, Values extends FieldValues> {
   get?: GetProcedure<Row>;
   create: MutationProcedure<Row, Values>;
   update?: MutationProcedure<Row, Values & IdVersion>;
+  schema?: z.ZodType;
   defaultValues: (row: Row | undefined) => Values;
   redirectTo: (row: Row) => string;
   createdMessage: string;

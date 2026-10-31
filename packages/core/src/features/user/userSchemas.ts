@@ -1,15 +1,13 @@
 import { z } from 'zod';
 
-import { createListSchema, type SortableColumns } from '../../list';
-import type { usersTable } from '../auth/tables';
+import { createListSchema } from '../../util/list';
+import type { usersTable } from '../auth/authTables';
 
-const SORTABLE_COLUMNS = {
+export const userListSchema = createListSchema<typeof usersTable>({
   email: true,
   emailVerified: true,
   name: true,
-} as const satisfies SortableColumns<typeof usersTable>;
-
-export const userListSchema = createListSchema(SORTABLE_COLUMNS);
+});
 
 export const userGetSchema = z.object({
   id: z.uuid(),

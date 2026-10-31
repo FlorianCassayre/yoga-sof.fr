@@ -2,8 +2,8 @@ import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
 import { getRow } from '../../db/rows';
-import { paginatedList } from '../../list';
-import { usersTable } from '../auth/tables';
+import { paginatedList } from '../../util/list';
+import { usersTable } from '../auth/authTables';
 import type { userGetSchema, userListSchema } from './userSchemas';
 
 export const userService = {

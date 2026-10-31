@@ -20,6 +20,7 @@ export const FormLoader = <Row, Values extends FieldValues>({
   get,
   create,
   update,
+  schema,
   defaultValues,
   redirectTo,
   createdMessage,
@@ -47,6 +48,7 @@ export const FormLoader = <Row, Values extends FieldValues>({
       row={query.data}
       create={create}
       update={update}
+      schema={schema}
       defaultValues={defaultValues}
       redirectTo={redirectTo}
       createdMessage={createdMessage}

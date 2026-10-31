@@ -20,15 +20,20 @@ interface DataGridProps<Row extends GridValidRowModel> {
   columns: GridColDef<Row>[];
   defaultSort: { field: keyof Row & string; sort: 'asc' | 'desc' };
   procedure: ListProcedure<Row>;
+  listInput?: Record<string, unknown>;
 }
 
 export const DataGrid = <Row extends GridValidRowModel>({
   columns,
   defaultSort,
   procedure,
+  listInput,
 }: DataGridProps<Row>) => {
   const grid = useDataGrid<Row, string>(columns, defaultSort);
-  const query = procedure.useQuery(grid.queryInput, { placeholderData: keepPreviousData });
+  const query = procedure.useQuery(
+    { ...grid.queryInput, ...listInput },
+    { placeholderData: keepPreviousData },
+  );
 
   const error = query.error;
   const ErrorOverlay = () => (

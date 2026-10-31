@@ -1,23 +1,33 @@
 import { z } from 'zod';
 
-import { createListSchema } from '../../list';
+import { listSchema, sortSchema } from '../../util/list';
 
-const SORTABLE_COLUMNS = {
-  createdAt: true,
-  courseStartsAt: true,
-  userName: true,
-} as const;
+export const courseUserRegistrationListSchema = listSchema
+  .extend({
+    sort: sortSchema({
+      createdAt: true,
+      courseStartsAt: true,
+      userName: true,
+    }),
+  })
+  .extend({
+    courseId: z.number().int().optional(),
+    userId: z.string().min(1).optional(),
+  });
 
-export const courseUserRegistrationListSchema = createListSchema(SORTABLE_COLUMNS);
-
-const EVENT_SORTABLE_COLUMNS = {
-  date: true,
-  type: true,
-  userName: true,
-  courseStartsAt: true,
-} as const;
-
-export const courseUserRegistrationEventListSchema = createListSchema(EVENT_SORTABLE_COLUMNS);
+export const courseUserRegistrationEventListSchema = listSchema
+  .extend({
+    sort: sortSchema({
+      date: true,
+      type: true,
+      userName: true,
+      courseStartsAt: true,
+    }),
+  })
+  .extend({
+    courseId: z.number().int().optional(),
+    userId: z.string().min(1).optional(),
+  });
 
 export const courseUserRegistrationCreateSchema = z
   .object({

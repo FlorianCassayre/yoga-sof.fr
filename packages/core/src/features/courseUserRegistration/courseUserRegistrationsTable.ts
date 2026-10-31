@@ -10,8 +10,8 @@ import {
 } from 'drizzle-orm/pg-core';
 
 import { idVersionedColumns } from '../../db/idVersionedColumns';
-import { usersTable } from '../auth/tables';
-import { coursesTable } from '../course/coursesTable';
+import { usersTable } from '../auth/authTables';
+import { coursesTable } from '../course';
 
 export const courseUserRegistrationsTable = pgTable(
   'course_user_registrations',

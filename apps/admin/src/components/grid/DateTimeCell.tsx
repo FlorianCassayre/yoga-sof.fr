@@ -1,7 +1,7 @@
 'use client';
 
 import { Stack, Typography } from '@mui/material';
-import { formatRelativeTimestamp, formatTimestamp } from '@yoga-sof/ui/timestamp';
+import { formatRelativeTimestamp, formatTimestamp } from '@yoga-sof/core';
 
 export const DateTimeCell = ({ value }: { value: Date | null }) => {
   if (!value) {

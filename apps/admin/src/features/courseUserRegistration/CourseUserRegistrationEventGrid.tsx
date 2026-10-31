@@ -16,7 +16,7 @@ const EVENT_TYPE_LABELS = {
   annulation: 'Annulation',
 } as const;
 
-const columns: GridColDef<EventRow>[] = [
+const EVENT_COLUMNS: GridColDef<EventRow>[] = [
   {
     field: 'type',
     headerName: 'Événement',
@@ -55,12 +55,27 @@ const columns: GridColDef<EventRow>[] = [
   },
 ];
 
-export const CourseUserRegistrationEventGrid = () => {
+interface CourseUserRegistrationEventGridProps {
+  courseId?: number;
+  userId?: string;
+}
+
+export const CourseUserRegistrationEventGrid = ({
+  courseId,
+  userId,
+}: CourseUserRegistrationEventGridProps) => {
+  const columns = EVENT_COLUMNS.filter(
+    (column) =>
+      (courseId === undefined || column.field !== 'courseStartsAt') &&
+      (userId === undefined || column.field !== 'userName'),
+  );
+
   return (
     <DataGrid
       columns={columns}
       defaultSort={{ field: 'date', sort: 'desc' }}
       procedure={api.registration.listEvents}
+      listInput={{ courseId, userId }}
     />
   );
 };

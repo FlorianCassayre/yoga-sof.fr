@@ -11,6 +11,7 @@ export const Form = <Row, Values extends FieldValues>({
   get,
   create,
   update,
+  schema,
   defaultValues,
   redirectTo,
   createdMessage,
@@ -22,6 +23,7 @@ export const Form = <Row, Values extends FieldValues>({
   const commonProps = {
     create,
     update,
+    schema,
     defaultValues,
     redirectTo,
     createdMessage,

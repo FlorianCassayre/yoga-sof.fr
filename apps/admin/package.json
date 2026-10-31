@@ -15,6 +15,7 @@
     "@mui/material": "catalog:",
     "@mui/x-data-grid": "catalog:",
     "@mui/x-date-pickers": "catalog:",
+    "@mui/x-scheduler": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@trpc/client": "catalog:",
     "@trpc/react-query": "catalog:",

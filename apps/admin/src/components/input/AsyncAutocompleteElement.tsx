@@ -89,6 +89,11 @@ export const AsyncAutocompleteElement = <
   const initialOptions =
     preload && (initialQuery.data?.total ?? 0) <= PAGE_SIZE ? (initialQuery.data?.rows ?? []) : [];
   const options = inputValue === '' ? initialOptions : (searchQuery.data?.rows ?? []);
+  // Until the debounced search catches up with the typed text, the displayed results are stale.
+  const loading =
+    initialQuery.isFetching ||
+    searchQuery.isFetching ||
+    (inputValue !== '' && debouncedInputValue !== inputValue);
 
   return (
     <AutocompleteElement<
@@ -104,7 +109,7 @@ export const AsyncAutocompleteElement = <
       label={label}
       multiple={multiple}
       options={options}
-      loading={searchQuery.isFetching || initialQuery.isFetching}
+      loading={loading}
       transform={{
         // The form values ARE the options; without this identity transform,
         // AutocompleteElement re-maps them through the current (often empty)

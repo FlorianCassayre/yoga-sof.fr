@@ -15,6 +15,7 @@
   "dependencies": {
     "@auth/core": "catalog:",
     "@auth/drizzle-adapter": "catalog:",
+    "@date-fns/tz": "catalog:",
     "@faker-js/faker": "catalog:",
     "date-fns": "catalog:",
     "dotenv": "catalog:",

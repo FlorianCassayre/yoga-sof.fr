@@ -1,11 +1,12 @@
-import { and, asc, count, desc, eq, inArray, isNotNull, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, isNotNull, type SQL, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
 import { assertConflict, assertInput } from '../../errors';
-import { usersTable } from '../auth/tables';
-import { coursesTable } from '../course/coursesTable';
+import { pagination } from '../../util/list';
+import { usersTable } from '../auth/authTables';
+import { coursesTable } from '../course';
 import type {
   courseUserRegistrationCreateSchema,
   courseUserRegistrationEventListSchema,
@@ -14,6 +15,18 @@ import type {
 import { courseUserRegistrationsTable } from './courseUserRegistrationsTable';
 
 const cancelerUsersTable = alias(usersTable, 'canceler');
+
+// Optional course/user filters shared by the registration and event lists.
+const registrationFilters = ({ courseId, userId }: { courseId?: number; userId?: string }) => {
+  const conditions: SQL[] = [];
+  if (courseId !== undefined) {
+    conditions.push(eq(courseUserRegistrationsTable.courseId, courseId));
+  }
+  if (userId !== undefined) {
+    conditions.push(eq(courseUserRegistrationsTable.userId, userId));
+  }
+  return conditions;
+};
 
 const LIST_ORDER_COLUMNS = {
   createdAt: courseUserRegistrationsTable.createdAt,
@@ -90,6 +103,7 @@ export const courseUserRegistrationService = {
     { sort, ...params }: z.infer<typeof courseUserRegistrationListSchema>,
     tx: DbTransaction,
   ) => {
+    const { limit: paginationLimit, offset: paginationOffset } = pagination(params);
     const rows = await tx
       .select({
         id: courseUserRegistrationsTable.id,
@@ -103,7 +117,6 @@ export const courseUserRegistrationService = {
         canceled: courseUserRegistrationsTable.canceled,
         canceledAt: courseUserRegistrationsTable.canceledAt,
         canceledById: courseUserRegistrationsTable.canceledBy,
-        canceledByName: cancelerUsersTable.name,
       })
       .from(courseUserRegistrationsTable)
       .innerJoin(coursesTable, eq(coursesTable.id, courseUserRegistrationsTable.courseId))
@@ -112,18 +125,18 @@ export const courseUserRegistrationService = {
         cancelerUsersTable,
         eq(cancelerUsersTable.id, courseUserRegistrationsTable.canceledBy),
       )
-      .where(eq(courseUserRegistrationsTable.canceled, false))
+      .where(and(eq(courseUserRegistrationsTable.canceled, false), ...registrationFilters(params)))
       .orderBy(
         ...sort.map(({ field, sort: order }) =>
           order === 'desc' ? desc(LIST_ORDER_COLUMNS[field]) : asc(LIST_ORDER_COLUMNS[field]),
         ),
       )
-      .limit(params.pageSize)
-      .offset(params.page * params.pageSize);
+      .limit(paginationLimit)
+      .offset(paginationOffset);
     const [totals] = await tx
       .select({ total: count() })
       .from(courseUserRegistrationsTable)
-      .where(eq(courseUserRegistrationsTable.canceled, false));
+      .where(and(eq(courseUserRegistrationsTable.canceled, false), ...registrationFilters(params)));
 
     return { rows, total: totals?.total ?? 0 };
   },
@@ -132,6 +145,7 @@ export const courseUserRegistrationService = {
     { sort, ...params }: z.infer<typeof courseUserRegistrationEventListSchema>,
     tx: DbTransaction,
   ) => {
+    const { limit: paginationLimit, offset: paginationOffset } = pagination(params);
     const events = tx
       .select({
         id: sql<string>`${courseUserRegistrationsTable.id} || ':registration'`.as('id'),
@@ -141,17 +155,20 @@ export const courseUserRegistrationService = {
         date: courseUserRegistrationsTable.createdAt,
       })
       .from(courseUserRegistrationsTable)
+      .where(and(...registrationFilters(params)))
       .unionAll(
         tx
           .select({
             id: sql<string>`${courseUserRegistrationsTable.id} || ':cancelation'`.as('id'),
             type: sql<'inscription' | 'annulation'>`'annulation'`.as('type'),
-            userId: sql<string>`${courseUserRegistrationsTable.canceledBy}`.as('userId'),
+            userId: courseUserRegistrationsTable.userId,
             courseId: courseUserRegistrationsTable.courseId,
             date: sql<Date>`${courseUserRegistrationsTable.canceledAt}`.as('date'),
           })
           .from(courseUserRegistrationsTable)
-          .where(isNotNull(courseUserRegistrationsTable.canceledAt)),
+          .where(
+            and(isNotNull(courseUserRegistrationsTable.canceledAt), ...registrationFilters(params)),
+          ),
       )
       .as('events');
 
@@ -182,8 +199,8 @@ export const courseUserRegistrationService = {
           order === 'desc' ? desc(eventOrderColumns[field]) : asc(eventOrderColumns[field]),
         ),
       )
-      .limit(params.pageSize)
-      .offset(params.page * params.pageSize);
+      .limit(paginationLimit)
+      .offset(paginationOffset);
     const [totals] = await tx.select({ total: count() }).from(events);
 
     return { rows, total: totals?.total ?? 0 };

@@ -18,9 +18,8 @@ export const coursesTable = pgTable(
     internalNotes: text().notNull().default(''),
   },
   (table) => [
-    check(
-      'capacity_consistency',
-      sql`${table.capacity} >= 0 AND ${table.registeredCount} >= 0 AND ${table.registeredCount} <= ${table.capacity}`,
-    ),
+    check('capacity_nonnegative', sql`${table.capacity} >= 0`),
+    check('registered_count_nonnegative', sql`${table.registeredCount} >= 0`),
+    check('registered_count_within_capacity', sql`${table.registeredCount} <= ${table.capacity}`),
   ],
 );

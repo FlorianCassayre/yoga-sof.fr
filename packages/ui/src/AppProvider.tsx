@@ -11,6 +11,7 @@ import type { AnyRouter } from '@trpc/server';
 import { SnackbarProvider } from 'notistack';
 import { type ReactNode, useState } from 'react';
 
+import { queryClientOptions } from './queryClientOptions';
 import { ZodProvider } from './ZodProvider';
 
 interface AppProviderProps<TRouter extends AnyRouter> {
@@ -24,18 +25,7 @@ export const AppProvider = <TRouter extends AnyRouter>({
   trpc,
   children,
 }: AppProviderProps<TRouter>) => {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            retry: (failureCount, error) =>
-              (error as { data?: { code?: string } } | null)?.data?.code === undefined &&
-              failureCount < 3,
-          },
-        },
-      }),
-  );
+  const [queryClient] = useState(() => new QueryClient(queryClientOptions));
 
   const app = (
     <AppRouterCacheProvider options={{ key: 'mui' }}>

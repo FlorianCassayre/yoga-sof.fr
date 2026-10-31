@@ -11,7 +11,7 @@ import type { RouterOutputs } from '../../server/appRouter';
 
 type RegistrationRow = RouterOutputs['registration']['list']['rows'][number];
 
-const columns: GridColDef<RegistrationRow>[] = [
+const REGISTRATION_COLUMNS: GridColDef<RegistrationRow>[] = [
   {
     field: 'userName',
     headerName: 'Utilisateur',
@@ -44,12 +44,27 @@ const columns: GridColDef<RegistrationRow>[] = [
   },
 ];
 
-export const CourseUserRegistrationGrid = () => {
+interface CourseUserRegistrationGridProps {
+  courseId?: number;
+  userId?: string;
+}
+
+export const CourseUserRegistrationGrid = ({
+  courseId,
+  userId,
+}: CourseUserRegistrationGridProps) => {
+  const columns = REGISTRATION_COLUMNS.filter(
+    (column) =>
+      (courseId === undefined || column.field !== 'courseStartsAt') &&
+      (userId === undefined || column.field !== 'userName'),
+  );
+
   return (
     <DataGrid
       columns={columns}
       defaultSort={{ field: 'createdAt', sort: 'desc' }}
       procedure={api.registration.list}
+      listInput={{ courseId, userId }}
     />
   );
 };

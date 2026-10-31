@@ -1,7 +1,6 @@
 import { userGetSchema, userListSchema, userService, withTransaction } from '@yoga-sof/core/server';
 import { auth } from '@yoga-sof/ui/auth';
-
-import { trpc } from '../../server/trpc';
+import { trpc } from '@yoga-sof/ui/trpc';
 
 export const userRouter = trpc.router({
   me: trpc.procedure.query(async () => {

@@ -3,11 +3,11 @@
 import { IconButton } from '@mui/material';
 import { type GridColDef } from '@mui/x-data-grid';
 import { COURSE_TYPE_LABELS, type CourseVisibility } from '@yoga-sof/core';
+import { formatScheduleDate, formatScheduleTime } from '@yoga-sof/core';
 import { Eye } from 'lucide-react';
 import Link from 'next/link';
 
 import { DataGrid } from '../../components/grid/DataGrid';
-import { DateTimeCell } from '../../components/grid/DateTimeCell';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
 import { VisibilityChip } from './visibility/VisibilityChip';
@@ -34,17 +34,18 @@ const columns: GridColDef<CourseRow>[] = [
   },
   {
     field: 'startsAt',
-    headerName: 'Début',
-    type: 'dateTime',
+    headerName: 'Date',
+    type: 'date',
     flex: 1,
-    renderCell: (params) => <DateTimeCell value={params.row.startsAt} />,
+    valueFormatter: (value) => formatScheduleDate(value),
   },
   {
-    field: 'endsAt',
-    headerName: 'Fin',
-    type: 'dateTime',
-    flex: 1,
-    renderCell: (params) => <DateTimeCell value={params.row.endsAt} />,
+    field: 'horaire',
+    headerName: 'Horaire',
+    width: 140,
+    sortable: false,
+    renderCell: (params) =>
+      `${formatScheduleTime(params.row.startsAt)} à ${formatScheduleTime(params.row.endsAt)}`,
   },
   { field: 'capacity', headerName: 'Capacité', type: 'number', width: 110 },
   { field: 'registeredCount', headerName: 'Inscrits', type: 'number', width: 110 },

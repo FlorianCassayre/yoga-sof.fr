@@ -3,7 +3,7 @@ import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
 import { createRow, getRow, updateRow } from '../../db/rows';
-import { paginatedList } from '../../list';
+import { paginatedList } from '../../util/list';
 import { courseLabelSql } from './courseLabelSql';
 import type {
   courseCreateSchema,

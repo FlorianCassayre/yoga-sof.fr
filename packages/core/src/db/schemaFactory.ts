@@ -1,10 +1,28 @@
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
+import { getColumns } from 'drizzle-orm/utils';
 import { createSchemaFactory } from 'drizzle-orm/zod';
 import { z } from 'zod';
 
 const factory = createSchemaFactory({
   coerce: { date: true, number: true },
 });
+
+// An empty input would coerce to a default value (0 or the epoch), so it is
+// normalized to undefined and rejected by the coerced schema instead.
+const emptyToUndefined = (value: unknown) => (value === '' || value === null ? undefined : value);
+
+const wrapCoercedColumns = <TSchema extends z.ZodObject>(
+  schema: TSchema,
+  table: PgTable,
+): TSchema => {
+  const isCoerced = (column: PgColumn) =>
+    String(column.dataType).startsWith('number') || column.columnType === 'PgTimestamp';
+  const wrapped = Object.entries(getColumns(table))
+    .filter(([key, column]) => key in schema.shape && isCoerced(column))
+    .map(([key]) => [key, z.preprocess(emptyToUndefined, schema.shape[key])] as const);
+
+  return wrapped.length === 0 ? schema : (schema.extend(Object.fromEntries(wrapped)) as TSchema);
+};
 
 export const createInsertSchema = factory.createInsertSchema;
 
@@ -25,9 +43,10 @@ export const createVersionedInsertSchema = <TTable extends PgTable>(
 ) => {
   const schema = factory.createInsertSchema(table as TTable);
 
-  return schema.omit({ version: true } as never) as z.ZodObject<
-    Omit<typeof schema.shape, 'version'>
-  >;
+  return wrapCoercedColumns(
+    schema.omit({ version: true } as never) as z.ZodObject<Omit<typeof schema.shape, 'version'>>,
+    table,
+  );
 };
 
 export const createUpdateSchema = <
@@ -40,7 +59,7 @@ export const createUpdateSchema = <
   const selectSchema = factory.createSelectSchema(table as TTable);
   const { id } = selectSchema.shape as { id: z.ZodType<TIdColumn['_']['data']> };
 
-  return schema.extend({ id });
+  return wrapCoercedColumns(schema.extend({ id }), table);
 };
 
 export const createVersionedUpdateSchema = <
@@ -56,5 +75,5 @@ export const createVersionedUpdateSchema = <
     version: z.ZodType<number>;
   };
 
-  return schema.extend({ id, version });
+  return wrapCoercedColumns(schema.extend({ id, version }), table);
 };

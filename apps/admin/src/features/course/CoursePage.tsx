@@ -1,14 +1,15 @@
 'use client';
 
 import { Stack, Typography } from '@mui/material';
-import { COURSE_TYPE_LABELS } from '@yoga-sof/core';
-import { dateTimeFormatter } from '@yoga-sof/ui/dateTimeFormatter';
+import { COURSE_TYPE_LABELS, dateTimeFormatter } from '@yoga-sof/core';
 import { CalendarPlus, Pencil } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
 import { PageLayout } from '../../components/page/PageLayout';
 import { api } from '../../server/api';
 import { isNotFoundError } from '../../server/isNotFoundError';
+import { CourseUserRegistrationEventGrid } from '../courseUserRegistration/CourseUserRegistrationEventGrid';
+import { CourseUserRegistrationGrid } from '../courseUserRegistration/CourseUserRegistrationGrid';
 import { CourseIcon } from './CourseIcon';
 import { VisibilityChip } from './visibility/VisibilityChip';
 
@@ -49,19 +50,29 @@ export const CoursePage = ({ id }: CoursePageProps) => {
         },
       ]}
     >
-      <Stack spacing={0.5}>
-        <Typography>Type : {COURSE_TYPE_LABELS[course.data.type]}</Typography>
-        <Typography>Début : {dateTimeFormatter.format(course.data.startsAt)}</Typography>
-        <Typography>Fin : {dateTimeFormatter.format(course.data.endsAt)}</Typography>
-        <Typography>Capacité : {course.data.capacity}</Typography>
-        <Typography>Inscrits : {course.data.registeredCount}</Typography>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-          <Typography>Visibilité :</Typography>
-          <VisibilityChip visibility={course.data.visibility} />
+      <Stack spacing={3}>
+        <Stack spacing={0.5}>
+          <Typography>Type : {COURSE_TYPE_LABELS[course.data.type]}</Typography>
+          <Typography>Début : {dateTimeFormatter.format(course.data.startsAt)}</Typography>
+          <Typography>Fin : {dateTimeFormatter.format(course.data.endsAt)}</Typography>
+          <Typography>Capacité : {course.data.capacity}</Typography>
+          <Typography>Inscrits : {course.data.registeredCount}</Typography>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+            <Typography>Visibilité :</Typography>
+            <VisibilityChip visibility={course.data.visibility} />
+          </Stack>
+          {course.data.internalNotes.length > 0 && (
+            <Typography>Notes : {course.data.internalNotes}</Typography>
+          )}
         </Stack>
-        {course.data.internalNotes.length > 0 && (
-          <Typography>Notes : {course.data.internalNotes}</Typography>
-        )}
+        <Stack spacing={2}>
+          <Typography variant="h6">Inscriptions</Typography>
+          <CourseUserRegistrationGrid courseId={course.data.id} />
+        </Stack>
+        <Stack spacing={2}>
+          <Typography variant="h6">Historique</Typography>
+          <CourseUserRegistrationEventGrid courseId={course.data.id} />
+        </Stack>
       </Stack>
     </PageLayout>
   );

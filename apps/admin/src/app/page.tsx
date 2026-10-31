@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation';
+import { DashboardPage } from '../features/dashboard/DashboardPage';
 
 const Home = () => {
-  redirect('/seances');
+  return <DashboardPage />;
 };
 
 export default Home;

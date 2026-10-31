@@ -5,26 +5,41 @@ import {
   createVersionedInsertSchema,
   createVersionedUpdateSchema,
 } from '../../db/schemaFactory';
-import { createListSchema, type SortableColumns } from '../../list';
+import { sameDay } from '../../util/date';
+import { createListSchema } from '../../util/list';
 import { coursesTable } from './coursesTable';
 
-const SORTABLE_COLUMNS = {
+export const courseListSchema = createListSchema<typeof coursesTable>({
   capacity: true,
   endsAt: true,
   registeredCount: true,
   startsAt: true,
   type: true,
   visibility: true,
-} as const satisfies SortableColumns<typeof coursesTable>;
-
-export const courseListSchema = createListSchema(SORTABLE_COLUMNS).extend({
+}).extend({
   upcoming: z.boolean().optional(),
 });
 
 export const courseGetSchema = createSelectByIdSchema(coursesTable);
 
-export const courseCreateSchema = createVersionedInsertSchema(coursesTable).omit({
-  registeredCount: true,
-});
+const refineSameDay = (
+  { startsAt, endsAt }: { startsAt?: Date; endsAt?: Date },
+  ctx: z.RefinementCtx,
+) => {
+  if (startsAt !== undefined && endsAt !== undefined && !sameDay(startsAt, endsAt)) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['endsAt'],
+      message: 'La séance doit débuter et se terminer le même jour.',
+    });
+  }
+};
 
-export const courseEditSchema = createVersionedUpdateSchema(coursesTable);
+export const courseCreateSchema = createVersionedInsertSchema(coursesTable)
+  .omit({
+    registeredCount: true,
+  })
+  .superRefine(refineSameDay);
+
+export const courseEditSchema =
+  createVersionedUpdateSchema(coursesTable).superRefine(refineSameDay);

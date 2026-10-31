@@ -4,7 +4,7 @@ import { afterAll, describe, expect, it } from 'vitest';
 import { db } from '../../../db/db';
 import { withTransaction } from '../../../db/withTransaction';
 import { ServiceError } from '../../../errors';
-import { usersTable } from '../../../features/auth/tables';
+import { usersTable } from '../../../features/auth/authTables';
 import { userService } from '../../../features/user/userService';
 
 const EMAIL = 'user-list-test@example.com';

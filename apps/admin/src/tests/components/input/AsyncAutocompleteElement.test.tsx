@@ -19,7 +19,10 @@ const OPTIONS = (): Model[] => [
   { id: 2, label: 'Séance yoga enfants du lundi 15 juin 2026 de 09h30 à 10h30' },
 ];
 
-const renderAutocomplete = ({ preload = false }: { preload?: boolean } = {}) => {
+const renderAutocomplete = ({
+  preload = false,
+  fetching = false,
+}: { preload?: boolean; fetching?: boolean } = {}) => {
   const list = {
     useQuery: (input: { search?: string } | typeof skipToken) => {
       if (typeof input !== 'object' || input.search === undefined) {
@@ -27,7 +30,7 @@ const renderAutocomplete = ({ preload = false }: { preload?: boolean } = {}) => 
       }
       const rows = OPTIONS().filter((option) => option.label.includes(input.search!));
 
-      return { data: { rows, total: rows.length }, isFetching: false };
+      return { data: { rows, total: rows.length }, isFetching: fetching };
     },
   };
 
@@ -111,5 +114,15 @@ describe('AsyncAutocompleteElement', () => {
     fireEvent.blur(input);
 
     expect((input as HTMLInputElement).value).toBe('');
+  });
+
+  it('shows a loading state as soon as the typed text is ahead of the results', () => {
+    renderAutocomplete({ fetching: true });
+
+    const input = screen.getByRole('combobox');
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: 'yoga adultes' } });
+
+    expect(screen.getByRole('progressbar')).toBeTruthy();
   });
 });

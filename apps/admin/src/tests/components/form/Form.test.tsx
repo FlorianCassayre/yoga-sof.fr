@@ -2,6 +2,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { TextFieldElement } from 'react-hook-form-mui';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { z } from 'zod';
 
 import { Form } from '../../../components/form/Form';
 import type { FieldProps, IdVersion } from '../../../components/form/types';
@@ -139,5 +140,33 @@ describe('Form', () => {
       expect(enqueueSnackbar).toHaveBeenCalledWith(message, { variant: 'error' }),
     );
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it('validates against the schema on submit and turns failing fields red', async () => {
+    const create = fakeMutation<TestRow, TestValues>(() => ({ ...row, id: 99, version: 1 }));
+    renderWithProviders(
+      <Form<TestRow, TestValues>
+        create={create}
+        schema={z.object({ internalNotes: z.string().min(1, 'Le message est requis.') })}
+        defaultValues={() => ({ internalNotes: '' })}
+        redirectTo={(saved) => `/rows/${saved.id}`}
+        createdMessage="Créé."
+        cancelHref="/rows"
+      >
+        {Fields}
+      </Form>,
+      new QueryClient(),
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Créer' }));
+
+    await waitFor(() => expect(screen.getByText('Le message est requis.')).toBeTruthy());
+    expect(screen.getByLabelText('Notes').getAttribute('aria-invalid')).toBe('true');
+    expect(create.mutateAsync).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByLabelText('Notes'), { target: { value: 'notes' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Créer' }));
+
+    await waitFor(() => expect(create.mutateAsync).toHaveBeenCalled());
   });
 });
