@@ -10,7 +10,7 @@ case "$1" in
     ;;
   migrate)
     cd /seed
-    exec node node_modules/drizzle-kit/bin.cjs migrate
+    exec node migrate.cjs
     ;;
   seed)
     cd /seed
