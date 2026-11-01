@@ -6,6 +6,7 @@ You will need Node and pnpm:
 
 ```shell
 pnpm i
+pnpm generate
 ```
 
 ## Database setup

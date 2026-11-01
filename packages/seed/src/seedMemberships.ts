@@ -1,7 +1,4 @@
 import { faker } from '@faker-js/faker';
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
-import type { usersTable } from '../features/auth/authTables';
 import {
   membershipBeneficiariesTable,
   membershipPricesTable,
@@ -9,7 +6,9 @@ import {
   membershipSettingsTable,
   membershipsTable,
   type MembershipType,
-} from '../features/membership';
+} from '@yoga-sof/core';
+import type { usersTable } from '@yoga-sof/core/server';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 interface SeedMembershipsParameters {
   users: (typeof usersTable.$inferSelect)[];

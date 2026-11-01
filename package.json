@@ -5,14 +5,18 @@
   "scripts": {
     "dev": "pnpm -r --parallel dev",
     "build": "pnpm -r build",
+    "build:seed": "tsx scripts/buildSeed.ts",
     "start": "pnpm -r start",
     "test": "pnpm -r test",
     "test:unit": "pnpm -r test:unit",
     "test:integration": "pnpm -r test:integration",
     "db:push": "pnpm -F @yoga-sof/core exec drizzle-kit push",
-    "db:seed": "pnpm -F @yoga-sof/core exec tsx src/seed/index.ts",
+    "db:generate": "pnpm -F @yoga-sof/core exec drizzle-kit generate",
+    "db:migrate": "pnpm -F @yoga-sof/core exec drizzle-kit migrate",
+    "db:seed": "pnpm -F @yoga-sof/seed db:seed",
     "check": "eslint . --cache --max-warnings=0 && prettier --cache --check . && tsc --noEmit && pnpm -r --parallel typecheck",
-    "fix": "eslint . --cache --max-warnings=0 --fix && prettier --cache --write ."
+    "fix": "eslint . --cache --max-warnings=0 --fix && prettier --cache --write .",
+    "generate": "pnpm -r --parallel generate"
   },
   "prettier": {
     "semi": true,
@@ -25,6 +29,7 @@
   ],
   "devDependencies": {
     "@eslint/js": "catalog:",
+    "@types/node": "catalog:",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "eslint-import-resolver-typescript": "catalog:",
@@ -36,6 +41,7 @@
     "eslint-plugin-simple-import-sort": "catalog:",
     "globals": "catalog:",
     "prettier": "catalog:",
+    "tsx": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:"
   }

@@ -2,12 +2,13 @@
   "name": "@yoga-sof/public",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000",
     "build": "next build",
+    "dev": "next dev -p 3000",
+    "generate": "next typegen",
     "start": "next start -p 3000",
-    "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "test:unit": "vitest run --passWithNoTests --exclude '**/*.integration.test.ts'"
+    "test:unit": "vitest run --passWithNoTests --exclude '**/*.integration.test.ts'",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@emotion/react": "catalog:",

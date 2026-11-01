@@ -50,13 +50,12 @@ const NAV_GROUPS = [
   },
 ];
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
-
 interface SidebarContentProps {
   onNavigate?: () => void;
+  siteUrl: string;
 }
 
-const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
+const SidebarContent = ({ onNavigate, siteUrl }: SidebarContentProps) => {
   const pathname = usePathname();
 
   return (
@@ -103,7 +102,7 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
       <Divider />
       <List>
         <ListItem disablePadding>
-          <ListItemButton component="a" href={SITE_URL} onClick={onNavigate}>
+          <ListItemButton component="a" href={siteUrl} onClick={onNavigate}>
             <ListItemIcon>
               <House size={18} />
             </ListItemIcon>
@@ -118,9 +117,10 @@ const SidebarContent = ({ onNavigate }: SidebarContentProps) => {
 interface SidebarProps {
   mobileOpen: boolean;
   onMobileClose: () => void;
+  siteUrl: string;
 }
 
-export const Sidebar = ({ mobileOpen, onMobileClose }: SidebarProps) => {
+export const Sidebar = ({ mobileOpen, onMobileClose, siteUrl }: SidebarProps) => {
   return (
     <Box component="nav">
       <Drawer
@@ -133,7 +133,7 @@ export const Sidebar = ({ mobileOpen, onMobileClose }: SidebarProps) => {
           '& .MuiDrawer-paper': { width: SIDEBAR_WIDTH },
         }}
       >
-        <SidebarContent onNavigate={onMobileClose} />
+        <SidebarContent onNavigate={onMobileClose} siteUrl={siteUrl} />
       </Drawer>
       <Drawer
         variant="permanent"
@@ -149,7 +149,7 @@ export const Sidebar = ({ mobileOpen, onMobileClose }: SidebarProps) => {
           },
         }}
       >
-        <SidebarContent />
+        <SidebarContent siteUrl={siteUrl} />
       </Drawer>
     </Box>
   );

@@ -5,9 +5,10 @@ node_modules
 .pnpm-store
 
 tsconfig.tsbuildinfo
-drizzle
 .next
 next-env.d.ts
 .eslintcache
 
 .env
+
+build

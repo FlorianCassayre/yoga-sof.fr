@@ -1,9 +1,7 @@
 import { TZDate } from '@date-fns/tz';
 import { faker } from '@faker-js/faker';
+import { APP_TIMEZONE, coursesTable } from '@yoga-sof/core';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
-import { coursesTable } from '../features/course';
-import { APP_TIMEZONE } from '../util/date';
 
 const WEEKS_PAST = 5;
 const WEEKS_FUTURE = 3;

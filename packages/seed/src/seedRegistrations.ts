@@ -1,10 +1,8 @@
 import { faker } from '@faker-js/faker';
+import { coursesTable, courseUserRegistrationsTable } from '@yoga-sof/core';
+import type { usersTable } from '@yoga-sof/core/server';
 import { sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
-import type { usersTable } from '../features/auth/authTables';
-import { coursesTable } from '../features/course';
-import { courseUserRegistrationsTable } from '../features/courseUserRegistration';
 
 interface SeedRegistrationsParameters {
   courses: (typeof coursesTable.$inferSelect)[];

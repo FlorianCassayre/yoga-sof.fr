@@ -1,0 +1,23 @@
+{
+  "name": "@yoga-sof/seed",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:seed": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@date-fns/tz": "catalog:",
+    "@faker-js/faker": "catalog:",
+    "@yoga-sof/core": "workspace:*",
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@types/pg": "catalog:",
+    "esbuild": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}

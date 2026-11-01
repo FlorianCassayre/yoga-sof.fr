@@ -16,7 +16,6 @@
     "@auth/core": "catalog:",
     "@auth/drizzle-adapter": "catalog:",
     "@date-fns/tz": "catalog:",
-    "@faker-js/faker": "catalog:",
     "date-fns": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
@@ -26,6 +25,7 @@
   "devDependencies": {
     "@types/pg": "catalog:",
     "drizzle-kit": "catalog:",
+    "esbuild": "catalog:",
     "tsx": "catalog:",
     "vitest": "catalog:"
   }

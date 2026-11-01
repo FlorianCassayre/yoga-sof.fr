@@ -11,7 +11,9 @@ const RootLayout = async ({ children }: LayoutProps<'/'>) => {
     redirect(connexionUrl(process.env.NEXT_ADMIN_SITE_URL));
   }
 
-  return <AdminProviders>{children}</AdminProviders>;
+  return (
+    <AdminProviders siteUrl={process.env.NEXT_PUBLIC_SITE_URL ?? '/'}>{children}</AdminProviders>
+  );
 };
 
 export default RootLayout;

@@ -1,11 +1,7 @@
-import { config } from 'dotenv';
-
-config({ path: '../../.env' });
-
 import { faker } from '@faker-js/faker';
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { courseUserRegistrationsTable } from '@yoga-sof/core';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
-import { courseUserRegistrationsTable } from '../features/courseUserRegistration';
 import { seedCourses } from './seedCourses';
 import { seedMemberships } from './seedMemberships';
 import { seedRegistrations } from './seedRegistrations';
@@ -13,11 +9,7 @@ import { seedUsers } from './seedUsers';
 
 const SEED = 42;
 
-const db = drizzle({
-  connection: process.env.DATABASE_URL!,
-});
-
-async function main() {
+export async function seedAll(db: NodePgDatabase) {
   faker.seed(SEED);
 
   await db.delete(courseUserRegistrationsTable);
@@ -29,5 +21,3 @@ async function main() {
   await seedRegistrations(db, { courses, users, admin });
   await seedMemberships(db, { users });
 }
-
-void main();

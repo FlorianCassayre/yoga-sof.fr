@@ -1,8 +1,7 @@
 import { faker } from '@faker-js/faker';
+import { usersTable } from '@yoga-sof/core/server';
 import { like } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-
-import { usersTable } from '../features/auth/authTables';
 
 const USER_COUNT = 10;
 const USER_EMAIL_DOMAIN = '@test.yoga-sof.fr';

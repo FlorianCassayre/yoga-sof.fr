@@ -8,11 +8,12 @@ import type { AppRouter } from './appRouter';
 
 export const api = createTRPCReact<AppRouter>();
 
-export const trpcClient = api.createClient({
-  links: [
-    httpBatchLink({
-      url: `${process.env.NEXT_ADMIN_SITE_BASE_PATH ?? ''}/api/trpc`,
-      transformer: superjson,
-    }),
-  ],
-});
+export const createTrpcClient = (basePath: string) =>
+  api.createClient({
+    links: [
+      httpBatchLink({
+        url: `${basePath}/api/trpc`,
+        transformer: superjson,
+      }),
+    ],
+  });

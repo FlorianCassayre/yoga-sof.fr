@@ -20,7 +20,7 @@ import { signOutAction } from '../../features/auth/signOutAction';
 import { useCurrentUser } from '../../features/user/useCurrentUser';
 import { Sidebar } from './Sidebar';
 
-export const AdminLayout = ({ children }: { children: ReactNode }) => {
+export const AdminLayout = ({ children, siteUrl }: { children: ReactNode; siteUrl: string }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuAnchor, setUserMenuAnchor] = useState<HTMLElement | null>(null);
   const user = useCurrentUser();
@@ -80,7 +80,11 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
         </Toolbar>
       </AppBar>
 
-      <Sidebar mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
+      <Sidebar
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+        siteUrl={siteUrl}
+      />
 
       <Box component="main" sx={{ flexGrow: 1, minWidth: 0, p: 3 }}>
         <Toolbar />

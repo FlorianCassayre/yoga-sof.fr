@@ -1,6 +1,7 @@
 export * from './db/withTransaction';
 export * from './errors';
 export * from './features/auth/authAdapter';
+export { usersTable } from './features/auth/authTables';
 export * from './features/course/courseSchemas';
 export * from './features/course/courseService';
 export * from './features/courseUserRegistration/courseUserRegistrationSchemas';

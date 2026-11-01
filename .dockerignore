@@ -1,0 +1,10 @@
+**
+!Dockerfile
+!scripts/entrypoint.sh
+!build/seed
+!apps/public/.next/standalone
+!apps/public/.next/static
+!apps/public/public
+!apps/admin/.next/standalone
+!apps/admin/.next/static
+!apps/admin/public

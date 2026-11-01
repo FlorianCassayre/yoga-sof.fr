@@ -1,0 +1,72 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  migrate:
+    build: .
+    image: ghcr.io/floriancassayre/yoga-sof.fr:dev
+    command: migrate
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+
+  # Demo only: wipes and reseeds the database on every run; do not enable on production!
+  # when the database holds real data.
+  # seed:
+  #   image: ghcr.io/floriancassayre/yoga-sof.fr:dev
+  #   command: truncate-seed
+  #   environment:
+  #     DATABASE_URL: ${DATABASE_URL}
+  #   depends_on:
+  #     migrate:
+  #       condition: service_completed_successfully
+  #   restart: 'no'
+
+  public:
+    image: ghcr.io/floriancassayre/yoga-sof.fr:dev
+    command: public
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      AUTH_URL: ${AUTH_URL}
+      AUTH_SECRET: ${AUTH_SECRET}
+      AUTH_GOOGLE_ID: ${AUTH_GOOGLE_ID}
+      AUTH_GOOGLE_SECRET: ${AUTH_GOOGLE_SECRET}
+    ports:
+      - '127.0.0.1:3000:3000'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  admin:
+    image: ghcr.io/floriancassayre/yoga-sof.fr:dev
+    command: admin
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      AUTH_SECRET: ${AUTH_SECRET}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      NEXT_ADMIN_SITE_URL: ${NEXT_ADMIN_SITE_URL}
+    ports:
+      - '127.0.0.1:3001:3000'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
