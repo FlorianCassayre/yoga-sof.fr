@@ -19,6 +19,7 @@ import { CourseIcon } from '../../features/course/CourseIcon';
 import { CourseUserRegistrationIcon } from '../../features/courseUserRegistration/CourseUserRegistrationIcon';
 import { DashboardIcon } from '../../features/dashboard/DashboardIcon';
 import { MembershipIcon } from '../../features/membership/MembershipIcon';
+import { RoleIcon } from '../../features/role/RoleIcon';
 import { SettingsIcon } from '../../features/settings/SettingsIcon';
 import { UserIcon } from '../../features/user/UserIcon';
 
@@ -46,7 +47,10 @@ const NAV_GROUPS = [
   },
   {
     label: 'Administration',
-    items: [{ href: '/parametres', label: 'Paramètres', Icon: SettingsIcon }],
+    items: [
+      { href: '/roles', label: 'Rôles', Icon: RoleIcon },
+      { href: '/parametres', label: 'Paramètres', Icon: SettingsIcon },
+    ],
   },
 ];
 

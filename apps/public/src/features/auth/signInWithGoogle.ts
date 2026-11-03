@@ -8,6 +8,6 @@ export const signInWithGoogle = async (raw: string | undefined) => {
   const target = resolveRedirectTarget(raw);
 
   await signIn('google', {
-    redirectTo: target === '/' ? undefined : `/redirection?r=${encodeURIComponent(target)}`,
+    redirectTo: target === '/' ? '/redirection' : `/redirection?r=${encodeURIComponent(target)}`,
   });
 };

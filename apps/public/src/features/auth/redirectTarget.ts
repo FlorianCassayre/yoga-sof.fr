@@ -5,14 +5,26 @@ const DEFAULT_REDIRECT = '/';
 // \p{Cc} also covers NUL bytes and other control characters.
 const FORBIDDEN_CHARACTERS = /[\s\p{Cc}]/u;
 
+const adminUrl = (): string | undefined => {
+  const url = process.env.NEXT_ADMIN_SITE_URL?.replace(/\/+$/, '');
+
+  return url === '' ? undefined : url;
+};
+
+export const isAdminRedirectTarget = (target: string): boolean => {
+  const url = adminUrl();
+
+  return !!url && (target === url || target.startsWith(`${url}/`));
+};
+
+export const adminRedirectRoot = (): string => adminUrl() ?? DEFAULT_REDIRECT;
+
 export const resolveRedirectTarget = (raw: string | undefined): string => {
   if (!raw || FORBIDDEN_CHARACTERS.test(raw)) {
     return DEFAULT_REDIRECT;
   }
 
-  const adminUrl = process.env.NEXT_ADMIN_SITE_URL?.replace(/\/+$/, '');
-
-  if (adminUrl && (raw === adminUrl || raw.startsWith(`${adminUrl}/`))) {
+  if (isAdminRedirectTarget(raw)) {
     return raw;
   }
 

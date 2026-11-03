@@ -1,10 +1,10 @@
-import { and, asc, count, desc, eq, inArray, isNotNull, type SQL, sql } from 'drizzle-orm';
+import { and, count, eq, inArray, isNotNull, type SQL, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
 import { assertConflict, assertInput } from '../../errors';
-import { pagination } from '../../util/list';
+import { pagination, sortOrders } from '../../util/list';
 import { usersTable } from '../auth/authTables';
 import { coursesTable } from '../course';
 import type {
@@ -126,11 +126,7 @@ export const courseUserRegistrationService = {
         eq(cancelerUsersTable.id, courseUserRegistrationsTable.canceledBy),
       )
       .where(and(eq(courseUserRegistrationsTable.canceled, false), ...registrationFilters(params)))
-      .orderBy(
-        ...sort.map(({ field, sort: order }) =>
-          order === 'desc' ? desc(LIST_ORDER_COLUMNS[field]) : asc(LIST_ORDER_COLUMNS[field]),
-        ),
-      )
+      .orderBy(...sortOrders(LIST_ORDER_COLUMNS, sort))
       .limit(paginationLimit)
       .offset(paginationOffset);
     const [totals] = await tx
@@ -194,11 +190,7 @@ export const courseUserRegistrationService = {
       .from(events)
       .innerJoin(usersTable, eq(usersTable.id, events.userId))
       .innerJoin(coursesTable, eq(coursesTable.id, events.courseId))
-      .orderBy(
-        ...sort.map(({ field, sort: order }) =>
-          order === 'desc' ? desc(eventOrderColumns[field]) : asc(eventOrderColumns[field]),
-        ),
-      )
+      .orderBy(...sortOrders(eventOrderColumns, sort))
       .limit(paginationLimit)
       .offset(paginationOffset);
     const [totals] = await tx.select({ total: count() }).from(events);

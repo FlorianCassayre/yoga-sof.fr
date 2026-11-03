@@ -4,6 +4,7 @@ import { Stack, Typography } from '@mui/material';
 import { dateTimeFormatter } from '@yoga-sof/core';
 import { notFound } from 'next/navigation';
 
+import { RecordDetails } from '../../components/detail/RecordDetails';
 import { api } from '../../server/api';
 import { isNotFoundError } from '../../server/isNotFoundError';
 import { CourseUserRegistrationEventGrid } from '../courseUserRegistration/CourseUserRegistrationEventGrid';
@@ -33,14 +34,18 @@ export const UserPage = ({ id }: UserPageProps) => {
     <Stack spacing={3}>
       <Stack spacing={2}>
         <Typography variant="h5">Utilisateur</Typography>
-        <Stack spacing={0.5}>
-          <Typography>Nom : {user.data.name ?? '-'}</Typography>
-          <Typography>Email : {user.data.email ?? '-'}</Typography>
-          <Typography>
-            Vérifié :{' '}
-            {user.data.emailVerified ? dateTimeFormatter.format(user.data.emailVerified) : 'Non'}
-          </Typography>
-        </Stack>
+        <RecordDetails
+          entries={[
+            { label: 'Nom', value: user.data.name ?? '-' },
+            { label: 'Email', value: user.data.email ?? '-' },
+            {
+              label: 'Vérifié',
+              value: user.data.emailVerified
+                ? dateTimeFormatter.format(user.data.emailVerified)
+                : 'Non',
+            },
+          ]}
+        />
       </Stack>
       <Stack spacing={2}>
         <Typography variant="h6">Inscriptions</Typography>

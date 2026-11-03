@@ -1,10 +1,10 @@
-import { and, asc, count, eq, inArray } from 'drizzle-orm';
+import { and, asc, count, eq, getColumns, inArray } from 'drizzle-orm';
 import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
 import { createRow } from '../../db/rows';
 import { assertFound, assertInput, assertState } from '../../errors';
-import { pagination, sortOrder } from '../../util/list';
+import { pagination, sortOrders } from '../../util/list';
 import { usersTable } from '../auth/authTables';
 import { membershipBeneficiariesTable } from './membershipBeneficiariesTable';
 import type { membershipCreateSchema, membershipListSchema } from './membershipSchemas';
@@ -42,7 +42,7 @@ export const membershipService = {
       })
       .from(membershipsTable)
       .where(membershipFilter)
-      .orderBy(...sort.map((item) => sortOrder(membershipsTable, item)))
+      .orderBy(...sortOrders(getColumns(membershipsTable), sort))
       .limit(limit)
       .offset(offset);
 

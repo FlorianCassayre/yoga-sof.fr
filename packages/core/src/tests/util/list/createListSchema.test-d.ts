@@ -1,6 +1,6 @@
 import type { usersTable } from '../../../features/auth/authTables';
 import type { coursesTable } from '../../../features/course/coursesTable';
-import { createListSchema } from '../../../util/list/createListSchema';
+import { createListSchema } from '../../../util/list/sort/createListSchema';
 
 createListSchema<typeof coursesTable>({ capacity: true });
 createListSchema<typeof usersTable>({ email: true });

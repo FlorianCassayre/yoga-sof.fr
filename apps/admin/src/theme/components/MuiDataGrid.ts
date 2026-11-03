@@ -15,6 +15,9 @@ export const MuiDataGrid: Components['MuiDataGrid'] = {
   },
   styleOverrides: {
     root: {
+      '& .MuiDataGrid-columnHeaderTitle': {
+        fontWeight: 'bold',
+      },
       '& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within, & .MuiDataGrid-cell:focus, & .MuiDataGrid-cell:focus-within':
         {
           outline: 'none',

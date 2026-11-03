@@ -5,7 +5,9 @@ import { appLocale } from '@yoga-sof/core';
 import { muiAppLocale } from '@yoga-sof/ui/muiAppLocale';
 import { theme as baseTheme } from '@yoga-sof/ui/theme/theme';
 
+import { MuiCard } from './components/MuiCard';
 import { MuiDataGrid } from './components/MuiDataGrid';
+import { MuiTableCell } from './components/MuiTableCell';
 
 const PRIMARY_MAIN = '#7F9350';
 
@@ -70,9 +72,11 @@ const themeOptions: ThemeOptions = {
     borderRadius: 12,
   },
   components: {
+    MuiCard,
     MuiDataGrid,
     MuiEventCalendar: eventCalendarOverrides,
     MuiEventDialog: eventDialogOverrides,
+    MuiTableCell,
   },
 };
 

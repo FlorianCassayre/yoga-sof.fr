@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { resolveRedirectTarget } from '../../../features/auth/redirectTarget';
+import {
+  adminRedirectRoot,
+  isAdminRedirectTarget,
+  resolveRedirectTarget,
+} from '../../../features/auth/redirectTarget';
 
 const ADMIN_URL = 'http://localhost:3001';
 
@@ -63,5 +67,58 @@ describe('resolveRedirectTarget', () => {
       `${ADMIN_URL}/tableau-de-bord`,
     );
     expect(resolveRedirectTarget(`${ADMIN_URL}//evil.com`)).toBe(`${ADMIN_URL}//evil.com`);
+  });
+});
+
+describe('isAdminRedirectTarget', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('matches the admin url and its subpaths', () => {
+    vi.stubEnv('NEXT_ADMIN_SITE_URL', ADMIN_URL);
+
+    expect(isAdminRedirectTarget(ADMIN_URL)).toBe(true);
+    expect(isAdminRedirectTarget(`${ADMIN_URL}/roles`)).toBe(true);
+    expect(isAdminRedirectTarget(`${ADMIN_URL}/roles?onglet=x`)).toBe(true);
+  });
+
+  it('rejects everything else', () => {
+    vi.stubEnv('NEXT_ADMIN_SITE_URL', ADMIN_URL);
+
+    expect(isAdminRedirectTarget('/')).toBe(false);
+    expect(isAdminRedirectTarget('/profil')).toBe(false);
+    expect(isAdminRedirectTarget(`${ADMIN_URL}.evil.com`)).toBe(false);
+  });
+
+  it('normalizes a trailing slash in the env var', () => {
+    vi.stubEnv('NEXT_ADMIN_SITE_URL', `${ADMIN_URL}/`);
+
+    expect(isAdminRedirectTarget(ADMIN_URL)).toBe(true);
+    expect(isAdminRedirectTarget(`${ADMIN_URL}/roles`)).toBe(true);
+  });
+
+  it('is false without the env var', () => {
+    vi.stubEnv('NEXT_ADMIN_SITE_URL', '');
+
+    expect(isAdminRedirectTarget(ADMIN_URL)).toBe(false);
+  });
+});
+
+describe('adminRedirectRoot', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('returns the admin url without a trailing slash', () => {
+    vi.stubEnv('NEXT_ADMIN_SITE_URL', `${ADMIN_URL}/`);
+
+    expect(adminRedirectRoot()).toBe(ADMIN_URL);
+  });
+
+  it('falls back to / without the env var', () => {
+    vi.stubEnv('NEXT_ADMIN_SITE_URL', '');
+
+    expect(adminRedirectRoot()).toBe('/');
   });
 });

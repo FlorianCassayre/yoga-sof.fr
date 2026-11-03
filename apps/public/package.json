@@ -17,6 +17,7 @@
     "@fontsource/plus-jakarta-sans": "catalog:",
     "@mui/material": "catalog:",
     "@mui/x-data-grid": "catalog:",
+    "@yoga-sof/core": "workspace:*",
     "@yoga-sof/ui": "workspace:*",
     "dotenv": "catalog:",
     "lucide-react": "catalog:",

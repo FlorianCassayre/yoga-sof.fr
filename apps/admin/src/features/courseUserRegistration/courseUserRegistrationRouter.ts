@@ -7,18 +7,20 @@ import {
 } from '@yoga-sof/core/server';
 import { trpc } from '@yoga-sof/ui/trpc';
 
+import { adminProcedure } from '../../server/trpc';
+
 export const courseUserRegistrationRouter = trpc.router({
-  list: trpc.procedure
+  list: adminProcedure
     .input(courseUserRegistrationListSchema)
     .query(({ input }) =>
       withTransaction((tx) => courseUserRegistrationService.list(input, tx), { readOnly: true }),
     ),
-  listEvents: trpc.procedure.input(courseUserRegistrationEventListSchema).query(({ input }) =>
+  listEvents: adminProcedure.input(courseUserRegistrationEventListSchema).query(({ input }) =>
     withTransaction((tx) => courseUserRegistrationService.listEvents(input, tx), {
       readOnly: true,
     }),
   ),
-  create: trpc.procedure
+  create: adminProcedure
     .input(courseUserRegistrationCreateSchema)
     .mutation(({ input }) =>
       withTransaction((tx) => courseUserRegistrationService.create(input, tx)),

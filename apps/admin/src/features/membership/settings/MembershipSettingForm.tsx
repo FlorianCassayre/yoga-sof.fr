@@ -18,7 +18,7 @@ const MONTH_OPTIONS = MONTHS.map((month, index) => ({
   label: month.charAt(0).toUpperCase() + month.slice(1),
 }));
 
-const MembershipSettingFields = () => {
+const MembershipSettingFields = ({ disabled }: { disabled: boolean }) => {
   const settingQuery = api.membershipSetting.get.useQuery();
   const [month, setMonth] = useState<number>(settingQuery.data?.seasonStartMonth ?? 9);
   const period = membershipSeasonPeriod({ year: new Date().getFullYear(), month });
@@ -30,6 +30,7 @@ const MembershipSettingFields = () => {
       options={MONTH_OPTIONS}
       onChange={(value: unknown) => setMonth(Number(value))}
       helperText={`Exemple : ${formatMembershipPeriod(period)}`}
+      disabled={disabled}
     />
   );
 };
@@ -67,7 +68,7 @@ export const MembershipSettingForm = () => {
       }}
     >
       <Stack spacing={2}>
-        <MembershipSettingFields />
+        <MembershipSettingFields disabled={updateMutation.isPending} />
         <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end' }}>
           <Button type="submit" variant="contained" disabled={updateMutation.isPending}>
             Enregistrer

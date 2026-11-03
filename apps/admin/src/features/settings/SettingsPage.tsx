@@ -4,13 +4,18 @@ import { Divider, Link, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { Euro } from 'lucide-react';
 
 import { PageLayout } from '../../components/page/PageLayout';
+import { CalendarSettingForm } from '../calendar/CalendarSettingForm';
 import { MembershipPriceGrid } from '../membership/price/MembershipPriceGrid';
 import { MembershipSettingForm } from '../membership/settings/MembershipSettingForm';
 import { SettingsIcon } from './SettingsIcon';
 
 export const MEMBERSHIP_TAB = 'membership';
+export const CALENDAR_TAB = 'calendar';
 
-const TABS = [{ id: MEMBERSHIP_TAB, label: 'Adhésions', href: '/parametres/adhesions' }];
+const TABS = [
+  { id: MEMBERSHIP_TAB, label: 'Adhésions', href: '/parametres/adhesions' },
+  { id: CALENDAR_TAB, label: 'Calendrier', href: '/parametres/calendrier' },
+];
 
 interface SettingsPageProps {
   tab: string;
@@ -51,6 +56,12 @@ export const SettingsPage = ({ tab }: SettingsPageProps) => {
             <Typography variant="h6">Tarifs des adhésions</Typography>
             <MembershipPriceGrid />
           </Stack>
+        </Stack>
+      )}
+      {tab === CALENDAR_TAB && (
+        <Stack spacing={2}>
+          <Typography variant="h6">Jours et horaires d'ouverture</Typography>
+          <CalendarSettingForm />
         </Stack>
       )}
     </PageLayout>

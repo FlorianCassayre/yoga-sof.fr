@@ -49,6 +49,8 @@ services:
       AUTH_SECRET: ${AUTH_SECRET}
       AUTH_GOOGLE_ID: ${AUTH_GOOGLE_ID}
       AUTH_GOOGLE_SECRET: ${AUTH_GOOGLE_SECRET}
+      NEXT_ADMIN_SITE_URL: ${NEXT_ADMIN_SITE_URL}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
     labels:
       - com.centurylinklabs.watchtower.enable=true
     ports:
@@ -66,6 +68,7 @@ services:
       AUTH_SECRET: ${AUTH_SECRET}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
       NEXT_ADMIN_SITE_URL: ${NEXT_ADMIN_SITE_URL}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
     labels:
       - com.centurylinklabs.watchtower.enable=true
     ports:

@@ -1,11 +1,11 @@
-import { and, count, ilike, or, type SQL } from 'drizzle-orm';
+import { and, count, getColumns, ilike, or, type SQL } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { PgColumn, PgTable } from 'drizzle-orm/pg-core';
 import type { z } from 'zod';
 
+import { sortOrders } from '../sort/sortOrders';
 import type { listSchema } from './listSchema';
 import { pagination } from './pagination';
-import { sortOrder } from './sortOrder';
 
 export type PaginatedListParams = z.infer<typeof listSchema>;
 
@@ -37,7 +37,7 @@ export const paginatedList = async <Row>(
       ? or(...searchColumns.map((column) => ilike(column, `%${search}%`)))
       : undefined;
   const where = and(extraWhere, searchWhere);
-  const orderBy = sort.map((item) => sortOrder(table, item));
+  const orderBy = sortOrders(getColumns(table), sort);
   const { limit, offset } = pagination({ page, pageSize });
 
   const rows = (await db

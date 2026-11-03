@@ -37,6 +37,10 @@ export const CourseCalendar = () => {
     { page: 0, pageSize: PAGE_SIZE, sort: [{ field: 'startsAt', sort: 'asc' }] },
     { placeholderData: keepPreviousData },
   );
+  const setting = api.calendarSetting.get.useQuery().data;
+  const dayStartHour = setting ? Number(setting.dayStartsAt.slice(0, 2)) : 9;
+  const dayEndHour = setting ? Number(setting.dayEndsAt.slice(0, 2)) : 21;
+  const timeGridViewConfig = { startTime: dayStartHour, endTime: dayEndHour };
   const containerRef = useRef<HTMLDivElement>(null);
   const [openCourseId, setOpenCourseId] = useState<number | null>(null);
   const [participantsContainer, setParticipantsContainer] = useState<HTMLElement | null>(null);
@@ -129,7 +133,8 @@ export const CourseCalendar = () => {
         readOnly
         defaultView="week"
         displayTimezone={APP_TIMEZONE}
-        defaultPreferences={{ ampm: false, weekStartsOn: 1 }}
+        viewConfig={{ day: timeGridViewConfig, week: timeGridViewConfig }}
+        defaultPreferences={{ ampm: false, weekStartsOn: 1, showWeekends: false }}
         preferencesMenuConfig={false}
         onEventEditingStart={(occurrence) => {
           const course = courses?.find((item) => item.id === occurrence.id);
