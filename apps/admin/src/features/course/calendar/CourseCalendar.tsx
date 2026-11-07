@@ -1,41 +1,25 @@
 'use client';
 
-import { Alert, Box } from '@mui/material';
+import { Alert, Backdrop, Box, CircularProgress } from '@mui/material';
 import { EventCalendar } from '@mui/x-scheduler/event-calendar';
 import type { SchedulerEvent } from '@mui/x-scheduler/models';
-import { keepPreviousData } from '@tanstack/react-query';
-import { APP_TIMEZONE, appLocale, appLocaleTag, COURSE_TYPE_LABELS } from '@yoga-sof/core';
-import { format } from 'date-fns';
+import { APP_TIMEZONE, COURSE_TYPE_LABELS } from '@yoga-sof/core';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { api } from '../../../server/api';
+import type { CalendarView } from './CalendarView';
+import { courseCalendarRange } from './courseCalendarRange';
 import { CourseParticipantsSection } from './CourseParticipantsSection';
 import { courseResources } from './courseResources';
 
-const PAGE_SIZE = 100;
-
-const appTimezoneDateParts = (date: Date) => {
-  const parts = new Intl.DateTimeFormat(appLocaleTag, {
-    timeZone: APP_TIMEZONE,
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  }).formatToParts(date);
-  const read = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((part) => part.type === type)?.value ?? '';
-
-  return {
-    year: Number(read('year')),
-    month: Number(read('month')) - 1,
-    day: Number(read('day')),
-  };
-};
-
 export const CourseCalendar = () => {
-  const coursesQuery = api.course.list.useQuery(
-    { page: 0, pageSize: PAGE_SIZE, sort: [{ field: 'startsAt', sort: 'asc' }] },
-    { placeholderData: keepPreviousData },
+  const [view, setView] = useState<CalendarView>('week');
+  const [visibleDate, setVisibleDate] = useState<Date>(() => new Date());
+  const viewRange = courseCalendarRange(view, visibleDate);
+  const eventsQuery = api.course.calendar.useQuery(
+    { start: viewRange.start, end: viewRange.end },
+    { refetchOnWindowFocus: false },
   );
   const setting = api.calendarSetting.get.useQuery().data;
   const dayStartHour = setting ? Number(setting.dayStartsAt.slice(0, 2)) : 9;
@@ -44,41 +28,29 @@ export const CourseCalendar = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [openCourseId, setOpenCourseId] = useState<number | null>(null);
   const [participantsContainer, setParticipantsContainer] = useState<HTMLElement | null>(null);
-  const courses = coursesQuery.data?.rows;
+  const [contentContainer, setContentContainer] = useState<HTMLElement | null>(null);
+  const loading = eventsQuery.isFetching;
+  // The events render only once the fetch of the current range has settled, so
+  // a cached range starts empty too.
+  const courses = eventsQuery.isFetching ? undefined : eventsQuery.data;
 
-  // The mini calendar has no native event markers; match its day buttons
-  // against the course days (same 'PPPP' fr label the scheduler uses) and flag
-  // them, re-applying whenever the scheduler re-renders its cells.
+  // Tracks the events area the loading dim renders into.
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || !courses) {
+    if (!container) {
       return;
     }
 
-    const eventLabels = new Set(
-      courses.map((course) => {
-        const parts = appTimezoneDateParts(course.startsAt);
-
-        return format(new Date(parts.year, parts.month, parts.day, 12), 'PPPP', {
-          locale: appLocale,
-        });
-      }),
-    );
-    const markDays = () => {
-      container
-        .querySelectorAll<HTMLElement>('.MuiEventCalendar-miniCalendarDayButton')
-        .forEach((button) => {
-          const label = button.getAttribute('aria-label');
-          button.toggleAttribute('data-has-events', label !== null && eventLabels.has(label));
-        });
+    const syncContent = () => {
+      setContentContainer(container.querySelector<HTMLElement>('.MuiEventCalendar-content'));
     };
 
-    markDays();
-    const observer = new MutationObserver(markDays);
+    syncContent();
+    const observer = new MutationObserver(syncContent);
     observer.observe(container, { childList: true, subtree: true });
 
     return () => observer.disconnect();
-  }, [courses]);
+  }, []);
 
   // Mounts the portal target the participants render into, at the end of the
   // dialog content, and keeps it in sync with the dialog lifecycle (the dialog
@@ -107,11 +79,11 @@ export const CourseCalendar = () => {
     return () => observer.disconnect();
   }, []);
 
-  if (coursesQuery.error) {
+  if (eventsQuery.error) {
     return (
       <Alert severity="error">
-        {coursesQuery.error instanceof Error
-          ? coursesQuery.error.message
+        {eventsQuery.error instanceof Error
+          ? eventsQuery.error.message
           : 'Une erreur est survenue.'}
       </Alert>
     );
@@ -126,12 +98,23 @@ export const CourseCalendar = () => {
   }));
 
   return (
-    <Box ref={containerRef} sx={{ height: 600, width: '100%' }}>
+    <Box
+      ref={containerRef}
+      sx={{
+        position: 'relative',
+        height: 600,
+        width: '100%',
+        ...(loading && { cursor: 'progress' }),
+      }}
+    >
       <EventCalendar
         events={events}
         resources={courseResources}
         readOnly
-        defaultView="week"
+        view={view}
+        onViewChange={setView}
+        visibleDate={visibleDate}
+        onVisibleDateChange={(date) => setVisibleDate(date)}
         displayTimezone={APP_TIMEZONE}
         viewConfig={{ day: timeGridViewConfig, week: timeGridViewConfig }}
         defaultPreferences={{ ampm: false, weekStartsOn: 1, showWeekends: false }}
@@ -141,6 +124,17 @@ export const CourseCalendar = () => {
           setOpenCourseId(course?.id ?? null);
         }}
       />
+      {contentContainer &&
+        createPortal(
+          <Backdrop
+            open={loading}
+            sx={{ position: 'absolute' }}
+            slotProps={{ root: { className: 'calendar-dim' } }}
+          >
+            <CircularProgress />
+          </Backdrop>,
+          contentContainer,
+        )}
       {participantsContainer &&
         createPortal(<CourseParticipantsSection courseId={openCourseId} />, participantsContainer)}
     </Box>

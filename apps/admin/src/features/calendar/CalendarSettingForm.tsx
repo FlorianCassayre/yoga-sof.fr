@@ -17,12 +17,13 @@ interface CalendarSettingFormValues {
 
 const CalendarSettingFields = ({ disabled }: { disabled: boolean }) => {
   return (
-    <Stack direction="row" spacing={2}>
+    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
       <TextFieldElement<CalendarSettingFormValues>
         name="dayStartsAt"
         label="Début de la journée"
         type="time"
         slotProps={{ htmlInput: { step: 3600 } }}
+        sx={{ flex: 1 }}
         disabled={disabled}
       />
       <TextFieldElement<CalendarSettingFormValues>
@@ -30,6 +31,7 @@ const CalendarSettingFields = ({ disabled }: { disabled: boolean }) => {
         label="Fin de la journée"
         type="time"
         slotProps={{ htmlInput: { step: 3600 } }}
+        sx={{ flex: 1 }}
         disabled={disabled}
       />
     </Stack>

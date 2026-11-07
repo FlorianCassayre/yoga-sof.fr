@@ -1,7 +1,7 @@
-import { CourseCreatePage } from '../../../features/course/CourseCreatePage';
+import { CourseBatchCreatePage } from '../../../features/course/CourseBatchCreatePage';
 
 const SeanceCreationPage = () => {
-  return <CourseCreatePage />;
+  return <CourseBatchCreatePage />;
 };
 
 export default SeanceCreationPage;

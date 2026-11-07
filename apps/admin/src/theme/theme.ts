@@ -40,20 +40,7 @@ const eventCalendarOverrides: NonNullable<SchedulerComponents['MuiEventCalendar'
   styleOverrides: {
     headerToolbarLabel: { textTransform: 'capitalize' },
     dayTimeGridAllDayEventsGrid: { display: 'none' },
-    miniCalendarDayButton: {
-      position: 'relative',
-      '&[data-has-events]::after': {
-        content: '""',
-        position: 'absolute',
-        bottom: 3,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: 4,
-        height: 4,
-        borderRadius: 999,
-        backgroundColor: PRIMARY_MAIN,
-      },
-    },
+    content: { position: 'relative' },
   },
 };
 
@@ -72,6 +59,19 @@ const themeOptions: ThemeOptions = {
     borderRadius: 12,
   },
   components: {
+    MuiBackdrop: {
+      styleOverrides: {
+        root: {
+          // Scoped to the calendar's loading dim: MUI's own menus render an
+          // (invisible) backdrop that must stay untouched.
+          '&.calendar-dim': {
+            // Above the scheduler's event layer (z-index ≤ 4), below its popovers.
+            zIndex: 5,
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+          },
+        },
+      },
+    },
     MuiCard,
     MuiDataGrid,
     MuiEventCalendar: eventCalendarOverrides,

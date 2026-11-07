@@ -16,6 +16,27 @@ export const membershipListSchema = listSchema
     userId: z.string().min(1).optional(),
   });
 
+export const membershipGetSchema = z.object({
+  id: z.coerce.number().int(),
+});
+
+export const membershipEditSchema = z
+  .object({
+    id: z.coerce.number().int(),
+    version: z.coerce.number().int(),
+    beneficiaries: z
+      .array(z.object({ id: z.string().min(1) }))
+      .min(1, 'Sélectionnez au moins un bénéficiaire.'),
+  })
+  .transform(({ beneficiaries, ...values }) => ({
+    ...values,
+    userIds: beneficiaries.map((beneficiary) => beneficiary.id),
+  }));
+
+export const membershipCancelSchema = z.object({
+  id: z.coerce.number().int(),
+});
+
 export const membershipCreateSchema = z
   .object({
     type: z.enum(membershipTypeEnum.enumValues),

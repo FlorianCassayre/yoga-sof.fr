@@ -6,6 +6,8 @@ import { useState } from 'react';
 
 import { RecordDetails } from '../../components/detail/RecordDetails';
 import { RecordTimestamp } from '../../components/detail/RecordTimestamp';
+import type { PageActionGroup } from '../../components/page/PageAction';
+import { PageLayout } from '../../components/page/PageLayout';
 import type { TabItem } from '../../components/tabs/Tabs';
 import { Tabs } from '../../components/tabs/Tabs';
 import { api } from '../../server/api';
@@ -17,14 +19,17 @@ import { CourseUserRegistrationGrid } from '../courseUserRegistration/CourseUser
 import { CourseUserRegistrationIcon } from '../courseUserRegistration/CourseUserRegistrationIcon';
 import { MembershipGrid } from '../membership/MembershipGrid';
 import { MembershipIcon } from '../membership/MembershipIcon';
+import { useHasPermission } from './useHasPermission';
 import { UserIcon } from './UserIcon';
 
+const HISTORY_TAB = 'history';
 const MEMBERSHIP_TAB = 'membership';
 const CARD_TAB = 'card';
 
-type UserTab = typeof MEMBERSHIP_TAB | typeof CARD_TAB;
+type UserTab = typeof HISTORY_TAB | typeof MEMBERSHIP_TAB | typeof CARD_TAB;
 
 const TABS: TabItem<UserTab>[] = [
+  { value: HISTORY_TAB, label: 'Historique', icon: CourseUserRegistrationIcon },
   { value: MEMBERSHIP_TAB, label: 'Adhésions', icon: MembershipIcon },
   { value: CARD_TAB, label: 'Cartes', icon: CardIcon },
 ];
@@ -35,7 +40,8 @@ interface UserPageProps {
 
 export const UserPage = ({ id }: UserPageProps) => {
   const user = api.user.get.useQuery({ id });
-  const [tab, setTab] = useState<UserTab>(MEMBERSHIP_TAB);
+  const canManage = useHasPermission('manageData');
+  const [tab, setTab] = useState<UserTab>(HISTORY_TAB);
 
   if (user.isPending) {
     return null;
@@ -49,12 +55,23 @@ export const UserPage = ({ id }: UserPageProps) => {
     return null;
   }
 
+  const actions: PageActionGroup[] | undefined = canManage
+    ? [
+        {
+          children: [
+            {
+              label: 'Inscrire des utilisateurs',
+              icon: CourseUserRegistrationIcon,
+              href: `/inscriptions/creation?userId=${id}`,
+              fab: true,
+            },
+          ],
+        },
+      ]
+    : undefined;
+
   return (
-    <Stack spacing={3}>
-      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-        <UserIcon size={24} />
-        <Typography variant="h5">Utilisateur</Typography>
-      </Stack>
+    <PageLayout icon={UserIcon} title="Utilisateur" actions={actions}>
       <RecordDetails
         entries={[
           { label: 'Nom', value: user.data.name ?? '-' },
@@ -77,17 +94,11 @@ export const UserPage = ({ id }: UserPageProps) => {
         <CourseUserRegistrationGrid userId={user.data.id} />
       </Stack>
       <Stack spacing={2}>
-        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-          <CourseUserRegistrationIcon size={18} />
-          <Typography variant="h6">Historique</Typography>
-        </Stack>
-        <CourseUserRegistrationEventGrid userId={user.data.id} />
-      </Stack>
-      <Stack spacing={2}>
         <Tabs value={tab} tabs={TABS} onChange={setTab} />
+        {tab === HISTORY_TAB && <CourseUserRegistrationEventGrid userId={user.data.id} />}
         {tab === MEMBERSHIP_TAB && <MembershipGrid userId={user.data.id} />}
         {tab === CARD_TAB && <CardGrid userId={user.data.id} />}
       </Stack>
-    </Stack>
+    </PageLayout>
   );
 };

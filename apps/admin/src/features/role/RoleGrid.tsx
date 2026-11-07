@@ -31,6 +31,7 @@ export const RoleGrid = () => {
       columns={columns}
       defaultSort={{ field: 'userName', sort: 'asc' }}
       procedure={api.role.list}
+      getRowId={(row) => row.userId}
     />
   );
 };

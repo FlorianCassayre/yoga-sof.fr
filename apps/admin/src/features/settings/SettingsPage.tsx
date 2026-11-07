@@ -3,6 +3,7 @@
 import { Divider, Stack, Typography } from '@mui/material';
 import { Euro } from 'lucide-react';
 
+import type { PageAction } from '../../components/page/PageAction';
 import { PageLayout } from '../../components/page/PageLayout';
 import type { TabItem } from '../../components/tabs/Tabs';
 import { Tabs } from '../../components/tabs/Tabs';
@@ -43,23 +44,18 @@ interface SettingsPageProps {
 }
 
 export const SettingsPage = ({ tab }: SettingsPageProps) => {
+  const fabAction: PageAction | undefined =
+    tab === MEMBERSHIP_TAB
+      ? { label: 'Nouveau tarif', icon: Euro, href: '/parametres/tarifs/creation' }
+      : tab === CARD_TAB
+        ? { label: 'Nouveau modèle', icon: CardIcon, href: '/parametres/modeles/creation' }
+        : undefined;
+
   return (
     <PageLayout
       icon={SettingsIcon}
       title="Paramètres"
-      actions={[
-        {
-          children: [
-            { label: 'Nouveau tarif', icon: Euro, href: '/parametres/tarifs/creation', fab: true },
-            {
-              label: 'Nouveau modèle',
-              icon: CardIcon,
-              href: '/parametres/modeles/creation',
-              fab: true,
-            },
-          ],
-        },
-      ]}
+      actions={fabAction ? [{ children: [fabAction] }] : undefined}
     >
       <Tabs value={tab} tabs={TABS} />
       {tab === MEMBERSHIP_TAB && (

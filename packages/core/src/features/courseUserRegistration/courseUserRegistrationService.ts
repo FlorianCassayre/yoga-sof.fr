@@ -1,16 +1,18 @@
-import { and, count, eq, inArray, isNotNull, type SQL, sql } from 'drizzle-orm';
+import { and, count, eq, inArray, isNotNull, isNull, type SQL, sql } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
-import { assertConflict, assertInput } from '../../errors';
+import { assertConflict, assertFound, assertInput, assertState } from '../../errors';
 import { pagination, sortOrders } from '../../util/list';
 import { usersTable } from '../auth/authTables';
-import { coursesTable } from '../course';
+import { attendanceOpensAt, coursesTable } from '../course';
 import type {
   courseUserRegistrationCreateSchema,
   courseUserRegistrationEventListSchema,
   courseUserRegistrationListSchema,
+  courseUserRegistrationPendingPresenceSchema,
+  courseUserRegistrationSetPresenceSchema,
 } from './courseUserRegistrationSchemas';
 import { courseUserRegistrationsTable } from './courseUserRegistrationsTable';
 
@@ -31,6 +33,7 @@ const registrationFilters = ({ courseId, userId }: { courseId?: number; userId?:
 const LIST_ORDER_COLUMNS = {
   createdAt: courseUserRegistrationsTable.createdAt,
   courseStartsAt: coursesTable.startsAt,
+  present: courseUserRegistrationsTable.present,
   userName: usersTable.name,
 };
 
@@ -113,6 +116,7 @@ export const courseUserRegistrationService = {
         courseEndsAt: coursesTable.endsAt,
         userId: courseUserRegistrationsTable.userId,
         userName: usersTable.name,
+        present: courseUserRegistrationsTable.present,
         createdAt: courseUserRegistrationsTable.createdAt,
         canceled: courseUserRegistrationsTable.canceled,
         canceledAt: courseUserRegistrationsTable.canceledAt,
@@ -196,5 +200,54 @@ export const courseUserRegistrationService = {
     const [totals] = await tx.select({ total: count() }).from(events);
 
     return { rows, total: totals?.total ?? 0 };
+  },
+
+  setPresence: async (
+    { id, present }: z.infer<typeof courseUserRegistrationSetPresenceSchema>,
+    tx: DbTransaction,
+  ) => {
+    const [row] = await tx
+      .select()
+      .from(courseUserRegistrationsTable)
+      .where(eq(courseUserRegistrationsTable.id, id));
+    assertFound(row, "L'inscription est introuvable.");
+    assertConflict(!row.canceled, "L'inscription est annulée.");
+
+    const [course] = await tx
+      .select({ startsAt: coursesTable.startsAt })
+      .from(coursesTable)
+      .where(eq(coursesTable.id, row.courseId));
+    assertState(course, 'La séance est introuvable.');
+    assertState(
+      new Date() >= attendanceOpensAt(course.startsAt),
+      "L'appel n'est pas encore ouvert pour cette séance.",
+    );
+
+    const [updated] = await tx
+      .update(courseUserRegistrationsTable)
+      .set({ present })
+      .where(eq(courseUserRegistrationsTable.id, id))
+      .returning();
+    assertState(updated, 'Mise à jour de la présence impossible.');
+
+    return updated;
+  },
+
+  pendingPresence: async (
+    { courseId }: z.infer<typeof courseUserRegistrationPendingPresenceSchema>,
+    tx: DbTransaction,
+  ) => {
+    const [row] = await tx
+      .select({ pending: count() })
+      .from(courseUserRegistrationsTable)
+      .where(
+        and(
+          eq(courseUserRegistrationsTable.courseId, courseId),
+          eq(courseUserRegistrationsTable.canceled, false),
+          isNull(courseUserRegistrationsTable.present),
+        ),
+      );
+
+    return { pending: row?.pending ?? 0 };
   },
 };

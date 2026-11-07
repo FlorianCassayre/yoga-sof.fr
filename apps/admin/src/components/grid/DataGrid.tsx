@@ -1,7 +1,7 @@
 'use client';
 
 import { Alert, Stack } from '@mui/material';
-import type { GridColDef, GridValidRowModel } from '@mui/x-data-grid';
+import type { GridColDef, GridRowId, GridValidRowModel } from '@mui/x-data-grid';
 import { DataGrid as MuiDataGrid } from '@mui/x-data-grid';
 import type { skipToken } from '@tanstack/react-query';
 import { keepPreviousData } from '@tanstack/react-query';
@@ -21,6 +21,7 @@ interface DataGridProps<Row extends GridValidRowModel> {
   defaultSort: { field: keyof Row & string; sort: 'asc' | 'desc' };
   procedure: ListProcedure<Row>;
   listInput?: Record<string, unknown>;
+  getRowId?: (row: Row) => GridRowId;
 }
 
 export const DataGrid = <Row extends GridValidRowModel>({
@@ -28,6 +29,7 @@ export const DataGrid = <Row extends GridValidRowModel>({
   defaultSort,
   procedure,
   listInput,
+  getRowId,
 }: DataGridProps<Row>) => {
   const grid = useDataGrid<Row, string>(columns, defaultSort);
   const query = procedure.useQuery(
@@ -48,6 +50,7 @@ export const DataGrid = <Row extends GridValidRowModel>({
     <MuiDataGrid
       {...grid.dataGridProps(query)}
       slots={error ? { noRowsOverlay: ErrorOverlay } : undefined}
+      {...(getRowId ? { getRowId } : {})}
     />
   );
 };

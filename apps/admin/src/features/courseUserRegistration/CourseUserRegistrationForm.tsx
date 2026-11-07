@@ -24,6 +24,7 @@ interface CourseUserRegistrationFormValues {
 
 interface CourseUserRegistrationFormProps {
   courseId?: number;
+  userId?: string;
 }
 
 const CourseUserRegistrationFields = ({ disabled }: FieldProps) => (
@@ -56,18 +57,24 @@ const CourseUserRegistrationFields = ({ disabled }: FieldProps) => (
   </Stack>
 );
 
-export const CourseUserRegistrationForm = ({ courseId }: CourseUserRegistrationFormProps) => {
+export const CourseUserRegistrationForm = ({
+  courseId,
+  userId,
+}: CourseUserRegistrationFormProps) => {
   const presetCourseQuery = api.course.get.useQuery(
     courseId == null ? skipToken : { id: courseId },
   );
+  const presetUserQuery = api.user.get.useQuery(userId == null ? skipToken : { id: userId });
 
-  if (presetCourseQuery.error) {
-    if (isNotFoundError(presetCourseQuery.error)) {
-      notFound();
+  for (const error of [presetCourseQuery.error, presetUserQuery.error]) {
+    if (error) {
+      if (isNotFoundError(error)) {
+        notFound();
+      }
+      return null;
     }
-    return null;
   }
-  if (courseId != null && !presetCourseQuery.data) {
+  if ((courseId != null && !presetCourseQuery.data) || (userId != null && !presetUserQuery.data)) {
     return null;
   }
 
@@ -77,7 +84,7 @@ export const CourseUserRegistrationForm = ({ courseId }: CourseUserRegistrationF
       schema={courseUserRegistrationCreateSchema}
       defaultValues={() => ({
         courses: presetCourseQuery.data ? [presetCourseQuery.data] : [],
-        users: [],
+        users: presetUserQuery.data ? [presetUserQuery.data] : [],
         notify: false,
       })}
       redirectTo={() => '/inscriptions'}

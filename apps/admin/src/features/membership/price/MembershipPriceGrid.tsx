@@ -11,6 +11,7 @@ import type { GridColumns } from '../../../components/grid/GridColumns';
 import { Link } from '../../../components/link/Link';
 import { api } from '../../../server/api';
 import type { RouterOutputs } from '../../../server/appRouter';
+import { MembershipTypeChip } from '../type/MembershipTypeChip';
 
 type MembershipPriceRow = RouterOutputs['membershipPrice']['list']['rows'][number];
 
@@ -22,7 +23,7 @@ export const MembershipPriceGrid = () => {
       field: 'type',
       headerName: "Type d'adhésion",
       flex: 1,
-      valueFormatter: (value) => MEMBERSHIP_TYPE_LABELS[value],
+      renderCell: (params) => <MembershipTypeChip type={params.row.type} size="small" />,
     },
     {
       field: 'price',

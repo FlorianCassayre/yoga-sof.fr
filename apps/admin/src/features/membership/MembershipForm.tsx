@@ -17,6 +17,7 @@ import { AsyncAutocompleteElement } from '../../components/input/AsyncAutocomple
 import { EnumSelectElement } from '../../components/input/EnumSelectElement';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
+import { MEMBERSHIP_TYPE_ICONS } from './type/membershipTypeIcons';
 
 type User = RouterOutputs['user']['list']['rows'][number];
 type CreatedMembership = RouterOutputs['membership']['create'];
@@ -43,6 +44,7 @@ const MembershipFields = ({ disabled }: FieldProps) => {
         label="Type d'adhésion"
         values={membershipTypeEnum.enumValues}
         labels={MEMBERSHIP_TYPE_LABELS}
+        icons={MEMBERSHIP_TYPE_ICONS}
         disabled={disabled}
       />
       <DatePickerElement<MembershipFormValues, 'year', Date>

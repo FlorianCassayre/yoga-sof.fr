@@ -11,5 +11,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['src/tests/**/*.test.{ts,tsx}'],
+    // Integration tests share one database and assert on global counts.
+    fileParallelism: false,
   },
 });

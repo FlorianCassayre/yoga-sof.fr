@@ -3,46 +3,66 @@
 import {
   COURSE_TYPE_LABELS,
   COURSE_VISIBILITY_LABELS,
-  courseCreateSchema,
+  type CourseType,
   courseTypeEnum,
+  type CourseVisibility,
   courseVisibilityEnum,
 } from '@yoga-sof/core';
 import { TextFieldElement } from 'react-hook-form-mui';
-import { DateTimePickerElement } from 'react-hook-form-mui/date-pickers';
-import type { z } from 'zod';
+import { DatePickerElement, TimePickerElement } from 'react-hook-form-mui/date-pickers';
 
 import { Form } from '../../components/form/Form';
-import type { FieldProps } from '../../components/form/types';
+import type { FieldProps, IdVersion, MutationProcedure } from '../../components/form/types';
 import { EnumSelectElement } from '../../components/input/EnumSelectElement';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
+import { courseFormSchema } from './courseFormSchema';
 import { COURSE_VISIBILITY_ICONS } from './visibility/courseVisibilityIcons';
 
 type Course = NonNullable<RouterOutputs['course']['get']>;
 
-type CourseFormValues = Omit<z.infer<typeof courseCreateSchema>, 'capacity'> & {
+interface CourseFormValues {
+  type: CourseType;
+  date: Date | null;
+  startTime: Date | null;
+  endTime: Date | null;
   capacity: string;
+  visibility: CourseVisibility;
+  internalNotes: string;
+}
+
+const updateProcedure: MutationProcedure<Course, CourseFormValues & IdVersion> = {
+  useMutation: () => {
+    const mutation = api.course.update.useMutation();
+
+    return {
+      mutateAsync: ({ id, version, ...values }) =>
+        mutation.mutateAsync({ ...courseFormSchema.parse(values), id, version }),
+      isPending: mutation.isPending,
+      error: mutation.error,
+    };
+  },
 };
 
-export const CourseForm = ({ id }: { id?: number }) => {
+export const CourseForm = ({ id }: { id: number }) => {
   return (
-    <Form<Course, CourseFormValues, typeof courseCreateSchema>
+    <Form<Course, CourseFormValues, typeof courseFormSchema>
       id={id}
       get={api.course.get}
-      create={api.course.create}
-      update={api.course.update}
-      schema={courseCreateSchema}
+      update={updateProcedure}
+      schema={courseFormSchema}
       defaultValues={(course) => {
-        const startsAt = new Date();
-        startsAt.setDate(startsAt.getDate() + 1);
-        startsAt.setHours(9, 0, 0, 0);
-        const endsAt = new Date(startsAt);
-        endsAt.setHours(11);
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(9, 0, 0, 0);
+        const defaultEnd = new Date(tomorrow);
+        defaultEnd.setHours(11);
 
         return {
           type: course?.type ?? 'adulte',
-          startsAt: course?.startsAt ?? startsAt,
-          endsAt: course?.endsAt ?? endsAt,
+          date: course?.startsAt ?? tomorrow,
+          startTime: course?.startsAt ?? tomorrow,
+          endTime: course?.endsAt ?? defaultEnd,
           capacity: course ? String(course.capacity) : '10',
           visibility: course?.visibility ?? 'public',
           internalNotes: course?.internalNotes ?? '',
@@ -68,8 +88,21 @@ const CourseFields = ({ disabled }: FieldProps) => {
         labels={COURSE_TYPE_LABELS}
         disabled={disabled}
       />
-      <DateTimePickerElement<CourseFormValues> name="startsAt" label="Début" disabled={disabled} />
-      <DateTimePickerElement<CourseFormValues> name="endsAt" label="Fin" disabled={disabled} />
+      <DatePickerElement<CourseFormValues, 'date', Date>
+        name="date"
+        label="Date"
+        disabled={disabled}
+      />
+      <TimePickerElement<CourseFormValues, 'startTime', Date>
+        name="startTime"
+        label="Heure de début"
+        disabled={disabled}
+      />
+      <TimePickerElement<CourseFormValues, 'endTime', Date>
+        name="endTime"
+        label="Heure de fin"
+        disabled={disabled}
+      />
       <TextFieldElement<CourseFormValues>
         name="capacity"
         label="Capacité"

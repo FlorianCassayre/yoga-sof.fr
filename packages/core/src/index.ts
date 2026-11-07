@@ -3,6 +3,7 @@ export * from './features/card';
 export * from './features/course';
 export * from './features/courseUserRegistration';
 export * from './features/membership';
+export * from './features/notification';
 export * from './features/role';
 export * from './util/currency';
 export * from './util/date';

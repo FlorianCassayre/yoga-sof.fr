@@ -4,6 +4,7 @@ import { Button, Stack } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { cardValidUntil } from '@yoga-sof/core';
 import { useSnackbar } from 'notistack';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { FormContainer, TextFieldElement } from 'react-hook-form-mui';
 
@@ -14,10 +15,13 @@ interface CardSettingFormValues {
   validityMonths: string;
 }
 
+const MAX_MONTHS = 120;
+
 const CardSettingFields = ({ disabled }: { disabled: boolean }) => {
-  const { watch } = useFormContext<CardSettingFormValues>();
-  const months = Number(watch('validityMonths'));
-  const valid = Number.isInteger(months) && months > 0;
+  const settingQuery = api.cardSetting.get.useQuery();
+  const { setValue } = useFormContext<CardSettingFormValues>();
+  const [months, setMonths] = useState<number>(settingQuery.data?.validityMonths ?? 12);
+  const valid = Number.isInteger(months) && months >= 1 && months <= MAX_MONTHS;
   const validUntil = valid ? cardValidUntil({ purchasedAt: new Date(), months }) : null;
 
   return (
@@ -25,10 +29,29 @@ const CardSettingFields = ({ disabled }: { disabled: boolean }) => {
       name="validityMonths"
       label="Durée de validité (en mois)"
       type="number"
+      onChange={(event) => {
+        const raw = event.target.value;
+        if (raw === '') {
+          setMonths(0);
+          return;
+        }
+        const clamped = String(Math.min(Math.floor(Number(raw)), MAX_MONTHS));
+        setValue('validityMonths', clamped);
+        setMonths(Number(clamped));
+      }}
       helperText={
         validUntil ? `Exemple : valable jusqu'au ${formatValidUntil(validUntil)}` : undefined
       }
-      slotProps={{ htmlInput: { min: 1, step: 1 } }}
+      rules={{
+        validate: (value: string) => {
+          const months = Number(value);
+
+          return Number.isInteger(months) && months >= 1 && months <= MAX_MONTHS
+            ? true
+            : 'La durée de validité doit être comprise entre 1 et 120 mois.';
+        },
+      }}
+      slotProps={{ htmlInput: { min: 1, max: MAX_MONTHS, step: 1 } }}
       disabled={disabled}
     />
   );

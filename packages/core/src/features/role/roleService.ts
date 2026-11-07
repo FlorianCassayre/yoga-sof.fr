@@ -35,6 +35,12 @@ export const roleService = {
     return role !== null && ROLE_PERMISSIONS[role].includes(permission);
   },
 
+  getUserPermissions: async (userId: string, tx: DbTransaction): Promise<Permission[]> => {
+    const role = await roleService.getUserRole(userId, tx);
+
+    return role === null ? [] : [...ROLE_PERMISSIONS[role]];
+  },
+
   grantUserRole: async (
     { userId, role }: { userId: string; role: RoleType },
     tx: DbTransaction,

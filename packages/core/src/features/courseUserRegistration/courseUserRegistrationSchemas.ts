@@ -7,6 +7,7 @@ export const courseUserRegistrationListSchema = listSchema
     sort: sortSchema({
       createdAt: true,
       courseStartsAt: true,
+      present: true,
       userName: true,
     }),
   })
@@ -44,3 +45,12 @@ export const courseUserRegistrationCreateSchema = z
     userIds: users.map((user) => user.id),
     notify,
   }));
+
+export const courseUserRegistrationSetPresenceSchema = z.object({
+  id: z.coerce.number().int(),
+  present: z.boolean().nullable(),
+});
+
+export const courseUserRegistrationPendingPresenceSchema = z.object({
+  courseId: z.coerce.number().int(),
+});

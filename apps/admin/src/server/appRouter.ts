@@ -10,6 +10,7 @@ import { courseUserRegistrationRouter } from '../features/courseUserRegistration
 import { membershipRouter } from '../features/membership/membershipRouter';
 import { membershipPriceRouter } from '../features/membership/price/membershipPriceRouter';
 import { membershipSettingRouter } from '../features/membership/settings/membershipSettingRouter';
+import { notificationRouter } from '../features/notification/notificationRouter';
 import { roleRouter } from '../features/role/roleRouter';
 import { userRouter } from '../features/user/userRouter';
 
@@ -23,6 +24,7 @@ export const appRouter = trpc.router({
   membership: membershipRouter,
   membershipPrice: membershipPriceRouter,
   membershipSetting: membershipSettingRouter,
+  notification: notificationRouter,
   role: roleRouter,
   user: userRouter,
 });

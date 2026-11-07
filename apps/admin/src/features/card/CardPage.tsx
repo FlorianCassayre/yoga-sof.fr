@@ -8,10 +8,12 @@ import { useState } from 'react';
 import { RecordDetails } from '../../components/detail/RecordDetails';
 import { RecordTimestamp } from '../../components/detail/RecordTimestamp';
 import { ConfirmDialog } from '../../components/dialog/ConfirmDialog';
+import type { PageActionGroup } from '../../components/page/PageAction';
 import { PageLayout } from '../../components/page/PageLayout';
 import { api } from '../../server/api';
 import { isNotFoundError } from '../../server/isNotFoundError';
 import { PersonLink } from '../user/PersonLink';
+import { useHasPermission } from '../user/useHasPermission';
 import { CardIcon } from './CardIcon';
 import { formatValidUntil } from './formatValidUntil';
 import { CardStatusChip } from './status/CardStatusChip';
@@ -22,6 +24,7 @@ interface CardPageProps {
 
 export const CardPage = ({ id }: CardPageProps) => {
   const card = api.card.get.useQuery({ id });
+  const canManage = useHasPermission('manageData');
   const [canceling, setCanceling] = useState(false);
 
   if (card.isPending) {
@@ -37,12 +40,8 @@ export const CardPage = ({ id }: CardPageProps) => {
   }
 
   const row = card.data;
-
-  return (
-    <PageLayout
-      icon={CardIcon}
-      title="Carte"
-      actions={[
+  const actions: PageActionGroup[] | undefined = canManage
+    ? [
         {
           children: [
             { label: 'Modifier', icon: Pencil, href: `/cartes/${id}/edition` },
@@ -51,8 +50,11 @@ export const CardPage = ({ id }: CardPageProps) => {
               : []),
           ],
         },
-      ]}
-    >
+      ]
+    : undefined;
+
+  return (
+    <PageLayout icon={CardIcon} title="Carte" actions={actions}>
       <RecordDetails
         entries={[
           {

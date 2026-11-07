@@ -5,13 +5,13 @@ import {
 } from '@yoga-sof/core/server';
 import { trpc } from '@yoga-sof/ui/trpc';
 
-import { adminProcedure } from '../../server/trpc';
+import { readProcedure, settingsProcedure } from '../../server/trpc';
 
 export const calendarSettingRouter = trpc.router({
-  get: adminProcedure.query(() =>
+  get: readProcedure.query(() =>
     withTransaction((tx) => calendarSettingService.get(tx), { readOnly: true }),
   ),
-  update: adminProcedure
+  update: settingsProcedure
     .input(calendarSettingUpdateSchema)
     .mutation(({ input }) => withTransaction((tx) => calendarSettingService.update(input, tx))),
 });

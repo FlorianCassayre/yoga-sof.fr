@@ -20,6 +20,6 @@ export async function seedAll(db: NodePgDatabase) {
   }
   const courses = await seedCourses(db);
   await seedRegistrations(db, { courses, users, admin });
-  await seedMemberships(db, { users });
+  await seedMemberships(db, { users, admin });
   await seedCards(db, { users, admin });
 }

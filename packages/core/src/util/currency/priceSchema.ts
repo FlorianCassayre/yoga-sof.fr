@@ -9,7 +9,7 @@ const priceValue = z.coerce
   );
 
 // An empty string would coerce to 0, so it is normalized to undefined first.
-export const priceInput = z.preprocess(
+export const priceSchema = z.preprocess(
   (value) => (value === '' || value === null ? undefined : value),
   priceValue,
 );

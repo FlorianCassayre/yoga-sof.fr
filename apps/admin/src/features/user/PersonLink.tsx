@@ -1,4 +1,4 @@
-'use client';
+import { User } from 'lucide-react';
 
 import { Link } from '../../components/link/Link';
 
@@ -7,5 +7,11 @@ interface PersonLinkProps {
 }
 
 export const PersonLink = ({ person }: PersonLinkProps) => (
-  <Link href={`/utilisateurs/${person.userId}`}>{person.userName ?? '-'}</Link>
+  <Link
+    href={`/utilisateurs/${person.userId}`}
+    sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, verticalAlign: 'middle' }}
+  >
+    <User size={16} />
+    {person.userName ?? '-'}
+  </Link>
 );

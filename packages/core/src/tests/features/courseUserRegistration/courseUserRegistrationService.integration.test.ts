@@ -1,12 +1,10 @@
 import { eq, inArray } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import type { z } from 'zod';
 
 import { db } from '../../../db/db';
 import { withTransaction } from '../../../db/withTransaction';
 import { ServiceError } from '../../../errors';
 import { usersTable } from '../../../features/auth/authTables';
-import type { courseCreateSchema } from '../../../features/course/courseSchemas';
 import { coursesTable } from '../../../features/course/coursesTable';
 import { courseUserRegistrationService } from '../../../features/courseUserRegistration/courseUserRegistrationService';
 import { courseUserRegistrationsTable } from '../../../features/courseUserRegistration/courseUserRegistrationsTable';
@@ -18,7 +16,7 @@ const courseValues = {
   capacity: 12,
   visibility: 'public',
   internalNotes: 'note',
-} as const satisfies z.infer<typeof courseCreateSchema>;
+} as const satisfies typeof coursesTable.$inferInsert;
 
 const EMAIL = 'registration-test@example.com';
 const OTHER_EMAIL = 'registration-other-test@example.com';
@@ -28,6 +26,7 @@ const CANCELER_EMAIL = 'registration-canceler-test@example.com';
 describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseUserRegistrationService', () => {
   let courseId = 0;
   let fullCourseId = 0;
+  const presenceCourseIds: number[] = [];
   let userId = '';
   let otherUserId = '';
   let createUserId = '';
@@ -72,11 +71,19 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseUserRegistrat
   afterAll(async () => {
     await db
       .delete(courseUserRegistrationsTable)
-      .where(inArray(courseUserRegistrationsTable.courseId, [courseId, fullCourseId]));
+      .where(
+        inArray(courseUserRegistrationsTable.courseId, [
+          courseId,
+          fullCourseId,
+          ...presenceCourseIds,
+        ]),
+      );
     await db
       .delete(usersTable)
       .where(inArray(usersTable.email, [EMAIL, OTHER_EMAIL, CREATE_EMAIL, CANCELER_EMAIL]));
-    await db.delete(coursesTable).where(inArray(coursesTable.id, [courseId, fullCourseId]));
+    await db
+      .delete(coursesTable)
+      .where(inArray(coursesTable.id, [courseId, fullCourseId, ...presenceCourseIds]));
     await db.$client.end();
   });
 
@@ -319,5 +326,81 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseUserRegistrat
       ),
     );
     expect(eventsForOtherUser.total).toBe(2);
+  });
+
+  it('fills presence once the call window is open and counts pending presences', async () => {
+    const [openCourse, closedCourse] = await db
+      .insert(coursesTable)
+      .values([
+        {
+          ...courseValues,
+          startsAt: new Date(Date.now() + 30 * 60 * 1000),
+          endsAt: new Date(Date.now() + 2 * 60 * 60 * 1000),
+        },
+        {
+          ...courseValues,
+          startsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+          endsAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000 + 2 * 60 * 60 * 1000),
+        },
+      ])
+      .returning();
+    if (!openCourse || !closedCourse) {
+      throw new Error('expected courses to be created');
+    }
+    presenceCourseIds.push(openCourse.id, closedCourse.id);
+
+    const [registration, closedRegistration, canceledRegistration] = await db
+      .insert(courseUserRegistrationsTable)
+      .values([
+        { courseId: openCourse.id, userId },
+        { courseId: closedCourse.id, userId },
+        {
+          courseId: openCourse.id,
+          userId: otherUserId,
+          canceled: true,
+          canceledAt: new Date(),
+          canceledBy: cancelerId,
+        },
+      ])
+      .returning();
+    if (!registration || !closedRegistration || !canceledRegistration) {
+      throw new Error('expected registrations to be created');
+    }
+
+    const pending = (courseId2: number) =>
+      withTransaction((tx) =>
+        courseUserRegistrationService.pendingPresence({ courseId: courseId2 }, tx),
+      );
+    await expect(pending(openCourse.id)).resolves.toEqual({ pending: 1 });
+
+    const present = await withTransaction((tx) =>
+      courseUserRegistrationService.setPresence({ id: registration.id, present: true }, tx),
+    );
+    expect(present.present).toBe(true);
+    await expect(pending(openCourse.id)).resolves.toEqual({ pending: 0 });
+
+    const reset = await withTransaction((tx) =>
+      courseUserRegistrationService.setPresence({ id: registration.id, present: null }, tx),
+    );
+    expect(reset.present).toBeNull();
+    await expect(pending(openCourse.id)).resolves.toEqual({ pending: 1 });
+
+    await expect(
+      withTransaction((tx) =>
+        courseUserRegistrationService.setPresence(
+          { id: canceledRegistration.id, present: true },
+          tx,
+        ),
+      ),
+    ).rejects.toThrow("L'inscription est annulée.");
+
+    await expect(
+      withTransaction((tx) =>
+        courseUserRegistrationService.setPresence(
+          { id: closedRegistration.id, present: false },
+          tx,
+        ),
+      ),
+    ).rejects.toThrow("L'appel n'est pas encore ouvert pour cette séance.");
   });
 });

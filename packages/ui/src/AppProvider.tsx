@@ -32,7 +32,7 @@ export const AppProvider = <TRouter extends AnyRouter>({
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-          <SnackbarProvider anchorOrigin={{ horizontal: 'right', vertical: 'top' }}>
+          <SnackbarProvider anchorOrigin={{ horizontal: 'left', vertical: 'bottom' }}>
             <ZodProvider>{children}</ZodProvider>
           </SnackbarProvider>
         </LocalizationProvider>

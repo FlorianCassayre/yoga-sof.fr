@@ -23,6 +23,7 @@
     "@trpc/server": "catalog:",
     "@yoga-sof/core": "workspace:*",
     "@yoga-sof/ui": "workspace:*",
+    "@date-fns/tz": "catalog:",
     "date-fns": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",

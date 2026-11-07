@@ -1,17 +1,32 @@
 import { and, asc, count, eq, getColumns, inArray } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
-import { createRow } from '../../db/rows';
-import { assertFound, assertInput, assertState } from '../../errors';
+import { createRow, updateRow } from '../../db/rows';
+import { assertConflict, assertFound, assertInput, assertState } from '../../errors';
 import { pagination, sortOrders } from '../../util/list';
 import { usersTable } from '../auth/authTables';
 import { membershipBeneficiariesTable } from './membershipBeneficiariesTable';
-import type { membershipCreateSchema, membershipListSchema } from './membershipSchemas';
+import type {
+  membershipCancelSchema,
+  membershipCreateSchema,
+  membershipEditSchema,
+  membershipGetSchema,
+  membershipListSchema,
+} from './membershipSchemas';
 import { membershipSeasonPeriod } from './membershipSeasonPeriod';
 import { membershipsTable } from './membershipsTable';
 import { membershipPricesTable } from './price/membershipPricesTable';
 import { membershipSettingsTable } from './settings/membershipSettingsTable';
+
+const listBeneficiaries = (tx: DbTransaction, membershipId: number) =>
+  tx
+    .select({ id: usersTable.id, name: usersTable.name })
+    .from(membershipBeneficiariesTable)
+    .innerJoin(usersTable, eq(usersTable.id, membershipBeneficiariesTable.userId))
+    .where(eq(membershipBeneficiariesTable.membershipId, membershipId))
+    .orderBy(asc(usersTable.name));
 
 export const membershipService = {
   list: async (
@@ -76,6 +91,92 @@ export const membershipService = {
       })),
       total: totals?.total ?? 0,
     };
+  },
+
+  get: async ({ id }: z.infer<typeof membershipGetSchema>, tx: DbTransaction) => {
+    const canceler = alias(usersTable, 'canceler');
+
+    const [row] = await tx
+      .select({ ...getColumns(membershipsTable), canceledByName: canceler.name })
+      .from(membershipsTable)
+      .leftJoin(canceler, eq(canceler.id, membershipsTable.canceledBy))
+      .where(eq(membershipsTable.id, id));
+    assertFound(row, "L'adhésion est introuvable.");
+
+    const beneficiaries = await listBeneficiaries(tx, id);
+
+    return { ...row, beneficiaries };
+  },
+
+  update: async (
+    { id, version, userIds }: z.infer<typeof membershipEditSchema>,
+    tx: DbTransaction,
+  ) => {
+    const [row] = await tx.select().from(membershipsTable).where(eq(membershipsTable.id, id));
+    assertFound(row, "L'adhésion est introuvable.");
+    assertConflict(!row.canceled, "L'adhésion est annulée.");
+
+    assertInput(
+      new Set(userIds).size === userIds.length,
+      'Les bénéficiaires doivent être distincts.',
+    );
+
+    const existing = await listBeneficiaries(tx, id);
+    const existingIds = existing.map((beneficiary) => beneficiary.id);
+    assertInput(
+      existingIds.every((existingId) => userIds.includes(existingId)),
+      'Les bénéficiaires existants ne peuvent pas être retirés.',
+    );
+
+    const additions = userIds.filter((userId) => !existingIds.includes(userId));
+    assertInput(
+      row.type !== 'individuelle' || additions.length === 0,
+      "Une adhésion individuelle ne compte qu'un seul bénéficiaire.",
+    );
+
+    if (additions.length) {
+      const userRows = await tx
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(inArray(usersTable.id, additions));
+      assertInput(
+        userRows.length === additions.length,
+        'Certains bénéficiaires sont introuvables.',
+      );
+
+      await tx
+        .insert(membershipBeneficiariesTable)
+        .values(additions.map((userId) => ({ membershipId: id, userId })))
+        .onConflictDoNothing();
+    }
+
+    const updated = await updateRow<typeof membershipsTable.$inferSelect>(
+      tx,
+      membershipsTable,
+      { id, version },
+      "L'adhésion a été modifiée entre-temps, rechargez la page.",
+    );
+
+    return { ...updated, beneficiaries: await listBeneficiaries(tx, id) };
+  },
+
+  cancel: async (
+    { id }: z.infer<typeof membershipCancelSchema>,
+    tx: DbTransaction,
+    canceledBy: string,
+  ) => {
+    const [row] = await tx.select().from(membershipsTable).where(eq(membershipsTable.id, id));
+    assertFound(row, "L'adhésion est introuvable.");
+    assertConflict(!row.canceled, "L'adhésion est déjà annulée.");
+
+    const changes = { canceled: true, canceledAt: new Date(), canceledBy };
+
+    return updateRow<typeof membershipsTable.$inferSelect>(
+      tx,
+      membershipsTable,
+      { id, version: row.version, ...changes },
+      "L'adhésion a été modifiée entre-temps, rechargez la page.",
+    );
   },
 
   create: async (

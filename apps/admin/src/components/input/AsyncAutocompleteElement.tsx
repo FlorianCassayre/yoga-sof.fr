@@ -38,7 +38,6 @@ type AsyncAutocompleteElementProps<
     FieldPath<TFieldValues>
   >,
   | 'control'
-  | 'rules'
   | 'options'
   | 'loading'
   | 'loadingIndicator'

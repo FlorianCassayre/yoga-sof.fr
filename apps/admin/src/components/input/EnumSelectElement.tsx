@@ -1,5 +1,6 @@
 'use client';
 
+import type { SxProps, Theme } from '@mui/material';
 import { InputAdornment, Stack, Typography } from '@mui/material';
 import type { LucideIcon } from 'lucide-react';
 import type { FieldPath, FieldValues } from 'react-hook-form';
@@ -17,6 +18,7 @@ interface EnumSelectElementProps<
   labels: Record<Value, string>;
   icons?: Partial<Record<Value, LucideIcon>>;
   disabled?: boolean;
+  sx?: SxProps<Theme>;
 }
 
 export const EnumSelectElement = <
@@ -30,6 +32,7 @@ export const EnumSelectElement = <
   labels,
   icons,
   disabled,
+  sx,
 }: EnumSelectElementProps<TFieldValues, TName, Value>) => {
   const { watch } = useFormContext<TFieldValues>();
   const SelectedIcon: LucideIcon | undefined = icons?.[watch(name) as Value];
@@ -39,6 +42,7 @@ export const EnumSelectElement = <
       name={name}
       label={label}
       disabled={disabled}
+      sx={sx}
       options={values.map((value) => {
         const Icon: LucideIcon | undefined = icons?.[value];
 

@@ -27,13 +27,13 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('roleService', () =>
     if (!user) throw new Error('expected user to be created');
 
     await withTransaction((tx) =>
-      roleService.grantUserRole({ userId: user.id, role: 'gerant' }, tx),
+      roleService.grantUserRole({ userId: user.id, role: 'manager' }, tx),
     );
     await withTransaction((tx) =>
-      roleService.grantUserRole({ userId: user.id, role: 'administrateur' }, tx),
+      roleService.grantUserRole({ userId: user.id, role: 'administrator' }, tx),
     );
 
-    expect(await withTransaction((tx) => roleService.getUserRole(user.id, tx))).toBe('gerant');
+    expect(await withTransaction((tx) => roleService.getUserRole(user.id, tx))).toBe('manager');
     expect(
       await withTransaction((tx) => roleService.hasPermission(user.id, 'adminPanel', tx)),
     ).toBe(true);
@@ -59,14 +59,16 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('roleService', () =>
       .returning();
     if (!user) throw new Error('expected user to be created');
     await withTransaction((tx) =>
-      roleService.grantUserRole({ userId: user.id, role: 'associe' }, tx),
+      roleService.grantUserRole({ userId: user.id, role: 'associate' }, tx),
     );
 
     const result = await withTransaction((tx) =>
       roleService.list({ page: 0, pageSize: 50, sort: [{ field: 'userName', sort: 'asc' }] }, tx),
     );
 
-    expect(result.rows.some((row) => row.userId === user.id && row.role === 'associe')).toBe(true);
+    expect(result.rows.some((row) => row.userId === user.id && row.role === 'associate')).toBe(
+      true,
+    );
     expect(result.total).toBeGreaterThanOrEqual(result.rows.length);
   });
 });

@@ -12,12 +12,16 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 interface SeedMembershipsParameters {
   users: (typeof usersTable.$inferSelect)[];
+  admin: typeof usersTable.$inferSelect;
 }
 
 const INDIVIDUAL_PRICE_CENTS = 20000;
 const FAMILY_PRICE_CENTS = 30000;
 
-export async function seedMemberships(db: NodePgDatabase, { users }: SeedMembershipsParameters) {
+export async function seedMemberships(
+  db: NodePgDatabase,
+  { users, admin }: SeedMembershipsParameters,
+) {
   await db.delete(membershipBeneficiariesTable);
   await db.delete(membershipsTable);
   await db.delete(membershipPricesTable);
@@ -44,23 +48,41 @@ export async function seedMemberships(db: NodePgDatabase, { users }: SeedMembers
 
     const individualUsers = faker.helpers.arrayElements(users, Math.min(4, users.length));
     for (const user of individualUsers) {
+      const emission = createdAt();
+      const canceled = faker.helpers.maybe(() => true, { probability: 0.25 });
       rows.push({
         type: 'individuelle',
         price: INDIVIDUAL_PRICE_CENTS,
         startsAt,
         endsAt,
-        createdAt: createdAt(),
+        createdAt: emission,
+        ...(canceled
+          ? {
+              canceled: true,
+              canceledAt: faker.date.between({ from: emission, to: now }),
+              canceledBy: admin.id,
+            }
+          : {}),
       });
       specs.push({ type: 'individuelle', userIds: [user.id] });
     }
 
     const familyUsers = faker.helpers.arrayElements(users, Math.min(3, users.length));
+    const familyEmission = createdAt();
+    const familyCanceled = faker.helpers.maybe(() => true, { probability: 0.25 });
     rows.push({
       type: 'famille',
       price: FAMILY_PRICE_CENTS,
       startsAt,
       endsAt,
-      createdAt: createdAt(),
+      createdAt: familyEmission,
+      ...(familyCanceled
+        ? {
+            canceled: true,
+            canceledAt: faker.date.between({ from: familyEmission, to: now }),
+            canceledBy: admin.id,
+          }
+        : {}),
     });
     specs.push({ type: 'famille', userIds: familyUsers.map((user) => user.id) });
   }

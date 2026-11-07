@@ -33,6 +33,7 @@ const PageActionMenuItem = ({ action, onClose }: { action: PageAction; onClose: 
     </MenuItem>
   ) : (
     <MenuItem
+      disabled={action.disabled}
       onClick={() => {
         onClose();
         action.onClick?.();
@@ -53,17 +54,19 @@ export const PageActionsMenu = ({ actions }: PageActionsMenuProps) => {
   const groups = actions
     .map((group) => ({ ...group, children: group.children.filter((action) => !action.fab) }))
     .filter((group) => group.children.length > 0);
-
-  if (groups.length === 0) {
-    return null;
-  }
+  const empty = groups.length === 0;
 
   return (
     <>
-      <IconButton edge="end" onClick={(event) => setAnchor(event.currentTarget)}>
+      <IconButton
+        edge="end"
+        onClick={(event) => setAnchor(event.currentTarget)}
+        disabled={empty}
+        sx={empty ? { visibility: 'hidden' } : undefined}
+      >
         <MoreVertical size={20} />
       </IconButton>
-      <Menu anchorEl={anchor} open={anchor !== null} onClose={closeMenu}>
+      <Menu anchorEl={anchor} open={anchor !== null && !empty} onClose={closeMenu}>
         {groups.map((group, groupIndex) => (
           <Fragment key={group.title ?? groupIndex}>
             {groupIndex > 0 && <Divider />}

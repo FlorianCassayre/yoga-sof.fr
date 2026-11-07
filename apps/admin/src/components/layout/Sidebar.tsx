@@ -27,7 +27,10 @@ import { UserIcon } from '../../features/user/UserIcon';
 export const APPBAR_HEIGHT = 64;
 export const SIDEBAR_WIDTH = 260;
 
-const NAV_GROUPS: { label: string; items: { href: Route; label: string; Icon: LucideIcon }[] }[] = [
+const NAV_GROUPS: {
+  label: string;
+  items: { href: Route; label: string; Icon: LucideIcon; requiresSettings?: boolean }[];
+}[] = [
   {
     label: 'Planification',
     items: [
@@ -50,17 +53,18 @@ const NAV_GROUPS: { label: string; items: { href: Route; label: string; Icon: Lu
     label: 'Administration',
     items: [
       { href: '/roles', label: 'Rôles', Icon: RoleIcon },
-      { href: '/parametres', label: 'Paramètres', Icon: SettingsIcon },
+      { href: '/parametres', label: 'Paramètres', Icon: SettingsIcon, requiresSettings: true },
     ],
   },
 ];
 
 interface SidebarContentProps {
   onNavigate?: () => void;
+  settingsEnabled: boolean;
   siteUrl: string;
 }
 
-const SidebarContent = ({ onNavigate, siteUrl }: SidebarContentProps) => {
+const SidebarContent = ({ onNavigate, settingsEnabled, siteUrl }: SidebarContentProps) => {
   const pathname = usePathname();
 
   return (
@@ -78,12 +82,18 @@ const SidebarContent = ({ onNavigate, siteUrl }: SidebarContentProps) => {
       <Divider />
       {NAV_GROUPS.map(({ label, items }) => (
         <List key={label} subheader={<ListSubheader>{label}</ListSubheader>}>
-          {items.map(({ href, label: itemLabel, Icon }) => {
+          {items.map(({ href, label: itemLabel, Icon, requiresSettings }) => {
             const selected = pathname === href || pathname.startsWith(`${href}/`);
+            const disabled = requiresSettings === true && !settingsEnabled;
 
             return (
               <ListItem key={href} disablePadding>
-                <ListItemButton href={href} selected={selected} onClick={onNavigate}>
+                <ListItemButton
+                  href={href}
+                  selected={selected}
+                  disabled={disabled}
+                  onClick={onNavigate}
+                >
                   <ListItemIcon>
                     <Icon size={18} />
                   </ListItemIcon>
@@ -112,10 +122,11 @@ const SidebarContent = ({ onNavigate, siteUrl }: SidebarContentProps) => {
 interface SidebarProps {
   mobileOpen: boolean;
   onMobileClose: () => void;
+  settingsEnabled: boolean;
   siteUrl: string;
 }
 
-export const Sidebar = ({ mobileOpen, onMobileClose, siteUrl }: SidebarProps) => {
+export const Sidebar = ({ mobileOpen, onMobileClose, settingsEnabled, siteUrl }: SidebarProps) => {
   return (
     <Box component="nav">
       <Drawer
@@ -128,7 +139,11 @@ export const Sidebar = ({ mobileOpen, onMobileClose, siteUrl }: SidebarProps) =>
           '& .MuiDrawer-paper': { width: SIDEBAR_WIDTH },
         }}
       >
-        <SidebarContent onNavigate={onMobileClose} siteUrl={siteUrl} />
+        <SidebarContent
+          onNavigate={onMobileClose}
+          settingsEnabled={settingsEnabled}
+          siteUrl={siteUrl}
+        />
       </Drawer>
       <Drawer
         variant="permanent"
@@ -144,7 +159,7 @@ export const Sidebar = ({ mobileOpen, onMobileClose, siteUrl }: SidebarProps) =>
           },
         }}
       >
-        <SidebarContent siteUrl={siteUrl} />
+        <SidebarContent settingsEnabled={settingsEnabled} siteUrl={siteUrl} />
       </Drawer>
     </Box>
   );

@@ -1,4 +1,5 @@
 import { TRPCError } from '@trpc/server';
+import type { Permission } from '@yoga-sof/core';
 import { roleService, withTransaction } from '@yoga-sof/core/server';
 import { auth } from '@yoga-sof/ui/auth';
 import { trpc } from '@yoga-sof/ui/trpc';
@@ -7,30 +8,26 @@ const forbid = () => {
   throw new TRPCError({ code: 'FORBIDDEN', message: 'Accès refusé.' });
 };
 
-export const panelProcedure = trpc.procedure.use(async ({ next }) => {
-  const id = (await auth())?.user?.id;
-  const allowed = id
-    ? await withTransaction((tx) => roleService.hasPermission(id, 'adminPanel', tx), {
-        readOnly: true,
-      })
-    : false;
+const requirePermission = (permission: Permission) =>
+  trpc.procedure.use(async ({ next }) => {
+    const id = (await auth())?.user?.id;
+    const allowed = id
+      ? await withTransaction((tx) => roleService.hasPermission(id, permission, tx), {
+          readOnly: true,
+        })
+      : false;
 
-  if (!allowed) {
-    forbid();
-  }
+    if (!allowed) {
+      forbid();
+    }
 
-  return next();
-});
+    return next();
+  });
 
-export const adminProcedure = trpc.procedure.use(async ({ next }) => {
-  const id = (await auth())?.user?.id;
-  const role = id
-    ? await withTransaction((tx) => roleService.getUserRole(id, tx), { readOnly: true })
-    : null;
+export const panelProcedure = requirePermission('adminPanel');
 
-  if (role !== 'administrateur') {
-    forbid();
-  }
+export const readProcedure = requirePermission('readData');
 
-  return next();
-});
+export const writeProcedure = requirePermission('manageData');
+
+export const settingsProcedure = requirePermission('manageSettings');

@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { check, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
+import { check, index, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 import { idVersionedColumns } from '../../db/idVersionedColumns';
 import { courseTypeEnum } from './type/courseTypeEnum';
@@ -21,5 +21,6 @@ export const coursesTable = pgTable(
     check('capacity_nonnegative', sql`${table.capacity} >= 0`),
     check('registered_count_nonnegative', sql`${table.registeredCount} >= 0`),
     check('registered_count_within_capacity', sql`${table.registeredCount} <= ${table.capacity}`),
+    index('courses_starts_at_index').on(table.startsAt),
   ],
 );

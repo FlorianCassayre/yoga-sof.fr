@@ -18,7 +18,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       if (email && adminEmails().includes(email)) {
         await withTransaction((tx) =>
-          roleService.grantUserRole({ userId: user.id!, role: 'administrateur' }, tx),
+          roleService.grantUserRole({ userId: user.id!, role: 'administrator' }, tx),
         );
       }
     },

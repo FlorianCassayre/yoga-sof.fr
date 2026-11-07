@@ -9,26 +9,26 @@ import {
 } from '@yoga-sof/core/server';
 import { trpc } from '@yoga-sof/ui/trpc';
 
-import { adminProcedure } from '../../../server/trpc';
+import { readProcedure, settingsProcedure } from '../../../server/trpc';
 
 export const membershipPriceRouter = trpc.router({
-  list: adminProcedure
+  list: readProcedure
     .input(membershipPriceListSchema)
     .query(({ input }) =>
       withTransaction((tx) => membershipPriceService.list(input, tx), { readOnly: true }),
     ),
-  get: adminProcedure
+  get: readProcedure
     .input(membershipPriceGetSchema)
     .query(({ input }) =>
       withTransaction((tx) => membershipPriceService.get(input, tx), { readOnly: true }),
     ),
-  create: adminProcedure
+  create: settingsProcedure
     .input(membershipPriceCreateSchema)
     .mutation(({ input }) => withTransaction((tx) => membershipPriceService.create(input, tx))),
-  update: adminProcedure
+  update: settingsProcedure
     .input(membershipPriceEditSchema)
     .mutation(({ input }) => withTransaction((tx) => membershipPriceService.update(input, tx))),
-  delete: adminProcedure
+  delete: settingsProcedure
     .input(membershipPriceDeleteSchema)
     .mutation(({ input }) => withTransaction((tx) => membershipPriceService.delete(input, tx))),
 });

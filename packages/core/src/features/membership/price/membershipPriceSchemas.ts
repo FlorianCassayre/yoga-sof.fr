@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { createSelectByIdSchema } from '../../../db/schemaFactory';
-import { eurosToCents, priceInput } from '../../../util/currency';
+import { eurosToCents, priceSchema } from '../../../util/currency';
 import { createListSchema } from '../../../util/list';
 import { membershipTypeEnum } from '../type/membershipTypeEnum';
 import { membershipPricesTable } from './membershipPricesTable';
@@ -15,14 +15,14 @@ export const membershipPriceGetSchema = createSelectByIdSchema(membershipPricesT
 
 export const membershipPriceCreateSchema = z.object({
   type: z.enum(membershipTypeEnum.enumValues),
-  price: priceInput.transform(eurosToCents),
+  price: priceSchema.transform(eurosToCents),
 });
 
 export const membershipPriceEditSchema = z.object({
   id: z.coerce.number().int(),
   version: z.coerce.number().int(),
   type: z.enum(membershipTypeEnum.enumValues).optional(),
-  price: priceInput.transform(eurosToCents).optional(),
+  price: priceSchema.transform(eurosToCents).optional(),
 });
 
 export const membershipPriceDeleteSchema = z.object({

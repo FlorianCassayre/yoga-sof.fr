@@ -14,6 +14,7 @@ import { EnumSelectElement } from '../../../components/input/EnumSelectElement';
 import { PriceFieldElement } from '../../../components/input/PriceFieldElement';
 import { api } from '../../../server/api';
 import type { RouterOutputs } from '../../../server/appRouter';
+import { MEMBERSHIP_TYPE_ICONS } from '../type/membershipTypeIcons';
 
 type MembershipPrice = NonNullable<RouterOutputs['membershipPrice']['get']>;
 
@@ -29,6 +30,7 @@ const MembershipPriceFields = ({ disabled }: FieldProps) => (
       label="Type d'adhésion"
       values={membershipTypeEnum.enumValues}
       labels={MEMBERSHIP_TYPE_LABELS}
+      icons={MEMBERSHIP_TYPE_ICONS}
       disabled={disabled}
     />
     <PriceFieldElement<MembershipPriceFormValues>

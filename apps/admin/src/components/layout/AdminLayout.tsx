@@ -2,27 +2,33 @@
 
 import {
   AppBar,
+  Badge,
   Box,
-  Button,
   Divider,
   IconButton,
   ListItemIcon,
+  ListSubheader,
   Menu,
   MenuItem,
   Toolbar,
   Typography,
 } from '@mui/material';
-import { CircleUserRound, LogOut, Menu as MenuIcon } from 'lucide-react';
+import { Bell, CircleUserRound, LogOut, Menu as MenuIcon } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
 import { signOutAction } from '../../features/auth/signOutAction';
 import { useCurrentUser } from '../../features/user/useCurrentUser';
+import { useHasPermission } from '../../features/user/useHasPermission';
+import { api } from '../../server/api';
+import { Link } from '../link/Link';
 import { Sidebar } from './Sidebar';
 
 export const AdminLayout = ({ children, siteUrl }: { children: ReactNode; siteUrl: string }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuAnchor, setUserMenuAnchor] = useState<HTMLElement | null>(null);
   const user = useCurrentUser();
+  const settingsEnabled = useHasPermission('manageSettings');
+  const notifications = api.notification.count.useQuery();
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex' }}>
@@ -39,20 +45,36 @@ export const AdminLayout = ({ children, siteUrl }: { children: ReactNode; siteUr
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Yoga-Sof
           </Typography>
-          <Button
+          <IconButton
+            color="inherit"
+            component={Link}
+            href="/notifications"
+            edge="end"
+            sx={{ mr: 1 }}
+          >
+            <Badge badgeContent={notifications.data ?? 0} color="error">
+              <Bell size={20} fill="currentColor" />
+            </Badge>
+          </IconButton>
+          <IconButton
             color="inherit"
             onClick={(event) => setUserMenuAnchor(event.currentTarget)}
-            startIcon={<CircleUserRound size={20} />}
+            edge="end"
           >
-            {user?.name}
-          </Button>
+            <CircleUserRound size={20} />
+          </IconButton>
           <Menu
             anchorEl={userMenuAnchor}
             open={userMenuAnchor !== null}
             onClose={() => setUserMenuAnchor(null)}
           >
+            {user && <ListSubheader>{user.name}</ListSubheader>}
             {user && (
-              <MenuItem href={`/utilisateurs/${user.id}`} onClick={() => setUserMenuAnchor(null)}>
+              <MenuItem
+                component={Link}
+                href={`/utilisateurs/${user.id}`}
+                onClick={() => setUserMenuAnchor(null)}
+              >
                 <ListItemIcon>
                   <CircleUserRound size={18} />
                 </ListItemIcon>
@@ -78,6 +100,7 @@ export const AdminLayout = ({ children, siteUrl }: { children: ReactNode; siteUr
       <Sidebar
         mobileOpen={mobileOpen}
         onMobileClose={() => setMobileOpen(false)}
+        settingsEnabled={settingsEnabled}
         siteUrl={siteUrl}
       />
 

@@ -7,6 +7,7 @@ export interface PageAction {
   icon?: LucideIcon;
   href?: AppRoute;
   onClick?: () => void;
+  disabled?: boolean;
   fab?: boolean;
 }
 

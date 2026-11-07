@@ -24,6 +24,7 @@ export const courseUserRegistrationsTable = pgTable(
       .notNull()
       .references(() => usersTable.id, { onDelete: 'cascade' }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    present: boolean(),
     canceled: boolean().notNull().default(false),
     canceledAt: timestamp({ withTimezone: true }),
     canceledBy: text().references(() => usersTable.id),

@@ -6,5 +6,6 @@ export * from './features/card/server';
 export * from './features/course/server';
 export * from './features/courseUserRegistration/server';
 export * from './features/membership/server';
+export * from './features/notification/server';
 export * from './features/role/server';
 export * from './features/user/server';

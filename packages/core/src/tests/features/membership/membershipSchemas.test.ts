@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  membershipCancelSchema,
   membershipCreateSchema,
+  membershipEditSchema,
+  membershipGetSchema,
   membershipListSchema,
 } from '../../../features/membership/membershipSchemas';
 import {
@@ -43,6 +46,32 @@ describe('membershipCreateSchema', () => {
         beneficiaries: [{ id: 'u1' }],
       }).success,
     ).toBe(false);
+  });
+});
+
+describe('membershipGetSchema', () => {
+  it('coerces the id', () => {
+    expect(membershipGetSchema.parse({ id: '7' })).toEqual({ id: 7 });
+  });
+});
+
+describe('membershipEditSchema', () => {
+  it('coerces wire values and flattens beneficiaries', () => {
+    expect(
+      membershipEditSchema.parse({ id: '7', version: '3', beneficiaries: [{ id: 'u1' }] }),
+    ).toEqual({ id: 7, version: 3, userIds: ['u1'] });
+  });
+
+  it('requires at least one beneficiary', () => {
+    expect(membershipEditSchema.safeParse({ id: 7, version: 3, beneficiaries: [] }).success).toBe(
+      false,
+    );
+  });
+});
+
+describe('membershipCancelSchema', () => {
+  it('coerces the id', () => {
+    expect(membershipCancelSchema.parse({ id: '7' })).toEqual({ id: 7 });
   });
 });
 

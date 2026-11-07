@@ -1,13 +1,11 @@
 'use client';
 
-import { courseLabel } from '@yoga-sof/core';
-
 import { DataGrid } from '../../components/grid/DataGrid';
 import { DateTimeCell } from '../../components/grid/DateTimeCell';
 import type { GridColumns } from '../../components/grid/GridColumns';
-import { Link } from '../../components/link/Link';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
+import { CourseLink } from '../course/CourseLink';
 import { PersonLink } from '../user/PersonLink';
 
 type EventRow = RouterOutputs['registration']['listEvents']['rows'][number];
@@ -36,13 +34,14 @@ const EVENT_COLUMNS: GridColumns<EventRow> = [
     flex: 2,
     type: 'dateTime',
     renderCell: (params) => (
-      <Link href={`/seances/${params.row.courseId}`}>
-        {courseLabel({
+      <CourseLink
+        course={{
+          id: params.row.courseId,
           type: params.row.courseType,
           startsAt: params.row.courseStartsAt,
           endsAt: params.row.courseEndsAt,
-        })}
-      </Link>
+        }}
+      />
     ),
   },
   {

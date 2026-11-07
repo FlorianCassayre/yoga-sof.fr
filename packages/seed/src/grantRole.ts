@@ -16,7 +16,7 @@ const [user] = await db.select().from(usersTable).where(eq(usersTable.email, ema
 if (!user) throw new Error(`No user with email ${email}`);
 
 await db.transaction((tx) =>
-  roleService.grantUserRole({ userId: user.id, role: 'administrateur' }, tx),
+  roleService.grantUserRole({ userId: user.id, role: 'administrator' }, tx),
 );
 console.log(`Granted administrateur to ${email} (${user.id})`);
 await db.$client.end();

@@ -9,26 +9,26 @@ import {
 } from '@yoga-sof/core/server';
 import { trpc } from '@yoga-sof/ui/trpc';
 
-import { adminProcedure } from '../../../server/trpc';
+import { readProcedure, settingsProcedure } from '../../../server/trpc';
 
 export const cardTemplateRouter = trpc.router({
-  list: adminProcedure
+  list: readProcedure
     .input(cardTemplateListSchema)
     .query(({ input }) =>
       withTransaction((tx) => cardTemplateService.list(input, tx), { readOnly: true }),
     ),
-  get: adminProcedure
+  get: readProcedure
     .input(cardTemplateGetSchema)
     .query(({ input }) =>
       withTransaction((tx) => cardTemplateService.get(input, tx), { readOnly: true }),
     ),
-  create: adminProcedure
+  create: settingsProcedure
     .input(cardTemplateCreateSchema)
     .mutation(({ input }) => withTransaction((tx) => cardTemplateService.create(input, tx))),
-  update: adminProcedure
+  update: settingsProcedure
     .input(cardTemplateEditSchema)
     .mutation(({ input }) => withTransaction((tx) => cardTemplateService.update(input, tx))),
-  delete: adminProcedure
+  delete: settingsProcedure
     .input(cardTemplateDeleteSchema)
     .mutation(({ input }) => withTransaction((tx) => cardTemplateService.delete(input, tx))),
 });
