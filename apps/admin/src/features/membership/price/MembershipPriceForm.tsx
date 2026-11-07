@@ -41,7 +41,7 @@ const MembershipPriceFields = ({ disabled }: FieldProps) => (
 
 export const MembershipPriceForm = ({ id }: { id?: number }) => {
   return (
-    <Form<MembershipPrice, MembershipPriceFormValues>
+    <Form<MembershipPrice, MembershipPriceFormValues, typeof membershipPriceCreateSchema>
       id={id}
       get={api.membershipPrice.get}
       create={api.membershipPrice.create}

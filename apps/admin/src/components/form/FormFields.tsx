@@ -21,6 +21,18 @@ const stubUpdate = <Row, Input>(): MutationProcedure<Row, Input> => ({
   }),
 });
 
+// Placeholder mutation so the useMutation hook keeps a stable call order when
+// no create procedure is provided (edit-only forms).
+const stubCreate = <Row, Input>(): MutationProcedure<Row, Input> => ({
+  useMutation: () => ({
+    mutateAsync: () => {
+      throw new Error('Aucune procédure de création.');
+    },
+    isPending: false,
+    error: null,
+  }),
+});
+
 type FormFieldsProps<Row, Values extends FieldValues> = Omit<
   FormProps<Row, Values>,
   'id' | 'get'
@@ -43,7 +55,7 @@ export const FormFields = <Row, Values extends FieldValues>({
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
   const form = useForm<Values>({ defaultValues: defaultValues(row) as DefaultValues<Values> });
-  const createMutation = create.useMutation();
+  const createMutation = (create ?? stubCreate<Row, Values>()).useMutation();
   const updateMutation = (update ?? stubUpdate<Row, Values & IdVersion>()).useMutation();
   const Fields = children;
 

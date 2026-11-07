@@ -2,6 +2,9 @@ import type { inferRouterOutputs } from '@trpc/server';
 import { trpc } from '@yoga-sof/ui/trpc';
 
 import { calendarSettingRouter } from '../features/calendar/calendarSettingRouter';
+import { cardRouter } from '../features/card/cardRouter';
+import { cardSettingRouter } from '../features/card/settings/cardSettingRouter';
+import { cardTemplateRouter } from '../features/card/template/cardTemplateRouter';
 import { courseRouter } from '../features/course/courseRouter';
 import { courseUserRegistrationRouter } from '../features/courseUserRegistration/courseUserRegistrationRouter';
 import { membershipRouter } from '../features/membership/membershipRouter';
@@ -12,6 +15,9 @@ import { userRouter } from '../features/user/userRouter';
 
 export const appRouter = trpc.router({
   calendarSetting: calendarSettingRouter,
+  card: cardRouter,
+  cardSetting: cardSettingRouter,
+  cardTemplate: cardTemplateRouter,
   course: courseRouter,
   registration: courseUserRegistrationRouter,
   membership: membershipRouter,

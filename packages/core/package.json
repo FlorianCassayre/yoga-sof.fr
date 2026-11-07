@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
     "test:unit": "vitest run --passWithNoTests --exclude '**/*.integration.test.ts'",
-    "test:integration": "vitest run --passWithNoTests --include '**/*.integration.test.ts'"
+    "test:integration": "vitest run --passWithNoTests integration"
   },
   "dependencies": {
     "@auth/core": "catalog:",

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { calendarSettingUpdateSchema } from '../../../features/calendar/calendarSettingSchemas';
+import { calendarSettingUpdateSchema } from '../../../features/calendar/settings/calendarSettingSchemas';
 
 const values = {
   dayStartsAt: '09:00',

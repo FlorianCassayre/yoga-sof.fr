@@ -1,55 +1,23 @@
 'use client';
 
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  IconButton,
-} from '@mui/material';
-import type { GridColDef } from '@mui/x-data-grid';
-import { useQueryClient } from '@tanstack/react-query';
+import { IconButton } from '@mui/material';
 import { formatPrice, MEMBERSHIP_TYPE_LABELS } from '@yoga-sof/core';
 import { Pencil, Trash2 } from 'lucide-react';
-import Link from 'next/link';
-import { useSnackbar } from 'notistack';
 import { useState } from 'react';
 
+import { ConfirmDialog } from '../../../components/dialog/ConfirmDialog';
 import { DataGrid } from '../../../components/grid/DataGrid';
+import type { GridColumns } from '../../../components/grid/GridColumns';
+import { Link } from '../../../components/link/Link';
 import { api } from '../../../server/api';
 import type { RouterOutputs } from '../../../server/appRouter';
 
 type MembershipPriceRow = RouterOutputs['membershipPrice']['list']['rows'][number];
 
 export const MembershipPriceGrid = () => {
-  const queryClient = useQueryClient();
-  const { enqueueSnackbar } = useSnackbar();
-  const deleteMutation = api.membershipPrice.delete.useMutation();
   const [deleting, setDeleting] = useState<MembershipPriceRow | null>(null);
 
-  const closeDialog = () => setDeleting(null);
-
-  const deletePrice = () => {
-    if (!deleting) {
-      return;
-    }
-    deleteMutation
-      .mutateAsync({ id: deleting.id, version: deleting.version })
-      .then(async () => {
-        enqueueSnackbar('Tarif supprimé.', { variant: 'success' });
-        await queryClient.invalidateQueries();
-      })
-      .catch((error: unknown) => {
-        enqueueSnackbar(error instanceof Error ? error.message : 'Une erreur est survenue.', {
-          variant: 'error',
-        });
-      })
-      .finally(closeDialog);
-  };
-
-  const columns: GridColDef<MembershipPriceRow>[] = [
+  const columns: GridColumns<MembershipPriceRow> = [
     {
       field: 'type',
       headerName: "Type d'adhésion",
@@ -77,12 +45,7 @@ export const MembershipPriceGrid = () => {
         >
           <Pencil size={18} />
         </IconButton>,
-        <IconButton
-          key="delete"
-          size="small"
-          disabled={deleteMutation.isPending}
-          onClick={() => setDeleting(params.row)}
-        >
+        <IconButton key="delete" size="small" onClick={() => setDeleting(params.row)}>
           <Trash2 size={18} />
         </IconButton>,
       ],
@@ -97,23 +60,15 @@ export const MembershipPriceGrid = () => {
         procedure={api.membershipPrice.list}
       />
       {deleting && (
-        <Dialog open onClose={closeDialog}>
-          <DialogTitle>Supprimer le tarif</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Voulez-vous vraiment supprimer le tarif {MEMBERSHIP_TYPE_LABELS[deleting.type]} (
-              {formatPrice(deleting.price)}) ?
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={closeDialog} disabled={deleteMutation.isPending}>
-              Annuler
-            </Button>
-            <Button onClick={deletePrice} color="error" disabled={deleteMutation.isPending}>
-              Supprimer
-            </Button>
-          </DialogActions>
-        </Dialog>
+        <ConfirmDialog
+          procedure={api.membershipPrice.delete}
+          input={{ id: deleting.id, version: deleting.version }}
+          title="Supprimer le tarif"
+          message={`Voulez-vous vraiment supprimer le tarif ${MEMBERSHIP_TYPE_LABELS[deleting.type]} (${formatPrice(deleting.price)}) ?`}
+          confirmLabel="Supprimer"
+          successMessage="Tarif supprimé."
+          onClose={() => setDeleting(null)}
+        />
       )}
     </>
   );

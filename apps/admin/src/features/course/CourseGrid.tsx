@@ -1,20 +1,20 @@
 'use client';
 
 import { IconButton } from '@mui/material';
-import { type GridColDef } from '@mui/x-data-grid';
 import { COURSE_TYPE_LABELS, type CourseVisibility } from '@yoga-sof/core';
 import { formatScheduleDate, formatScheduleTime } from '@yoga-sof/core';
 import { Eye } from 'lucide-react';
-import Link from 'next/link';
 
 import { DataGrid } from '../../components/grid/DataGrid';
+import type { GridColumns } from '../../components/grid/GridColumns';
+import { Link } from '../../components/link/Link';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
 import { VisibilityChip } from './visibility/VisibilityChip';
 
 type CourseRow = RouterOutputs['course']['list']['rows'][number];
 
-const columns: GridColDef<CourseRow>[] = [
+const columns: GridColumns<CourseRow, 'horaire'> = [
   {
     field: 'actions',
     headerName: '',

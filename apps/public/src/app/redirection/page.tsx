@@ -1,5 +1,6 @@
 import { roleService, withTransaction } from '@yoga-sof/core/server';
 import { auth } from '@yoga-sof/ui/auth';
+import type { Route } from 'next';
 import { redirect } from 'next/navigation';
 
 import {
@@ -21,11 +22,11 @@ const RedirectionPage = async (props: PageProps<'/redirection'>) => {
     });
 
     if (role) {
-      redirect(adminRedirectRoot());
+      redirect(adminRedirectRoot() as Route);
     }
   }
 
-  return redirect(target);
+  return redirect(target as Route);
 };
 
 export default RedirectionPage;

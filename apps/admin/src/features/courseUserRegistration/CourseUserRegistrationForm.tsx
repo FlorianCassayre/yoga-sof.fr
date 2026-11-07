@@ -72,7 +72,7 @@ export const CourseUserRegistrationForm = ({ courseId }: CourseUserRegistrationF
   }
 
   return (
-    <Form<void, CourseUserRegistrationFormValues>
+    <Form<void, CourseUserRegistrationFormValues, typeof courseUserRegistrationCreateSchema>
       create={api.registration.create}
       schema={courseUserRegistrationCreateSchema}
       defaultValues={() => ({

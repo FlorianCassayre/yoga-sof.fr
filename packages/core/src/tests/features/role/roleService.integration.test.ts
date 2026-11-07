@@ -66,7 +66,7 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('roleService', () =>
       roleService.list({ page: 0, pageSize: 50, sort: [{ field: 'userName', sort: 'asc' }] }, tx),
     );
 
-    expect(result.rows.some((row) => row.id === user.id && row.role === 'associe')).toBe(true);
+    expect(result.rows.some((row) => row.userId === user.id && row.role === 'associe')).toBe(true);
     expect(result.total).toBeGreaterThanOrEqual(result.rows.length);
   });
 });

@@ -3,7 +3,6 @@
 import {
   Divider,
   IconButton,
-  Link,
   ListItemIcon,
   ListItemText,
   ListSubheader,
@@ -13,6 +12,7 @@ import {
 import { MoreVertical } from 'lucide-react';
 import { Fragment, useState } from 'react';
 
+import { Link } from '../link/Link';
 import type { PageAction, PageActionGroup } from './PageAction';
 
 const PageActionMenuItem = ({ action, onClose }: { action: PageAction; onClose: () => void }) => {

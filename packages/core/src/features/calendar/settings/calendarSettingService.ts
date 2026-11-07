@@ -1,8 +1,8 @@
 import type { z } from 'zod';
 
-import type { DbTransaction } from '../../db/db';
-import { createRow, updateRow } from '../../db/rows';
-import { assertConflict } from '../../errors';
+import type { DbTransaction } from '../../../db/db';
+import { createRow, updateRow } from '../../../db/rows';
+import { assertConflict } from '../../../errors';
 import type { calendarSettingUpdateSchema } from './calendarSettingSchemas';
 import { calendarSettingsTable } from './calendarSettingsTable';
 

@@ -1,9 +1,10 @@
 'use client';
 
 import type { SxProps, Theme } from '@mui/material';
-import { Fab, Link, SpeedDial, SpeedDialAction } from '@mui/material';
+import { Fab, SpeedDial, SpeedDialAction } from '@mui/material';
 import { Plus } from 'lucide-react';
 
+import { Link } from '../link/Link';
 import type { PageAction } from './PageAction';
 
 const fabPosition: SxProps<Theme> = { position: 'fixed', bottom: 24, right: 24 };

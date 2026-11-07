@@ -1,7 +1,7 @@
 'use client';
 
 import { Stack, Typography } from '@mui/material';
-import { COURSE_TYPE_LABELS, dateTimeFormatter } from '@yoga-sof/core';
+import { COURSE_TYPE_LABELS, formatScheduleDate, formatScheduleTimeRange } from '@yoga-sof/core';
 import { CalendarPlus, Pencil } from 'lucide-react';
 import { notFound } from 'next/navigation';
 
@@ -55,8 +55,11 @@ export const CoursePage = ({ id }: CoursePageProps) => {
         <RecordDetails
           entries={[
             { label: 'Type', value: COURSE_TYPE_LABELS[course.data.type] },
-            { label: 'Début', value: dateTimeFormatter.format(course.data.startsAt) },
-            { label: 'Fin', value: dateTimeFormatter.format(course.data.endsAt) },
+            { label: 'Date', value: formatScheduleDate(course.data.startsAt) },
+            {
+              label: 'Horaires',
+              value: formatScheduleTimeRange(course.data.startsAt, course.data.endsAt),
+            },
             { label: 'Capacité', value: course.data.capacity },
             { label: 'Inscrits', value: course.data.registeredCount },
             {

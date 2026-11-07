@@ -1,12 +1,13 @@
 'use client';
 
 import type { FieldValues } from 'react-hook-form';
+import type { z } from 'zod';
 
 import { FormFields } from './FormFields';
 import { FormLoader } from './FormLoader';
 import type { FormProps } from './types';
 
-export const Form = <Row, Values extends FieldValues>({
+export const Form = <Row, Values extends FieldValues, Schema extends z.ZodType = z.ZodType>({
   id,
   get,
   create,
@@ -19,7 +20,7 @@ export const Form = <Row, Values extends FieldValues>({
   submitLabel,
   cancelHref,
   children,
-}: FormProps<Row, Values>) => {
+}: FormProps<Row, Values, Schema>) => {
   const commonProps = {
     create,
     update,

@@ -50,8 +50,10 @@ type AsyncAutocompleteElementProps<
   list: ListProcedure<Model>;
   sort: { field: keyof Model & string; sort: 'asc' | 'desc' };
   getOptionLabel: (option: Model) => string;
+  compareOptions?: (a: Model, b: Model) => number;
   listInput?: Record<string, unknown>;
   preload?: boolean;
+  helperText?: string;
   disabled?: boolean;
 };
 
@@ -66,8 +68,10 @@ export const AsyncAutocompleteElement = <
   list,
   sort,
   getOptionLabel,
+  compareOptions,
   listInput,
   preload,
+  helperText,
   disabled,
   ...rest
 }: AsyncAutocompleteElementProps<Model, TFieldValues, Multiple>) => {
@@ -88,7 +92,8 @@ export const AsyncAutocompleteElement = <
   // A full page means the list is truncated: only complete lists are shown upfront.
   const initialOptions =
     preload && (initialQuery.data?.total ?? 0) <= PAGE_SIZE ? (initialQuery.data?.rows ?? []) : [];
-  const options = inputValue === '' ? initialOptions : (searchQuery.data?.rows ?? []);
+  const searched = inputValue === '' ? initialOptions : (searchQuery.data?.rows ?? []);
+  const options = compareOptions ? [...searched].sort(compareOptions) : searched;
   // Until the debounced search catches up with the typed text, the displayed results are stale.
   const loading =
     initialQuery.isFetching ||
@@ -110,6 +115,7 @@ export const AsyncAutocompleteElement = <
       multiple={multiple}
       options={options}
       loading={loading}
+      textFieldProps={{ helperText }}
       transform={{
         // The form values ARE the options; without this identity transform,
         // AutocompleteElement re-maps them through the current (often empty)

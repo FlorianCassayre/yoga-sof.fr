@@ -2,6 +2,8 @@ import type { ComponentType } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import type { z } from 'zod';
 
+import type { AppRoute } from '../../routes';
+
 export interface IdVersion {
   id: number;
   version: number;
@@ -27,17 +29,20 @@ export interface MutationProcedure<Row, Input> {
   };
 }
 
-export interface FormProps<Row, Values extends FieldValues> {
+export interface FormProps<Row, Values extends FieldValues, Schema extends z.ZodType = z.ZodType> {
   id?: number;
   get?: GetProcedure<Row>;
-  create: MutationProcedure<Row, Values>;
+  create?: MutationProcedure<Row, Values>;
   update?: MutationProcedure<Row, Values & IdVersion>;
-  schema?: z.ZodType;
+  // The mirror validates the FORM VALUES on submit, so the schema must accept
+  // them: a server edit schema (which also requires id/version, injected only
+  // after validation) is rejected at compile time.
+  schema?: Values extends z.input<Schema> ? Schema : never;
   defaultValues: (row: Row | undefined) => Values;
-  redirectTo: (row: Row) => string;
+  redirectTo: (row: Row) => AppRoute;
   createdMessage: string;
   updatedMessage?: string;
   submitLabel?: string;
-  cancelHref: string;
+  cancelHref: AppRoute;
   children: ComponentType<FieldProps>;
 }

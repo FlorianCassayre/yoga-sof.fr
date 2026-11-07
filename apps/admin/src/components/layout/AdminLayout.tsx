@@ -6,7 +6,6 @@ import {
   Button,
   Divider,
   IconButton,
-  Link,
   ListItemIcon,
   Menu,
   MenuItem,
@@ -53,11 +52,7 @@ export const AdminLayout = ({ children, siteUrl }: { children: ReactNode; siteUr
             onClose={() => setUserMenuAnchor(null)}
           >
             {user && (
-              <MenuItem
-                component={Link}
-                href={`/utilisateurs/${user.id}`}
-                onClick={() => setUserMenuAnchor(null)}
-              >
+              <MenuItem href={`/utilisateurs/${user.id}`} onClick={() => setUserMenuAnchor(null)}>
                 <ListItemIcon>
                   <CircleUserRound size={18} />
                 </ListItemIcon>

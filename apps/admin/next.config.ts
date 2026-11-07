@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   basePath: BASE_PATH,
   output: 'standalone',
   reactCompiler: true,
+  typedRoutes: true,
 };
 
 export default nextConfig;

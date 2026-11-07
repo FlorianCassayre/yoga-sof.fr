@@ -50,16 +50,16 @@ const renderForm = ({
   const update = fakeMutation<TestRow, TestValues & IdVersion>(updateResult);
 
   renderWithProviders(
-    <Form<TestRow, TestValues>
+    <Form<TestRow, TestValues, z.ZodType>
       id={id}
       get={fakeQuery<TestRow>(currentRow, error)}
       create={create}
       update={update}
       defaultValues={(r) => ({ internalNotes: r?.internalNotes ?? 'draft' })}
-      redirectTo={(saved) => `/rows/${saved.id}`}
+      redirectTo={(saved) => `/seances/${saved.id}`}
       createdMessage="Créé."
       updatedMessage="Modifié."
-      cancelHref="/rows"
+      cancelHref="/seances"
     >
       {Fields}
     </Form>,
@@ -86,7 +86,7 @@ describe('Form', () => {
     );
     expect(update.mutateAsync).not.toHaveBeenCalled();
     expect(enqueueSnackbar).toHaveBeenCalledWith('Créé.', { variant: 'success' });
-    expect(push).toHaveBeenCalledWith('/rows/99');
+    expect(push).toHaveBeenCalledWith(`/seances/99`);
   });
 
   it('updates with the current version on submit', async () => {
@@ -103,7 +103,7 @@ describe('Form', () => {
     );
     expect(create.mutateAsync).not.toHaveBeenCalled();
     expect(enqueueSnackbar).toHaveBeenCalledWith('Modifié.', { variant: 'success' });
-    expect(push).toHaveBeenCalledWith('/rows/54');
+    expect(push).toHaveBeenCalledWith(`/seances/54`);
   });
 
   it('invalidates queries after a successful mutation', async () => {
@@ -145,13 +145,13 @@ describe('Form', () => {
   it('validates against the schema on submit and turns failing fields red', async () => {
     const create = fakeMutation<TestRow, TestValues>(() => ({ ...row, id: 99, version: 1 }));
     renderWithProviders(
-      <Form<TestRow, TestValues>
+      <Form<TestRow, TestValues, z.ZodType>
         create={create}
         schema={z.object({ internalNotes: z.string().min(1, 'Le message est requis.') })}
         defaultValues={() => ({ internalNotes: '' })}
-        redirectTo={(saved) => `/rows/${saved.id}`}
+        redirectTo={(saved) => `/seances/${saved.id}`}
         createdMessage="Créé."
-        cancelHref="/rows"
+        cancelHref="/seances"
       >
         {Fields}
       </Form>,

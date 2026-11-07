@@ -1,23 +1,21 @@
 'use client';
 
-import { Link } from '@mui/material';
-import type { GridColDef } from '@mui/x-data-grid';
 import { ROLE_TYPE_LABELS } from '@yoga-sof/core';
 
 import { DataGrid } from '../../components/grid/DataGrid';
+import type { GridColumns } from '../../components/grid/GridColumns';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
+import { PersonLink } from '../user/PersonLink';
 
 type RoleRow = RouterOutputs['role']['list']['rows'][number];
 
-const columns: GridColDef<RoleRow>[] = [
+const columns: GridColumns<RoleRow> = [
   {
     field: 'userName',
     headerName: 'Utilisateur',
     flex: 1,
-    renderCell: (params) => (
-      <Link href={`/utilisateurs/${params.row.id}`}>{params.row.userName ?? '-'}</Link>
-    ),
+    renderCell: (params) => <PersonLink person={params.row} />,
   },
   {
     field: 'role',

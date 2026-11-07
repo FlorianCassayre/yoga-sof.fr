@@ -1,2 +1,2 @@
-export * from './calendarSettingSchemas';
-export * from './calendarSettingsTable';
+export * from './settings/calendarSettingSchemas';
+export * from './settings/calendarSettingsTable';

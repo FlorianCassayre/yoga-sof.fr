@@ -26,7 +26,7 @@ type CourseFormValues = Omit<z.infer<typeof courseCreateSchema>, 'capacity'> & {
 
 export const CourseForm = ({ id }: { id?: number }) => {
   return (
-    <Form<Course, CourseFormValues>
+    <Form<Course, CourseFormValues, typeof courseCreateSchema>
       id={id}
       get={api.course.get}
       create={api.course.create}

@@ -1,9 +1,11 @@
 import type { LucideIcon } from 'lucide-react';
 
+import type { AppRoute } from '../../routes';
+
 export interface PageAction {
   label: string;
   icon?: LucideIcon;
-  href?: string;
+  href?: AppRoute;
   onClick?: () => void;
   fab?: boolean;
 }

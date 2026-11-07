@@ -46,7 +46,7 @@ export const roleService = {
     const { limit: paginationLimit, offset: paginationOffset } = pagination(params);
     const rows = await tx
       .select({
-        id: userRolesTable.userId,
+        userId: userRolesTable.userId,
         userName: usersTable.name,
         role: userRolesTable.role,
       })

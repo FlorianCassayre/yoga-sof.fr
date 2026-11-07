@@ -1,4 +1,5 @@
 export * from './features/calendar';
+export * from './features/card';
 export * from './features/course';
 export * from './features/courseUserRegistration';
 export * from './features/membership';

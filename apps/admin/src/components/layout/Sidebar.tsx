@@ -11,10 +11,11 @@ import {
   ListItemText,
   ListSubheader,
 } from '@mui/material';
-import { House } from 'lucide-react';
-import Link from 'next/link';
+import { House, type LucideIcon } from 'lucide-react';
+import type { Route } from 'next';
 import { usePathname } from 'next/navigation';
 
+import { CardIcon } from '../../features/card/CardIcon';
 import { CourseIcon } from '../../features/course/CourseIcon';
 import { CourseUserRegistrationIcon } from '../../features/courseUserRegistration/CourseUserRegistrationIcon';
 import { DashboardIcon } from '../../features/dashboard/DashboardIcon';
@@ -26,7 +27,7 @@ import { UserIcon } from '../../features/user/UserIcon';
 export const APPBAR_HEIGHT = 64;
 export const SIDEBAR_WIDTH = 260;
 
-const NAV_GROUPS = [
+const NAV_GROUPS: { label: string; items: { href: Route; label: string; Icon: LucideIcon }[] }[] = [
   {
     label: 'Planification',
     items: [
@@ -43,7 +44,7 @@ const NAV_GROUPS = [
   },
   {
     label: 'Comptabilité',
-    items: [],
+    items: [{ href: '/cartes', label: 'Cartes', Icon: CardIcon }],
   },
   {
     label: 'Administration',
@@ -66,12 +67,7 @@ const SidebarContent = ({ onNavigate, siteUrl }: SidebarContentProps) => {
     <Box component="nav" sx={{ height: '100%', py: 1.5 }}>
       <List>
         <ListItem disablePadding>
-          <ListItemButton
-            component={Link}
-            href="/"
-            selected={pathname === '/'}
-            onClick={onNavigate}
-          >
+          <ListItemButton href="/" selected={pathname === '/'} onClick={onNavigate}>
             <ListItemIcon>
               <DashboardIcon size={18} />
             </ListItemIcon>
@@ -87,12 +83,7 @@ const SidebarContent = ({ onNavigate, siteUrl }: SidebarContentProps) => {
 
             return (
               <ListItem key={href} disablePadding>
-                <ListItemButton
-                  component={Link}
-                  href={href}
-                  selected={selected}
-                  onClick={onNavigate}
-                >
+                <ListItemButton href={href} selected={selected} onClick={onNavigate}>
                   <ListItemIcon>
                     <Icon size={18} />
                   </ListItemIcon>

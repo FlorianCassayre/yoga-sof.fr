@@ -75,7 +75,7 @@ const MembershipFields = ({ disabled }: FieldProps) => {
 
 export const MembershipForm = () => {
   return (
-    <Form<CreatedMembership, MembershipFormValues>
+    <Form<CreatedMembership, MembershipFormValues, typeof membershipCreateSchema>
       create={api.membership.create}
       schema={membershipCreateSchema}
       defaultValues={() => ({

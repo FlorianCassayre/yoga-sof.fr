@@ -1,18 +1,18 @@
 'use client';
 
-import { Link } from '@mui/material';
-import type { GridColDef } from '@mui/x-data-grid';
 import { formatMembershipPeriod, formatPrice, MEMBERSHIP_TYPE_LABELS } from '@yoga-sof/core';
 import { Fragment } from 'react';
 
 import { DataGrid } from '../../components/grid/DataGrid';
 import { DateTimeCell } from '../../components/grid/DateTimeCell';
+import type { GridColumns } from '../../components/grid/GridColumns';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
+import { PersonLink } from '../user/PersonLink';
 
 type MembershipRow = RouterOutputs['membership']['list']['rows'][number];
 
-const COLUMNS: GridColDef<MembershipRow>[] = [
+const COLUMNS: GridColumns<MembershipRow> = [
   {
     field: 'type',
     headerName: "Type d'adhésion",
@@ -34,7 +34,7 @@ const COLUMNS: GridColDef<MembershipRow>[] = [
       params.row.beneficiaries.map((beneficiary, index) => (
         <Fragment key={beneficiary.userId}>
           {index > 0 && ', '}
-          <Link href={`/utilisateurs/${beneficiary.userId}`}>{beneficiary.userName ?? '-'}</Link>
+          <PersonLink person={beneficiary} />
         </Fragment>
       )),
   },

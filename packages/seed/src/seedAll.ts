@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 import { courseUserRegistrationsTable } from '@yoga-sof/core';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
+import { seedCards } from './seedCards';
 import { seedCourses } from './seedCourses';
 import { seedMemberships } from './seedMemberships';
 import { seedRegistrations } from './seedRegistrations';
@@ -20,4 +21,5 @@ export async function seedAll(db: NodePgDatabase) {
   const courses = await seedCourses(db);
   await seedRegistrations(db, { courses, users, admin });
   await seedMemberships(db, { users });
+  await seedCards(db, { users, admin });
 }

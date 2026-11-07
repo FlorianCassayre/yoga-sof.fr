@@ -1,9 +1,10 @@
 'use client';
 
-import { Alert, Box, CircularProgress, Link, List, ListItem, Typography } from '@mui/material';
+import { Alert, Box, CircularProgress, List, ListItem, Typography } from '@mui/material';
 import { keepPreviousData } from '@tanstack/react-query';
 
 import { api } from '../../../server/api';
+import { PersonLink } from '../../user/PersonLink';
 
 interface CourseParticipantsSectionProps {
   courseId: number | null;
@@ -40,9 +41,7 @@ export const CourseParticipantsSection = ({ courseId }: CourseParticipantsSectio
         <List disablePadding>
           {participants.map((participant) => (
             <ListItem key={participant.id} disableGutters>
-              <Link href={`/utilisateurs/${participant.userId}`}>
-                {participant.userName ?? '-'}
-              </Link>
+              <PersonLink person={participant} />
             </ListItem>
           ))}
         </List>

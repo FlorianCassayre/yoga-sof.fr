@@ -1,8 +1,9 @@
 'use client';
 
 import { Button, Stack } from '@mui/material';
-import Link from 'next/link';
 import type { ReactNode } from 'react';
+
+import { Link } from '../link/Link';
 
 interface FormShellProps {
   submitLabel: string;

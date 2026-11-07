@@ -6,6 +6,7 @@ config({ path: '../../.env' });
 const nextConfig: NextConfig = {
   output: 'standalone',
   reactCompiler: true,
+  typedRoutes: true,
 };
 
 export default nextConfig;

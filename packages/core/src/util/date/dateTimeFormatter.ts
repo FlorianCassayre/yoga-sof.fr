@@ -30,3 +30,6 @@ export const formatScheduleDate = (date: Date): string => {
 
 export const formatScheduleTime = (date: Date): string =>
   hourMinuteFormatter.format(date).replace(':', 'h');
+
+export const formatScheduleTimeRange = (start: Date, end: Date): string =>
+  `${formatScheduleTime(start)} à ${formatScheduleTime(end)}`;

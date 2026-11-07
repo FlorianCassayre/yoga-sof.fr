@@ -1,13 +1,14 @@
 'use client';
 
-import { Link } from '@mui/material';
-import type { GridColDef } from '@mui/x-data-grid';
 import { courseLabel } from '@yoga-sof/core';
 
 import { DataGrid } from '../../components/grid/DataGrid';
 import { DateTimeCell } from '../../components/grid/DateTimeCell';
+import type { GridColumns } from '../../components/grid/GridColumns';
+import { Link } from '../../components/link/Link';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
+import { PersonLink } from '../user/PersonLink';
 
 type EventRow = RouterOutputs['registration']['listEvents']['rows'][number];
 
@@ -16,7 +17,7 @@ const EVENT_TYPE_LABELS = {
   annulation: 'Annulation',
 } as const;
 
-const EVENT_COLUMNS: GridColDef<EventRow>[] = [
+const EVENT_COLUMNS: GridColumns<EventRow> = [
   {
     field: 'type',
     headerName: 'Événement',
@@ -27,9 +28,7 @@ const EVENT_COLUMNS: GridColDef<EventRow>[] = [
     field: 'userName',
     headerName: 'Utilisateur',
     flex: 1,
-    renderCell: (params) => (
-      <Link href={`/utilisateurs/${params.row.userId}`}>{params.row.userName ?? '-'}</Link>
-    ),
+    renderCell: (params) => <PersonLink person={params.row} />,
   },
   {
     field: 'courseStartsAt',
