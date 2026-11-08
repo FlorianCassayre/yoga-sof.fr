@@ -11,6 +11,24 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: yoga_sof
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:yoga_sof@localhost:5432/postgres
+      DATABASE_INTEGRATION_TEST_URL: postgresql://postgres:yoga_sof@localhost:5432/postgres
+
     steps:
       - uses: actions/checkout@v4
 
@@ -28,6 +46,10 @@ jobs:
       - run: pnpm check
 
       - run: pnpm test:unit
+
+      - run: pnpm -F @yoga-sof/core exec drizzle-kit migrate
+
+      - run: pnpm test:integration
 
       - run: pnpm build
 
