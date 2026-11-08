@@ -1,1 +1,1 @@
-export type NotificationType = 'coursePresence';
+export type NotificationType = 'coursePresence' | 'emailFailed';

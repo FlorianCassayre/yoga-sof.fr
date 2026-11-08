@@ -31,6 +31,7 @@ catalog:
   '@types/react-dom': ^19
   babel-plugin-react-compiler: 1.0.0
   date-fns: ^4.4.0
+  dompurify: ^3.3.0
   dotenv: ^17.4.2
   drizzle-kit: 1.0.0-rc.4
   drizzle-orm: 1.0.0-rc.4
@@ -49,6 +50,8 @@ catalog:
   lucide-react: ^0.546.0
   next: 16.3.3
   next-auth: 5.0.0-beta.32
+  node-cron: ^4.6.0
+  nodemailer: ^10.4.0
   notistack: ^3.0.2
   pg: ^8.23.0
   prettier: ^3.9.6
@@ -66,6 +69,7 @@ catalog:
 
 minimumReleaseAgeExclude:
   - react-hook-form@7.91.0
+  - nodemailer@10.4.0
 
 patchedDependencies:
   '@auth/drizzle-adapter@1.11.3': patches/@auth__drizzle-adapter@1.11.3.patch

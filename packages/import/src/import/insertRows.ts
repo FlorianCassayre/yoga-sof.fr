@@ -5,7 +5,7 @@ import type { Client } from 'pg';
 // tables without one (composite primary keys) remain assignable.
 export type InsertRow<T extends Table> = InferInsertModel<T> & { id?: number | string };
 
-export type InsertValue = string | number | boolean | Date | null;
+export type InsertValue = string | number | boolean | Date | Buffer | null;
 
 const CHUNK_SIZE = 1000;
 
@@ -15,6 +15,9 @@ const serialize = (value: InsertValue): string => {
   }
   if (typeof value === 'boolean') {
     return value ? 'TRUE' : 'FALSE';
+  }
+  if (Buffer.isBuffer(value)) {
+    return `decode('${value.toString('hex')}', 'hex')`;
   }
   if (typeof value === 'number') {
     if (!Number.isFinite(value)) {

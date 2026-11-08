@@ -11,14 +11,16 @@ import {
   COUPON_MODELS_TABLE,
   COUPON_PURCHASES_TABLE,
   COUPONS_TABLE,
-} from '../features/card/cardSchemas';
-import { COURSES_TABLE, REGISTRATIONS_TABLE } from '../features/course/courseSchemas';
+} from '../features/card/cardLegacySchemas';
+import { COURSES_TABLE } from '../features/course/courseLegacySchemas';
+import { REGISTRATIONS_TABLE } from '../features/courseUserRegistration/registrationLegacySchemas';
+import { EMAIL_ATTACHMENTS_TABLE, EMAILS_TABLE } from '../features/email/emailLegacySchemas';
 import {
   BENEFICIARIES_TABLE,
   MEMBERSHIP_MODELS_TABLE,
   MEMBERSHIPS_TABLE,
-} from '../features/membership/membershipSchemas';
-import { ACCOUNTS_TABLE, USERS_TABLE } from '../features/user/userSchemas';
+} from '../features/membership/membershipLegacySchemas';
+import { ACCOUNTS_TABLE, USERS_TABLE } from '../features/user/userLegacySchemas';
 import { parseMysqlInserts } from '../parse/parseMysqlDump';
 import { importLegacyData, type LegacyData } from './importLegacyData';
 
@@ -33,6 +35,8 @@ const LEGACY_TABLES = [
   MEMBERSHIPS_TABLE,
   BENEFICIARIES_TABLE,
   MEMBERSHIP_MODELS_TABLE,
+  EMAILS_TABLE,
+  EMAIL_ATTACHMENTS_TABLE,
 ];
 
 const IGNORED_TABLES = [
@@ -50,8 +54,6 @@ const IGNORED_TABLES = [
   'course_model',
   'course_bundle',
   'course_waiting_list',
-  'email_message',
-  'email_message_attachment',
   'other_payment',
   'other_payment_category',
   'lock_entity',
@@ -61,7 +63,7 @@ const IGNORED_TABLES = [
 const main = async () => {
   const file = process.argv[2] ?? '../../db.sql';
   const parsed = new Map(
-    parseMysqlInserts(readFileSync(file, 'utf8'), [...LEGACY_TABLES]).map((insert) => [
+    parseMysqlInserts(readFileSync(file, 'latin1'), [...LEGACY_TABLES]).map((insert) => [
       insert.table,
       insert.values,
     ]),
@@ -77,6 +79,8 @@ const main = async () => {
     memberships: parsed.get(MEMBERSHIPS_TABLE) ?? [],
     beneficiaries: parsed.get(BENEFICIARIES_TABLE) ?? [],
     membershipModels: parsed.get(MEMBERSHIP_MODELS_TABLE) ?? [],
+    emails: parsed.get(EMAILS_TABLE) ?? [],
+    emailAttachments: parsed.get(EMAIL_ATTACHMENTS_TABLE) ?? [],
   };
   if (data.users.length === 0 || data.courses.length === 0) {
     throw new Error(`No legacy data found in '${file}'.`);
@@ -98,14 +102,19 @@ const main = async () => {
   }
 
   console.log(
-    `Imported ${summary.users} users (${summary.roles} roles), ${summary.accounts} accounts, ${summary.courses} courses, ${summary.registrations} registrations, ${summary.cardTemplates} card templates, ${summary.cards} cards, ${summary.memberships} memberships, ${summary.beneficiaries} beneficiaries.`,
+    `Imported ${summary.users} users (${summary.roles} roles), ${summary.accounts} accounts, ${summary.courses} courses, ${summary.registrations} registrations, ${summary.cardTemplates} card templates, ${summary.cards} cards, ${summary.memberships} memberships, ${summary.beneficiaries} beneficiaries, ${summary.emails} e-mails, ${summary.emailAttachments} e-mail attachments.`,
   );
   console.log(
-    `Skipped ${summary.canceledCourses} canceled courses, ${summary.unsupportedCourses} courses of an unsupported type, ${summary.orphanRegistrations} registrations pointing to skipped records, ${summary.duplicateRegistrations} duplicate active registrations, ${summary.unsupportedCoupons} coupons of an unsupported type.`,
+    `Skipped ${summary.canceledCourses} canceled courses, ${summary.unsupportedCourses} courses of an unsupported type, ${summary.orphanRegistrations} registrations pointing to skipped records, ${summary.duplicateRegistrations} duplicate active registrations, ${summary.unsupportedCoupons} coupons of an unsupported type, ${summary.orphanEmailAttachments} orphan e-mail attachments.`,
   );
   if (summary.capacityRaises > 0) {
     console.log(
       `Raised the capacity of ${summary.capacityRaises} courses to fit their existing registrations.`,
+    );
+  }
+  if (summary.unsentEmails > 0) {
+    console.log(
+      `${summary.unsentEmails} e-mails were never sent; they are marked as failed and only a manual resend will send them.`,
     );
   }
   if (summary.pendingAttendance > 0) {

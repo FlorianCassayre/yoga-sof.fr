@@ -98,9 +98,14 @@ export const courseUserRegistrationService = {
         .where(eq(coursesTable.id, courseId));
     }
 
-    await tx
+    return tx
       .insert(courseUserRegistrationsTable)
-      .values(courseIds.flatMap((courseId) => userIds.map((userId) => ({ courseId, userId }))));
+      .values(courseIds.flatMap((courseId) => userIds.map((userId) => ({ courseId, userId }))))
+      .returning({
+        id: courseUserRegistrationsTable.id,
+        courseId: courseUserRegistrationsTable.courseId,
+        userId: courseUserRegistrationsTable.userId,
+      });
   },
   list: async (
     { sort, ...params }: z.infer<typeof courseUserRegistrationListSchema>,

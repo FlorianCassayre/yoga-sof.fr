@@ -7,6 +7,7 @@ import { cardSettingRouter } from '../features/card/settings/cardSettingRouter';
 import { cardTemplateRouter } from '../features/card/template/cardTemplateRouter';
 import { courseRouter } from '../features/course/courseRouter';
 import { courseUserRegistrationRouter } from '../features/courseUserRegistration/courseUserRegistrationRouter';
+import { emailRouter } from '../features/email/emailRouter';
 import { membershipRouter } from '../features/membership/membershipRouter';
 import { membershipPriceRouter } from '../features/membership/price/membershipPriceRouter';
 import { membershipSettingRouter } from '../features/membership/settings/membershipSettingRouter';
@@ -21,6 +22,7 @@ export const appRouter = trpc.router({
   cardTemplate: cardTemplateRouter,
   course: courseRouter,
   registration: courseUserRegistrationRouter,
+  email: emailRouter,
   membership: membershipRouter,
   membershipPrice: membershipPriceRouter,
   membershipSetting: membershipSettingRouter,

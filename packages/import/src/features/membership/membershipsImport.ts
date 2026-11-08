@@ -7,14 +7,17 @@ import {
 import type { Client } from 'pg';
 
 import { type InsertRow, insertRows } from '../../import/insertRows';
-import { parseLegacyDateTime } from '../../parse/legacyDateTime';
+import { parseLegacyRow } from '../../parse/legacySchemas';
 import type { MysqlValue } from '../../parse/parseMysqlDump';
 import {
   BENEFICIARY_COLUMNS,
+  beneficiaryLegacySchema,
   MEMBERSHIP_COLUMNS,
   MEMBERSHIP_MODEL_COLUMNS,
   MEMBERSHIP_TYPES,
-} from './membershipSchemas';
+  membershipLegacySchema,
+  membershipModelLegacySchema,
+} from './membershipLegacySchemas';
 
 interface MembershipsImportResult {
   memberships: number;
@@ -22,25 +25,14 @@ interface MembershipsImportResult {
   disabledMemberships: number;
 }
 
-const legacyMembership = (row: MysqlValue[]) => ({
-  id: row[MEMBERSHIP_COLUMNS.id] as number,
-  type: row[MEMBERSHIP_COLUMNS.type] as string,
-  dateStart: row[MEMBERSHIP_COLUMNS.date_start] as string,
-  dateEnd: row[MEMBERSHIP_COLUMNS.date_end] as string,
-  price: row[MEMBERSHIP_COLUMNS.price] as number,
-  disabled: row[MEMBERSHIP_COLUMNS.disabled] as number,
-  createdAt: row[MEMBERSHIP_COLUMNS.created_at] as string,
-});
+const legacyMembership = (row: MysqlValue[]) =>
+  parseLegacyRow(row, MEMBERSHIP_COLUMNS, membershipLegacySchema);
 
-const legacyBeneficiary = (row: MysqlValue[]) => ({
-  membershipId: row[BENEFICIARY_COLUMNS.A] as number,
-  userId: row[BENEFICIARY_COLUMNS.B] as number,
-});
+const legacyBeneficiary = (row: MysqlValue[]) =>
+  parseLegacyRow(row, BENEFICIARY_COLUMNS, beneficiaryLegacySchema);
 
-const legacyMembershipModel = (row: MysqlValue[]) => ({
-  type: row[MEMBERSHIP_MODEL_COLUMNS.id] as string,
-  price: row[MEMBERSHIP_MODEL_COLUMNS.price] as number,
-});
+const legacyMembershipModel = (row: MysqlValue[]) =>
+  parseLegacyRow(row, MEMBERSHIP_MODEL_COLUMNS, membershipModelLegacySchema);
 
 export const membershipsImport = async (
   client: Client,
@@ -62,7 +54,7 @@ export const membershipsImport = async (
   const startMonths = new Map<number, number>();
   let disabledMemberships = 0;
   for (const legacy of membershipRows.map(legacyMembership)) {
-    const type = MEMBERSHIP_TYPES[legacy.type as keyof typeof MEMBERSHIP_TYPES];
+    const type = MEMBERSHIP_TYPES[legacy.type];
     if (!type) {
       continue;
     }
@@ -74,7 +66,7 @@ export const membershipsImport = async (
       startsAt: legacy.dateStart,
       endsAt: legacy.dateEnd,
       price: legacy.price * 100,
-      createdAt: parseLegacyDateTime(legacy.createdAt)!,
+      createdAt: legacy.createdAt,
     });
     const month = +legacy.dateStart.slice(5, 7);
     startMonths.set(month, (startMonths.get(month) ?? 0) + 1);
@@ -110,7 +102,7 @@ export const membershipsImport = async (
 
   const priceValues: InsertRow<typeof membershipPricesTable>[] = [];
   for (const legacy of modelRows.map(legacyMembershipModel)) {
-    const type = MEMBERSHIP_TYPES[legacy.type as keyof typeof MEMBERSHIP_TYPES];
+    const type = MEMBERSHIP_TYPES[legacy.type];
     if (!type) {
       continue;
     }

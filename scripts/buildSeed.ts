@@ -20,4 +20,12 @@ execSync(
   { stdio: 'inherit' },
 );
 
+execSync(
+  // node-cron's ESM build reads import.meta.url at load time, which esbuild
+  // leaves undefined in a CJS bundle; the define points it at the runtime
+  // location inside the image.
+  'pnpm -F @yoga-sof/cron exec esbuild src/cron.ts --bundle --platform=node --format=cjs --target=node26 --define:import.meta.url="\'file:///seed/cron.cjs\'" --outdir=../../build/seed --out-extension:.js=.cjs',
+  { stdio: 'inherit' },
+);
+
 cpSync('packages/core/drizzle', `${OUT}/drizzle`, { recursive: true });

@@ -1,6 +1,6 @@
 import { createTRPCClient, httpBatchLink } from '@trpc/client';
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
-import { membershipCreateSchema } from '@yoga-sof/core/server';
+import { membershipCreateSchema, ServiceError } from '@yoga-sof/core/server';
 import superjson from 'superjson';
 import { describe, expect, it } from 'vitest';
 
@@ -11,6 +11,9 @@ const testRouter = trpc.router({
     create: trpc.procedure.input(membershipCreateSchema).mutation(({ input }) => input),
     boom: trpc.procedure.mutation(() => {
       throw new Error('boom');
+    }),
+    notImplemented: trpc.procedure.mutation(() => {
+      throw new ServiceError("Le renvoi des e-mails n'est pas encore pris en charge.", 501);
     }),
   }),
 });
@@ -49,5 +52,13 @@ describe('trpc errorFormatter', () => {
       .catch((mutationError: unknown) => mutationError);
 
     expect((error as Error).message).toBe('Une erreur est survenue.');
+  });
+
+  it('surfaces the message of a not-implemented service error', async () => {
+    const error = await client.membership.notImplemented
+      .mutate(undefined as never)
+      .catch((mutationError: unknown) => mutationError);
+
+    expect((error as Error).message).toBe("Le renvoi des e-mails n'est pas encore pris en charge.");
   });
 });

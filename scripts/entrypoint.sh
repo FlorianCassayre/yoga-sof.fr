@@ -25,9 +25,13 @@ case "$1" in
     cd /seed
     exec node import.cjs db.sql
     ;;
+  cron)
+    cd /seed
+    exec node cron.cjs
+    ;;
   *)
     echo "Unknown command: $1" >&2
-    echo "Usage: public | admin | migrate | seed | truncate-seed | truncate-import" >&2
+    echo "Usage: public | admin | migrate | seed | truncate-seed | truncate-import | cron" >&2
     exit 64
     ;;
 esac

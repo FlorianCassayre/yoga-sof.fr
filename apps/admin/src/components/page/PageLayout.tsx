@@ -20,7 +20,7 @@ export const PageLayout = ({ icon: Icon, title, actions, children }: PageLayoutP
   const fabActions = groups.flatMap((group) => group.children.filter((action) => action.fab));
 
   return (
-    <Stack spacing={2}>
+    <Stack spacing={2} sx={{ paddingBottom: fabActions.length > 0 ? 10 : 0 }}>
       <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
           <Icon size={24} />

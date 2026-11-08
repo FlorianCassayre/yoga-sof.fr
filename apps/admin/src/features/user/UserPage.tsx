@@ -17,6 +17,8 @@ import { CardIcon } from '../card/CardIcon';
 import { CourseUserRegistrationEventGrid } from '../courseUserRegistration/CourseUserRegistrationEventGrid';
 import { CourseUserRegistrationGrid } from '../courseUserRegistration/CourseUserRegistrationGrid';
 import { CourseUserRegistrationIcon } from '../courseUserRegistration/CourseUserRegistrationIcon';
+import { EmailGrid } from '../email/EmailGrid';
+import { EmailIcon } from '../email/EmailIcon';
 import { MembershipGrid } from '../membership/MembershipGrid';
 import { MembershipIcon } from '../membership/MembershipIcon';
 import { useHasPermission } from './useHasPermission';
@@ -25,13 +27,15 @@ import { UserIcon } from './UserIcon';
 const HISTORY_TAB = 'history';
 const MEMBERSHIP_TAB = 'membership';
 const CARD_TAB = 'card';
+const EMAIL_TAB = 'email';
 
-type UserTab = typeof HISTORY_TAB | typeof MEMBERSHIP_TAB | typeof CARD_TAB;
+type UserTab = typeof HISTORY_TAB | typeof MEMBERSHIP_TAB | typeof CARD_TAB | typeof EMAIL_TAB;
 
 const TABS: TabItem<UserTab>[] = [
   { value: HISTORY_TAB, label: 'Historique', icon: CourseUserRegistrationIcon },
   { value: MEMBERSHIP_TAB, label: 'Adhésions', icon: MembershipIcon },
   { value: CARD_TAB, label: 'Cartes', icon: CardIcon },
+  { value: EMAIL_TAB, label: 'E-mails', icon: EmailIcon },
 ];
 
 interface UserPageProps {
@@ -98,6 +102,7 @@ export const UserPage = ({ id }: UserPageProps) => {
         {tab === HISTORY_TAB && <CourseUserRegistrationEventGrid userId={user.data.id} />}
         {tab === MEMBERSHIP_TAB && <MembershipGrid userId={user.data.id} />}
         {tab === CARD_TAB && <CardGrid userId={user.data.id} />}
+        {tab === EMAIL_TAB && <EmailGrid userId={user.data.id} />}
       </Stack>
     </PageLayout>
   );

@@ -19,6 +19,7 @@ import { CardIcon } from '../../features/card/CardIcon';
 import { CourseIcon } from '../../features/course/CourseIcon';
 import { CourseUserRegistrationIcon } from '../../features/courseUserRegistration/CourseUserRegistrationIcon';
 import { DashboardIcon } from '../../features/dashboard/DashboardIcon';
+import { EmailIcon } from '../../features/email/EmailIcon';
 import { MembershipIcon } from '../../features/membership/MembershipIcon';
 import { RoleIcon } from '../../features/role/RoleIcon';
 import { SettingsIcon } from '../../features/settings/SettingsIcon';
@@ -53,6 +54,7 @@ const NAV_GROUPS: {
     label: 'Administration',
     items: [
       { href: '/roles', label: 'Rôles', Icon: RoleIcon },
+      { href: '/emails', label: 'E-mails', Icon: EmailIcon },
       { href: '/parametres', label: 'Paramètres', Icon: SettingsIcon, requiresSettings: true },
     ],
   },

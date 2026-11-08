@@ -11,6 +11,7 @@ import { Link } from '../../components/link/Link';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
 import { CourseLink } from '../course/CourseLink';
+import { EmailLink } from '../email/EmailLink';
 
 type NotificationRow = RouterOutputs['notification']['list']['rows'][number];
 
@@ -21,7 +22,15 @@ const columns: GridColumns<NotificationRow> = [
     width: 70,
     sortable: false,
     renderCell: (params) => (
-      <IconButton component={Link} href={`/seances/${params.row.courseId}`} size="small">
+      <IconButton
+        component={Link}
+        href={
+          params.row.type === 'emailFailed'
+            ? `/emails/${params.row.emailId}`
+            : `/seances/${params.row.courseId}`
+        }
+        size="small"
+      >
         <Eye size={18} />
       </IconButton>
     ),
@@ -37,16 +46,19 @@ const columns: GridColumns<NotificationRow> = [
     headerName: 'Action',
     flex: 2,
     type: 'dateTime',
-    renderCell: (params) => (
-      <CourseLink
-        course={{
-          id: params.row.courseId,
-          type: params.row.courseType,
-          startsAt: params.row.courseStartsAt,
-          endsAt: params.row.courseEndsAt,
-        }}
-      />
-    ),
+    renderCell: (params) =>
+      params.row.type === 'emailFailed' ? (
+        <EmailLink email={{ id: params.row.emailId, subject: params.row.subject }} />
+      ) : (
+        <CourseLink
+          course={{
+            id: params.row.courseId,
+            type: params.row.courseType,
+            startsAt: params.row.courseStartsAt,
+            endsAt: params.row.courseEndsAt,
+          }}
+        />
+      ),
   },
   {
     field: 'date',

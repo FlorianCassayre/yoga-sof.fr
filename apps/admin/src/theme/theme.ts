@@ -6,6 +6,7 @@ import { muiAppLocale } from '@yoga-sof/ui/muiAppLocale';
 import { theme as baseTheme } from '@yoga-sof/ui/theme/theme';
 
 import { MuiCard } from './components/MuiCard';
+import { MuiCssBaseline } from './components/MuiCssBaseline';
 import { MuiDataGrid } from './components/MuiDataGrid';
 import { MuiTableCell } from './components/MuiTableCell';
 
@@ -73,6 +74,7 @@ const themeOptions: ThemeOptions = {
       },
     },
     MuiCard,
+    MuiCssBaseline,
     MuiDataGrid,
     MuiEventCalendar: eventCalendarOverrides,
     MuiEventDialog: eventDialogOverrides,

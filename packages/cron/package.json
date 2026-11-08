@@ -1,0 +1,26 @@
+{
+  "name": "@yoga-sof/cron",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cron": "tsx src/cron.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@yoga-sof/core": "workspace:*",
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "node-cron": "catalog:",
+    "nodemailer": "catalog:",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "esbuild": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

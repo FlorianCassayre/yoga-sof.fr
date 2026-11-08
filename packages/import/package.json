@@ -12,9 +12,11 @@
     "dotenv": "catalog:",
     "drizzle-orm": "catalog:",
     "pg": "catalog:",
-    "uuid": "catalog:"
+    "uuid": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@types/node": "catalog:",
     "@types/pg": "catalog:",
     "esbuild": "catalog:",
     "tsx": "catalog:",

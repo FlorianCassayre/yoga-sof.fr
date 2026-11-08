@@ -10,6 +10,7 @@ import {
 import { trpc } from '@yoga-sof/ui/trpc';
 
 import { readProcedure, writeProcedure } from '../../server/trpc';
+import { createRegistrationEmails } from '../email/registrationEmails';
 
 export const courseUserRegistrationRouter = trpc.router({
   list: readProcedure
@@ -29,11 +30,14 @@ export const courseUserRegistrationRouter = trpc.router({
         readOnly: true,
       }),
     ),
-  create: writeProcedure
-    .input(courseUserRegistrationCreateSchema)
-    .mutation(({ input }) =>
-      withTransaction((tx) => courseUserRegistrationService.create(input, tx)),
-    ),
+  create: writeProcedure.input(courseUserRegistrationCreateSchema).mutation(({ input }) =>
+    withTransaction(async (tx) => {
+      const registrations = await courseUserRegistrationService.create(input, tx);
+      if (input.notify) {
+        await createRegistrationEmails(tx, registrations);
+      }
+    }),
+  ),
   setPresence: writeProcedure
     .input(courseUserRegistrationSetPresenceSchema)
     .mutation(({ input }) =>

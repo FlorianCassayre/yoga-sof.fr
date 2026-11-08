@@ -24,7 +24,7 @@ export const RecordDetails = ({ entries }: RecordDetailsProps) => {
                   <TableCell component="th" scope="row" align="right" variant="head">
                     {label}
                   </TableCell>
-                  <TableCell>{value}</TableCell>
+                  <TableCell sx={{ overflowWrap: 'anywhere' }}>{value}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

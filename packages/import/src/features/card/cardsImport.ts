@@ -3,15 +3,18 @@ import { cardsTable } from '@yoga-sof/core/server';
 import type { Client } from 'pg';
 
 import { type InsertRow, insertRows } from '../../import/insertRows';
-import { parseLegacyDateTime } from '../../parse/legacyDateTime';
+import { parseLegacyRow } from '../../parse/legacySchemas';
 import type { MysqlValue } from '../../parse/parseMysqlDump';
-import { COURSE_TYPES } from '../course/courseSchemas';
+import { COURSE_TYPES } from '../course/courseLegacySchemas';
 import {
   CARD_VALIDITY_MONTHS,
   COUPON_COLUMNS,
   COUPON_MODEL_COLUMNS,
   COUPON_PURCHASE_COLUMNS,
-} from './cardSchemas';
+  couponLegacySchema,
+  couponModelLegacySchema,
+  couponPurchaseLegacySchema,
+} from './cardLegacySchemas';
 
 interface CardsImportResult {
   cards: number;
@@ -20,27 +23,13 @@ interface CardsImportResult {
   unsupportedCoupons: number;
 }
 
-const legacyCoupon = (row: MysqlValue[]) => ({
-  id: row[COUPON_COLUMNS.id] as number,
-  type: row[COUPON_COLUMNS.course_type] as string,
-  quantity: row[COUPON_COLUMNS.quantity] as number,
-  price: row[COUPON_COLUMNS.price] as number,
-  disabled: row[COUPON_COLUMNS.disabled] as number,
-  userId: row[COUPON_COLUMNS.user_id] as number,
-  createdAt: row[COUPON_COLUMNS.created_at] as string,
-});
+const legacyCoupon = (row: MysqlValue[]) => parseLegacyRow(row, COUPON_COLUMNS, couponLegacySchema);
 
-const legacyCouponModel = (row: MysqlValue[]) => ({
-  id: row[COUPON_MODEL_COLUMNS.id] as number,
-  type: row[COUPON_MODEL_COLUMNS.course_type] as string,
-  quantity: row[COUPON_MODEL_COLUMNS.quantity] as number,
-  price: row[COUPON_MODEL_COLUMNS.price] as number,
-});
+const legacyCouponModel = (row: MysqlValue[]) =>
+  parseLegacyRow(row, COUPON_MODEL_COLUMNS, couponModelLegacySchema);
 
-const legacyCouponPurchase = (row: MysqlValue[]) => ({
-  couponId: row[COUPON_PURCHASE_COLUMNS.coupon_id] as number,
-  registrationId: row[COUPON_PURCHASE_COLUMNS.course_registration_id] as number,
-});
+const legacyCouponPurchase = (row: MysqlValue[]) =>
+  parseLegacyRow(row, COUPON_PURCHASE_COLUMNS, couponPurchaseLegacySchema);
 
 const templateKey = (type: string, price: number, count: number): string =>
   `${type}:${price}:${count}`;
@@ -60,7 +49,7 @@ export const cardsImport = async (
   >();
   let nextTemplateId = 0;
   for (const legacy of modelRows.map(legacyCouponModel)) {
-    const type = COURSE_TYPES[legacy.type as keyof typeof COURSE_TYPES];
+    const type = COURSE_TYPES[legacy.courseType];
     if (!type) {
       continue;
     }
@@ -77,14 +66,14 @@ export const cardsImport = async (
   const usedRegistrations = new Map<number, Set<number>>();
   for (const legacy of purchaseRows.map(legacyCouponPurchase)) {
     const registrations = usedRegistrations.get(legacy.couponId) ?? new Set<number>();
-    registrations.add(legacy.registrationId);
+    registrations.add(legacy.courseRegistrationId);
     usedRegistrations.set(legacy.couponId, registrations);
   }
 
   const cards: InsertRow<typeof cardsTable>[] = [];
   const counters = { disabledCoupons: 0, unsupportedCoupons: 0 };
   for (const legacy of couponRows.map(legacyCoupon)) {
-    const type = COURSE_TYPES[legacy.type as keyof typeof COURSE_TYPES];
+    const type = COURSE_TYPES[legacy.courseType];
     const userId = userIds.get(legacy.userId);
     if (!type || !userId) {
       counters.unsupportedCoupons++;
@@ -109,11 +98,8 @@ export const cardsImport = async (
       price,
       count: legacy.quantity,
       remaining,
-      validUntil: cardValidUntil({
-        purchasedAt: parseLegacyDateTime(legacy.createdAt)!,
-        months: CARD_VALIDITY_MONTHS,
-      }),
-      createdAt: parseLegacyDateTime(legacy.createdAt)!,
+      validUntil: cardValidUntil({ purchasedAt: legacy.createdAt, months: CARD_VALIDITY_MONTHS }),
+      createdAt: legacy.createdAt,
     });
   }
 

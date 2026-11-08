@@ -1,3 +1,4 @@
+export type { DbTransaction } from './db/db';
 export * from './db/truncateDatabase';
 export * from './db/withTransaction';
 export * from './errors';
@@ -6,6 +7,7 @@ export * from './features/calendar/server';
 export * from './features/card/server';
 export * from './features/course/server';
 export * from './features/courseUserRegistration/server';
+export * from './features/email/server';
 export * from './features/membership/server';
 export * from './features/notification/server';
 export * from './features/role/server';

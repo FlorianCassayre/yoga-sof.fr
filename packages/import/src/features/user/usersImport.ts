@@ -3,9 +3,16 @@ import type { Client } from 'pg';
 import { v5 as uuidV5 } from 'uuid';
 
 import { type InsertRow, insertRows } from '../../import/insertRows';
-import { parseLegacyDateTime } from '../../parse/legacyDateTime';
+import { parseLegacyRow } from '../../parse/legacySchemas';
 import type { MysqlValue } from '../../parse/parseMysqlDump';
-import { ACCOUNT_COLUMNS, ROLES, USER_COLUMNS, USER_ID_NAMESPACE } from './userSchemas';
+import {
+  ACCOUNT_COLUMNS,
+  accountLegacySchema,
+  ROLES,
+  USER_COLUMNS,
+  USER_ID_NAMESPACE,
+  userLegacySchema,
+} from './userLegacySchemas';
 
 interface UsersImportResult {
   userIds: Map<number, string>;
@@ -14,6 +21,11 @@ interface UsersImportResult {
   roles: number;
   duplicateEmails: number;
 }
+
+const legacyUser = (row: MysqlValue[]) => parseLegacyRow(row, USER_COLUMNS, userLegacySchema);
+
+const legacyAccount = (row: MysqlValue[]) =>
+  parseLegacyRow(row, ACCOUNT_COLUMNS, accountLegacySchema);
 
 const accountsImport = async (client: Client, rows: MysqlValue[][], ids: Map<number, string>) => {
   const accounts: InsertRow<typeof accountsTable>[] = [];
@@ -39,32 +51,6 @@ const accountsImport = async (client: Client, rows: MysqlValue[][], ids: Map<num
   await insertRows(client, accountsTable, accounts);
   return accounts.length;
 };
-
-const legacyUser = (row: MysqlValue[]) => ({
-  id: row[USER_COLUMNS.id] as number,
-  name: row[USER_COLUMNS.name] as string | null,
-  email: row[USER_COLUMNS.email] as string | null,
-  emailVerified: row[USER_COLUMNS.email_verified] as string | null,
-  image: row[USER_COLUMNS.image] as string | null,
-  customEmail: row[USER_COLUMNS.custom_email] as string | null,
-  customName: row[USER_COLUMNS.custom_name] as string | null,
-  createdAt: row[USER_COLUMNS.created_at] as string | null,
-  role: row[USER_COLUMNS.role] as string,
-});
-
-const legacyAccount = (row: MysqlValue[]) => ({
-  userId: row[ACCOUNT_COLUMNS.user_id] as number,
-  type: row[ACCOUNT_COLUMNS.type] as string,
-  provider: row[ACCOUNT_COLUMNS.provider] as string,
-  providerAccountId: row[ACCOUNT_COLUMNS.provider_account_id] as string,
-  refreshToken: row[ACCOUNT_COLUMNS.refresh_token] as string | null,
-  accessToken: row[ACCOUNT_COLUMNS.access_token] as string | null,
-  expiresAt: row[ACCOUNT_COLUMNS.expires_at] as number | null,
-  tokenType: row[ACCOUNT_COLUMNS.token_type] as string | null,
-  scope: row[ACCOUNT_COLUMNS.scope] as string | null,
-  idToken: row[ACCOUNT_COLUMNS.id_token] as string | null,
-  sessionState: row[ACCOUNT_COLUMNS.session_state] as string | null,
-});
 
 export const usersImport = async (
   client: Client,
@@ -92,12 +78,12 @@ export const usersImport = async (
       id,
       name: legacy.customName ?? legacy.name,
       email,
-      emailVerified: parseLegacyDateTime(legacy.emailVerified),
+      emailVerified: legacy.emailVerified,
       image: legacy.image,
     });
-    const role = ROLES[legacy.role as keyof typeof ROLES];
+    const role = ROLES[legacy.role];
     if (role) {
-      roles.push({ userId: id, role, createdAt: parseLegacyDateTime(legacy.createdAt)! });
+      roles.push({ userId: id, role, createdAt: legacy.createdAt });
     }
   }
   await insertRows(client, usersTable, users);
