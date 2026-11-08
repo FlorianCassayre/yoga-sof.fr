@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "db:seed": "tsx src/index.ts",
+    "db:import": "tsx src/import.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

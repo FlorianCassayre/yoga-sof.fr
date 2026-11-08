@@ -12,3 +12,5 @@ next-env.d.ts
 .env
 
 build
+
+db.sql

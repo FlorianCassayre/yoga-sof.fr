@@ -165,6 +165,9 @@ catalogs:
     typescript-eslint:
       specifier: ^8.68.0
       version: 8.68.0
+    uuid:
+      specifier: ^13.0.0
+      version: 13.0.2
     vitest:
       specifier: ^5.0.5
       version: 5.0.5
@@ -173,7 +176,7 @@ catalogs:
       version: 4.6.7
 
 patchedDependencies:
-  '@auth/drizzle-adapter@1.11.3': cddc3b1ec3ad9477e5cac93f18e3e30a5c1b047f213e58d5245337bb93bc58bb
+  '@auth/drizzle-adapter@1.11.3': 9bf2f63b97defa64ad21710606b49949ba59e14f52d411dff9dfa9cd0d2d69de
 
 importers:
 
@@ -393,7 +396,7 @@ importers:
         version: 0.41.3
       '@auth/drizzle-adapter':
         specifier: 'catalog:'
-        version: 1.11.3(patch_hash=cddc3b1ec3ad9477e5cac93f18e3e30a5c1b047f213e58d5245337bb93bc58bb)
+        version: 1.11.3(patch_hash=9bf2f63b97defa64ad21710606b49949ba59e14f52d411dff9dfa9cd0d2d69de)
       '@date-fns/tz':
         specifier: 'catalog:'
         version: 1.5.0
@@ -428,6 +431,40 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 5.0.5(@types/node@20.19.43)(jsdom@30.1.3)(vite@8.3.5(@types/node@20.19.43)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.23.12))
+
+  packages/import:
+    dependencies:
+      '@date-fns/tz':
+        specifier: 'catalog:'
+        version: 1.5.0
+      '@yoga-sof/core':
+        specifier: workspace:*
+        version: link:../core
+      dotenv:
+        specifier: 'catalog:'
+        version: 17.4.2
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 1.0.0-rc.4(@types/pg@8.23.1)(pg@8.23.0)(zod@4.6.7)
+      pg:
+        specifier: 'catalog:'
+        version: 8.23.0
+      uuid:
+        specifier: 'catalog:'
+        version: 13.0.2
+    devDependencies:
+      '@types/pg':
+        specifier: 'catalog:'
+        version: 8.23.1
+      esbuild:
+        specifier: 'catalog:'
+        version: 0.27.7
+      tsx:
+        specifier: 'catalog:'
+        version: 4.23.12
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
 
   packages/seed:
     dependencies:
@@ -3797,6 +3834,10 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
+  uuid@13.0.2:
+    resolution: {integrity: sha512-vzi9uRZ926x4XV73S/4qQaTwPXM2JBj6/6lI/byHH1jOpCzb0zDbfytgA9LcN/hzb2l7WQSQnxITOVx5un/wGw==}
+    hasBin: true
+
   vite@8.3.5:
     resolution: {integrity: sha512-z1YpjieJ9g0ebTmQpLBv/oq9E3F9EIlOe+7LahW8SrE3LTiG3udBRUXQOlYXP9b+IC2q2phHeVxj9xGlw34OEQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -3994,7 +4035,7 @@ snapshots:
       preact: 10.24.3
       preact-render-to-string: 6.5.11(preact@10.24.3)
 
-  '@auth/drizzle-adapter@1.11.3(patch_hash=cddc3b1ec3ad9477e5cac93f18e3e30a5c1b047f213e58d5245337bb93bc58bb)':
+  '@auth/drizzle-adapter@1.11.3(patch_hash=9bf2f63b97defa64ad21710606b49949ba59e14f52d411dff9dfa9cd0d2d69de)':
     dependencies:
       '@auth/core': 0.41.3
     transitivePeerDependencies:
@@ -7051,6 +7092,8 @@ snapshots:
   use-sync-external-store@1.7.0(react@19.2.8):
     dependencies:
       react: 19.2.8
+
+  uuid@13.0.2: {}
 
   vite@8.3.5(@types/node@20.19.43)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.23.12):
     dependencies:

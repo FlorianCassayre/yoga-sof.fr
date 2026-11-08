@@ -38,12 +38,14 @@ index e1678f7074f4c8a9729eecca98beb09eea27f265..074faa7748471cecdecae7844f1acd87
 +
 +export { defineTables } from "./lib/pg.js";
 diff --git a/lib/pg.d.ts b/lib/pg.d.ts
-index 02c47ed10ac652994b1b1323e4c8fd716d93240e..6c4f6d0b50345e07eea0973950f91323ab303ef0 100644
+index 02c47ed10ac652994b1b1323e4c8fd716d93240e..9d52dbd7bc6ffadc82f03e9d63ee2546d7eee876 100644
 --- a/lib/pg.d.ts
 +++ b/lib/pg.d.ts
-@@ -8,21 +8,20 @@ type DefaultPostgresColumn<T extends {
+@@ -7,22 +7,22 @@ type DefaultPostgresColumn<T extends {
+     data: string | number | boolean | Date;
      dataType: "string" | "number" | "boolean" | "date";
      notNull: boolean;
++    hasDefault?: boolean;
      isPrimaryKey?: boolean;
 -    columnType: "PgVarchar" | "PgText" | "PgBoolean" | "PgTimestamp" | "PgInteger" | "PgUUID";
 -}> = PgColumn<{
@@ -53,7 +55,7 @@ index 02c47ed10ac652994b1b1323e4c8fd716d93240e..6c4f6d0b50345e07eea0973950f91323
 +    dataType: T["dataType"];
 +    tableName: string;
 +    notNull: T["notNull"];
-+    hasDefault: boolean;
++    hasDefault: T["hasDefault"] extends true ? true : false;
      isPrimaryKey: T["isPrimaryKey"] extends true ? true : false;
 +    isAutoincrement: boolean;
      hasRuntimeDefault: boolean;
@@ -67,11 +69,98 @@ index 02c47ed10ac652994b1b1323e4c8fd716d93240e..6c4f6d0b50345e07eea0973950f91323
 -    dataType: T["dataType"];
 -    tableName: string;
 +    enumValues: string[] | undefined;
-+    generated: unknown;
++    generated: undefined;
 +    identity: undefined;
  }>;
  export type DefaultPostgresUsersTable = PgTableWithColumns<{
      name: string;
+@@ -33,30 +33,31 @@ export type DefaultPostgresUsersTable = PgTableWithColumns<{
+             data: string;
+             notNull: true;
+             dataType: "string";
++            hasDefault: true;
+         }>;
+         name: DefaultPostgresColumn<{
+             columnType: "PgVarchar" | "PgText";
+             data: string;
+-            notNull: boolean;
++            notNull: false;
+             dataType: "string";
+         }>;
+         email: DefaultPostgresColumn<{
+             columnType: "PgVarchar" | "PgText";
+             data: string;
+-            notNull: boolean;
++            notNull: false;
+             dataType: "string";
+         }>;
+         emailVerified: DefaultPostgresColumn<{
+             dataType: "date";
+             columnType: "PgTimestamp";
+             data: Date;
+-            notNull: boolean;
++            notNull: false;
+         }>;
+         image: DefaultPostgresColumn<{
+             dataType: "string";
+             columnType: "PgVarchar" | "PgText";
+             data: string;
+-            notNull: boolean;
++            notNull: false;
+         }>;
+     };
+     dialect: "pg";
+@@ -93,43 +94,43 @@ export type DefaultPostgresAccountsTable = PgTableWithColumns<{
+             dataType: "string";
+             columnType: "PgVarchar" | "PgText";
+             data: string;
+-            notNull: boolean;
++            notNull: false;
+         }>;
+         access_token: DefaultPostgresColumn<{
+             dataType: "string";
+             columnType: "PgVarchar" | "PgText";
+             data: string;
+-            notNull: boolean;
++            notNull: false;
+         }>;
+         expires_at: DefaultPostgresColumn<{
+             dataType: "number";
+             columnType: "PgInteger";
+             data: number;
+-            notNull: boolean;
++            notNull: false;
+         }>;
+         token_type: DefaultPostgresColumn<{
+             dataType: "string";
+             columnType: "PgVarchar" | "PgText";
+             data: string;
+-            notNull: boolean;
++            notNull: false;
+         }>;
+         scope: DefaultPostgresColumn<{
+             dataType: "string";
+             columnType: "PgVarchar" | "PgText";
+             data: string;
+-            notNull: boolean;
++            notNull: false;
+         }>;
+         id_token: DefaultPostgresColumn<{
+             dataType: "string";
+             columnType: "PgVarchar" | "PgText";
+             data: string;
+-            notNull: boolean;
++            notNull: false;
+         }>;
+         session_state: DefaultPostgresColumn<{
+             dataType: "string";
+             columnType: "PgVarchar" | "PgText";
+             data: string;
+-            notNull: boolean;
++            notNull: false;
+         }>;
+     };
+     dialect: "pg";
 diff --git a/lib/utils.d.ts b/lib/utils.d.ts
 index 371208781272d1d7c9c85418bf309e055d221452..328e8823a10fcf241b5152058dd00eeaaf32d55a 100644
 --- a/lib/utils.d.ts

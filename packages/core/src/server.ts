@@ -1,3 +1,4 @@
+export * from './db/truncateDatabase';
 export * from './db/withTransaction';
 export * from './errors';
 export * from './features/auth/server';

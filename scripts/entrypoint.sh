@@ -21,9 +21,13 @@ case "$1" in
     node truncate.cjs
     exec node seed.cjs
     ;;
+  truncate-import)
+    cd /seed
+    exec node import.cjs db.sql
+    ;;
   *)
     echo "Unknown command: $1" >&2
-    echo "Usage: public | admin | migrate | seed | truncate-seed" >&2
+    echo "Usage: public | admin | migrate | seed | truncate-seed | truncate-import" >&2
     exit 64
     ;;
 esac

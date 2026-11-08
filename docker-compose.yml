@@ -40,6 +40,23 @@ services:
   #       condition: service_completed_successfully
   #   restart: 'no'
 
+  # Legacy import: wipes the database and replaces its contents with the data from
+  # db.sql; enable it once to migrate the data of the previous application, then
+  # disable it again. Wipes the database on every image update while enabled!
+  # import:
+  #   image: ghcr.io/floriancassayre/yoga-sof.fr:dev
+  #   command: truncate-import
+  #   environment:
+  #     DATABASE_URL: ${DATABASE_URL}
+  #   volumes:
+  #     - ./db.sql:/seed/db.sql:ro
+  #   labels:
+  #     - com.centurylinklabs.watchtower.enable=true
+  #   depends_on:
+  #     migrate:
+  #       condition: service_completed_successfully
+  #   restart: 'no'
+
   public:
     image: ghcr.io/floriancassayre/yoga-sof.fr:dev
     command: public

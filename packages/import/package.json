@@ -1,0 +1,23 @@
+{
+  "name": "@yoga-sof/import",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:import": "tsx src/import/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@date-fns/tz": "catalog:",
+    "@yoga-sof/core": "workspace:*",
+    "dotenv": "catalog:",
+    "drizzle-orm": "catalog:",
+    "pg": "catalog:",
+    "uuid": "catalog:"
+  },
+  "devDependencies": {
+    "@types/pg": "catalog:",
+    "esbuild": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}
