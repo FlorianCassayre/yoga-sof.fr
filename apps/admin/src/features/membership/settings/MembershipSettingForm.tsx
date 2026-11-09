@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { FormContainer, SelectElement } from 'react-hook-form-mui';
 
 import { api } from '../../../server/api';
+import { useHasPermission } from '../../user/useHasPermission';
 
 interface MembershipSettingFormValues {
   seasonStartMonth: string;
@@ -37,6 +38,7 @@ const MembershipSettingFields = ({ disabled }: { disabled: boolean }) => {
 export const MembershipSettingForm = () => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const canManage = useHasPermission('manageSettings');
   const settingQuery = api.membershipSetting.get.useQuery();
   const updateMutation = api.membershipSetting.update.useMutation();
 
@@ -68,12 +70,14 @@ export const MembershipSettingForm = () => {
       }}
     >
       <Stack spacing={2}>
-        <MembershipSettingFields disabled={updateMutation.isPending} />
-        <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end' }}>
-          <Button type="submit" variant="contained" disabled={updateMutation.isPending}>
-            Enregistrer
-          </Button>
-        </Stack>
+        <MembershipSettingFields disabled={updateMutation.isPending || !canManage} />
+        {canManage && (
+          <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end' }}>
+            <Button type="submit" variant="contained" disabled={updateMutation.isPending}>
+              Enregistrer
+            </Button>
+          </Stack>
+        )}
       </Stack>
     </FormContainer>
   );

@@ -18,7 +18,6 @@ import { type ReactNode, useState } from 'react';
 
 import { signOutAction } from '../../features/auth/signOutAction';
 import { useCurrentUser } from '../../features/user/useCurrentUser';
-import { useHasPermission } from '../../features/user/useHasPermission';
 import { api } from '../../server/api';
 import { Link } from '../link/Link';
 import { Sidebar } from './Sidebar';
@@ -27,7 +26,6 @@ export const AdminLayout = ({ children, siteUrl }: { children: ReactNode; siteUr
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuAnchor, setUserMenuAnchor] = useState<HTMLElement | null>(null);
   const user = useCurrentUser();
-  const settingsEnabled = useHasPermission('manageSettings');
   const notifications = api.notification.count.useQuery();
 
   return (
@@ -100,7 +98,6 @@ export const AdminLayout = ({ children, siteUrl }: { children: ReactNode; siteUr
       <Sidebar
         mobileOpen={mobileOpen}
         onMobileClose={() => setMobileOpen(false)}
-        settingsEnabled={settingsEnabled}
         siteUrl={siteUrl}
       />
 

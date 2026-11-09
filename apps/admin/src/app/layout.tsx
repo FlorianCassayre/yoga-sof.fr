@@ -13,7 +13,7 @@ const RootLayout = async ({ children }: LayoutProps<'/'>) => {
     redirect(connexionUrl(process.env.NEXT_ADMIN_SITE_URL) as Route);
   }
 
-  const allowed = await withTransaction((tx) => roleService.hasPermission(id, 'adminPanel', tx), {
+  const allowed = await withTransaction((tx) => roleService.hasPermission(id, 'readData', tx), {
     readOnly: true,
   });
 

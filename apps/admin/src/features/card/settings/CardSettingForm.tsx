@@ -9,6 +9,7 @@ import { useFormContext } from 'react-hook-form';
 import { FormContainer, TextFieldElement } from 'react-hook-form-mui';
 
 import { api } from '../../../server/api';
+import { useHasPermission } from '../../user/useHasPermission';
 import { formatValidUntil } from '../formatValidUntil';
 
 interface CardSettingFormValues {
@@ -60,6 +61,7 @@ const CardSettingFields = ({ disabled }: { disabled: boolean }) => {
 export const CardSettingForm = () => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const canManage = useHasPermission('manageSettings');
   const settingQuery = api.cardSetting.get.useQuery();
   const updateMutation = api.cardSetting.update.useMutation();
 
@@ -89,12 +91,14 @@ export const CardSettingForm = () => {
       }}
     >
       <Stack spacing={2}>
-        <CardSettingFields disabled={updateMutation.isPending} />
-        <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end' }}>
-          <Button type="submit" variant="contained" disabled={updateMutation.isPending}>
-            Enregistrer
-          </Button>
-        </Stack>
+        <CardSettingFields disabled={updateMutation.isPending || !canManage} />
+        {canManage && (
+          <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end' }}>
+            <Button type="submit" variant="contained" disabled={updateMutation.isPending}>
+              Enregistrer
+            </Button>
+          </Stack>
+        )}
       </Stack>
     </FormContainer>
   );

@@ -6,6 +6,7 @@ import { useSnackbar } from 'notistack';
 import { FormContainer, TextFieldElement } from 'react-hook-form-mui';
 
 import { api } from '../../server/api';
+import { useHasPermission } from '../user/useHasPermission';
 
 const DAY_START_DEFAULT = '09:00';
 const DAY_END_DEFAULT = '21:00';
@@ -41,6 +42,7 @@ const CalendarSettingFields = ({ disabled }: { disabled: boolean }) => {
 export const CalendarSettingForm = () => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
+  const canManage = useHasPermission('manageSettings');
   const settingQuery = api.calendarSetting.get.useQuery();
   const updateMutation = api.calendarSetting.update.useMutation();
 
@@ -74,12 +76,14 @@ export const CalendarSettingForm = () => {
       }}
     >
       <Stack spacing={2}>
-        <CalendarSettingFields disabled={updateMutation.isPending} />
-        <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end' }}>
-          <Button type="submit" variant="contained" disabled={updateMutation.isPending}>
-            Enregistrer
-          </Button>
-        </Stack>
+        <CalendarSettingFields disabled={updateMutation.isPending || !canManage} />
+        {canManage && (
+          <Stack direction="row" spacing={2} sx={{ justifyContent: 'flex-end' }}>
+            <Button type="submit" variant="contained" disabled={updateMutation.isPending}>
+              Enregistrer
+            </Button>
+          </Stack>
+        )}
       </Stack>
     </FormContainer>
   );

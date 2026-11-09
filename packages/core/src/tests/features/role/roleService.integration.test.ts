@@ -34,9 +34,9 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('roleService', () =>
     );
 
     expect(await withTransaction((tx) => roleService.getUserRole(user.id, tx))).toBe('manager');
-    expect(
-      await withTransaction((tx) => roleService.hasPermission(user.id, 'adminPanel', tx)),
-    ).toBe(true);
+    expect(await withTransaction((tx) => roleService.hasPermission(user.id, 'readData', tx))).toBe(
+      true,
+    );
   });
 
   it('reports no permission for a user without a role', async () => {
@@ -47,9 +47,9 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('roleService', () =>
     if (!user) throw new Error('expected user to be created');
 
     expect(await withTransaction((tx) => roleService.getUserRole(user.id, tx))).toBeNull();
-    expect(
-      await withTransaction((tx) => roleService.hasPermission(user.id, 'adminPanel', tx)),
-    ).toBe(false);
+    expect(await withTransaction((tx) => roleService.hasPermission(user.id, 'readData', tx))).toBe(
+      false,
+    );
   });
 
   it('lists the users that have a role', async () => {

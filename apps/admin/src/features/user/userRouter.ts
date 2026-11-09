@@ -8,10 +8,10 @@ import {
 import { auth } from '@yoga-sof/ui/auth';
 import { trpc } from '@yoga-sof/ui/trpc';
 
-import { panelProcedure, readProcedure } from '../../server/trpc';
+import { readProcedure } from '../../server/trpc';
 
 export const userRouter = trpc.router({
-  me: panelProcedure.query(async () => {
+  me: readProcedure.query(async () => {
     const session = await auth();
     const id = session?.user?.id;
 

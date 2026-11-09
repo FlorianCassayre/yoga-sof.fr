@@ -11,12 +11,14 @@ import type { GridColumns } from '../../../components/grid/GridColumns';
 import { Link } from '../../../components/link/Link';
 import { api } from '../../../server/api';
 import type { RouterOutputs } from '../../../server/appRouter';
+import { useHasPermission } from '../../user/useHasPermission';
 import { MembershipTypeChip } from '../type/MembershipTypeChip';
 
 type MembershipPriceRow = RouterOutputs['membershipPrice']['list']['rows'][number];
 
 export const MembershipPriceGrid = () => {
   const [deleting, setDeleting] = useState<MembershipPriceRow | null>(null);
+  const canManage = useHasPermission('manageSettings');
 
   const columns: GridColumns<MembershipPriceRow> = [
     {
@@ -32,25 +34,29 @@ export const MembershipPriceGrid = () => {
       flex: 1,
       valueFormatter: (value) => formatPrice(value),
     },
-    {
-      field: 'actions',
-      headerName: '',
-      width: 100,
-      sortable: false,
-      renderCell: (params) => [
-        <IconButton
-          key="edit"
-          component={Link}
-          href={`/parametres/tarifs/${params.row.id}/edition`}
-          size="small"
-        >
-          <Pencil size={18} />
-        </IconButton>,
-        <IconButton key="delete" size="small" onClick={() => setDeleting(params.row)}>
-          <Trash2 size={18} />
-        </IconButton>,
-      ],
-    },
+    ...(canManage
+      ? ([
+          {
+            field: 'actions',
+            headerName: '',
+            width: 100,
+            sortable: false,
+            renderCell: (params) => [
+              <IconButton
+                key="edit"
+                component={Link}
+                href={`/parametres/tarifs/${params.row.id}/edition`}
+                size="small"
+              >
+                <Pencil size={18} />
+              </IconButton>,
+              <IconButton key="delete" size="small" onClick={() => setDeleting(params.row)}>
+                <Trash2 size={18} />
+              </IconButton>,
+            ],
+          },
+        ] satisfies GridColumns<MembershipPriceRow>)
+      : []),
   ];
 
   return (

@@ -11,11 +11,13 @@ import type { GridColumns } from '../../../components/grid/GridColumns';
 import { Link } from '../../../components/link/Link';
 import { api } from '../../../server/api';
 import type { RouterOutputs } from '../../../server/appRouter';
+import { useHasPermission } from '../../user/useHasPermission';
 
 type CardTemplateRow = RouterOutputs['cardTemplate']['list']['rows'][number];
 
 export const CardTemplateGrid = () => {
   const [deleting, setDeleting] = useState<CardTemplateRow | null>(null);
+  const canManage = useHasPermission('manageSettings');
 
   const columns: GridColumns<CardTemplateRow> = [
     {
@@ -37,25 +39,29 @@ export const CardTemplateGrid = () => {
       flex: 1,
       valueFormatter: (value) => formatPrice(value),
     },
-    {
-      field: 'actions',
-      headerName: '',
-      width: 100,
-      sortable: false,
-      renderCell: (params) => [
-        <IconButton
-          key="edit"
-          component={Link}
-          href={`/parametres/modeles/${params.row.id}/edition`}
-          size="small"
-        >
-          <Pencil size={18} />
-        </IconButton>,
-        <IconButton key="delete" size="small" onClick={() => setDeleting(params.row)}>
-          <Trash2 size={18} />
-        </IconButton>,
-      ],
-    },
+    ...(canManage
+      ? ([
+          {
+            field: 'actions',
+            headerName: '',
+            width: 100,
+            sortable: false,
+            renderCell: (params) => [
+              <IconButton
+                key="edit"
+                component={Link}
+                href={`/parametres/modeles/${params.row.id}/edition`}
+                size="small"
+              >
+                <Pencil size={18} />
+              </IconButton>,
+              <IconButton key="delete" size="small" onClick={() => setDeleting(params.row)}>
+                <Trash2 size={18} />
+              </IconButton>,
+            ],
+          },
+        ] satisfies GridColumns<CardTemplateRow>)
+      : []),
   ];
 
   return (

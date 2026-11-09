@@ -4,6 +4,7 @@ import { Stack, Typography } from '@mui/material';
 
 import type { PageActionGroup } from '../../components/page/PageAction';
 import { PageLayout } from '../../components/page/PageLayout';
+import { CourseUserWaitingListGrid } from '../courseUserWaitingList/CourseUserWaitingListGrid';
 import { useHasPermission } from '../user/useHasPermission';
 import { CourseUserRegistrationEventGrid } from './CourseUserRegistrationEventGrid';
 import { CourseUserRegistrationGrid } from './CourseUserRegistrationGrid';
@@ -29,6 +30,10 @@ export const CourseUserRegistrationsPage = () => {
           <CourseUserRegistrationEventGrid />
         </Stack>
         <CourseUserRegistrationGrid />
+        <Stack spacing={1}>
+          <Typography variant="h6">Liste d'attente</Typography>
+          <CourseUserWaitingListGrid />
+        </Stack>
       </Stack>
     </PageLayout>
   );

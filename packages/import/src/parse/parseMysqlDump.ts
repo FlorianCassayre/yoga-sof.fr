@@ -123,7 +123,7 @@ const parseTuples = (dump: string, start: number): { values: MysqlValue[][]; end
 
 const parseMysqlInserts = (dump: string, tables: string[]): MysqlInsert[] => {
   const wanted = new Set(tables);
-  const inserts: MysqlInsert[] = [];
+  const valuesByTable = new Map<string, MysqlValue[][]>();
   const marker = 'INSERT INTO `';
   let index = dump.indexOf(marker);
   while (index !== -1) {
@@ -132,17 +132,19 @@ const parseMysqlInserts = (dump: string, tables: string[]): MysqlInsert[] => {
     const table = dump.slice(nameStart, nameEnd);
     const valuesStart = nameEnd + 1 + dump.slice(nameEnd + 1).indexOf(' VALUES') + ' VALUES'.length;
     let next = dump.indexOf(marker, nameEnd);
+    // A table may be spread over several INSERT statements — the chunks
+    // concatenate in dump order.
     if (
       wanted.has(table) &&
       /^\s*$/.test(dump.slice(nameEnd + 1, valuesStart - ' VALUES'.length))
     ) {
       const parsed = parseTuples(dump, valuesStart);
-      inserts.push({ table, values: parsed.values });
+      valuesByTable.set(table, [...(valuesByTable.get(table) ?? []), ...parsed.values]);
       next = dump.indexOf(marker, parsed.end);
     }
     index = next;
   }
-  return inserts;
+  return [...valuesByTable].map(([table, values]) => ({ table, values }));
 };
 
 export { parseMysqlInserts };

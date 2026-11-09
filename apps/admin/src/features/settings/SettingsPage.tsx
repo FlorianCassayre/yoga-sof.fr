@@ -15,6 +15,7 @@ import { CardTemplateGrid } from '../card/template/CardTemplateGrid';
 import { MembershipIcon } from '../membership/MembershipIcon';
 import { MembershipPriceGrid } from '../membership/price/MembershipPriceGrid';
 import { MembershipSettingForm } from '../membership/settings/MembershipSettingForm';
+import { useHasPermission } from '../user/useHasPermission';
 import { SettingsIcon } from './SettingsIcon';
 
 export const CALENDAR_TAB = 'calendar';
@@ -44,6 +45,7 @@ interface SettingsPageProps {
 }
 
 export const SettingsPage = ({ tab }: SettingsPageProps) => {
+  const canManageSettings = useHasPermission('manageSettings');
   const fabAction: PageAction | undefined =
     tab === MEMBERSHIP_TAB
       ? { label: 'Nouveau tarif', icon: Euro, href: '/parametres/tarifs/creation' }
@@ -55,7 +57,7 @@ export const SettingsPage = ({ tab }: SettingsPageProps) => {
     <PageLayout
       icon={SettingsIcon}
       title="Paramètres"
-      actions={fabAction ? [{ children: [fabAction] }] : undefined}
+      actions={canManageSettings && fabAction ? [{ children: [fabAction] }] : undefined}
     >
       <Tabs value={tab} tabs={TABS} />
       {tab === MEMBERSHIP_TAB && (

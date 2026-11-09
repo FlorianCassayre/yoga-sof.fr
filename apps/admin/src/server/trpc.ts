@@ -24,8 +24,6 @@ const requirePermission = (permission: Permission) =>
     return next();
   });
 
-export const panelProcedure = requirePermission('adminPanel');
-
 export const readProcedure = requirePermission('readData');
 
 export const writeProcedure = requirePermission('manageData');

@@ -14,6 +14,7 @@ import {
 } from '../features/card/cardLegacySchemas';
 import { COURSES_TABLE } from '../features/course/courseLegacySchemas';
 import { REGISTRATIONS_TABLE } from '../features/courseUserRegistration/registrationLegacySchemas';
+import { COURSE_WAITING_LIST_TABLE } from '../features/courseUserWaitingList/courseWaitingListLegacySchemas';
 import { EMAIL_ATTACHMENTS_TABLE, EMAILS_TABLE } from '../features/email/emailLegacySchemas';
 import {
   BENEFICIARIES_TABLE,
@@ -29,6 +30,7 @@ const LEGACY_TABLES = [
   ACCOUNTS_TABLE,
   COURSES_TABLE,
   REGISTRATIONS_TABLE,
+  COURSE_WAITING_LIST_TABLE,
   COUPONS_TABLE,
   COUPON_MODELS_TABLE,
   COUPON_PURCHASES_TABLE,
@@ -53,7 +55,6 @@ const IGNORED_TABLES = [
   'membership_model',
   'course_model',
   'course_bundle',
-  'course_waiting_list',
   'other_payment',
   'other_payment_category',
   'lock_entity',
@@ -81,6 +82,7 @@ const main = async () => {
     membershipModels: parsed.get(MEMBERSHIP_MODELS_TABLE) ?? [],
     emails: parsed.get(EMAILS_TABLE) ?? [],
     emailAttachments: parsed.get(EMAIL_ATTACHMENTS_TABLE) ?? [],
+    waitingListEntries: parsed.get(COURSE_WAITING_LIST_TABLE) ?? [],
   };
   if (data.users.length === 0 || data.courses.length === 0) {
     throw new Error(`No legacy data found in '${file}'.`);
@@ -102,11 +104,16 @@ const main = async () => {
   }
 
   console.log(
-    `Imported ${summary.users} users (${summary.roles} roles), ${summary.accounts} accounts, ${summary.courses} courses, ${summary.registrations} registrations, ${summary.cardTemplates} card templates, ${summary.cards} cards, ${summary.memberships} memberships, ${summary.beneficiaries} beneficiaries, ${summary.emails} e-mails, ${summary.emailAttachments} e-mail attachments.`,
+    `Imported ${summary.users} users (${summary.roles} roles), ${summary.accounts} accounts, ${summary.courses} courses, ${summary.registrations} registrations, ${summary.waitingListEntries} waiting-list entries, ${summary.cardTemplates} card templates, ${summary.cards} cards, ${summary.memberships} memberships, ${summary.beneficiaries} beneficiaries, ${summary.emails} e-mails, ${summary.emailAttachments} e-mail attachments.`,
   );
   console.log(
-    `Skipped ${summary.canceledCourses} canceled courses, ${summary.unsupportedCourses} courses of an unsupported type, ${summary.orphanRegistrations} registrations pointing to skipped records, ${summary.duplicateRegistrations} duplicate active registrations, ${summary.unsupportedCoupons} coupons of an unsupported type, ${summary.orphanEmailAttachments} orphan e-mail attachments.`,
+    `Skipped ${summary.canceledCourses} canceled courses, ${summary.unsupportedCourses} courses of an unsupported type, ${summary.orphanRegistrations} registrations pointing to skipped records, ${summary.duplicateRegistrations} duplicate active registrations, ${summary.orphanWaitingListEntries} waiting-list entries pointing to skipped records, ${summary.duplicateWaitingListEntries} duplicate waiting-list entries, ${summary.unsupportedCoupons} coupons of an unsupported type, ${summary.orphanEmailAttachments} orphan e-mail attachments.`,
   );
+  if (summary.notifiedWaitingListEntries > 0) {
+    console.log(
+      `${summary.notifiedWaitingListEntries} waiting-list entries were already notified in the legacy application.`,
+    );
+  }
   if (summary.capacityRaises > 0) {
     console.log(
       `Raised the capacity of ${summary.capacityRaises} courses to fit their existing registrations.`,

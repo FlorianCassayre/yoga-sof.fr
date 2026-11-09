@@ -3,6 +3,7 @@ import type { Client } from 'pg';
 import { cardsImport } from '../features/card/cardsImport';
 import { coursesImport, reconcileRegisteredCounts } from '../features/course/coursesImport';
 import { registrationsImport } from '../features/courseUserRegistration/registrationsImport';
+import { courseWaitingListImport } from '../features/courseUserWaitingList/courseWaitingListImport';
 import { emailsImport } from '../features/email/emailsImport';
 import { membershipsImport } from '../features/membership/membershipsImport';
 import { usersImport } from '../features/user/usersImport';
@@ -21,6 +22,7 @@ export interface LegacyData {
   membershipModels: MysqlValue[][];
   emails: MysqlValue[][];
   emailAttachments: MysqlValue[][];
+  waitingListEntries: MysqlValue[][];
 }
 
 export type ImportSummary = Omit<Awaited<ReturnType<typeof usersImport>>, 'userIds'> &
@@ -29,7 +31,8 @@ export type ImportSummary = Omit<Awaited<ReturnType<typeof usersImport>>, 'userI
   Awaited<ReturnType<typeof reconcileRegisteredCounts>> &
   Awaited<ReturnType<typeof cardsImport>> &
   Awaited<ReturnType<typeof membershipsImport>> &
-  Awaited<ReturnType<typeof emailsImport>>;
+  Awaited<ReturnType<typeof emailsImport>> &
+  Awaited<ReturnType<typeof courseWaitingListImport>>;
 
 const realignSequences = async (client: Client, tables: string[]) => {
   for (const table of tables) {
@@ -67,9 +70,17 @@ export const importLegacyData = async (
     userIds,
   );
   const emailCounts = await emailsImport(client, data.emails, data.emailAttachments, userIds);
+  const waitingListCounts = await courseWaitingListImport(
+    client,
+    data.waitingListEntries,
+    data.emails,
+    userIds,
+    keptCourseIds,
+  );
   await realignSequences(client, [
     'courses',
     'course_user_registrations',
+    'course_user_waiting_lists',
     'card_templates',
     'cards',
     'card_settings',
@@ -87,5 +98,6 @@ export const importLegacyData = async (
     ...cardCounts,
     ...membershipCounts,
     ...emailCounts,
+    ...waitingListCounts,
   };
 };
