@@ -1,10 +1,12 @@
+import type { CourseType } from '@yoga-sof/core';
 import {
   COURSE_WAITING_LIST_TEMPLATE,
+  courseBundlesTable,
   coursesTable,
   courseUserWaitingListsTable,
 } from '@yoga-sof/core';
 import { emailService, renderEmail, usersTable } from '@yoga-sof/core/server';
-import { and, eq, gt } from 'drizzle-orm';
+import { and, eq, gt, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 import type { CronJob } from '../../runner';
@@ -19,7 +21,7 @@ export const sendWaitingListNotifications =
       .select({
         id: courseUserWaitingListsTable.id,
         courseId: coursesTable.id,
-        courseType: coursesTable.type,
+        courseType: sql<CourseType>`coalesce(${coursesTable.type}, ${courseBundlesTable.type})`,
         courseStartsAt: coursesTable.startsAt,
         courseEndsAt: coursesTable.endsAt,
         userId: usersTable.id,
@@ -28,6 +30,7 @@ export const sendWaitingListNotifications =
       })
       .from(courseUserWaitingListsTable)
       .innerJoin(coursesTable, eq(coursesTable.id, courseUserWaitingListsTable.courseId))
+      .leftJoin(courseBundlesTable, eq(courseBundlesTable.id, coursesTable.courseBundleId))
       .innerJoin(usersTable, eq(usersTable.id, courseUserWaitingListsTable.userId))
       .where(
         and(eq(courseUserWaitingListsTable.notified, false), gt(coursesTable.startsAt, new Date())),

@@ -9,6 +9,7 @@ import { courseLabelSql } from '../../../features/course/courseLabelSql';
 import { courseService } from '../../../features/course/courseService';
 import { coursesTable } from '../../../features/course/coursesTable';
 import type { CourseType } from '../../../features/course/type/CourseType';
+import { registerablesTable } from '../../../features/registerable/registerablesTable';
 
 const MARKER = 'courseLabelSql-test';
 
@@ -80,9 +81,10 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseLabelSql', ()
   ): Promise<number> => {
     const inserted = await tx
       .insert(coursesTable)
-      .values({ type, startsAt, endsAt, capacity: 10, visibility: 'public', internalNotes: MARKER })
+      .values({ type, startsAt, endsAt, price: 0, visibility: 'public', internalNotes: MARKER })
       .returning({ id: coursesTable.id });
     const id = inserted[0]?.id ?? 0;
+    await tx.insert(registerablesTable).values({ courseId: id, capacity: 10 });
     ids.push(id);
     return id;
   };
@@ -98,7 +100,9 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseLabelSql', ()
         );
 
         const [row] = await tx
-          .select({ label: courseLabelSql })
+          .select({
+            label: courseLabelSql(coursesTable.type, coursesTable.startsAt, coursesTable.endsAt),
+          })
           .from(coursesTable)
           .where(eq(coursesTable.id, id));
 
@@ -116,7 +120,9 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseLabelSql', ()
         const id = await insertCourse(tx, type, startsAt, endsAt);
 
         const [row] = await tx
-          .select({ label: courseLabelSql })
+          .select({
+            label: courseLabelSql(coursesTable.type, coursesTable.startsAt, coursesTable.endsAt),
+          })
           .from(coursesTable)
           .where(eq(coursesTable.id, id));
 

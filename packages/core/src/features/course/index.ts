@@ -3,6 +3,7 @@ export * from './courseLabel';
 export * from './courseSchemas';
 export * from './coursesTable';
 export * from './CourseTemplate';
+export * from './type/courseRegistrationModes';
 export * from './type/CourseType';
 export * from './type/courseTypeEnum';
 export * from './type/courseTypeLabels';

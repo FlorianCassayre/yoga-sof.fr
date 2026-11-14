@@ -1,4 +1,4 @@
-import { courseTypeEnum, courseVisibilityEnum } from '@yoga-sof/core';
+import { courseVisibilityEnum } from '@yoga-sof/core';
 import { z } from 'zod';
 
 const combineDateTime = (date: Date | null, time: Date | null): Date | null =>
@@ -14,7 +14,6 @@ const combineDateTime = (date: Date | null, time: Date | null): Date | null =>
 
 export const courseFormSchema = z
   .object({
-    type: z.enum(courseTypeEnum.enumValues),
     date: z.date().nullable(),
     startTime: z.date().nullable(),
     endTime: z.date().nullable(),

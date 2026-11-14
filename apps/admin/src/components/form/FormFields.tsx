@@ -116,7 +116,7 @@ export const FormFields = <Row, Values extends FieldValues>({
         submitting={createMutation.isPending || updateMutation.isPending}
         cancelHref={cancelHref}
       >
-        <Fields disabled={createMutation.isPending || updateMutation.isPending} />
+        <Fields disabled={createMutation.isPending || updateMutation.isPending} row={row} />
       </FormShell>
     </FormContainer>
   );

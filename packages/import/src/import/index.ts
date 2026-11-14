@@ -13,7 +13,6 @@ import {
   COUPONS_TABLE,
 } from '../features/card/cardLegacySchemas';
 import { COURSES_TABLE } from '../features/course/courseLegacySchemas';
-import { REGISTRATIONS_TABLE } from '../features/courseUserRegistration/registrationLegacySchemas';
 import { COURSE_WAITING_LIST_TABLE } from '../features/courseUserWaitingList/courseWaitingListLegacySchemas';
 import { EMAIL_ATTACHMENTS_TABLE, EMAILS_TABLE } from '../features/email/emailLegacySchemas';
 import {
@@ -21,6 +20,7 @@ import {
   MEMBERSHIP_MODELS_TABLE,
   MEMBERSHIPS_TABLE,
 } from '../features/membership/membershipLegacySchemas';
+import { REGISTRATIONS_TABLE } from '../features/registration/registrationLegacySchemas';
 import { ACCOUNTS_TABLE, USERS_TABLE } from '../features/user/userLegacySchemas';
 import { parseMysqlInserts } from '../parse/parseMysqlDump';
 import { importLegacyData, type LegacyData } from './importLegacyData';
@@ -104,7 +104,7 @@ const main = async () => {
   }
 
   console.log(
-    `Imported ${summary.users} users (${summary.roles} roles), ${summary.accounts} accounts, ${summary.courses} courses, ${summary.registrations} registrations, ${summary.waitingListEntries} waiting-list entries, ${summary.cardTemplates} card templates, ${summary.cards} cards, ${summary.memberships} memberships, ${summary.beneficiaries} beneficiaries, ${summary.emails} e-mails, ${summary.emailAttachments} e-mail attachments.`,
+    `Imported ${summary.users} users (${summary.roles} roles), ${summary.accounts} accounts, ${summary.courses} courses, ${summary.registrations} registrations (${summary.presences} presences), ${summary.waitingListEntries} waiting-list entries, ${summary.cardTemplates} card templates, ${summary.cards} cards, ${summary.memberships} memberships, ${summary.beneficiaries} beneficiaries, ${summary.emails} e-mails, ${summary.emailAttachments} e-mail attachments.`,
   );
   console.log(
     `Skipped ${summary.canceledCourses} canceled courses, ${summary.unsupportedCourses} courses of an unsupported type, ${summary.orphanRegistrations} registrations pointing to skipped records, ${summary.duplicateRegistrations} duplicate active registrations, ${summary.orphanWaitingListEntries} waiting-list entries pointing to skipped records, ${summary.duplicateWaitingListEntries} duplicate waiting-list entries, ${summary.unsupportedCoupons} coupons of an unsupported type, ${summary.orphanEmailAttachments} orphan e-mail attachments.`,

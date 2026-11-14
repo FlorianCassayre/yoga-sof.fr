@@ -4,23 +4,27 @@ import { afterAll, describe, expect, it } from 'vitest';
 import { db } from '../../../db/db';
 import { withTransaction } from '../../../db/withTransaction';
 import { ServiceError } from '../../../errors';
+import { usersTable } from '../../../features/auth/authTables';
 import { courseService } from '../../../features/course/courseService';
 import { coursesTable } from '../../../features/course/coursesTable';
+import { courseBundlesTable } from '../../../features/courseBundle/courseBundlesTable';
+import { registerablesTable } from '../../../features/registerable/registerablesTable';
 
 const values = {
   type: 'adulte',
   startsAt: new Date('2030-03-04T09:07:00.000Z'),
   endsAt: new Date('2030-03-04T11:07:00.000Z'),
-  capacity: 12,
+  price: 0,
   visibility: 'public',
   internalNotes: 'note',
 } as const satisfies typeof coursesTable.$inferInsert;
 
-const insertCourse = async (values: typeof coursesTable.$inferInsert) => {
-  const [row] = await db.insert(coursesTable).values(values).returning();
+const insertCourse = async (courseValues: typeof coursesTable.$inferInsert, capacity: number) => {
+  const [row] = await db.insert(coursesTable).values(courseValues).returning();
   if (!row) {
     throw new Error('expected course to be created');
   }
+  await db.insert(registerablesTable).values({ courseId: row.id, capacity });
 
   return row;
 };
@@ -34,68 +38,62 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
   });
 
   it('suggests templates from the three most recent non-empty weeks', async () => {
-    const latest = await insertCourse({
-      ...values,
-      startsAt: new Date('2031-01-29T13:00:00.000Z'),
-      endsAt: new Date('2031-01-29T15:00:00.000Z'),
-      type: 'enfant',
-      capacity: 12,
-    });
+    const latest = await insertCourse(
+      {
+        ...values,
+        startsAt: new Date('2031-01-29T13:00:00.000Z'),
+        endsAt: new Date('2031-01-29T15:00:00.000Z'),
+        type: 'enfant',
+      },
+      12,
+    );
     ids.push(latest.id);
-    const duplicateTarget = await insertCourse({
-      ...values,
-      startsAt: new Date('2031-01-13T08:00:00.000Z'),
-      endsAt: new Date('2031-01-13T10:00:00.000Z'),
-      capacity: 8,
-    });
+    const duplicateTarget = await insertCourse(
+      {
+        ...values,
+        startsAt: new Date('2031-01-13T08:00:00.000Z'),
+        endsAt: new Date('2031-01-13T10:00:00.000Z'),
+      },
+      8,
+    );
     ids.push(duplicateTarget.id);
-    const other = await insertCourse({
-      ...values,
-      startsAt: new Date('2031-01-14T09:00:00.000Z'),
-      endsAt: new Date('2031-01-14T11:00:00.000Z'),
-      type: 'enfant',
-      capacity: 12,
-    });
+    const other = await insertCourse(
+      {
+        ...values,
+        startsAt: new Date('2031-01-14T09:00:00.000Z'),
+        endsAt: new Date('2031-01-14T11:00:00.000Z'),
+        type: 'enfant',
+      },
+      12,
+    );
     ids.push(other.id);
-    const oldest = await insertCourse({
-      ...values,
-      startsAt: new Date('2031-01-06T08:00:00.000Z'),
-      endsAt: new Date('2031-01-06T10:00:00.000Z'),
-      capacity: 12,
-    });
+    const oldest = await insertCourse(
+      {
+        ...values,
+        startsAt: new Date('2031-01-06T08:00:00.000Z'),
+        endsAt: new Date('2031-01-06T10:00:00.000Z'),
+      },
+      12,
+    );
     ids.push(oldest.id);
-    const ignored = await insertCourse({
-      ...values,
-      startsAt: new Date('2031-01-02T02:15:00.000Z'),
-      endsAt: new Date('2031-01-02T03:15:00.000Z'),
-      type: 'enfant',
-      capacity: 12,
-    });
+    const ignored = await insertCourse(
+      {
+        ...values,
+        startsAt: new Date('2031-01-02T02:15:00.000Z'),
+        endsAt: new Date('2031-01-02T03:15:00.000Z'),
+        type: 'enfant',
+      },
+      12,
+    );
     ids.push(ignored.id);
 
     const templates = await withTransaction((tx) => courseService.suggestTemplates(tx), {
       readOnly: true,
     });
 
-    expect(templates).toEqual(
-      expect.arrayContaining([
-        { weekday: 3, type: 'enfant', startTime: '14:00', endTime: '16:00', capacity: 12 },
-        { weekday: 2, type: 'enfant', startTime: '10:00', endTime: '12:00', capacity: 12 },
-        { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 12 },
-      ]),
-    );
-    expect(
-      templates.filter(
-        (template) =>
-          template.weekday === 1 &&
-          template.type === 'adulte' &&
-          template.startTime === '09:00' &&
-          template.endTime === '11:00',
-      ),
-    ).toHaveLength(1);
-    expect(
-      templates.filter((template) => template.weekday === 4 && template.startTime === '03:15'),
-    ).toHaveLength(0);
+    expect(templates).toEqual([
+      { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 12, price: 0 },
+    ]);
   });
 
   it('creates a batch and gets a course', async () => {
@@ -104,7 +102,14 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
         {
           visibility: 'public',
           templates: [
-            { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 10 },
+            {
+              weekday: 1,
+              type: 'adulte',
+              startTime: '09:00',
+              endTime: '11:00',
+              capacity: 10,
+              price: 15,
+            },
           ],
           weeks: ['2030-03-04'],
         },
@@ -120,10 +125,59 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
       startsAt: new Date('2030-03-04T08:00:00.000Z'),
       endsAt: new Date('2030-03-04T10:00:00.000Z'),
       capacity: 10,
+      price: 15,
       visibility: 'public',
       internalNotes: '',
       version: 1,
     });
+  });
+
+  it('creates a batch of bundled courses', async () => {
+    const [bundle] = await db
+      .insert(courseBundlesTable)
+      .values({ label: 'Lot test', type: 'enfant', price: 15000 })
+      .returning();
+    if (!bundle) {
+      throw new Error('expected bundle to be created');
+    }
+    await db.insert(registerablesTable).values({ courseBundleId: bundle.id, capacity: 5 });
+
+    const rows = await withTransaction((tx) =>
+      courseService.createBatch(
+        {
+          visibility: 'public',
+          capacity: 8,
+          templates: [
+            {
+              weekday: 3,
+              bundleId: bundle.id,
+              startTime: '14:00',
+              endTime: '16:00',
+              price: undefined,
+            },
+          ],
+          weeks: ['2030-03-04'],
+        },
+        tx,
+      ),
+    );
+    rows.forEach((row) => ids.push(row.id));
+
+    expect(rows).toMatchObject([{ courseBundleId: bundle.id, type: null, price: null }]);
+    const [courseRegisterable] = await db
+      .select()
+      .from(registerablesTable)
+      .where(eq(registerablesTable.courseId, rows[0]!.id));
+    expect(courseRegisterable).toBeUndefined();
+    const [bundleRegisterable] = await db
+      .select()
+      .from(registerablesTable)
+      .where(eq(registerablesTable.courseBundleId, bundle.id));
+    expect(bundleRegisterable?.capacity).toBe(8);
+
+    const fetched = await withTransaction((tx) => courseService.get({ id: rows[0]!.id }, tx));
+    expect(fetched.capacity).toBe(8);
+    expect(fetched.registeredCount).toBe(0);
   });
 
   it('rejects a batch ending in the past', async () => {
@@ -133,7 +187,14 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
           {
             visibility: 'public',
             templates: [
-              { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 10 },
+              {
+                weekday: 1,
+                type: 'adulte',
+                startTime: '09:00',
+                endTime: '11:00',
+                capacity: 10,
+                price: 15,
+              },
             ],
             weeks: ['2025-01-06'],
           },
@@ -149,8 +210,22 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
         {
           visibility: 'public',
           templates: [
-            { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 10 },
-            { weekday: 1, type: 'adulte', startTime: '14:00', endTime: '16:00', capacity: 10 },
+            {
+              weekday: 1,
+              type: 'adulte',
+              startTime: '09:00',
+              endTime: '11:00',
+              capacity: 10,
+              price: 15,
+            },
+            {
+              weekday: 1,
+              type: 'adulte',
+              startTime: '14:00',
+              endTime: '16:00',
+              capacity: 10,
+              price: 15,
+            },
           ],
           weeks: ['2030-04-01'],
         },
@@ -197,8 +272,22 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
         {
           visibility: 'public',
           templates: [
-            { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 10 },
-            { weekday: 3, type: 'enfant', startTime: '14:00', endTime: '16:00', capacity: 8 },
+            {
+              weekday: 1,
+              type: 'adulte',
+              startTime: '09:00',
+              endTime: '11:00',
+              capacity: 10,
+              price: 15,
+            },
+            {
+              weekday: 3,
+              type: 'adulte',
+              startTime: '14:00',
+              endTime: '16:00',
+              capacity: 8,
+              price: 15,
+            },
           ],
           weeks: ['2032-03-01', '2032-03-08'],
         },
@@ -214,7 +303,18 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
       '2032-03-08T08:00:00.000Z',
       '2032-03-10T13:00:00.000Z',
     ]);
-    expect(rows.every((row) => row.registeredCount === 0 && row.version === 1)).toBe(true);
+    expect(rows.every((row) => row.version === 1)).toBe(true);
+    const capacities = await Promise.all(
+      rows.map(async (row) => {
+        const [registerable] = await db
+          .select()
+          .from(registerablesTable)
+          .where(eq(registerablesTable.courseId, row.id));
+
+        return registerable?.capacity;
+      }),
+    );
+    expect(capacities).toEqual([10, 8, 10, 8]);
   });
 
   it('rejects an empty batch', async () => {
@@ -236,7 +336,14 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
           {
             visibility: 'public',
             templates: [
-              { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 10 },
+              {
+                weekday: 1,
+                type: 'adulte',
+                startTime: '09:00',
+                endTime: '11:00',
+                capacity: 10,
+                price: 15,
+              },
             ],
             weeks: [],
           },
@@ -253,8 +360,22 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
           {
             visibility: 'public',
             templates: [
-              { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 10 },
-              { weekday: 1, type: 'adulte', startTime: '10:00', endTime: '12:00', capacity: 10 },
+              {
+                weekday: 1,
+                type: 'adulte',
+                startTime: '09:00',
+                endTime: '11:00',
+                capacity: 10,
+                price: 15,
+              },
+              {
+                weekday: 1,
+                type: 'adulte',
+                startTime: '10:00',
+                endTime: '12:00',
+                capacity: 10,
+                price: 15,
+              },
             ],
             weeks: ['2032-03-15'],
           },
@@ -268,8 +389,22 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
         {
           visibility: 'public',
           templates: [
-            { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 10 },
-            { weekday: 1, type: 'adulte', startTime: '11:00', endTime: '13:00', capacity: 10 },
+            {
+              weekday: 1,
+              type: 'adulte',
+              startTime: '09:00',
+              endTime: '11:00',
+              capacity: 10,
+              price: 15,
+            },
+            {
+              weekday: 1,
+              type: 'adulte',
+              startTime: '11:00',
+              endTime: '13:00',
+              capacity: 10,
+              price: 15,
+            },
           ],
           weeks: ['2032-03-15'],
         },
@@ -287,7 +422,14 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
         {
           visibility: 'public',
           templates: [
-            { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 10 },
+            {
+              weekday: 1,
+              type: 'adulte',
+              startTime: '09:00',
+              endTime: '11:00',
+              capacity: 10,
+              price: 15,
+            },
           ],
           weeks: ['2032-03-22'],
         },
@@ -302,7 +444,14 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
           {
             visibility: 'public',
             templates: [
-              { weekday: 1, type: 'adulte', startTime: '10:00', endTime: '12:00', capacity: 10 },
+              {
+                weekday: 1,
+                type: 'adulte',
+                startTime: '10:00',
+                endTime: '12:00',
+                capacity: 10,
+                price: 15,
+              },
             ],
             weeks: ['2032-03-22'],
           },
@@ -335,7 +484,14 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
           {
             visibility: 'public',
             templates: [
-              { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 10 },
+              {
+                weekday: 1,
+                type: 'adulte',
+                startTime: '09:00',
+                endTime: '11:00',
+                capacity: 10,
+                price: 15,
+              },
             ],
             weeks: ['2030-03-18'],
           },
@@ -358,7 +514,14 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
         {
           visibility: 'public',
           templates: [
-            { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: 10 },
+            {
+              weekday: 1,
+              type: 'adulte',
+              startTime: '09:00',
+              endTime: '11:00',
+              capacity: 10,
+              price: 15,
+            },
           ],
           weeks: ['2030-03-25'],
         },
@@ -398,6 +561,39 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
     ).rejects.toThrow(ServiceError);
   });
 
+  it('updates the capacity of the registerable', async () => {
+    const rows = await withTransaction((tx) =>
+      courseService.createBatch(
+        {
+          visibility: 'public',
+          templates: [
+            {
+              weekday: 1,
+              type: 'adulte',
+              startTime: '09:00',
+              endTime: '11:00',
+              capacity: 10,
+              price: 15,
+            },
+          ],
+          weeks: ['2030-04-08'],
+        },
+        tx,
+      ),
+    );
+    rows.forEach((row) => ids.push(row.id));
+    const created = rows[0]!;
+
+    await withTransaction((tx) =>
+      courseService.update({ id: created.id, version: created.version, capacity: 20 }, tx),
+    );
+    const [registerable] = await db
+      .select()
+      .from(registerablesTable)
+      .where(eq(registerablesTable.courseId, created.id));
+    expect(registerable?.capacity).toBe(20);
+  });
+
   it('throws on an unknown course', async () => {
     await expect(withTransaction((tx) => courseService.get({ id: -100 }, tx))).rejects.toThrow(
       ServiceError,
@@ -417,17 +613,23 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
   });
 
   it('keeps only future courses when upcoming is set', async () => {
-    const past = await insertCourse({
-      ...values,
-      startsAt: new Date('2025-01-10T09:00:00.000Z'),
-      endsAt: new Date('2025-01-10T11:00:00.000Z'),
-    });
+    const past = await insertCourse(
+      {
+        ...values,
+        startsAt: new Date('2025-01-10T09:00:00.000Z'),
+        endsAt: new Date('2025-01-10T11:00:00.000Z'),
+      },
+      10,
+    );
     ids.push(past.id);
-    const future = await insertCourse({
-      ...values,
-      startsAt: new Date('2027-01-10T09:00:00.000Z'),
-      endsAt: new Date('2027-01-10T11:00:00.000Z'),
-    });
+    const future = await insertCourse(
+      {
+        ...values,
+        startsAt: new Date('2027-01-10T09:00:00.000Z'),
+        endsAt: new Date('2027-01-10T11:00:00.000Z'),
+      },
+      10,
+    );
     ids.push(future.id);
 
     const result = await withTransaction((tx) =>
@@ -448,23 +650,52 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
   });
 
   it('lists only the courses overlapping the calendar range, ordered by start', async () => {
-    const inside = await insertCourse({
-      ...values,
-      startsAt: new Date('2026-01-15T09:00:00.000Z'),
-      endsAt: new Date('2026-01-15T11:00:00.000Z'),
-    });
+    const CANCELER_EMAIL = 'course-cancel-calendar-test@example.com';
+    await db.delete(usersTable).where(eq(usersTable.email, CANCELER_EMAIL));
+    const [canceler] = await db.insert(usersTable).values({ email: CANCELER_EMAIL }).returning();
+    if (!canceler) {
+      throw new Error('expected user to be created');
+    }
+    const canceled = await insertCourse(
+      {
+        ...values,
+        startsAt: new Date('2026-01-14T09:00:00.000Z'),
+        endsAt: new Date('2026-01-14T11:00:00.000Z'),
+      },
+      10,
+    );
+    ids.push(canceled.id);
+    await db
+      .update(coursesTable)
+      .set({ canceled: true, canceledAt: new Date(), canceledBy: canceler.id })
+      .where(eq(coursesTable.id, canceled.id));
+
+    const inside = await insertCourse(
+      {
+        ...values,
+        startsAt: new Date('2026-01-15T09:00:00.000Z'),
+        endsAt: new Date('2026-01-15T11:00:00.000Z'),
+      },
+      10,
+    );
     ids.push(inside.id);
-    const before = await insertCourse({
-      ...values,
-      startsAt: new Date('2026-01-10T09:00:00.000Z'),
-      endsAt: new Date('2026-01-10T11:00:00.000Z'),
-    });
+    const before = await insertCourse(
+      {
+        ...values,
+        startsAt: new Date('2026-01-10T09:00:00.000Z'),
+        endsAt: new Date('2026-01-10T11:00:00.000Z'),
+      },
+      10,
+    );
     ids.push(before.id);
-    const after = await insertCourse({
-      ...values,
-      startsAt: new Date('2026-01-25T09:00:00.000Z'),
-      endsAt: new Date('2026-01-25T11:00:00.000Z'),
-    });
+    const after = await insertCourse(
+      {
+        ...values,
+        startsAt: new Date('2026-01-25T09:00:00.000Z'),
+        endsAt: new Date('2026-01-25T11:00:00.000Z'),
+      },
+      10,
+    );
     ids.push(after.id);
 
     const result = await withTransaction((tx) =>
@@ -476,8 +707,12 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
         tx,
       ),
     );
-    const inRange = result.filter((row) => [inside.id, before.id, after.id].includes(row.id));
+    const inRange = result.filter((row) =>
+      [inside.id, before.id, after.id, canceled.id].includes(row.id),
+    );
 
     expect(inRange.map((row) => row.id)).toEqual([inside.id]);
+    await db.delete(coursesTable).where(eq(coursesTable.id, canceled.id));
+    await db.delete(usersTable).where(eq(usersTable.id, canceler.id));
   });
 });

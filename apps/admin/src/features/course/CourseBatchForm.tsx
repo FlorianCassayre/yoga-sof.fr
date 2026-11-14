@@ -2,46 +2,39 @@
 
 import { Alert, Button, IconButton, Stack, Typography } from '@mui/material';
 import {
+  centsToEuros,
   COURSE_TYPE_LABELS,
   COURSE_VISIBILITY_LABELS,
-  courseBatchCreateSchema,
-  type CourseType,
   courseTypeEnum,
-  type CourseVisibility,
   courseVisibilityEnum,
   formatMembershipPeriod,
+  formatPrice,
   type Weekday,
   WEEKDAYS,
 } from '@yoga-sof/core';
 import { addDays, format, parseISO } from 'date-fns';
 import { Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { useFieldArray, useFormContext } from 'react-hook-form';
+import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { SelectElement, TextFieldElement } from 'react-hook-form-mui';
 
 import { Form } from '../../components/form/Form';
-import type { FieldProps } from '../../components/form/types';
+import type { FieldProps, MutationProcedure } from '../../components/form/types';
+import { AsyncAutocompleteElement } from '../../components/input/AsyncAutocompleteElement';
 import { EnumSelectElement } from '../../components/input/EnumSelectElement';
+import { PriceFieldElement } from '../../components/input/PriceFieldElement';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
 import { WeekCalendar } from './batch/WeekCalendar';
+import {
+  courseBatchFormSchema,
+  type CourseBatchFormValues,
+  type CourseBundleOption,
+} from './courseBatchFormSchema';
 import { COURSE_VISIBILITY_ICONS } from './visibility/courseVisibilityIcons';
 
 type CreatedCourses = RouterOutputs['course']['createBatch'];
-
-interface CourseTemplateValues {
-  weekday: Weekday;
-  type: CourseType;
-  startTime: string;
-  endTime: string;
-  capacity: string;
-}
-
-interface CourseBatchFormValues {
-  visibility: CourseVisibility;
-  templates: CourseTemplateValues[];
-  weeks: string[];
-}
+type CourseBundleRow = RouterOutputs['courseBundle']['get'];
 
 const weekdayLabel = (weekday: Weekday): string => {
   const label = WEEKDAYS[weekday] ?? '';
@@ -54,21 +47,23 @@ const WEEKDAY_OPTIONS = [1, 2, 3, 4, 5, 6, 0].map((weekday) => ({
   label: weekdayLabel(weekday as Weekday),
 }));
 
-const emptyTemplate = (): CourseTemplateValues => ({
+const emptyTemplate = (): CourseBatchFormValues['templates'][number] => ({
   weekday: 1,
-  type: 'adulte',
+  type: null,
   startTime: '09:00',
   endTime: '11:00',
-  capacity: '10',
+  capacity: '',
+  price: '',
 });
 
 interface CourseTemplateRowProps {
   index: number;
   disabled: boolean;
+  showPricing: boolean;
   onRemove: () => void;
 }
 
-const CourseTemplateRow = ({ index, disabled, onRemove }: CourseTemplateRowProps) => {
+const CourseTemplateRow = ({ index, disabled, showPricing, onRemove }: CourseTemplateRowProps) => {
   return (
     <Stack
       direction={{ xs: 'column', sm: 'row' }}
@@ -82,14 +77,31 @@ const CourseTemplateRow = ({ index, disabled, onRemove }: CourseTemplateRowProps
         disabled={disabled}
         sx={{ flex: 1 }}
       />
-      <EnumSelectElement<CourseBatchFormValues>
-        name={`templates.${index}.type`}
-        label="Type"
-        values={courseTypeEnum.enumValues}
-        labels={COURSE_TYPE_LABELS}
-        disabled={disabled}
-        sx={{ flex: 1 }}
-      />
+      {showPricing && (
+        <>
+          <EnumSelectElement<CourseBatchFormValues>
+            name={`templates.${index}.type`}
+            label="Type"
+            values={courseTypeEnum.enumValues}
+            labels={COURSE_TYPE_LABELS}
+            disabled={disabled}
+            sx={{ flex: 1 }}
+          />
+          <PriceFieldElement<CourseBatchFormValues>
+            name={`templates.${index}.price`}
+            label="Prix (€)"
+            disabled={disabled}
+            sx={{ flex: 1 }}
+          />
+          <TextFieldElement<CourseBatchFormValues>
+            name={`templates.${index}.capacity`}
+            label="Capacité"
+            type="number"
+            disabled={disabled}
+            sx={{ flex: 1 }}
+          />
+        </>
+      )}
       <TextFieldElement<CourseBatchFormValues>
         name={`templates.${index}.startTime`}
         label="Heure de début"
@@ -104,13 +116,6 @@ const CourseTemplateRow = ({ index, disabled, onRemove }: CourseTemplateRowProps
         disabled={disabled}
         sx={{ flex: 1 }}
       />
-      <TextFieldElement<CourseBatchFormValues>
-        name={`templates.${index}.capacity`}
-        label="Capacité"
-        type="number"
-        disabled={disabled}
-        sx={{ flex: 1 }}
-      />
       <IconButton onClick={onRemove} disabled={disabled} sx={{ alignSelf: { sm: 'center' } }}>
         <Trash2 size={18} />
       </IconButton>
@@ -121,6 +126,8 @@ const CourseTemplateRow = ({ index, disabled, onRemove }: CourseTemplateRowProps
 const CourseBatchFields = ({ disabled }: FieldProps) => {
   const { control, setValue } = useFormContext<CourseBatchFormValues>();
   const { fields, append, remove } = useFieldArray({ control, name: 'templates' });
+  const bundle = useWatch({ control, name: 'bundle' });
+  const showPricing = bundle == null;
   const [selectedWeeks, setSelectedWeeks] = useState<string[]>([]);
   const count = fields.length * selectedWeeks.length;
   const period =
@@ -144,6 +151,28 @@ const CourseBatchFields = ({ disabled }: FieldProps) => {
         icons={COURSE_VISIBILITY_ICONS}
         disabled={disabled}
       />
+      <AsyncAutocompleteElement<CourseBundleOption, CourseBatchFormValues>
+        name="bundle"
+        label="Lot de séances"
+        list={api.courseBundle.list}
+        sort={{ field: 'label', sort: 'asc' }}
+        getOptionLabel={(option) => option.label}
+        preload
+        disabled={disabled}
+        helperText={
+          bundle == null
+            ? undefined
+            : `Les séances héritent du type et du prix du lot (${COURSE_TYPE_LABELS[bundle.type].toLowerCase()}, ${formatPrice(bundle.price)}).`
+        }
+      />
+      {bundle != null && (
+        <TextFieldElement<CourseBatchFormValues>
+          name="capacity"
+          label="Capacité du lot"
+          type="number"
+          disabled={disabled}
+        />
+      )}
       <Typography variant="h6">Créneaux hebdomadaires</Typography>
       <Stack spacing={2}>
         {fields.map((field, index) => (
@@ -151,6 +180,7 @@ const CourseBatchFields = ({ disabled }: FieldProps) => {
             key={field.id}
             index={index}
             disabled={disabled}
+            showPricing={showPricing}
             onRemove={() => remove(index)}
           />
         ))}
@@ -183,24 +213,43 @@ const CourseBatchFields = ({ disabled }: FieldProps) => {
   );
 };
 
-export const CourseBatchForm = () => {
+const createProcedure: MutationProcedure<CreatedCourses, CourseBatchFormValues> = {
+  useMutation: () => {
+    const mutation = api.course.createBatch.useMutation();
+
+    return {
+      mutateAsync: (values) => mutation.mutateAsync(courseBatchFormSchema.parse(values)),
+      isPending: mutation.isPending,
+      error: mutation.error,
+    };
+  },
+};
+
+export const CourseBatchForm = ({ presetBundle }: { presetBundle?: CourseBundleRow }) => {
   const suggestion = api.course.suggestTemplates.useQuery();
 
   if (suggestion.isPending || suggestion.error !== null || suggestion.data === undefined) {
     return null;
   }
+  const bundle: CourseBundleOption | null = presetBundle ?? null;
 
   return (
-    <Form<CreatedCourses, CourseBatchFormValues, typeof courseBatchCreateSchema>
-      create={api.course.createBatch}
-      schema={courseBatchCreateSchema}
+    <Form<CreatedCourses, CourseBatchFormValues, typeof courseBatchFormSchema>
+      create={createProcedure}
+      schema={courseBatchFormSchema}
       defaultValues={() => ({
         visibility: 'public',
+        bundle,
+        capacity: bundle === null ? '' : String(bundle.capacity),
         templates:
-          suggestion.data.length > 0
+          bundle === null && suggestion.data.length > 0
             ? suggestion.data.map((template) => ({
-                ...template,
-                capacity: String(template.capacity),
+                weekday: template.weekday,
+                type: template.type,
+                startTime: template.startTime,
+                endTime: template.endTime,
+                capacity: template.capacity === null ? '' : String(template.capacity),
+                price: template.price === null ? '' : String(centsToEuros(template.price)),
               }))
             : [emptyTemplate()],
         weeks: [],

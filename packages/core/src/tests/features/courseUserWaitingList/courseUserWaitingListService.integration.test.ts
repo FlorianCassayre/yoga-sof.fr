@@ -6,9 +6,9 @@ import { withTransaction } from '../../../db/withTransaction';
 import { ServiceError } from '../../../errors';
 import { usersTable } from '../../../features/auth/authTables';
 import { coursesTable } from '../../../features/course/coursesTable';
-import { courseUserRegistrationsTable } from '../../../features/courseUserRegistration/courseUserRegistrationsTable';
 import { courseUserWaitingListService } from '../../../features/courseUserWaitingList/courseUserWaitingListService';
 import { courseUserWaitingListsTable } from '../../../features/courseUserWaitingList/courseUserWaitingListsTable';
+import { registerablesTable } from '../../../features/registerable/registerablesTable';
 
 const EMAIL = 'waiting-list-test@example.com';
 const OTHER_EMAIL = 'waiting-list-other-test@example.com';
@@ -20,17 +20,28 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseUserWaitingLi
   let userId = '';
   let otherUserId = '';
 
-  const courseValues = (startsAt: string, capacity: number): typeof coursesTable.$inferInsert => ({
+  const courseValues = (startsAt: string): typeof coursesTable.$inferInsert => ({
     type: 'adulte',
     startsAt: new Date(startsAt),
     endsAt: new Date('2099-06-02T10:00:00.000Z'),
-    capacity,
+    price: 0,
     visibility: 'public',
     internalNotes: 'note',
   });
 
-  const register = (courseId: number, id: string) =>
-    db.insert(courseUserRegistrationsTable).values({ courseId, userId: id });
+  const insertCourse = async (
+    startsAt: string,
+    capacity: number,
+    registeredCount = 0,
+  ): Promise<typeof coursesTable.$inferSelect> => {
+    const [course] = await db.insert(coursesTable).values(courseValues(startsAt)).returning();
+    if (!course) {
+      throw new Error('expected course to be created');
+    }
+    await db.insert(registerablesTable).values({ courseId: course.id, capacity, registeredCount });
+
+    return course;
+  };
 
   beforeAll(async () => {
     const leftovers = await db
@@ -42,20 +53,9 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseUserWaitingLi
       await db.delete(usersTable).where(inArray(usersTable.id, leftoverIds));
     }
 
-    const [openCourse, pastCourse] = await db
-      .insert(coursesTable)
-      .values([
-        courseValues('2099-06-01T08:00:00.000Z', 12),
-        courseValues('2000-01-01T08:00:00.000Z', 12),
-      ])
-      .returning();
-    const [fullCourse] = await db
-      .insert(coursesTable)
-      .values({ ...courseValues('2099-06-01T08:00:00.000Z', 1), registeredCount: 1 })
-      .returning();
-    if (!openCourse || !fullCourse || !pastCourse) {
-      throw new Error('expected courses to be created');
-    }
+    const openCourse = await insertCourse('2099-06-01T08:00:00.000Z', 12);
+    const fullCourse = await insertCourse('2099-06-01T08:00:00.000Z', 1, 1);
+    const pastCourse = await insertCourse('2000-01-01T08:00:00.000Z', 12);
     openCourseId = openCourse.id;
     fullCourseId = fullCourse.id;
     pastCourseId = pastCourse.id;
@@ -71,11 +71,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseUserWaitingLi
     }
     userId = user.id;
     otherUserId = other.id;
-    await register(fullCourseId, otherUserId);
-    await db
-      .update(coursesTable)
-      .set({ registeredCount: 1 })
-      .where(eq(coursesTable.id, fullCourseId));
   });
 
   afterAll(async () => {

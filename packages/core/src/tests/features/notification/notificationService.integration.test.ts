@@ -5,14 +5,18 @@ import { db } from '../../../db/db';
 import { withTransaction } from '../../../db/withTransaction';
 import { usersTable } from '../../../features/auth/authTables';
 import { coursesTable } from '../../../features/course/coursesTable';
-import { courseUserRegistrationsTable } from '../../../features/courseUserRegistration/courseUserRegistrationsTable';
 import { notificationService } from '../../../features/notification/notificationService';
+import { registerablesTable } from '../../../features/registerable/registerablesTable';
+import {
+  courseUserPresencesTable,
+  registrationsTable,
+} from '../../../features/registration/registrationsTable';
 
 const courseValues = {
   type: 'adulte',
   startsAt: new Date('2026-11-01T09:00:00.000Z'),
   endsAt: new Date('2026-11-01T11:00:00.000Z'),
-  capacity: 12,
+  price: 0,
   visibility: 'public',
   internalNotes: 'note',
 } as const satisfies typeof coursesTable.$inferInsert;
@@ -39,13 +43,28 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('notificationService
     if (!course) {
       throw new Error('expected course to be created');
     }
+    await db.insert(registerablesTable).values({ courseId: course.id, capacity: 12 });
     courseIds.push(course.id);
 
     return course;
   };
 
-  const insertRegistration = (courseId: number, present: boolean | null) =>
-    db.insert(courseUserRegistrationsTable).values({ courseId, userId, present });
+  const insertRegistration = async (courseId: number, present: boolean | null) => {
+    const [registration] = await db
+      .insert(registrationsTable)
+      .values({ courseId, userId })
+      .returning();
+    if (!registration) {
+      throw new Error('expected registration to be created');
+    }
+    if (present !== null) {
+      await db
+        .insert(courseUserPresencesTable)
+        .values({ registrationId: registration.id, courseId, present });
+    }
+
+    return registration;
+  };
 
   beforeAll(async () => {
     await db.delete(usersTable).where(eq(usersTable.email, EMAIL));
@@ -60,9 +79,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('notificationService
   });
 
   afterAll(async () => {
-    await db
-      .delete(courseUserRegistrationsTable)
-      .where(inArray(courseUserRegistrationsTable.courseId, courseIds));
     await db.delete(coursesTable).where(inArray(coursesTable.id, courseIds));
     await db.delete(usersTable).where(eq(usersTable.email, EMAIL));
     await db.$client.end();
@@ -95,10 +111,16 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('notificationService
     expect(listed.rows.some((item) => item.courseId === answeredCourse.id)).toBe(false);
     expect(listed.rows.some((item) => item.courseId === futureCourse.id)).toBe(false);
 
+    const [registration] = await db
+      .select()
+      .from(registrationsTable)
+      .where(eq(registrationsTable.courseId, pendingCourse.id));
+    if (!registration) {
+      throw new Error('expected registration to be created');
+    }
     await db
-      .update(courseUserRegistrationsTable)
-      .set({ present: true })
-      .where(eq(courseUserRegistrationsTable.courseId, pendingCourse.id));
+      .insert(courseUserPresencesTable)
+      .values({ registrationId: registration.id, courseId: pendingCourse.id, present: true });
     await expect(withTransaction((tx) => notificationService.count(tx))).resolves.toBe(
       expectedBefore - 1,
     );

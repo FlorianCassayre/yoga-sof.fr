@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { courseFormSchema } from '../../../features/course/courseFormSchema';
 
 const validValues = {
-  type: 'adulte',
   date: new Date(2026, 10, 9),
   startTime: new Date(2026, 0, 1, 9, 30),
   endTime: new Date(2026, 0, 1, 11, 0),
@@ -19,7 +18,6 @@ describe('courseFormSchema', () => {
     expect(result.startsAt).toEqual(new Date(2026, 10, 9, 9, 30));
     expect(result.endsAt).toEqual(new Date(2026, 10, 9, 11, 0));
     expect(result.capacity).toBe(10);
-    expect(result.type).toBe('adulte');
     expect(result.visibility).toBe('public');
     expect(result.internalNotes).toBe('');
   });

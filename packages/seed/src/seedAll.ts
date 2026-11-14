@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { courseUserRegistrationsTable } from '@yoga-sof/core';
+import { courseBundlesTable, registrationsTable } from '@yoga-sof/core';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 import { seedCards } from './seedCards';
@@ -13,13 +13,14 @@ const SEED = 42;
 export async function seedAll(db: NodePgDatabase) {
   faker.seed(SEED);
 
-  await db.delete(courseUserRegistrationsTable);
+  await db.delete(registrationsTable);
+  await db.delete(courseBundlesTable);
   const { admin, users } = await seedUsers(db);
   if (!admin) {
     throw new Error('expected admin to be created');
   }
-  const courses = await seedCourses(db);
-  await seedRegistrations(db, { courses, users, admin });
+  const { courses, bundles } = await seedCourses(db);
+  await seedRegistrations(db, { courses, bundles, users, admin });
   await seedMemberships(db, { users, admin });
   await seedCards(db, { users, admin });
 }

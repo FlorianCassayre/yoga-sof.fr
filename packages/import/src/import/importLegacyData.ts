@@ -2,10 +2,10 @@ import type { Client } from 'pg';
 
 import { cardsImport } from '../features/card/cardsImport';
 import { coursesImport, reconcileRegisteredCounts } from '../features/course/coursesImport';
-import { registrationsImport } from '../features/courseUserRegistration/registrationsImport';
 import { courseWaitingListImport } from '../features/courseUserWaitingList/courseWaitingListImport';
 import { emailsImport } from '../features/email/emailsImport';
 import { membershipsImport } from '../features/membership/membershipsImport';
+import { registrationsImport } from '../features/registration/registrationsImport';
 import { usersImport } from '../features/user/usersImport';
 import type { MysqlValue } from '../parse/parseMysqlDump';
 
@@ -79,7 +79,8 @@ export const importLegacyData = async (
   );
   await realignSequences(client, [
     'courses',
-    'course_user_registrations',
+    'registerables',
+    'registrations',
     'course_user_waiting_lists',
     'card_templates',
     'cards',

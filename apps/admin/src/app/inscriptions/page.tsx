@@ -1,7 +1,7 @@
-import { CourseUserRegistrationsPage } from '../../features/courseUserRegistration/CourseUserRegistrationsPage';
+import { RegistrationsPage } from '../../features/registration/RegistrationsPage';
 
 const InscriptionsPage = () => {
-  return <CourseUserRegistrationsPage />;
+  return <RegistrationsPage />;
 };
 
 export default InscriptionsPage;

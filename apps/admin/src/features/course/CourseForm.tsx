@@ -1,10 +1,7 @@
 'use client';
 
 import {
-  COURSE_TYPE_LABELS,
   COURSE_VISIBILITY_LABELS,
-  type CourseType,
-  courseTypeEnum,
   type CourseVisibility,
   courseVisibilityEnum,
 } from '@yoga-sof/core';
@@ -22,7 +19,6 @@ import { COURSE_VISIBILITY_ICONS } from './visibility/courseVisibilityIcons';
 type Course = NonNullable<RouterOutputs['course']['get']>;
 
 interface CourseFormValues {
-  type: CourseType;
   date: Date | null;
   startTime: Date | null;
   endTime: Date | null;
@@ -59,11 +55,10 @@ export const CourseForm = ({ id }: { id: number }) => {
         defaultEnd.setHours(11);
 
         return {
-          type: course?.type ?? 'adulte',
           date: course?.startsAt ?? tomorrow,
           startTime: course?.startsAt ?? tomorrow,
           endTime: course?.endsAt ?? defaultEnd,
-          capacity: course ? String(course.capacity) : '10',
+          capacity: course && course.capacity !== null ? String(course.capacity) : '10',
           visibility: course?.visibility ?? 'public',
           internalNotes: course?.internalNotes ?? '',
         };
@@ -78,16 +73,9 @@ export const CourseForm = ({ id }: { id: number }) => {
   );
 };
 
-const CourseFields = ({ disabled }: FieldProps) => {
+const CourseFields = ({ disabled, row }: FieldProps<Course>) => {
   return (
     <>
-      <EnumSelectElement<CourseFormValues>
-        name="type"
-        label="Type"
-        values={courseTypeEnum.enumValues}
-        labels={COURSE_TYPE_LABELS}
-        disabled={disabled}
-      />
       <DatePickerElement<CourseFormValues, 'date', Date>
         name="date"
         label="Date"
@@ -103,12 +91,14 @@ const CourseFields = ({ disabled }: FieldProps) => {
         label="Heure de fin"
         disabled={disabled}
       />
-      <TextFieldElement<CourseFormValues>
-        name="capacity"
-        label="Capacité"
-        type="number"
-        disabled={disabled}
-      />
+      {row?.courseBundleId === null && (
+        <TextFieldElement<CourseFormValues>
+          name="capacity"
+          label="Capacité"
+          type="number"
+          disabled={disabled}
+        />
+      )}
       <EnumSelectElement<CourseFormValues>
         name="visibility"
         label="Visibilité"

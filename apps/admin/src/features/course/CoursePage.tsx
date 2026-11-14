@@ -17,8 +17,9 @@ import type { PageAction, PageActionGroup } from '../../components/page/PageActi
 import { PageLayout } from '../../components/page/PageLayout';
 import { api } from '../../server/api';
 import { isNotFoundError } from '../../server/isNotFoundError';
-import { CourseUserRegistrationEventGrid } from '../courseUserRegistration/CourseUserRegistrationEventGrid';
-import { CourseUserRegistrationGrid } from '../courseUserRegistration/CourseUserRegistrationGrid';
+import { CourseBundleLink } from '../courseBundle/CourseBundleLink';
+import { CoursePresenceGrid } from '../registration/CoursePresenceGrid';
+import { RegistrationEventGrid } from '../registration/RegistrationEventGrid';
 import { useHasPermission } from '../user/useHasPermission';
 import { CourseIcon } from './CourseIcon';
 import { VisibilityChip } from './visibility/VisibilityChip';
@@ -116,13 +117,25 @@ export const CoursePage = ({ id }: CoursePageProps) => {
         <RecordDetails
           entries={[
             { label: 'Type', value: COURSE_TYPE_LABELS[row.type] },
+            ...(row.courseBundleId !== null && row.bundleLabel !== null
+              ? [
+                  {
+                    label: 'Lot de séances',
+                    value: (
+                      <CourseBundleLink
+                        bundle={{ id: row.courseBundleId, label: row.bundleLabel }}
+                      />
+                    ),
+                  },
+                ]
+              : []),
             { label: 'Date', value: formatScheduleDate(row.startsAt) },
             {
               label: 'Horaires',
               value: formatScheduleTimeRange(row.startsAt, row.endsAt),
             },
-            { label: 'Capacité', value: row.capacity },
-            { label: 'Inscrits', value: row.registeredCount },
+            { label: 'Capacité', value: row.capacity ?? '-' },
+            { label: 'Inscrits', value: row.registeredCount ?? '-' },
             {
               label: 'Visibilité',
               value: <VisibilityChip visibility={row.visibility} size="small" />,
@@ -132,12 +145,14 @@ export const CoursePage = ({ id }: CoursePageProps) => {
         />
         <Stack spacing={2}>
           <Typography variant="h6">Inscriptions</Typography>
-          <CourseUserRegistrationGrid courseId={row.id} attendanceMode={attendanceMode} />
+          <CoursePresenceGrid courseId={row.id} attendanceMode={attendanceMode} />
         </Stack>
-        <Stack spacing={2}>
-          <Typography variant="h6">Historique</Typography>
-          <CourseUserRegistrationEventGrid courseId={row.id} />
-        </Stack>
+        {row.courseBundleId === null && (
+          <Stack spacing={2}>
+            <Typography variant="h6">Historique</Typography>
+            <RegistrationEventGrid courseId={row.id} />
+          </Stack>
+        )}
       </Stack>
     </PageLayout>
   );

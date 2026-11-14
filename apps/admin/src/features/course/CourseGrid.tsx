@@ -10,6 +10,7 @@ import type { GridColumns } from '../../components/grid/GridColumns';
 import { Link } from '../../components/link/Link';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
+import { CourseBundleLink } from '../courseBundle/CourseBundleLink';
 import { VisibilityChip } from './visibility/VisibilityChip';
 
 type CourseRow = RouterOutputs['course']['list']['rows'][number];
@@ -31,6 +32,17 @@ const columns: GridColumns<CourseRow, 'horaire'> = [
     headerName: 'Type',
     flex: 1,
     valueFormatter: (value) => COURSE_TYPE_LABELS[value],
+  },
+  {
+    field: 'bundleLabel',
+    headerName: 'Lot de séances',
+    flex: 1,
+    renderCell: (params) =>
+      params.row.courseBundleId === null || params.row.bundleLabel === null ? null : (
+        <CourseBundleLink
+          bundle={{ id: params.row.courseBundleId, label: params.row.bundleLabel }}
+        />
+      ),
   },
   {
     field: 'startsAt',
@@ -57,12 +69,21 @@ const columns: GridColumns<CourseRow, 'horaire'> = [
   },
 ];
 
-export const CourseGrid = () => {
+interface CourseGridProps {
+  courseBundleId?: number;
+}
+
+export const CourseGrid = ({ courseBundleId }: CourseGridProps) => {
+  const filteredColumns = columns.filter(
+    (column) => courseBundleId === undefined || column.field !== 'bundleLabel',
+  );
+
   return (
     <DataGrid
-      columns={columns}
+      columns={filteredColumns}
       defaultSort={{ field: 'startsAt', sort: 'asc' }}
       procedure={api.course.list}
+      listInput={{ courseBundleId }}
     />
   );
 };

@@ -1,21 +1,27 @@
 import { z } from 'zod';
 
 import { createSelectByIdSchema, createVersionedUpdateSchema } from '../../db/schemaFactory';
+import { optionalPriceSchema } from '../../util/currency';
 import { sameDay, timeSchema } from '../../util/date';
-import { createListSchema } from '../../util/list';
+import { listSchema, sortSchema } from '../../util/list';
 import { coursesTable } from './coursesTable';
 import { courseTypeEnum } from './type/courseTypeEnum';
 import { courseVisibilityEnum } from './visibility/courseVisibilityEnum';
 
-export const courseListSchema = createListSchema<typeof coursesTable>({
-  capacity: true,
-  endsAt: true,
-  registeredCount: true,
-  startsAt: true,
-  type: true,
-  visibility: true,
-}).extend({
+export const courseListSchema = listSchema.extend({
+  sort: sortSchema({
+    bundleLabel: true,
+    capacity: true,
+    endsAt: true,
+    price: true,
+    registeredCount: true,
+    startsAt: true,
+    type: true,
+    visibility: true,
+  }),
   upcoming: z.boolean().optional(),
+  courseBundleId: z.number().int().optional(),
+  individual: z.boolean().optional(),
 });
 
 export const courseGetSchema = createSelectByIdSchema(coursesTable);
@@ -46,39 +52,77 @@ const refineSameDay = (
   }
 };
 
-export const courseEditSchema =
-  createVersionedUpdateSchema(coursesTable).superRefine(refineSameDay);
-
-const refineTemplateTimes = (
-  { templates }: { templates: { startTime: string; endTime: string }[] },
-  ctx: z.RefinementCtx,
-) => {
-  templates.forEach((template, index) => {
-    if (template.endTime <= template.startTime) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['templates', index, 'endTime'],
-        message: "L'heure de fin doit être postérieure à l'heure de début.",
-      });
-    }
-  });
-};
+export const courseEditSchema = createVersionedUpdateSchema(coursesTable)
+  .omit({ type: true, price: true, courseBundleId: true })
+  .extend({
+    capacity: z.preprocess(
+      (value) => (value === '' || value === null ? undefined : value),
+      z.coerce.number().int().min(0).optional(),
+    ),
+  })
+  .superRefine(refineSameDay);
 
 export const courseBatchCreateSchema = z
   .object({
     visibility: z.enum(courseVisibilityEnum.enumValues),
+    capacity: z.preprocess(
+      (value) => (value === '' || value === null ? undefined : value),
+      z.coerce.number().int().min(0).optional(),
+    ),
     templates: z.array(
       z.object({
         weekday: z.number().int().min(0).max(6),
-        type: z.enum(courseTypeEnum.enumValues),
+        type: z.enum(courseTypeEnum.enumValues).optional(),
+        bundleId: z.number().int().optional(),
         startTime: timeSchema,
         endTime: timeSchema,
         capacity: z.preprocess(
           (value) => (value === '' || value === null ? undefined : value),
-          z.coerce.number().int().min(0),
+          z.coerce.number().int().min(0).optional(),
         ),
+        price: optionalPriceSchema,
       }),
     ),
     weeks: z.array(z.string().date()),
   })
-  .superRefine(refineTemplateTimes);
+  .superRefine(({ capacity, templates }, ctx) => {
+    templates.forEach((template, index) => {
+      if (template.endTime <= template.startTime) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['templates', index, 'endTime'],
+          message: "L'heure de fin doit être postérieure à l'heure de début.",
+        });
+      }
+      if (template.bundleId === undefined) {
+        if (template.type === undefined) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['templates', index, 'type'],
+            message: 'Le type est requis.',
+          });
+        }
+        if (template.capacity === undefined) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['templates', index, 'capacity'],
+            message: 'La capacité est requise.',
+          });
+        }
+        if (template.price === undefined) {
+          ctx.addIssue({
+            code: 'custom',
+            path: ['templates', index, 'price'],
+            message: 'Le prix est requis.',
+          });
+        }
+      }
+    });
+    if (templates.some((template) => template.bundleId !== undefined) && capacity === undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['capacity'],
+        message: 'La capacité est requise.',
+      });
+    }
+  });

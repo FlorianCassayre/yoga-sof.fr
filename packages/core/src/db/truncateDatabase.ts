@@ -12,6 +12,6 @@ export async function truncateDatabase(client: Client) {
     console.log('Database is already empty, skipping the truncation.');
     return;
   }
-  await client.query(`TRUNCATE ${tables} CASCADE`);
+  await client.query(`TRUNCATE ${tables} RESTART IDENTITY CASCADE`);
   console.log('Truncated the database.');
 }

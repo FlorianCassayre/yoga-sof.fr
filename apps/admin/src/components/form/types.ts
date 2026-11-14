@@ -9,8 +9,9 @@ export interface IdVersion {
   version: number;
 }
 
-export interface FieldProps {
+export interface FieldProps<Row = unknown> {
   disabled: boolean;
+  row: Row | undefined;
 }
 
 export interface GetProcedure<Row> {
@@ -44,5 +45,5 @@ export interface FormProps<Row, Values extends FieldValues, Schema extends z.Zod
   updatedMessage?: string;
   submitLabel?: string;
   cancelHref: AppRoute;
-  children: ComponentType<FieldProps>;
+  children: ComponentType<FieldProps<Row>>;
 }

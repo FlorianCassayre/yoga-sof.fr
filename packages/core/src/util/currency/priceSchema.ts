@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { eurosToCents } from './eurosToCents';
+
 const priceValue = z.coerce
   .number({ message: 'Le prix est requis.' })
   .min(0, 'Le prix doit être positif.')
@@ -12,4 +14,14 @@ const priceValue = z.coerce
 export const priceSchema = z.preprocess(
   (value) => (value === '' || value === null ? undefined : value),
   priceValue,
+);
+
+// Same normalization, but the empty value stays a valid (absent) input — the
+// optionality sits INSIDE the preprocess so an empty string never reaches the
+// coercion.
+export const optionalPriceSchema = z.preprocess(
+  (value) => (value === '' || value === null ? undefined : value),
+  priceValue
+    .optional()
+    .transform((euros) => (euros === undefined ? undefined : eurosToCents(euros))),
 );

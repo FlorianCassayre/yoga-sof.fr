@@ -14,15 +14,15 @@ import { api } from '../../server/api';
 import { isNotFoundError } from '../../server/isNotFoundError';
 import { CardGrid } from '../card/CardGrid';
 import { CardIcon } from '../card/CardIcon';
-import { CourseUserRegistrationEventGrid } from '../courseUserRegistration/CourseUserRegistrationEventGrid';
-import { CourseUserRegistrationGrid } from '../courseUserRegistration/CourseUserRegistrationGrid';
-import { CourseUserRegistrationIcon } from '../courseUserRegistration/CourseUserRegistrationIcon';
 import { CourseUserWaitingListGrid } from '../courseUserWaitingList/CourseUserWaitingListGrid';
 import { CourseUserWaitingListIcon } from '../courseUserWaitingList/CourseUserWaitingListIcon';
 import { EmailGrid } from '../email/EmailGrid';
 import { EmailIcon } from '../email/EmailIcon';
 import { MembershipGrid } from '../membership/MembershipGrid';
 import { MembershipIcon } from '../membership/MembershipIcon';
+import { RegistrationEventGrid } from '../registration/RegistrationEventGrid';
+import { RegistrationGrid } from '../registration/RegistrationGrid';
+import { RegistrationIcon } from '../registration/RegistrationIcon';
 import { useHasPermission } from './useHasPermission';
 import { UserIcon } from './UserIcon';
 
@@ -40,7 +40,7 @@ type UserTab =
   | typeof EMAIL_TAB;
 
 const TABS: TabItem<UserTab>[] = [
-  { value: HISTORY_TAB, label: 'Historique', icon: CourseUserRegistrationIcon },
+  { value: HISTORY_TAB, label: 'Historique', icon: RegistrationIcon },
   { value: MEMBERSHIP_TAB, label: 'Adhésions', icon: MembershipIcon },
   { value: CARD_TAB, label: 'Cartes', icon: CardIcon },
   { value: WAITING_LIST_TAB, label: "Liste d'attente", icon: CourseUserWaitingListIcon },
@@ -74,7 +74,7 @@ export const UserPage = ({ id }: UserPageProps) => {
           children: [
             {
               label: 'Inscrire des utilisateurs',
-              icon: CourseUserRegistrationIcon,
+              icon: RegistrationIcon,
               href: `/inscriptions/creation?userId=${id}`,
               fab: true,
             },
@@ -101,14 +101,14 @@ export const UserPage = ({ id }: UserPageProps) => {
       />
       <Stack spacing={2}>
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-          <CourseUserRegistrationIcon size={18} />
+          <RegistrationIcon size={18} />
           <Typography variant="h6">Inscriptions</Typography>
         </Stack>
-        <CourseUserRegistrationGrid userId={user.data.id} />
+        <RegistrationGrid userId={user.data.id} />
       </Stack>
       <Stack spacing={2}>
         <Tabs value={tab} tabs={TABS} onChange={setTab} />
-        {tab === HISTORY_TAB && <CourseUserRegistrationEventGrid userId={user.data.id} />}
+        {tab === HISTORY_TAB && <RegistrationEventGrid userId={user.data.id} />}
         {tab === MEMBERSHIP_TAB && <MembershipGrid userId={user.data.id} />}
         {tab === CARD_TAB && <CardGrid userId={user.data.id} />}
         {tab === WAITING_LIST_TAB && <CourseUserWaitingListGrid userId={user.data.id} />}

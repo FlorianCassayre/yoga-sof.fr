@@ -1,4 +1,4 @@
-import { and, count, eq } from 'drizzle-orm';
+import { and, count, eq, sql } from 'drizzle-orm';
 import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
@@ -6,6 +6,9 @@ import { assertConflict, assertFound, assertInput, assertState } from '../../err
 import { pagination, sortOrders } from '../../util/list';
 import { usersTable } from '../auth/authTables';
 import { coursesTable } from '../course';
+import type { CourseType } from '../course/type/CourseType';
+import { courseBundlesTable } from '../courseBundle/courseBundlesTable';
+import { registerablesTable } from '../registerable/registerablesTable';
 import type {
   courseUserWaitingListListSchema,
   courseUserWaitingListSubscribeSchema,
@@ -26,16 +29,27 @@ export const courseUserWaitingListService = {
     tx: DbTransaction,
   ) => {
     const [course] = await tx
-      .select({
-        startsAt: coursesTable.startsAt,
-        capacity: coursesTable.capacity,
-        registeredCount: coursesTable.registeredCount,
-      })
+      .select({ startsAt: coursesTable.startsAt, courseBundleId: coursesTable.courseBundleId })
       .from(coursesTable)
       .where(eq(coursesTable.id, courseId));
     assertFound(course, 'La séance est introuvable.');
     assertInput(course.startsAt.getTime() > Date.now(), 'La séance a déjà eu lieu.');
-    assertInput(course.registeredCount >= course.capacity, "La séance n'est pas complète.");
+    const [registerable] = await tx
+      .select({
+        capacity: registerablesTable.capacity,
+        registeredCount: registerablesTable.registeredCount,
+      })
+      .from(registerablesTable)
+      .where(
+        course.courseBundleId === null
+          ? eq(registerablesTable.courseId, courseId)
+          : eq(registerablesTable.courseBundleId, course.courseBundleId),
+      );
+    assertFound(registerable, 'La séance est introuvable.');
+    assertInput(
+      registerable.registeredCount >= registerable.capacity,
+      "La séance n'est pas complète.",
+    );
 
     const [existing] = await tx
       .select({ id: courseUserWaitingListsTable.id })
@@ -92,7 +106,7 @@ export const courseUserWaitingListService = {
       .select({
         id: courseUserWaitingListsTable.id,
         courseId: courseUserWaitingListsTable.courseId,
-        courseType: coursesTable.type,
+        courseType: sql<CourseType>`coalesce(${coursesTable.type}, ${courseBundlesTable.type})`,
         courseStartsAt: coursesTable.startsAt,
         courseEndsAt: coursesTable.endsAt,
         userId: courseUserWaitingListsTable.userId,
@@ -103,6 +117,7 @@ export const courseUserWaitingListService = {
       })
       .from(courseUserWaitingListsTable)
       .innerJoin(coursesTable, eq(coursesTable.id, courseUserWaitingListsTable.courseId))
+      .leftJoin(courseBundlesTable, eq(courseBundlesTable.id, coursesTable.courseBundleId))
       .innerJoin(usersTable, eq(usersTable.id, courseUserWaitingListsTable.userId))
       .where(filters.length > 0 ? and(...filters) : undefined)
       .orderBy(...sortOrders(LIST_ORDER_COLUMNS, sort))

@@ -17,10 +17,11 @@ import { usePathname } from 'next/navigation';
 
 import { CardIcon } from '../../features/card/CardIcon';
 import { CourseIcon } from '../../features/course/CourseIcon';
-import { CourseUserRegistrationIcon } from '../../features/courseUserRegistration/CourseUserRegistrationIcon';
+import { CourseBundleIcon } from '../../features/courseBundle/CourseBundleIcon';
 import { DashboardIcon } from '../../features/dashboard/DashboardIcon';
 import { EmailIcon } from '../../features/email/EmailIcon';
 import { MembershipIcon } from '../../features/membership/MembershipIcon';
+import { RegistrationIcon } from '../../features/registration/RegistrationIcon';
 import { RoleIcon } from '../../features/role/RoleIcon';
 import { SettingsIcon } from '../../features/settings/SettingsIcon';
 import { UserIcon } from '../../features/user/UserIcon';
@@ -36,7 +37,8 @@ const NAV_GROUPS: {
     label: 'Planification',
     items: [
       { href: '/seances', label: 'Séances', Icon: CourseIcon },
-      { href: '/inscriptions', label: 'Inscriptions', Icon: CourseUserRegistrationIcon },
+      { href: '/lots', label: 'Lots', Icon: CourseBundleIcon },
+      { href: '/inscriptions', label: 'Inscriptions', Icon: RegistrationIcon },
     ],
   },
   {

@@ -1,12 +1,13 @@
-import { and, count, eq, exists, isNotNull, isNull, lte, sql } from 'drizzle-orm';
+import { and, count, eq, exists, isNotNull, isNull, lte, notExists, or, sql } from 'drizzle-orm';
 import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
 import { pagination, sortOrders } from '../../util/list';
 import { coursesTable } from '../course/coursesTable';
 import type { CourseType } from '../course/type/CourseType';
-import { courseUserRegistrationsTable } from '../courseUserRegistration/courseUserRegistrationsTable';
+import { courseBundlesTable } from '../courseBundle/courseBundlesTable';
 import { emailsTable } from '../email/emailsTable';
+import { courseUserPresencesTable, registrationsTable } from '../registration/registrationsTable';
 import type { notificationListSchema } from './notificationSchemas';
 import type { NotificationType } from './NotificationType';
 
@@ -18,12 +19,25 @@ const pendingPresenceCourses = (tx: DbTransaction) =>
     exists(
       tx
         .select({ one: sql`1` })
-        .from(courseUserRegistrationsTable)
+        .from(registrationsTable)
         .where(
           and(
-            eq(courseUserRegistrationsTable.courseId, coursesTable.id),
-            eq(courseUserRegistrationsTable.canceled, false),
-            isNull(courseUserRegistrationsTable.present),
+            eq(registrationsTable.canceled, false),
+            or(
+              eq(registrationsTable.courseId, coursesTable.id),
+              eq(registrationsTable.courseBundleId, coursesTable.courseBundleId),
+            ),
+            notExists(
+              tx
+                .select({ one: sql`1` })
+                .from(courseUserPresencesTable)
+                .where(
+                  and(
+                    eq(courseUserPresencesTable.registrationId, registrationsTable.id),
+                    eq(courseUserPresencesTable.courseId, coursesTable.id),
+                  ),
+                ),
+            ),
           ),
         ),
     ),
@@ -35,7 +49,9 @@ const notificationsSubquery = (tx: DbTransaction) =>
       id: sql<string>`${coursesTable.id} || ':presence'`.as('id'),
       type: sql<NotificationType>`'coursePresence'`.as('type'),
       courseId: sql<number>`${coursesTable.id}`.as('courseId'),
-      courseType: sql<CourseType>`${coursesTable.type}`.as('courseType'),
+      courseType: sql<CourseType>`coalesce(${coursesTable.type}, ${courseBundlesTable.type})`.as(
+        'courseType',
+      ),
       courseStartsAt: sql<Date>`${coursesTable.startsAt}`
         .mapWith(coursesTable.startsAt)
         .as('courseStartsAt'),
@@ -48,6 +64,7 @@ const notificationsSubquery = (tx: DbTransaction) =>
       destinationAddress: sql<string>`null`.as('destinationAddress'),
     })
     .from(coursesTable)
+    .leftJoin(courseBundlesTable, eq(courseBundlesTable.id, coursesTable.courseBundleId))
     .where(pendingPresenceCourses(tx))
     .unionAll(
       tx

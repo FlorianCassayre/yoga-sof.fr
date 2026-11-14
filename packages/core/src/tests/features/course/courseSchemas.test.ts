@@ -43,9 +43,6 @@ describe('courseEditSchema', () => {
   });
 
   it('rejects invalid values', () => {
-    expect(courseEditSchema.safeParse({ ...values, id: 7, version: 1, type: 'ado' }).success).toBe(
-      false,
-    );
     expect(
       courseEditSchema.safeParse({ ...values, id: 7, version: 1, capacity: 'dix' }).success,
     ).toBe(false);
@@ -97,7 +94,14 @@ describe('courseBatchCreateSchema', () => {
   const batch = {
     visibility: 'public',
     templates: [
-      { weekday: 1, type: 'adulte', startTime: '09:00', endTime: '11:00', capacity: '10' },
+      {
+        weekday: 1,
+        type: 'adulte',
+        startTime: '09:00',
+        endTime: '11:00',
+        capacity: '10',
+        price: '15',
+      },
     ],
     weeks: ['2026-11-09'],
   };
@@ -131,7 +135,14 @@ describe('courseBatchCreateSchema', () => {
       ...batch,
       templates: [
         batch.templates[0]!,
-        { weekday: 1, type: 'adulte', startTime: '11:00', endTime: '13:00', capacity: 10 },
+        {
+          weekday: 1,
+          type: 'adulte',
+          startTime: '11:00',
+          endTime: '13:00',
+          capacity: 10,
+          price: 15,
+        },
       ],
     });
 
@@ -158,5 +169,31 @@ describe('courseBatchCreateSchema', () => {
     expect(courseBatchCreateSchema.safeParse({ ...batch, visibility: 'prive' }).success).toBe(
       false,
     );
+  });
+
+  it('requires type and price for individual templates only', () => {
+    const bundled = {
+      weekday: 1,
+      bundleId: 3,
+      startTime: '09:00',
+      endTime: '11:00',
+      capacity: '10',
+    };
+
+    expect(
+      courseBatchCreateSchema.safeParse({ ...batch, capacity: 10, templates: [bundled] }).success,
+    ).toBe(true);
+    expect(
+      courseBatchCreateSchema.safeParse({
+        ...batch,
+        templates: [{ ...batch.templates[0]!, type: undefined }],
+      }).success,
+    ).toBe(false);
+    expect(
+      courseBatchCreateSchema.safeParse({
+        ...batch,
+        templates: [{ ...batch.templates[0]!, price: undefined }],
+      }).success,
+    ).toBe(false);
   });
 });

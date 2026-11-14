@@ -1,4 +1,4 @@
-import { coursesTable } from '@yoga-sof/core';
+import { coursesTable, registerablesTable } from '@yoga-sof/core';
 import type { Client } from 'pg';
 
 import { type InsertRow, insertRows } from '../../import/insertRows';
@@ -57,12 +57,19 @@ export const coursesImport = async (
     type: course.type,
     startsAt: course.startsAt,
     endsAt: course.endsAt,
-    capacity: course.capacity,
-    registeredCount: 0,
+    price: 0,
     visibility: course.visibility,
     internalNotes: course.internalNotes,
   }));
   await insertRows(client, coursesTable, courseValues, true);
+  await insertRows(
+    client,
+    registerablesTable,
+    [...courses.keys()].map((courseId) => ({
+      courseId,
+      capacity: courses.get(courseId)!.capacity,
+    })),
+  );
   return {
     keptCourseIds: new Set(courses.keys()),
     courses: courseValues.length,
@@ -80,24 +87,24 @@ export const reconcileRegisteredCounts = async (
     SELECT count(*)::int AS raises
     FROM (
       SELECT r."courseId", count(*)::int AS count
-      FROM "course_user_registrations" r
-      WHERE NOT r."canceled"
+      FROM "registrations" r
+      WHERE NOT r."canceled" AND r."courseId" IS NOT NULL
       GROUP BY r."courseId"
     ) counts
-    JOIN "courses" c ON c.id = counts."courseId"
-    WHERE counts.count > c."capacity"
+    JOIN "registerables" g ON g."courseId" = counts."courseId"
+    WHERE counts.count > g."capacity"
   `);
   await client.query(`
-    UPDATE "courses" SET
+    UPDATE "registerables" SET
       "registeredCount" = counts.count,
-      "capacity" = GREATEST("courses"."capacity", counts.count)
+      "capacity" = GREATEST("registerables"."capacity", counts.count)
     FROM (
       SELECT "courseId", count(*)::int AS count
-      FROM "course_user_registrations"
-      WHERE NOT "canceled"
+      FROM "registrations"
+      WHERE NOT "canceled" AND "courseId" IS NOT NULL
       GROUP BY "courseId"
     ) counts
-    WHERE "courses"."id" = counts."courseId"
+    WHERE "registerables"."courseId" = counts."courseId"
   `);
   return { capacityRaises: rows[0]?.raises ?? 0 };
 };
