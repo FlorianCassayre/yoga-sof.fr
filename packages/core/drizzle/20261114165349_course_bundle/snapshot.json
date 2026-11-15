@@ -2,7 +2,7 @@
   "version": "8",
   "dialect": "postgres",
   "id": "fcae7f47-e3b7-4e38-b263-2b99b551903b",
-  "prevIds": ["d1b6fede-e93e-465a-93a3-93249f84f2ed"],
+  "prevIds": ["4938683c-747b-42a2-959f-f9d4ace56907"],
   "ddl": [
     {
       "values": ["adulte", "enfant"],

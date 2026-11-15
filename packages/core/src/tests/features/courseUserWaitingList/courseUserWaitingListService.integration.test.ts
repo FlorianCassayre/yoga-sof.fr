@@ -78,7 +78,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseUserWaitingLi
       .delete(coursesTable)
       .where(inArray(coursesTable.id, [openCourseId, fullCourseId, pastCourseId]));
     await db.delete(usersTable).where(inArray(usersTable.id, [userId, otherUserId]));
-    await db.$client.end();
   });
 
   it('subscribes to a full future course', async () => {

@@ -1,4 +1,3 @@
-import { TRPCError } from '@trpc/server';
 import {
   membershipCancelSchema,
   membershipCreateSchema,
@@ -8,7 +7,6 @@ import {
   membershipService,
   withTransaction,
 } from '@yoga-sof/core/server';
-import { auth } from '@yoga-sof/ui/auth';
 import { trpc } from '@yoga-sof/ui/trpc';
 
 import { readProcedure, writeProcedure } from '../../server/trpc';
@@ -30,13 +28,9 @@ export const membershipRouter = trpc.router({
   update: writeProcedure
     .input(membershipEditSchema)
     .mutation(({ input }) => withTransaction((tx) => membershipService.update(input, tx))),
-  cancel: writeProcedure.input(membershipCancelSchema).mutation(async ({ input }) => {
-    const userId = (await auth())?.user?.id;
-
-    if (!userId) {
-      throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Non authentifié.' });
-    }
-
-    return withTransaction((tx) => membershipService.cancel(input, tx, userId));
-  }),
+  cancel: writeProcedure
+    .input(membershipCancelSchema)
+    .mutation(({ ctx, input }) =>
+      withTransaction((tx) => membershipService.cancel(input, tx, ctx.userId)),
+    ),
 });

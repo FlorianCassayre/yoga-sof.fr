@@ -1,5 +1,4 @@
 import {
-  courseBundleCreateSchema,
   courseBundleEditSchema,
   courseBundleGetSchema,
   courseBundleListSchema,
@@ -21,9 +20,6 @@ export const courseBundleRouter = trpc.router({
     .query(({ input }) =>
       withTransaction((tx) => courseBundleService.get(input, tx), { readOnly: true }),
     ),
-  create: writeProcedure
-    .input(courseBundleCreateSchema)
-    .mutation(({ input }) => withTransaction((tx) => courseBundleService.create(input, tx))),
   update: writeProcedure
     .input(courseBundleEditSchema)
     .mutation(({ input }) => withTransaction((tx) => courseBundleService.update(input, tx))),

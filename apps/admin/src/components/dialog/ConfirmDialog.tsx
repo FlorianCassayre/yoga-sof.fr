@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSnackbar } from 'notistack';
+import type { ReactNode } from 'react';
 
 import type { MutationProcedure } from '../form/types';
 
@@ -21,6 +22,7 @@ interface ConfirmDialogProps<Row, Input> {
   confirmLabel: string;
   successMessage: string;
   onClose: () => void;
+  children?: ReactNode;
 }
 
 export const ConfirmDialog = <Row, Input>({
@@ -31,6 +33,7 @@ export const ConfirmDialog = <Row, Input>({
   confirmLabel,
   successMessage,
   onClose,
+  children,
 }: ConfirmDialogProps<Row, Input>) => {
   const queryClient = useQueryClient();
   const { enqueueSnackbar } = useSnackbar();
@@ -56,6 +59,7 @@ export const ConfirmDialog = <Row, Input>({
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <DialogContentText>{message}</DialogContentText>
+        {children}
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={mutation.isPending}>

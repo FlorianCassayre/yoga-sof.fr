@@ -14,6 +14,7 @@
     "@date-fns/tz": "catalog:",
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
+    "@hookform/resolvers": "catalog:",
     "@mui/material": "catalog:",
     "@mui/x-data-grid": "catalog:",
     "@mui/x-date-pickers": "catalog:",

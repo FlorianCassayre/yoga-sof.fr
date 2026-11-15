@@ -7,6 +7,7 @@ export * from './features/calendar/server';
 export * from './features/card/server';
 export * from './features/course/server';
 export * from './features/courseBundle/server';
+export * from './features/courseSuperBundle/server';
 export * from './features/courseUserWaitingList/server';
 export * from './features/email/server';
 export * from './features/membership/server';

@@ -19,7 +19,7 @@ export const courseFormSchema = z
     endTime: z.date().nullable(),
     capacity: z.preprocess(
       (value) => (value === '' || value === null ? undefined : value),
-      z.coerce.number(),
+      z.coerce.number().optional(),
     ),
     visibility: z.enum(courseVisibilityEnum.enumValues),
     internalNotes: z.string(),

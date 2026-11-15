@@ -73,7 +73,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('membershipService',
     await db.delete(membershipPricesTable);
     await db.delete(membershipSettingsTable);
     await clearUsers();
-    await db.$client.end();
   });
 
   it('creates a membership and fetches it with its beneficiaries', async () => {

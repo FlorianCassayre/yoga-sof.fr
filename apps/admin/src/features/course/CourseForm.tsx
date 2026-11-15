@@ -58,7 +58,7 @@ export const CourseForm = ({ id }: { id: number }) => {
           date: course?.startsAt ?? tomorrow,
           startTime: course?.startsAt ?? tomorrow,
           endTime: course?.endsAt ?? defaultEnd,
-          capacity: course && course.capacity !== null ? String(course.capacity) : '10',
+          capacity: course?.capacity != null ? String(course.capacity) : '',
           visibility: course?.visibility ?? 'public',
           internalNotes: course?.internalNotes ?? '',
         };

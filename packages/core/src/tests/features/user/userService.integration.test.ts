@@ -12,7 +12,6 @@ const EMAIL = 'user-list-test@example.com';
 describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('userService', () => {
   afterAll(async () => {
     await db.delete(usersTable).where(eq(usersTable.email, EMAIL));
-    await db.$client.end();
   });
 
   it('throws on an unknown user', async () => {

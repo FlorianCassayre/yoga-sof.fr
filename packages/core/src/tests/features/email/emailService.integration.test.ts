@@ -42,7 +42,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('emailService.resend
   afterAll(async () => {
     await db.delete(emailsTable).where(eq(emailsTable.userId, userId));
     await db.delete(usersTable).where(eq(usersTable.email, EMAIL));
-    await db.$client.end();
   });
 
   it('clears the send error so the worker retries the e-mail', async () => {

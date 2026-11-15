@@ -2,6 +2,7 @@ export * from './features/calendar';
 export * from './features/card';
 export * from './features/course';
 export * from './features/courseBundle';
+export * from './features/courseSuperBundle';
 export * from './features/courseUserWaitingList';
 export * from './features/email';
 export * from './features/membership';

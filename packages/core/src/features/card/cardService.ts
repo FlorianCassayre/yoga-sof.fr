@@ -7,6 +7,7 @@ import { createRow, updateRow } from '../../db/rows';
 import { assertConflict, assertFound, assertInput } from '../../errors';
 import { pagination, sortOrders } from '../../util/list';
 import { usersTable } from '../auth/authTables';
+import { COURSE_TYPE_REGISTRATION_MODES } from '../course/type/courseRegistrationModes';
 import type {
   cardCancelSchema,
   cardCreateSchema,
@@ -83,6 +84,10 @@ export const cardService = {
       .from(cardTemplatesTable)
       .where(eq(cardTemplatesTable.id, templateId));
     assertFound(template, 'Le modèle de carte est introuvable.');
+    assertInput(
+      COURSE_TYPE_REGISTRATION_MODES[template.type] === 'individual',
+      'Les cartes ne peuvent pas porter sur un type de séances vendu uniquement en lot de séances.',
+    );
 
     const [user] = await tx
       .select({ id: usersTable.id })

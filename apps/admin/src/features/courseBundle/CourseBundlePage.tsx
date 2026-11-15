@@ -11,6 +11,7 @@ import { PageLayout } from '../../components/page/PageLayout';
 import { api } from '../../server/api';
 import { isNotFoundError } from '../../server/isNotFoundError';
 import { CourseGrid } from '../course/CourseGrid';
+import { CourseSuperBundleLink } from '../courseSuperBundle/CourseSuperBundleLink';
 import { RegistrationEventGrid } from '../registration/RegistrationEventGrid';
 import { RegistrationGrid } from '../registration/RegistrationGrid';
 import { useHasPermission } from '../user/useHasPermission';
@@ -59,6 +60,18 @@ export const CourseBundlePage = ({ id }: CourseBundlePageProps) => {
     <PageLayout icon={CourseBundleIcon} title={row.label} actions={actions}>
       <RecordDetails
         entries={[
+          ...(row.courseSuperBundleId !== null && row.superBundleLabel !== null
+            ? [
+                {
+                  label: 'Ensemble',
+                  value: (
+                    <CourseSuperBundleLink
+                      superBundle={{ id: row.courseSuperBundleId, label: row.superBundleLabel }}
+                    />
+                  ),
+                },
+              ]
+            : []),
           { label: 'Type', value: COURSE_TYPE_LABELS[row.type] },
           { label: 'Prix', value: formatPrice(row.price) },
           { label: 'Capacité', value: row.capacity },

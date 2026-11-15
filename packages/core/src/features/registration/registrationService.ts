@@ -1,4 +1,4 @@
-import { and, count, eq, inArray, isNotNull, notExists, or, type SQL, sql } from 'drizzle-orm';
+import { and, count, eq, inArray, isNotNull, or, type SQL, sql } from 'drizzle-orm';
 import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
@@ -12,10 +12,10 @@ import { registerableService } from '../registerable/registerableService';
 import { registerablesTable } from '../registerable/registerablesTable';
 import type {
   registrationCoursePresenceListSchema,
+  registrationCourseRecipientsSchema,
   registrationCreateSchema,
   registrationEventListSchema,
   registrationListSchema,
-  registrationPendingPresenceSchema,
   registrationSetPresenceSchema,
 } from './registrationSchemas';
 import { courseUserPresencesTable, registrationsTable } from './registrationsTable';
@@ -380,30 +380,16 @@ export const registrationService = {
       });
   },
 
-  pendingPresence: async (
-    { courseId }: z.infer<typeof registrationPendingPresenceSchema>,
+  listCourseRecipients: async (
+    { courseId }: z.infer<typeof registrationCourseRecipientsSchema>,
     tx: DbTransaction,
   ) => {
-    const [row] = await tx
-      .select({ pending: count() })
+    const rows = await tx
+      .selectDistinct({ id: usersTable.id, name: usersTable.name, email: usersTable.email })
       .from(registrationsTable)
-      .where(
-        and(
-          registrationFilters(tx, { courseId }),
-          notExists(
-            tx
-              .select({ one: sql`1` })
-              .from(courseUserPresencesTable)
-              .where(
-                and(
-                  eq(courseUserPresencesTable.registrationId, registrationsTable.id),
-                  eq(courseUserPresencesTable.courseId, courseId),
-                ),
-              ),
-          ),
-        ),
-      );
+      .innerJoin(usersTable, eq(registrationsTable.userId, usersTable.id))
+      .where(registrationFilters(tx, { courseId }));
 
-    return { pending: row?.pending ?? 0 };
+    return rows;
   },
 };

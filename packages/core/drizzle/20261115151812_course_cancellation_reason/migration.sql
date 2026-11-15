@@ -1,0 +1,2 @@
+ALTER TABLE "courses" ADD COLUMN "cancellationReason" text;--> statement-breakpoint
+ALTER TABLE "courses" ADD CONSTRAINT "cancellation_reason_consistency" CHECK ("cancellationReason" IS NULL OR "canceled");

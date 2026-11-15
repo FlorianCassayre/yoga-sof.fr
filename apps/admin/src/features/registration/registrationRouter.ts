@@ -3,7 +3,6 @@ import {
   registrationCreateSchema,
   registrationEventListSchema,
   registrationListSchema,
-  registrationPendingPresenceSchema,
   registrationService,
   registrationSetPresenceSchema,
   withTransaction,
@@ -26,11 +25,6 @@ export const registrationRouter = trpc.router({
   ),
   listEvents: readProcedure.input(registrationEventListSchema).query(({ input }) =>
     withTransaction((tx) => registrationService.listEvents(input, tx), {
-      readOnly: true,
-    }),
-  ),
-  pendingPresence: readProcedure.input(registrationPendingPresenceSchema).query(({ input }) =>
-    withTransaction((tx) => registrationService.pendingPresence(input, tx), {
       readOnly: true,
     }),
   ),

@@ -11,6 +11,7 @@ import { Link } from '../../components/link/Link';
 import { api } from '../../server/api';
 import type { RouterOutputs } from '../../server/appRouter';
 import { CourseBundleLink } from '../courseBundle/CourseBundleLink';
+import { CourseCounts } from './CourseCounts';
 import { VisibilityChip } from './visibility/VisibilityChip';
 
 type CourseRow = RouterOutputs['course']['list']['rows'][number];
@@ -59,8 +60,23 @@ const columns: GridColumns<CourseRow, 'horaire'> = [
     renderCell: (params) =>
       `${formatScheduleTime(params.row.startsAt)} à ${formatScheduleTime(params.row.endsAt)}`,
   },
-  { field: 'capacity', headerName: 'Capacité', type: 'number', width: 110 },
-  { field: 'registeredCount', headerName: 'Inscrits', type: 'number', width: 110 },
+  {
+    field: 'registeredCount',
+    headerName: 'Inscrits',
+    type: 'number',
+    width: 140,
+    renderCell: (params) => (
+      <CourseCounts
+        registeredCount={params.row.registeredCount}
+        capacity={params.row.capacity}
+        presence={{
+          pending: params.row.pending,
+          present: params.row.present,
+          absent: params.row.absent,
+        }}
+      />
+    ),
+  },
   {
     field: 'visibility',
     headerName: 'Visibilité',

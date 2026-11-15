@@ -27,6 +27,7 @@ catalog:
   '@trpc/server': ^11.19.0
   '@types/node': ^20
   '@types/pg': ^8.23.1
+  '@hookform/resolvers': ^7.0.6
   '@types/react': ^19
   '@types/react-dom': ^19
   babel-plugin-react-compiler: 1.0.0

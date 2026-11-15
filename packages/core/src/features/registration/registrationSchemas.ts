@@ -78,6 +78,6 @@ export const registrationSetPresenceSchema = z.object({
   present: z.boolean().nullable(),
 });
 
-export const registrationPendingPresenceSchema = z.object({
+export const registrationCourseRecipientsSchema = z.object({
   courseId: z.coerce.number().int(),
 });

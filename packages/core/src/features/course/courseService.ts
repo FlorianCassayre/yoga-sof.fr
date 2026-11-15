@@ -4,17 +4,22 @@ import {
   asc,
   count,
   eq,
+  exists,
   gt,
   gte,
   ilike,
   inArray,
+  isNotNull,
   isNull,
   lt,
   max,
   ne,
+  notExists,
   or,
+  type SQL,
   sql,
 } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
@@ -29,10 +34,12 @@ import {
 import { pagination, sortOrders } from '../../util/list';
 import { courseBundlesTable } from '../courseBundle/courseBundlesTable';
 import { registerablesTable } from '../registerable/registerablesTable';
+import { courseUserPresencesTable, registrationsTable } from '../registration/registrationsTable';
 import { courseLabelSql } from './courseLabelSql';
 import type {
   courseBatchCreateSchema,
   courseCalendarListSchema,
+  courseCancelSchema,
   courseEditSchema,
   courseGetSchema,
   courseListSchema,
@@ -63,8 +70,69 @@ const parisWeekStart = (instant: Date): TZDate => {
 
 const effectiveType = sql<CourseType>`coalesce(${coursesTable.type}, ${courseBundlesTable.type})`;
 
-const courseListQuery = (tx: DbTransaction) =>
-  tx
+const aliasedBundleCourses = alias(coursesTable, 'bundle_courses');
+
+// Registrations covering a course: a lot registration covers every course of
+// its lot.
+const coveringRegistrations = (tx: DbTransaction) =>
+  and(
+    eq(registrationsTable.canceled, false),
+    or(
+      eq(registrationsTable.courseId, coursesTable.id),
+      inArray(
+        registrationsTable.courseBundleId,
+        tx
+          .select({ id: aliasedBundleCourses.courseBundleId })
+          .from(aliasedBundleCourses)
+          .where(
+            and(
+              eq(aliasedBundleCourses.id, coursesTable.id),
+              isNotNull(aliasedBundleCourses.courseBundleId),
+            ),
+          ),
+      ),
+    ),
+  );
+
+const courseListQuery = (tx: DbTransaction) => {
+  const coveredRegistrations = coveringRegistrations(tx);
+  const presenceRow = (present: boolean) =>
+    tx
+      .select({ id: courseUserPresencesTable.registrationId })
+      .from(courseUserPresencesTable)
+      .where(
+        and(
+          eq(courseUserPresencesTable.registrationId, registrationsTable.id),
+          eq(courseUserPresencesTable.courseId, coursesTable.id),
+          eq(courseUserPresencesTable.present, present),
+        ),
+      );
+  const coveringCount = (field: 'present' | 'absent', filter: SQL) =>
+    sql<number>`${tx
+      .select({ [field]: count() })
+      .from(registrationsTable)
+      .where(and(coveredRegistrations, filter))}`.mapWith(Number);
+  const pendingCount = sql<number>`${tx
+    .select({ pending: count() })
+    .from(registrationsTable)
+    .where(
+      and(
+        coveredRegistrations,
+        notExists(
+          tx
+            .select({ id: courseUserPresencesTable.registrationId })
+            .from(courseUserPresencesTable)
+            .where(
+              and(
+                eq(courseUserPresencesTable.registrationId, registrationsTable.id),
+                eq(courseUserPresencesTable.courseId, coursesTable.id),
+              ),
+            ),
+        ),
+      ),
+    )}`.mapWith(Number);
+
+  return tx
     .select({
       id: coursesTable.id,
       version: coursesTable.version,
@@ -78,6 +146,13 @@ const courseListQuery = (tx: DbTransaction) =>
       internalNotes: coursesTable.internalNotes,
       capacity: registerablesTable.capacity,
       registeredCount: registerablesTable.registeredCount,
+      canceled: coursesTable.canceled,
+      canceledAt: coursesTable.canceledAt,
+      canceledBy: coursesTable.canceledBy,
+      cancellationReason: coursesTable.cancellationReason,
+      pending: pendingCount,
+      present: coveringCount('present', exists(presenceRow(true))),
+      absent: coveringCount('absent', exists(presenceRow(false))),
     })
     .from(coursesTable)
     .leftJoin(
@@ -88,6 +163,7 @@ const courseListQuery = (tx: DbTransaction) =>
       ),
     )
     .leftJoin(courseBundlesTable, eq(courseBundlesTable.id, coursesTable.courseBundleId));
+};
 
 const LIST_ORDER_COLUMNS = {
   bundleLabel: courseBundlesTable.label,
@@ -355,6 +431,34 @@ export const courseService = {
     }
 
     return created;
+  },
+
+  cancel: async (
+    { id, cancellationReason }: z.infer<typeof courseCancelSchema>,
+    tx: DbTransaction,
+    canceledBy: string,
+  ) => {
+    const [row] = await tx.select().from(coursesTable).where(eq(coursesTable.id, id));
+    assertFound(row, 'La séance est introuvable.');
+    assertConflict(!row.canceled, 'La séance est déjà annulée.');
+
+    const changes = {
+      canceled: true,
+      canceledAt: new Date(),
+      canceledBy,
+      cancellationReason: cancellationReason?.trim() ?? null,
+    };
+
+    await updateRow<typeof coursesTable.$inferSelect>(
+      tx,
+      coursesTable,
+      { id, version: row.version, ...changes },
+      'La séance a été modifiée entre-temps, rechargez la page.',
+    );
+    const [updated] = await courseListQuery(tx).where(eq(coursesTable.id, id));
+    assertState(updated, 'La séance est introuvable.');
+
+    return updated;
   },
 
   update: async (values: z.infer<typeof courseEditSchema>, tx: DbTransaction) => {

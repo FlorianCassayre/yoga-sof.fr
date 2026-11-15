@@ -1,4 +1,5 @@
-import { count, eq, getColumns, ilike, sql } from 'drizzle-orm';
+import { and, count, eq, getColumns, ilike, max, min, sql } from 'drizzle-orm';
+import { alias } from 'drizzle-orm/pg-core';
 import type { z } from 'zod';
 
 import type { DbTransaction } from '../../db/db';
@@ -7,32 +8,54 @@ import { assertFound, assertInput, assertState } from '../../errors';
 import { pagination, sortOrders } from '../../util/list';
 import { coursesTable } from '../course/coursesTable';
 import { COURSE_TYPE_REGISTRATION_MODES } from '../course/type/courseRegistrationModes';
+import { courseSuperBundlesTable } from '../courseSuperBundle/courseSuperBundlesTable';
 import { registerablesTable } from '../registerable/registerablesTable';
 import type {
-  courseBundleCreateSchema,
   courseBundleEditSchema,
   courseBundleGetSchema,
   courseBundleListSchema,
 } from './courseBundleSchemas';
 import { courseBundlesTable } from './courseBundlesTable';
 
+const aliasedSuperBundles = alias(courseSuperBundlesTable, 'super_bundles');
+
+// The subqueries are built with the query builder and only glued with sql` —
+// drizzle cannot embed a select in a select field.
 const bundleRow = (tx: DbTransaction) =>
   tx
     .select({
       ...getColumns(courseBundlesTable),
       capacity: registerablesTable.capacity,
       registeredCount: registerablesTable.registeredCount,
-      startsAt:
-        sql<Date | null>`(SELECT min("courses"."startsAt") FROM "courses" WHERE "courses"."courseBundleId" = "course_bundles"."id")`.mapWith(
-          coursesTable.startsAt,
-        ),
-      endsAt:
-        sql<Date | null>`(SELECT max("courses"."endsAt") FROM "courses" WHERE "courses"."courseBundleId" = "course_bundles"."id")`.mapWith(
-          coursesTable.endsAt,
-        ),
+      superBundleLabel: aliasedSuperBundles.label,
+      courseCount: sql<number>`${tx
+        .select({ courseCount: count() })
+        .from(coursesTable)
+        .where(
+          and(
+            eq(coursesTable.courseBundleId, courseBundlesTable.id),
+            eq(coursesTable.canceled, false),
+          ),
+        )}`.mapWith(Number),
+      startsAt: sql<Date | null>`${tx
+        .select({ startsAt: min(coursesTable.startsAt) })
+        .from(coursesTable)
+        .where(eq(coursesTable.courseBundleId, courseBundlesTable.id))}`.mapWith(
+        coursesTable.startsAt,
+      ),
+      endsAt: sql<Date | null>`${tx
+        .select({ endsAt: max(coursesTable.endsAt) })
+        .from(coursesTable)
+        .where(eq(coursesTable.courseBundleId, courseBundlesTable.id))}`.mapWith(
+        coursesTable.endsAt,
+      ),
     })
     .from(courseBundlesTable)
-    .innerJoin(registerablesTable, eq(registerablesTable.courseBundleId, courseBundlesTable.id));
+    .innerJoin(registerablesTable, eq(registerablesTable.courseBundleId, courseBundlesTable.id))
+    .leftJoin(
+      aliasedSuperBundles,
+      eq(aliasedSuperBundles.id, courseBundlesTable.courseSuperBundleId),
+    );
 
 const LIST_ORDER_COLUMNS = {
   label: courseBundlesTable.label,
@@ -42,27 +65,17 @@ const LIST_ORDER_COLUMNS = {
 
 export const courseBundleService = {
   list: async (
-    { sort, search, ...params }: z.infer<typeof courseBundleListSchema>,
+    { sort, search, courseSuperBundleId, ...params }: z.infer<typeof courseBundleListSchema>,
     tx: DbTransaction,
   ) => {
     const { limit: paginationLimit, offset: paginationOffset } = pagination(params);
-    const where = search === undefined ? undefined : ilike(courseBundlesTable.label, `%${search}%`);
-    const rows = await tx
-      .select({
-        ...getColumns(courseBundlesTable),
-        capacity: registerablesTable.capacity,
-        courseCount: sql<number>`(SELECT count(*) FROM "courses" WHERE "courses"."courseBundleId" = "course_bundles"."id" AND NOT "courses"."canceled")`,
-        startsAt:
-          sql<Date | null>`(SELECT min("courses"."startsAt") FROM "courses" WHERE "courses"."courseBundleId" = "course_bundles"."id")`.mapWith(
-            coursesTable.startsAt,
-          ),
-        endsAt:
-          sql<Date | null>`(SELECT max("courses"."endsAt") FROM "courses" WHERE "courses"."courseBundleId" = "course_bundles"."id")`.mapWith(
-            coursesTable.endsAt,
-          ),
-      })
-      .from(courseBundlesTable)
-      .innerJoin(registerablesTable, eq(registerablesTable.courseBundleId, courseBundlesTable.id))
+    const where = and(
+      search === undefined ? undefined : ilike(courseBundlesTable.label, `%${search}%`),
+      courseSuperBundleId === undefined
+        ? undefined
+        : eq(courseBundlesTable.courseSuperBundleId, courseSuperBundleId),
+    );
+    const rows = await bundleRow(tx)
       .where(where)
       .orderBy(...sortOrders(LIST_ORDER_COLUMNS, sort))
       .limit(paginationLimit)
@@ -75,29 +88,6 @@ export const courseBundleService = {
   get: async ({ id }: z.infer<typeof courseBundleGetSchema>, tx: DbTransaction) => {
     const [row] = await bundleRow(tx).where(eq(courseBundlesTable.id, id));
     assertFound(row, 'Le lot de séances est introuvable.');
-
-    return row;
-  },
-
-  create: async (
-    { label, type, price, capacity }: z.infer<typeof courseBundleCreateSchema>,
-    tx: DbTransaction,
-  ) => {
-    assertInput(
-      COURSE_TYPE_REGISTRATION_MODES[type] === 'bundle',
-      'Ce type de séance ne peut pas former de lot de séances.',
-    );
-    const [bundle] = await tx.insert(courseBundlesTable).values({ label, type, price }).returning();
-    assertState(bundle, 'Création du lot de séances impossible.');
-
-    const [registerable] = await tx
-      .insert(registerablesTable)
-      .values({ courseBundleId: bundle.id, capacity })
-      .returning();
-    assertState(registerable, 'Création du lot de séances impossible.');
-
-    const [row] = await bundleRow(tx).where(eq(courseBundlesTable.id, bundle.id));
-    assertState(row, 'Création du lot de séances impossible.');
 
     return row;
   },

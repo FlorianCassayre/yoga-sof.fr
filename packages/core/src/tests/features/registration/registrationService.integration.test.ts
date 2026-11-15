@@ -5,6 +5,7 @@ import { db } from '../../../db/db';
 import { withTransaction } from '../../../db/withTransaction';
 import { ServiceError } from '../../../errors';
 import { usersTable } from '../../../features/auth/authTables';
+import { courseService } from '../../../features/course/courseService';
 import { coursesTable } from '../../../features/course/coursesTable';
 import { courseBundlesTable } from '../../../features/courseBundle/courseBundlesTable';
 import { registerablesTable } from '../../../features/registerable/registerablesTable';
@@ -84,7 +85,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('registrationService
     if (bundleId > 0) {
       await db.delete(courseBundlesTable).where(eq(courseBundlesTable.id, bundleId));
     }
-    await db.$client.end();
   });
 
   const list = () =>
@@ -444,9 +444,9 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('registrationService
       throw new Error('expected registrations to be created');
     }
 
-    const pending = (id: number) =>
-      withTransaction((tx) => registrationService.pendingPresence({ courseId: id }, tx));
-    await expect(pending(openCourse.id)).resolves.toEqual({ pending: 1 });
+    const pendingOf = async (id: number) =>
+      (await withTransaction((tx) => courseService.get({ id }, tx))).pending;
+    await expect(pendingOf(openCourse.id)).resolves.toBe(1);
 
     await withTransaction((tx) =>
       registrationService.setPresence(
@@ -454,7 +454,7 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('registrationService
         tx,
       ),
     );
-    await expect(pending(openCourse.id)).resolves.toEqual({ pending: 0 });
+    await expect(pendingOf(openCourse.id)).resolves.toBe(0);
 
     await withTransaction((tx) =>
       registrationService.setPresence(
@@ -462,7 +462,7 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('registrationService
         tx,
       ),
     );
-    await expect(pending(openCourse.id)).resolves.toEqual({ pending: 1 });
+    await expect(pendingOf(openCourse.id)).resolves.toBe(1);
 
     await withTransaction((tx) =>
       registrationService.setPresence(

@@ -9,6 +9,8 @@ import { courseService } from '../../../features/course/courseService';
 import { coursesTable } from '../../../features/course/coursesTable';
 import { courseBundlesTable } from '../../../features/courseBundle/courseBundlesTable';
 import { registerablesTable } from '../../../features/registerable/registerablesTable';
+import { registrationService } from '../../../features/registration/registrationService';
+import { registrationsTable } from '../../../features/registration/registrationsTable';
 
 const values = {
   type: 'adulte',
@@ -34,7 +36,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
 
   afterAll(async () => {
     await Promise.all(ids.map((id) => db.delete(coursesTable).where(eq(coursesTable.id, id))));
-    await db.$client.end();
   });
 
   it('suggests templates from the three most recent non-empty weeks', async () => {
@@ -601,6 +602,43 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseService', () 
     await expect(withTransaction((tx) => courseService.get({ id: -100 }, tx))).rejects.toThrow(
       'La séance est introuvable',
     );
+  });
+
+  it('cancels a course, lists its recipients and rejects doing it twice', async () => {
+    const course = await insertCourse(values, 10);
+    const [admin] = await db.insert(usersTable).values({ name: 'Annuleur' }).returning();
+    if (!admin) {
+      throw new Error('expected admin to be created');
+    }
+    const [user] = await db.insert(usersTable).values({ name: 'Inscrit' }).returning();
+    if (!user) {
+      throw new Error('expected user to be created');
+    }
+    await db
+      .insert(registrationsTable)
+      .values({ courseId: course.id, userId: user.id, canceled: false });
+
+    const recipients = await withTransaction((tx) =>
+      registrationService.listCourseRecipients({ courseId: course.id }, tx),
+    );
+    expect(recipients).toEqual([{ id: user.id, name: 'Inscrit', email: null }]);
+
+    const canceled = await withTransaction((tx) =>
+      courseService.cancel({ id: course.id, cancellationReason: 'Maladie' }, tx, admin.id),
+    );
+    expect(canceled.canceled).toBe(true);
+    expect(canceled.canceledAt).toBeInstanceOf(Date);
+    expect(canceled.canceledBy).toBe(admin.id);
+    expect(canceled.cancellationReason).toBe('Maladie');
+
+    await expect(
+      withTransaction((tx) => courseService.cancel({ id: course.id }, tx, admin.id)),
+    ).rejects.toThrow('La séance est déjà annulée.');
+
+    await db.delete(registrationsTable).where(eq(registrationsTable.courseId, course.id));
+    await db.delete(coursesTable).where(eq(coursesTable.id, course.id));
+    await db.delete(usersTable).where(eq(usersTable.id, user.id));
+    await db.delete(usersTable).where(eq(usersTable.id, admin.id));
   });
 
   it('lists courses with pagination', async () => {

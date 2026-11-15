@@ -21,6 +21,7 @@ export const coursesTable = pgTable(
     canceled: boolean().notNull().default(false),
     canceledAt: timestamp({ withTimezone: true }),
     canceledBy: text().references(() => usersTable.id),
+    cancellationReason: text(),
   },
   (table) => [
     check('price_nonnegative', sql`${table.price} >= 0`),
@@ -31,6 +32,10 @@ export const coursesTable = pgTable(
     check(
       'canceled_consistency',
       sql`(${table.canceled} AND ${table.canceledAt} IS NOT NULL AND ${table.canceledBy} IS NOT NULL) OR (NOT ${table.canceled} AND ${table.canceledAt} IS NULL AND ${table.canceledBy} IS NULL)`,
+    ),
+    check(
+      'cancellation_reason_consistency',
+      sql`${table.cancellationReason} IS NULL OR ${table.canceled}`,
     ),
     index('courses_starts_at_index').on(table.startsAt),
   ],

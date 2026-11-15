@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, lt, sql } from 'drizzle-orm';
 
 import type { DbTransaction } from '../../db/db';
 import { assertConflict } from '../../errors';
@@ -13,7 +13,7 @@ export const registerableService = {
         .where(
           and(
             eq(registerablesTable.id, id),
-            sql`${registerablesTable.registeredCount} < ${registerablesTable.capacity}`,
+            lt(registerablesTable.registeredCount, registerablesTable.capacity),
           ),
         )
         .for('update');

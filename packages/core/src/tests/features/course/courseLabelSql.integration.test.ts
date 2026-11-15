@@ -70,7 +70,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('courseLabelSql', ()
     if (ids.length > 0) {
       await db.delete(coursesTable).where(inArray(coursesTable.id, ids));
     }
-    await db.$client.end();
   });
 
   const insertCourse = async (

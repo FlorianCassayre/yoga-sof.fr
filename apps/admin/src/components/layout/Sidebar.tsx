@@ -57,7 +57,7 @@ const NAV_GROUPS: {
     items: [
       { href: '/roles', label: 'Rôles', Icon: RoleIcon },
       { href: '/emails', label: 'E-mails', Icon: EmailIcon },
-      { href: '/parametres', label: 'Paramètres', Icon: SettingsIcon },
+      { href: '/parametres/calendrier', label: 'Paramètres', Icon: SettingsIcon },
     ],
   },
 ];

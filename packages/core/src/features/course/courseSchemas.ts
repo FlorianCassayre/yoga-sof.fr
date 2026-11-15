@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { createSelectByIdSchema, createVersionedUpdateSchema } from '../../db/schemaFactory';
-import { optionalPriceSchema } from '../../util/currency';
+import { eurosToCents, optionalPriceSchema } from '../../util/currency';
 import { sameDay, timeSchema } from '../../util/date';
 import { listSchema, sortSchema } from '../../util/list';
 import { coursesTable } from './coursesTable';
@@ -25,6 +25,14 @@ export const courseListSchema = listSchema.extend({
 });
 
 export const courseGetSchema = createSelectByIdSchema(coursesTable);
+
+export const courseCancelSchema = z.object({
+  id: z.coerce.number().int(),
+  cancellationReason: z.preprocess(
+    (value) => (value === '' || value === null ? undefined : value),
+    z.string().optional(),
+  ),
+});
 
 // Widest view: a six-week month grid plus one day of DST margin.
 const CALENDAR_GRID_WEEKS = 6;
@@ -80,7 +88,9 @@ export const courseBatchCreateSchema = z
           (value) => (value === '' || value === null ? undefined : value),
           z.coerce.number().int().min(0).optional(),
         ),
-        price: optionalPriceSchema,
+        price: optionalPriceSchema.transform((euros) =>
+          euros === undefined ? undefined : eurosToCents(euros),
+        ),
       }),
     ),
     weeks: z.array(z.string().date()),

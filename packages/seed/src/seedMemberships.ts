@@ -15,8 +15,8 @@ interface SeedMembershipsParameters {
   admin: typeof usersTable.$inferSelect;
 }
 
-const INDIVIDUAL_PRICE_CENTS = 20000;
-const FAMILY_PRICE_CENTS = 30000;
+const INDIVIDUAL_PRICE_CENTS = 1500;
+const FAMILY_PRICE_CENTS = 2000;
 
 export async function seedMemberships(
   db: NodePgDatabase,

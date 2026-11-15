@@ -16,7 +16,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('roleService', () =>
 
   afterAll(async () => {
     await clearUsers();
-    await db.$client.end();
   });
 
   it('grants a role once and reads it back', async () => {

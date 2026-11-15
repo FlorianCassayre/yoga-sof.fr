@@ -7,6 +7,7 @@ import { cardSettingRouter } from '../features/card/settings/cardSettingRouter';
 import { cardTemplateRouter } from '../features/card/template/cardTemplateRouter';
 import { courseRouter } from '../features/course/courseRouter';
 import { courseBundleRouter } from '../features/courseBundle/courseBundleRouter';
+import { courseSuperBundleRouter } from '../features/courseSuperBundle/courseSuperBundleRouter';
 import { courseUserWaitingListRouter } from '../features/courseUserWaitingList/courseUserWaitingListRouter';
 import { emailRouter } from '../features/email/emailRouter';
 import { membershipRouter } from '../features/membership/membershipRouter';
@@ -24,6 +25,7 @@ export const appRouter = trpc.router({
   cardTemplate: cardTemplateRouter,
   course: courseRouter,
   courseBundle: courseBundleRouter,
+  courseSuperBundle: courseSuperBundleRouter,
   registration: registrationRouter,
   waitingList: courseUserWaitingListRouter,
   email: emailRouter,

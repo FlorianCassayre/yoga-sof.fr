@@ -1,6 +1,7 @@
 import {
   courseBatchCreateSchema,
   courseCalendarListSchema,
+  courseCancelSchema,
   courseEditSchema,
   courseGetSchema,
   courseListSchema,
@@ -10,6 +11,7 @@ import {
 import { trpc } from '@yoga-sof/ui/trpc';
 
 import { readProcedure, writeProcedure } from '../../server/trpc';
+import { createCourseCanceledEmails } from './courseCanceledEmails';
 
 export const courseRouter = trpc.router({
   list: readProcedure
@@ -36,4 +38,12 @@ export const courseRouter = trpc.router({
   update: writeProcedure
     .input(courseEditSchema)
     .mutation(({ input }) => withTransaction((tx) => courseService.update(input, tx))),
+  cancel: writeProcedure.input(courseCancelSchema).mutation(({ ctx, input }) =>
+    withTransaction(async (tx) => {
+      const course = await courseService.cancel(input, tx, ctx.userId);
+      await createCourseCanceledEmails(tx, course);
+
+      return course;
+    }),
+  ),
 });

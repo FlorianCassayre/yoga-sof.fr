@@ -1,18 +1,19 @@
 'use client';
 
-import { Alert, Button, Stack, Typography } from '@mui/material';
-import { skipToken } from '@tanstack/react-query';
+import { Alert, Box, Button, Card, Stack, TextField, Typography } from '@mui/material';
 import {
   attendanceOpensAt,
   COURSE_TYPE_LABELS,
+  formatPrice,
   formatScheduleDate,
   formatScheduleTimeRange,
 } from '@yoga-sof/core';
-import { CalendarPlus, ClipboardList, Pencil } from 'lucide-react';
+import { Ban, CalendarPlus, ClipboardList, Pencil } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { useState } from 'react';
 
 import { RecordDetails } from '../../components/detail/RecordDetails';
+import { ConfirmDialog } from '../../components/dialog/ConfirmDialog';
 import type { PageAction, PageActionGroup } from '../../components/page/PageAction';
 import { PageLayout } from '../../components/page/PageLayout';
 import { api } from '../../server/api';
@@ -21,6 +22,7 @@ import { CourseBundleLink } from '../courseBundle/CourseBundleLink';
 import { CoursePresenceGrid } from '../registration/CoursePresenceGrid';
 import { RegistrationEventGrid } from '../registration/RegistrationEventGrid';
 import { useHasPermission } from '../user/useHasPermission';
+import { CourseCounts } from './CourseCounts';
 import { CourseIcon } from './CourseIcon';
 import { VisibilityChip } from './visibility/VisibilityChip';
 
@@ -31,11 +33,9 @@ interface CoursePageProps {
 export const CoursePage = ({ id }: CoursePageProps) => {
   const course = api.course.get.useQuery({ id });
   const [attendanceMode, setAttendanceMode] = useState(false);
+  const [canceling, setCanceling] = useState(false);
+  const [reason, setReason] = useState('');
   const canManage = useHasPermission('manageData');
-
-  const pendingPresence = api.registration.pendingPresence.useQuery(
-    course.data ? { courseId: course.data.id } : skipToken,
-  );
 
   if (course.isPending) {
     return null;
@@ -51,7 +51,7 @@ export const CoursePage = ({ id }: CoursePageProps) => {
 
   const row = course.data;
   const callOpen = new Date() >= attendanceOpensAt(row.startsAt);
-  const pendingCount = pendingPresence.data?.pending ?? 0;
+  const pendingCount = row.pending;
   const actions: PageActionGroup[] | undefined = canManage
     ? [
         {
@@ -60,7 +60,10 @@ export const CoursePage = ({ id }: CoursePageProps) => {
             {
               label: 'Inscrire des utilisateurs',
               icon: CalendarPlus,
-              href: `/inscriptions/creation?courseId=${id}`,
+              href:
+                row.courseBundleId !== null
+                  ? `/inscriptions/creation?courseBundleId=${row.courseBundleId}`
+                  : `/inscriptions/creation?courseId=${id}`,
               fab: true,
             },
             {
@@ -69,6 +72,18 @@ export const CoursePage = ({ id }: CoursePageProps) => {
               onClick: () => setAttendanceMode(!attendanceMode),
               disabled: !attendanceMode && !callOpen,
             },
+            ...(!row.canceled
+              ? [
+                  {
+                    label: 'Annuler la séance',
+                    icon: Ban,
+                    onClick: () => {
+                      setReason('');
+                      setCanceling(true);
+                    },
+                  },
+                ]
+              : []),
           ] satisfies PageAction[],
         },
       ]
@@ -114,35 +129,65 @@ export const CoursePage = ({ id }: CoursePageProps) => {
             </Alert>
           )
         )}
-        <RecordDetails
-          entries={[
-            { label: 'Type', value: COURSE_TYPE_LABELS[row.type] },
-            ...(row.courseBundleId !== null && row.bundleLabel !== null
-              ? [
-                  {
-                    label: 'Lot de séances',
-                    value: (
-                      <CourseBundleLink
-                        bundle={{ id: row.courseBundleId, label: row.bundleLabel }}
-                      />
-                    ),
-                  },
-                ]
-              : []),
-            { label: 'Date', value: formatScheduleDate(row.startsAt) },
-            {
-              label: 'Horaires',
-              value: formatScheduleTimeRange(row.startsAt, row.endsAt),
-            },
-            { label: 'Capacité', value: row.capacity ?? '-' },
-            { label: 'Inscrits', value: row.registeredCount ?? '-' },
-            {
-              label: 'Visibilité',
-              value: <VisibilityChip visibility={row.visibility} size="small" />,
-            },
-            ...(row.internalNotes.length > 0 ? [{ label: 'Notes', value: row.internalNotes }] : []),
-          ]}
-        />
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ alignItems: 'stretch' }}>
+          <Box sx={{ flex: 2, minWidth: 0 }}>
+            <RecordDetails
+              entries={[
+                { label: 'Type', value: COURSE_TYPE_LABELS[row.type] },
+                ...(row.courseBundleId !== null && row.bundleLabel !== null
+                  ? [
+                      {
+                        label: 'Lot de séances',
+                        value: (
+                          <CourseBundleLink
+                            bundle={{ id: row.courseBundleId, label: row.bundleLabel }}
+                          />
+                        ),
+                      },
+                    ]
+                  : []),
+                { label: 'Date', value: formatScheduleDate(row.startsAt) },
+                {
+                  label: 'Horaires',
+                  value: formatScheduleTimeRange(row.startsAt, row.endsAt),
+                },
+                { label: 'Prix', value: row.price === null ? '-' : formatPrice(row.price) },
+                {
+                  label: 'Visibilité',
+                  value: <VisibilityChip visibility={row.visibility} size="small" />,
+                },
+              ]}
+            />
+          </Box>
+          <Card variant="outlined" sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 2 }}>
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+              Statut
+            </Typography>
+            <Box sx={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+              <Typography variant="h3">
+                <CourseCounts
+                  registeredCount={row.registeredCount}
+                  capacity={row.capacity}
+                  presence={{
+                    pending: row.pending,
+                    present: row.present,
+                    absent: row.absent,
+                  }}
+                />
+              </Typography>
+            </Box>
+          </Card>
+          <Card variant="outlined" sx={{ flex: 1, p: 2 }}>
+            <Stack spacing={1}>
+              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                Notes
+              </Typography>
+              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                {row.internalNotes.length > 0 ? row.internalNotes : '-'}
+              </Typography>
+            </Stack>
+          </Card>
+        </Stack>
         <Stack spacing={2}>
           <Typography variant="h6">Inscriptions</Typography>
           <CoursePresenceGrid courseId={row.id} attendanceMode={attendanceMode} />
@@ -152,6 +197,26 @@ export const CoursePage = ({ id }: CoursePageProps) => {
             <Typography variant="h6">Historique</Typography>
             <RegistrationEventGrid courseId={row.id} />
           </Stack>
+        )}
+        {canceling && (
+          <ConfirmDialog
+            procedure={api.course.cancel}
+            input={{ id: row.id, cancellationReason: reason }}
+            title="Annuler la séance"
+            message="Tous les inscrits recevront un e-mail de notification. Cette action est irréversible."
+            confirmLabel="Annuler la séance"
+            successMessage="Séance annulée."
+            onClose={() => setCanceling(false)}
+          >
+            <TextField
+              label="Motif (optionnel)"
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+              multiline
+              fullWidth
+              margin="normal"
+            />
+          </ConfirmDialog>
         )}
       </Stack>
     </PageLayout>

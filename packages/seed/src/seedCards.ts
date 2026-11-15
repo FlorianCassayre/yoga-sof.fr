@@ -16,8 +16,6 @@ interface SeedCardsParameters {
 const TEMPLATES: { type: CourseType; price: number; count: number }[] = [
   { type: 'adulte', price: 20000, count: 10 },
   { type: 'adulte', price: 11000, count: 5 },
-  { type: 'enfant', price: 15000, count: 10 },
-  { type: 'enfant', price: 8500, count: 5 },
 ];
 
 export async function seedCards(db: NodePgDatabase, { users, admin }: SeedCardsParameters) {

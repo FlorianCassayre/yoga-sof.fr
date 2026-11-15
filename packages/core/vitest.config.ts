@@ -9,6 +9,7 @@ if (process.env.DATABASE_INTEGRATION_TEST_URL) {
 
 export default defineConfig({
   test: {
+    isolate: false,
     environment: 'node',
     include: ['src/tests/**/*.test.{ts,tsx}'],
     // Integration tests share one database and assert on global counts.

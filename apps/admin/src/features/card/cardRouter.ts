@@ -1,4 +1,3 @@
-import { TRPCError } from '@trpc/server';
 import {
   cardCancelSchema,
   cardCreateSchema,
@@ -8,7 +7,6 @@ import {
   cardService,
   withTransaction,
 } from '@yoga-sof/core/server';
-import { auth } from '@yoga-sof/ui/auth';
 import { trpc } from '@yoga-sof/ui/trpc';
 
 import { readProcedure, writeProcedure } from '../../server/trpc';
@@ -26,13 +24,9 @@ export const cardRouter = trpc.router({
   update: writeProcedure
     .input(cardEditSchema)
     .mutation(({ input }) => withTransaction((tx) => cardService.update(input, tx))),
-  cancel: writeProcedure.input(cardCancelSchema).mutation(async ({ input }) => {
-    const userId = (await auth())?.user?.id;
-
-    if (!userId) {
-      throw new TRPCError({ code: 'UNAUTHORIZED', message: 'Non authentifié.' });
-    }
-
-    return withTransaction((tx) => cardService.cancel(input, tx, userId));
-  }),
+  cancel: writeProcedure
+    .input(cardCancelSchema)
+    .mutation(({ ctx, input }) =>
+      withTransaction((tx) => cardService.cancel(input, tx, ctx.userId)),
+    ),
 });

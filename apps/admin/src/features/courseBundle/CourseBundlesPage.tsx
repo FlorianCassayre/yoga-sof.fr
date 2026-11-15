@@ -1,9 +1,11 @@
 'use client';
 
+import { Stack, Typography } from '@mui/material';
 import { PackagePlus } from 'lucide-react';
 
 import type { PageActionGroup } from '../../components/page/PageAction';
 import { PageLayout } from '../../components/page/PageLayout';
+import { CourseSuperBundleGrid } from '../courseSuperBundle/CourseSuperBundleGrid';
 import { useHasPermission } from '../user/useHasPermission';
 import { CourseBundleGrid } from './CourseBundleGrid';
 import { CourseBundleIcon } from './CourseBundleIcon';
@@ -15,9 +17,9 @@ export const CourseBundlesPage = () => {
         {
           children: [
             {
-              label: 'Nouveau lot de séances',
+              label: 'Nouvel ensemble de lots',
               icon: PackagePlus,
-              href: '/lots/creation',
+              href: '/ensembles/creation',
               fab: true,
             },
           ],
@@ -27,7 +29,16 @@ export const CourseBundlesPage = () => {
 
   return (
     <PageLayout icon={CourseBundleIcon} title="Lots de séances" actions={actions}>
-      <CourseBundleGrid />
+      <Stack spacing={3}>
+        <Stack spacing={2}>
+          <Typography variant="h6">Ensembles de lots de séances</Typography>
+          <CourseSuperBundleGrid />
+        </Stack>
+        <Stack spacing={2}>
+          <Typography variant="h6">Lots de séances</Typography>
+          <CourseBundleGrid />
+        </Stack>
+      </Stack>
     </PageLayout>
   );
 };

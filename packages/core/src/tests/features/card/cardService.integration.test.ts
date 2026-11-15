@@ -56,7 +56,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('cardService', () =>
     await clearUsers();
     await db.delete(cardSettingsTable);
     await db.delete(cardTemplatesTable).where(eq(cardTemplatesTable.id, templateId));
-    await db.$client.end();
   });
 
   it('creates a card from a template with snapshots and computed validity', async () => {

@@ -1,6 +1,13 @@
 import { TZDate } from '@date-fns/tz';
 import { faker } from '@faker-js/faker';
-import { APP_TIMEZONE, courseBundlesTable, coursesTable, registerablesTable } from '@yoga-sof/core';
+import {
+  APP_TIMEZONE,
+  courseBundlesTable,
+  coursesTable,
+  courseSuperBundlesTable,
+  registerablesTable,
+} from '@yoga-sof/core';
+import { inArray } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 const WEEKS_PAST = 5;
@@ -22,6 +29,9 @@ const WEEKLY_PLANNING = [
 ] as const;
 
 const WEEKDAY_LABELS = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi'];
+
+// All adulte courses share one whole-euro price, drawn once.
+const ADULTE_PRICE = faker.number.int({ min: 15, max: 30 }) * 100;
 
 const mondayOfWeek = (date: Date) => {
   const paris = new TZDate(date, APP_TIMEZONE);
@@ -56,7 +66,7 @@ export async function seedCourses(db: NodePgDatabase) {
       enfantSlots.map((slot) => ({
         label: `Lot de séances enfant du ${WEEKDAY_LABELS[slot.weekday - 1]}`,
         type: 'enfant' as const,
-        price: faker.number.int({ min: 15000, max: 25000 }),
+        price: faker.number.int({ min: 15, max: 25 }) * 1000,
       })),
     )
     .returning();
@@ -64,6 +74,25 @@ export async function seedCourses(db: NodePgDatabase) {
   await db
     .insert(registerablesTable)
     .values(bundles.map((bundle) => ({ courseBundleId: bundle.id, capacity: 10 })));
+
+  const ensemblePrice =
+    Math.round((bundles.reduce((total, bundle) => total + bundle.price, 0) * 0.9) / 1000) * 1000;
+  const [ensemble] = await db
+    .insert(courseSuperBundlesTable)
+    .values({ label: 'Ensemble de lots de séances enfant', price: ensemblePrice })
+    .returning();
+  if (!ensemble) {
+    throw new Error('expected ensemble to be created');
+  }
+  await db
+    .update(courseBundlesTable)
+    .set({ courseSuperBundleId: ensemble.id })
+    .where(
+      inArray(
+        courseBundlesTable.id,
+        bundles.map((bundle) => bundle.id),
+      ),
+    );
 
   const course = (
     slot: (typeof WEEKLY_PLANNING)[number],
@@ -83,7 +112,7 @@ export async function seedCourses(db: NodePgDatabase) {
           type: slot.type,
           startsAt,
           endsAt: new Date(startsAt.getTime() + slot.duration * 60 * 1000),
-          price: faker.number.int({ min: 1500, max: 3000 }),
+          price: ADULTE_PRICE,
           visibility: faker.helpers.arrayElement(['public', 'private'] as const),
           internalNotes:
             faker.helpers.maybe(() => faker.lorem.sentence(), { probability: 0.5 }) ?? '',
@@ -118,7 +147,9 @@ export async function seedCourses(db: NodePgDatabase) {
       })),
   );
 
-  console.log(`Seeded ${inserted.length} courses and ${bundles.length} lots de séances!`);
+  console.log(
+    `Seeded ${inserted.length} courses, ${bundles.length} lots de séances and 1 ensemble!`,
+  );
 
   return { courses: inserted, bundles };
 }

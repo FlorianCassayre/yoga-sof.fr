@@ -53,12 +53,12 @@ describe('courseFormSchema', () => {
     }
   });
 
-  it('rejects an empty capacity', () => {
+  it('leaves an empty capacity out of the parsed values', () => {
     const result = courseFormSchema.safeParse({ ...validValues, capacity: '' });
 
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0]?.path).toEqual(['capacity']);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.capacity).toBeUndefined();
     }
   });
 });

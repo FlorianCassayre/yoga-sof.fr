@@ -53,7 +53,7 @@ export const MembershipPriceForm = ({ id }: { id?: number }) => {
         type: price?.type ?? 'individuelle',
         price: price ? String(centsToEuros(price.price)) : '',
       })}
-      redirectTo={() => '/parametres'}
+      redirectTo={() => '/parametres/calendrier'}
       createdMessage="Tarif créé."
       updatedMessage="Tarif modifié."
       cancelHref="/parametres"

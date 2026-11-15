@@ -81,7 +81,6 @@ describe.skipIf(!process.env.DATABASE_INTEGRATION_TEST_URL)('notificationService
   afterAll(async () => {
     await db.delete(coursesTable).where(inArray(coursesTable.id, courseIds));
     await db.delete(usersTable).where(eq(usersTable.email, EMAIL));
-    await db.$client.end();
   });
 
   it('lists ended courses with unfilled presences', async () => {

@@ -1,4 +1,5 @@
 export * from './attendance';
+export * from './courseCanceledTemplate';
 export * from './courseLabel';
 export * from './courseSchemas';
 export * from './coursesTable';
