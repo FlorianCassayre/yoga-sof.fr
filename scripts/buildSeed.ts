@@ -16,7 +16,7 @@ execSync(
 );
 
 execSync(
-  'pnpm -F @yoga-sof/import exec esbuild src/import/index.ts --bundle --platform=node --format=cjs --target=node26 --outdir=../../build/seed --out-extension:.js=.cjs',
+  'pnpm -F @yoga-sof/import exec esbuild src/import/index.ts --bundle --platform=node --format=cjs --target=node26 --outfile=../../build/seed/import.cjs',
   { stdio: 'inherit' },
 );
 
